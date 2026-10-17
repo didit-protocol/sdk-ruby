@@ -16,7 +16,7 @@ UNAUTHORIZED = %i[missing_signature invalid_signature].freeze
 post "/webhooks/didit" do
   # The raw body, exactly as received, and the Rack env for the headers. Rewind first: Sinatra
   # (or a middleware) may already have read the body to parse form parameters.
-  request.body.rewind
+  request.body.rewind if request.body.respond_to?(:rewind)
   event = Didit::Webhooks.verify(request.body.read, request.env, ENV.fetch("DIDIT_WEBHOOK_SECRET"))
 
   case event

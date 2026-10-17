@@ -172,7 +172,7 @@ event = Didit::Webhooks.verify(raw_body, headers, secret)            # or didit.
 event = Didit::Webhooks.verify(raw_body, headers, [new_secret, old_secret]) # during a rotation
 ```
 
-- Pass the raw request body (`request.raw_post` in Rails; in Sinatra and Rack, `request.body.rewind` then `request.body.read`, because something may have read it already). Headers can be a Hash in any case, a Rack env or Rails `request.headers`.
+- Pass the raw request body: `request.raw_post` in Rails, `request.body.read` after `request.body.rewind` in Sinatra (it may have read the body for its params), `env["rack.input"].read` in Rack. Headers can be a Hash in any case, a Rack env or Rails `request.headers`.
 - A delivery is accepted when `X-Signature` matches the body, `X-Signature-V2` matches its canonical JSON, or a `-Previous` variant matches (secret rotation). Timestamps older or newer than `tolerance:` (300 s) are rejected.
 - `verify_parsed(payload, headers, secret)` is for frameworks that only give you the parsed JSON; it can check `X-Signature-V2` only.
 - The deprecated `X-Signature-Simple` counts only with `allow_simple: true`; then `event.body_authenticated?` is false and you should re-fetch the record from the API.
