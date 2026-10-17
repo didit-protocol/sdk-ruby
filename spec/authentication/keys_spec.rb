@@ -137,19 +137,44 @@ module AuthenticationHelper
     end
 
     describe "discovery validation" do
-      it "refuses a document that names another issuer, every time" do
+      it "refuses a document that names another issuer, and fetches it again only after a minute" do
         issuer.discovery["issuer"] = "https://login.example.com"
-        2.times do
+        3.times do
           expect { auth.verify_access_token(fresh_token) }
             .to raise_error(Didit::ConfigurationError, %r{names the issuer "https://login\.example\.com"})
         end
+        expect(issuer.count(DISCOVERY)).to eq(1)
+        clock.advance(61)
+        expect { auth.verify_access_token(fresh_token) }.to raise_error(Didit::ConfigurationError)
         expect(issuer.count(DISCOVERY)).to eq(2)
         expect(issuer.count(JWKS)).to eq(0)
       end
 
-      it "refuses a document with a trailing slash on the issuer" do
-        issuer.discovery["issuer"] = "#{ISSUER}/"
+      it "refuses the configured issuer only once a minute across threads" do
+        issuer.discovery["issuer"] = "https://login.example.com"
+        auth
+        errors = Array.new(8) { Thread.new { error_of { auth.verify_access_token(fresh_token) } } }.map(&:value)
+        expect(errors).to all(be_a(Didit::ConfigurationError))
+        expect(issuer.count(DISCOVERY)).to eq(1)
+      end
+
+      it "picks up the right document once the minute has passed" do
+        issuer.discovery["issuer"] = "https://login.example.com"
         expect { auth.verify_access_token(fresh_token) }.to raise_error(Didit::ConfigurationError)
+        issuer.discovery["issuer"] = ISSUER
+        clock.advance(61)
+        expect(auth.verify_access_token(fresh_token).sub).to eq(IDENTITY_ID)
+      end
+
+      it "follows advice that names the issuer with a trailing slash" do
+        issuer.discovery["issuer"] = "#{ISSUER}/"
+        slashed = key.sign(access_claims(iss: "#{ISSUER}/"))
+        # The document's issuer, slash included, is what tokens must carry.
+        expect(auth.verify_access_token(slashed).iss).to eq("#{ISSUER}/")
+        expect(reason_of { auth.verify_access_token(fresh_token) }).to eq(:invalid_issuer)
+        configured = described_class.new("#{ISSUER}/", clock: clock)
+        expect(configured.issuer).to eq(ISSUER)
+        expect(configured.verify_access_token(slashed).iss).to eq("#{ISSUER}/")
       end
 
       it "refuses a document without an issuer" do

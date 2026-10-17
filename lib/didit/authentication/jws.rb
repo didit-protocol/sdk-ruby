@@ -152,6 +152,8 @@ module Didit
         if header.key?("crit")
           fail!(:malformed, "The token header has critical extensions (crit), which are not supported.")
         end
+        # RFC 7797 unencoded payloads: the jwt gem's versions disagree on b64 without crit.
+        fail!(:malformed, "The token header has b64, which is not supported.") if header.key?("b64")
 
         check_type(header["typ"], kind)
         kid = header["kid"]

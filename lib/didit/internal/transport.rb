@@ -172,7 +172,7 @@ module Didit
 
       def new_session(uri)
         factory = @http_client
-        http = factory ? factory.call(uri) : Net::HTTP.new(uri.host.to_s, uri.port)
+        http = factory ? factory.call(uri) : Net::HTTP.new(uri.hostname.to_s, uri.port)
         unless http.is_a?(Net::HTTP)
           raise ConfigurationError, "http_client must return a Net::HTTP instance, got #{http.class}."
         end

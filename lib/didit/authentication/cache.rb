@@ -32,7 +32,8 @@ module Didit
     # +kid+ is not in the cached key set triggers a refetch only when the last
     # fetch, successful or failed, is at least a minute old. After a failed
     # fetch, verification that needs the keys fails fast for a minute instead of
-    # fetching again for every token.
+    # fetching again for every token. A discovery document that names another
+    # issuer is refused, without fetching it again, for a minute.
     #
     # The caller holds a lock around fetches; reads of a fresh entry need none,
     # because entries are replaced, never changed.
@@ -105,6 +106,7 @@ module Didit
         @key_set = nil
         @key_set_attempted_at = nil
         @key_set_failed = false
+        @refused = nil
       end
 
       # The cached discovery document while it is fresh.
@@ -118,6 +120,19 @@ module Didit
       def store_discovery(discovery, headers)
         @discovery = Entry.new(discovery, now + IssuerCache.cache_seconds(headers))
         discovery
+      end
+
+      # Notes that the discovery document named another issuer, with the error message.
+      def discovery_refused(message)
+        @refused = Entry.new(message, now + REFETCH_INTERVAL)
+        nil
+      end
+
+      # The message of a discovery document refused less than a minute ago, else nil.
+      #
+      # @return [String, nil]
+      def refused_discovery
+        fresh(@refused)
       end
 
       # The cached key set while it is fresh.

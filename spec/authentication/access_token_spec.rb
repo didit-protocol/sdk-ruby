@@ -286,6 +286,13 @@ module AuthenticationHelper
         expect(issuer.requests).to be_empty
       end
 
+      it "refuses a validly signed token with b64 in its header, whatever the jwt gem version" do
+        [false, true].each do |b64|
+          token = key.sign(access_claims, header: { "b64" => b64 })
+          expect(reason_of { auth.verify_access_token(token) }).to eq(:malformed)
+        end
+      end
+
       it "refuses duplicate header members, or reads the last one where JSON allows them" do
         duplicate = "#{b64url('{"alg":"ES256","alg":"none","typ":"at+jwt","kid":"k"}')}.#{payload}.#{signature}"
         expect(reason_of { auth.verify_access_token(duplicate) }).to eq(:malformed).or eq(:unsupported_algorithm)

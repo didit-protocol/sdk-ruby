@@ -9,6 +9,7 @@ module Didit
       def self?.from_publishable_key: (untyped publishable_key) -> String
       def self?.loopback?: (String host) -> bool
       def self?.decode_issuer: (String prefix, String encoded) -> String
+      def self?.unpad: (String text) -> String
       def self?.parse: (String text) -> URI::HTTP
       def self?.invalid: (String text) -> bot
     end

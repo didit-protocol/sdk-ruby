@@ -1,2 +1,3 @@
-# Every file is owned by the Didit organisation.
-* @didit-protocol
+# Every file is owned by the Didit backend team. GitHub accepts only users and teams with
+# write access here as code owners, not the organisation itself.
+* @didit-protocol/backend

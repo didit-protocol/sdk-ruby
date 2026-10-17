@@ -6,6 +6,12 @@
 # branch chore/spec-sync. A failed check, or a generator failure (for example a new operation
 # without SDK naming), still publishes the pull request, as a draft, and fails the run.
 #
+# Two jobs, so that third-party code never runs next to a token that can write. The sync job
+# installs the gems, runs the generator and the checks with a read-only token, commits the
+# result locally and hands that commit to the publish job as a git bundle. The publish job
+# installs and runs nothing from the repository: it only pushes the commit and opens or
+# updates the pull request.
+#
 # One-time setup by a repository admin:
 # - Settings > Actions > General > Workflow permissions: tick "Allow GitHub Actions to create
 #   and approve pull requests". Without it the default GITHUB_TOKEN cannot open the pull request.
@@ -20,11 +26,12 @@
 # fast-forward and posts its summary as a comment. Otherwise it rebuilds the branch from the
 # default branch and replaces it only if nobody pushed to it since this run started
 # (--force-with-lease). Nothing is pushed when only openapi/SOURCE.json (the fetch time) differs
-# from the open branch.
+# from the branch; the pull request is still opened when none is open, for example after a run
+# that pushed the branch but could not open the pull request. Pull requests from forks are
+# never taken for the sync pull request.
 #
-# The push token is only handed to git in the publish step, through GIT_CONFIG_* environment
-# variables; it is never written to .git/config, so it is not on disk while gems install or the
-# tests run.
+# The push token is only handed to git in the publish job, through GIT_CONFIG_* environment
+# variables; it is never written to .git/config.
 name: Spec sync
 
 on:
@@ -32,9 +39,8 @@ on:
     - cron: "41 6 * * *" # daily, 06:41 UTC
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+# Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: spec-sync
@@ -44,27 +50,42 @@ defaults:
   run:
     shell: bash
 
+env:
+  BRANCH: chore/spec-sync
+
 jobs:
   sync:
-    name: Sync the API spec
+    name: Sync the API spec and run the checks
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Read-only: this job installs gems and runs the generator and the tests.
+    permissions:
+      contents: read
+      pull-requests: read
     env:
-      BRANCH: chore/spec-sync
       BOT_NAME: github-actions[bot]
       BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    outputs:
+      base: ${{ steps.base.outputs.base }}
+      mode: ${{ steps.base.outputs.mode }}
+      remote_sha: ${{ steps.base.outputs.remote_sha }}
+      pr: ${{ steps.base.outputs.pr }}
+      failed: ${{ steps.checks.outputs.failed }}
+      publish: ${{ steps.commit.outputs.publish }}
+      push: ${{ steps.commit.outputs.push }}
     steps:
       - name: Prepare
         # The summary, the commit message and the check results live outside the checkout,
-        # so they are never committed.
+        # so they are never committed; $OUT is what the publish job receives.
         run: |
           {
+            echo "OUT=$RUNNER_TEMP/spec-sync"
             echo "SUMMARY=$RUNNER_TEMP/spec-sync-summary.md"
             echo "COMMIT_MESSAGE=$RUNNER_TEMP/spec-sync-commit.txt"
             echo "CHECKS=$RUNNER_TEMP/spec-sync-checks.md"
-            echo "BODY=$RUNNER_TEMP/spec-sync-body.md"
           } >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/spec-sync"
 
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -85,21 +106,27 @@ jobs:
           echo "BASE=$BASE" >> "$GITHUB_ENV"
           git switch --quiet --force-create "$BASE" "origin/$BASE"
           remote_sha="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH" || true)"
+          # --head matches the branch name in forks too; only this repository's branch counts.
           pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base "$BASE" --state open \
-            --json number --jq '.[0].number // empty')"
+            --json number,isCrossRepository \
+            --jq 'map(select(.isCrossRepository | not)) | .[0].number // empty')"
           mode="rebuild"
+          start="$(git rev-parse "origin/$BASE")"
           if [ -n "$remote_sha" ] && [ -n "$pr" ]; then
             # Authors and committers of the branch commits that the default branch lacks.
             others="$(git log --format='%ae%n%ce' "origin/$BASE..$remote_sha" \
               | grep -v -x -F -e "$BOT_EMAIL" -e '' | sort -u || true)"
             if [ -n "$others" ]; then
               mode="continue"
+              start="$remote_sha"
               git switch --quiet --force-create "$BRANCH" "$remote_sha"
               echo "Pull request #$pr has commits by others; this run syncs on top of $BRANCH." \
                 >> "$GITHUB_STEP_SUMMARY"
             fi
           fi
+          echo "START=$start" >> "$GITHUB_ENV"
           {
+            echo "base=$BASE"
             echo "mode=$mode"
             echo "remote_sha=$remote_sha"
             echo "pr=$pr"
@@ -162,31 +189,14 @@ jobs:
           run_check "bundle exec steep check" bundle exec steep check
           echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
-      - name: Publish chore/spec-sync and open or update the pull request
+      - name: Commit the sync and write the pull request text
+        id: commit
         if: steps.sync.outputs.changed == 'true'
         env:
-          PUSH_TOKEN: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
           MODE: ${{ steps.base.outputs.mode }}
           REMOTE_SHA: ${{ steps.base.outputs.remote_sha }}
-          PR: ${{ steps.base.outputs.pr }}
-          FAILED: ${{ steps.checks.outputs.failed }}
         run: |
           set -euo pipefail
-          # gh opens the pull request with the same token, so that CI runs on it.
-          export GH_TOKEN="$PUSH_TOKEN"
-          title="$(head -n 1 "$SUMMARY")"
-          footer="$(sed -n '/^BREAKING CHANGE:/,$p' "$COMMIT_MESSAGE")"
-          {
-            tail -n +3 "$SUMMARY"
-            cat "$CHECKS"
-            printf '\nPublished by [spec sync run %s](%s).\n' "$GITHUB_RUN_ID" "$RUN_URL"
-            # A squash merge takes the pull request body as the commit message: keep the
-            # Conventional Commits footer last, so release-please sees the breaking change.
-            if [ -n "$footer" ]; then
-              printf '\n%s\n' "$footer"
-            fi
-          } > "$BODY"
-
           git config user.name "$BOT_NAME"
           git config user.email "$BOT_EMAIL"
           if [ "$MODE" = rebuild ]; then
@@ -196,41 +206,131 @@ jobs:
           git add --all -- openapi lib sig spec/generated
           if git diff --cached --quiet; then
             echo "Nothing to commit."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit --quiet --file "$COMMIT_MESSAGE"
 
+          push=true
           if [ -n "$REMOTE_SHA" ] && git diff --quiet "$REMOTE_SHA" HEAD -- . ':(exclude)openapi/SOURCE.json'; then
-            echo "$BRANCH already has this content (only the fetch time in openapi/SOURCE.json differs); not pushing."
-            exit 0
+            echo "$BRANCH already has this content (only the fetch time in openapi/SOURCE.json differs); nothing to push."
+            push=false
           fi
+          # The new commit only, on top of the commit it starts from (the publish job has both).
+          git bundle create "$OUT/sync.bundle" "^$START" "refs/heads/$BRANCH"
 
-          basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
-          echo "::add-mask::$basic"
-          export GIT_CONFIG_COUNT=1
-          export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
-          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $basic"
-          if [ "$MODE" = continue ]; then
-            # A plain push: it is a fast-forward of the branch, and fails (losing nothing) if
-            # someone pushed in the meantime.
-            git push origin "HEAD:refs/heads/$BRANCH"
-          else
-            # Replaces the branch only while it still points where it did when this run
-            # started; an empty value means that it must not exist yet.
-            git push --force-with-lease="refs/heads/$BRANCH:$REMOTE_SHA" origin "HEAD:refs/heads/$BRANCH"
+          head -n 1 "$SUMMARY" > "$OUT/title.txt"
+          sed -n '/^BREAKING CHANGE:/,$p' "$COMMIT_MESSAGE" > "$OUT/footer.txt"
+          # codegen/spec_sync.rb keeps the summary and the footer short enough for GitHub's
+          # 65,536-character limit on a pull request body or comment.
+          {
+            tail -n +3 "$SUMMARY"
+            cat "$CHECKS"
+            printf '\nPublished by [spec sync run %s](%s).\n' "$GITHUB_RUN_ID" "$RUN_URL"
+            # A squash merge takes the pull request body as the commit message: keep the
+            # Conventional Commits footer last, so release-please sees the breaking change.
+            if [ -s "$OUT/footer.txt" ]; then
+              printf '\n'
+              cat "$OUT/footer.txt"
+            fi
+          } > "$OUT/body.md"
+          {
+            echo "publish=true"
+            echo "push=$push"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Hand the commit to the publish job
+        if: steps.commit.outputs.publish == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: spec-sync
+          path: ${{ runner.temp }}/spec-sync/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Fail the run when a check failed and there is nothing to publish
+        if: steps.checks.outputs.failed == 'true' && steps.commit.outputs.publish != 'true'
+        run: |
+          echo "::error::At least one check failed on the synced documents; see the Checks step."
+          exit 1
+
+  publish:
+    name: Publish chore/spec-sync and open or update the pull request
+    needs: sync
+    if: needs.sync.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The commit the bundle starts from may be on any branch.
+          fetch-depth: 0
+
+      - name: Receive the commit from the sync job
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: spec-sync
+          path: ${{ runner.temp }}/spec-sync
+
+      - name: Publish chore/spec-sync and open or update the pull request
+        env:
+          PUSH_TOKEN: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
+          BASE: ${{ needs.sync.outputs.base }}
+          MODE: ${{ needs.sync.outputs.mode }}
+          REMOTE_SHA: ${{ needs.sync.outputs.remote_sha }}
+          PR: ${{ needs.sync.outputs.pr }}
+          PUSH: ${{ needs.sync.outputs.push }}
+          FAILED: ${{ needs.sync.outputs.failed }}
+        run: |
+          set -euo pipefail
+          # gh opens the pull request with the same token, so that CI runs on it.
+          export GH_TOKEN="$PUSH_TOKEN"
+          OUT="$RUNNER_TEMP/spec-sync"
+          BODY="$OUT/body.md"
+          title="$(cat "$OUT/title.txt")"
+          footer="$(cat "$OUT/footer.txt")"
+          git fetch --quiet "$OUT/sync.bundle" "refs/heads/$BRANCH:refs/spec-sync/commit"
+
+          if [ "$PUSH" = true ]; then
+            basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+            echo "::add-mask::$basic"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $basic"
+            if [ "$MODE" = continue ]; then
+              # A plain push: it is a fast-forward of the branch, and fails (losing nothing) if
+              # someone pushed in the meantime.
+              git push origin "refs/spec-sync/commit:refs/heads/$BRANCH"
+            else
+              # Replaces the branch only while it still points where it did when the sync job
+              # started; an empty value means that it must not exist yet.
+              git push --force-with-lease="refs/heads/$BRANCH:$REMOTE_SHA" origin \
+                "refs/spec-sync/commit:refs/heads/$BRANCH"
+            fi
+            unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 basic
           fi
-          unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 basic
 
           want_draft=false
           if [ "$FAILED" = true ]; then
             want_draft=true
           fi
           if [ -z "$PR" ]; then
+            # Also when nothing was pushed: an earlier run may have pushed the branch and then
+            # failed to open the pull request.
             draft=()
             if [ "$want_draft" = true ]; then
               draft=(--draft)
             fi
             gh pr create --head "$BRANCH" --base "$BASE" --title "$title" --body-file "$BODY" "${draft[@]}"
+            exit 0
+          fi
+          if [ "$PUSH" != true ]; then
+            echo "Pull request #$PR already has this content."
             exit 0
           fi
           if [ "$MODE" = continue ]; then
@@ -257,7 +357,7 @@ jobs:
           fi
 
       - name: Fail the run when a check failed
-        if: steps.checks.outputs.failed == 'true'
+        if: needs.sync.outputs.failed == 'true'
         run: |
           echo "::error::The spec sync pull request was published as a draft, but at least one check failed; see its Checks section."
           exit 1

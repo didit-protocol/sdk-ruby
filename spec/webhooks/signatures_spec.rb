@@ -131,6 +131,13 @@ module WebhookSpecs
         expect(verify(allow_simple: true).verified_by).to eq("X-Signature")
       end
 
+      it "takes only true or false for allow_simple, so a string from the environment cannot turn it on" do
+        ["false", "true", 0, 1, nil, "yes"].each do |value|
+          expect { verify(body, simple_only, allow_simple: value) }
+            .to raise_error(Didit::ConfigurationError, /allow_simple must be true or false/)
+        end
+      end
+
       it "signs only the envelope" do
         tampered = body.sub("José", "Mallory")
         expect(verify(tampered, simple_only, allow_simple: true).body_authenticated?).to be(false)

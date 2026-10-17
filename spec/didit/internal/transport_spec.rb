@@ -18,8 +18,8 @@ RSpec.describe Didit::Internal::Transport do
 
   before { allow(Didit::Internal::Util).to receive(:pause) }
 
-  def serve(&handler)
-    LocalServer.new(&handler).tap { |s| servers << s }
+  def serve(host: "127.0.0.1", &handler)
+    LocalServer.new(host: host, &handler).tap { |s| servers << s }
   end
 
   def client_for(server, **options)
@@ -32,6 +32,16 @@ RSpec.describe Didit::Internal::Transport do
     3.times { client.sessions.retrieve_decision("s-1") }
     expect(server.connections).to eq(1)
     expect(server.received.map(&:target)).to all(eq("/v3/session/s-1/decision/"))
+  end
+
+  it "connects to an IPv6 literal such as http://[::1]:port" do
+    begin
+      server = serve(host: "::1") { { body: decision } }
+    rescue SystemCallError, SocketError
+      skip "no IPv6 loopback here"
+    end
+    expect(client_for(server).sessions.retrieve_decision("s-1").session_id).to eq("s-1")
+    expect(server.received.first.headers["host"]).to eq("[::1]:#{server.port}")
   end
 
   it "opens a new connection after Connection: close" do

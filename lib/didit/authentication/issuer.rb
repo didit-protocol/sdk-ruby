@@ -9,7 +9,8 @@ module Didit
     # An application's issuer is its canonical origin: +https://<slug>.auth.didit.me+
     # (live), +https://<slug>.sandbox.auth.didit.me+ (sandbox) or its active custom
     # domain, with no trailing slash. A publishable key is +pk_live_+ (live) or
-    # +pk_test_+ (sandbox) followed by the unpadded base64url encoding of the issuer.
+    # +pk_test_+ (sandbox) followed by the base64url encoding of the issuer, unpadded
+    # (correct "=" padding is accepted too).
     # @api private
     module Issuer
       LOOPBACK_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
@@ -77,12 +78,20 @@ module Didit
       end
 
       def decode_issuer(prefix, encoded)
-        raw = encoded.empty? ? nil : Base64Url.decode(encoded)
+        raw = encoded.empty? ? nil : Base64Url.decode(unpad(encoded))
         issuer = raw&.force_encoding(Encoding::UTF_8)
         return issuer if issuer&.valid_encoding?
 
         raise ConfigurationError,
               "The publishable key is not valid: expected #{prefix} followed by the base64url-encoded issuer."
+      end
+
+      # +text+ without its "=" padding when that padding is exactly right (Python's
+      # urlsafe_b64encode pads), else unchanged, so that the strict decoder refuses it.
+      def unpad(text)
+        unpadded = text.sub(/={1,2}\z/, "")
+        exact = (text.length % 4).zero? && text.length - unpadded.length == -unpadded.length % 4
+        exact ? unpadded : text
       end
 
       def parse(text)

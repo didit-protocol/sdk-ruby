@@ -50,12 +50,17 @@ jobs:
         run: bundle exec rake spec codegen:spec
 
   jwt-2:
-    name: Authentication with jwt 2.x (Ruby 3.1)
+    name: Authentication with jwt ${{ matrix.jwt }} (Ruby 3.1)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # The gemspec allows jwt >= 2.7, < 4: its floor and the newest 2.x. The other jobs resolve jwt 3.
+        jwt: ["2.7.0", "2.10.2"]
     env:
-      # Read by the Gemfile. The gemspec allows jwt >= 2.7, < 4; the other jobs resolve jwt 3.
-      JWT_VERSION: "2.10.2"
+      # Read by the Gemfile.
+      JWT_VERSION: ${{ matrix.jwt }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

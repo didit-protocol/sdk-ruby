@@ -90,13 +90,20 @@ module DiditCodegen
         ref.upstream_naming || @state.overlay[key]
       end
 
-      # Runs the generator on the updated openapi/; returns its error, if any.
+      # Runs the generator on the updated openapi/; returns its error, if any. The documents are
+      # already written, so a crash (a schema shape the generator does not handle yet) is
+      # reported the same way as a generator error, with exit code 2 and Action needed.
       def regenerate
         @report.generated = Generator.new(@root).write.size
         nil
       rescue Error => e
         @report.action_needed = [e.message, suggestions]
         e
+      rescue StandardError => e
+        crash = Error.new("The generator crashed: #{e.class}: #{e.message}\n" \
+                          "#{Array(e.backtrace).first(5).map { |line| "  #{line}" }.join("\n")}")
+        @report.action_needed = [crash.message, suggestions]
+        crash
       end
     end
   end

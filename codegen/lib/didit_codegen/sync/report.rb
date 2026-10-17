@@ -7,8 +7,11 @@ module DiditCodegen
     # What one spec sync changed, rendered as the pull request summary and the commit message.
     class Report
       MAX_ITEMS = 100
-      MAX_SUMMARY = 60_000
+      # GitHub refuses a pull request body or comment over 65,536 characters. The body is the
+      # summary, the checks (about 1,000 characters) and the breaking-change footer.
+      MAX_SUMMARY = 50_000
       MAX_FOOTER_ITEMS = 20
+      MAX_FOOTER = 10_000
       LISTS = %i[
         breaking added removed renamed moved changed schemas naming deprecations_added deprecations_expired
         deprecations_dropped
@@ -74,7 +77,7 @@ module DiditCodegen
         return out unless breaking?
 
         out << "\nBREAKING CHANGE: the API spec sync changes the SDK surface.\n"
-        out << capped(@breaking, MAX_FOOTER_ITEMS).join("\n")
+        out << footer_items.join("\n")
         out << "\n"
       end
 
@@ -166,6 +169,15 @@ module DiditCodegen
         out = items.first(max).map { |item| "- #{item}" }
         out << "- ... and #{items.size - max} more (see the workflow log for the full summary)" if items.size > max
         out
+      end
+
+      # At most MAX_FOOTER_ITEMS breaking changes in at most MAX_FOOTER characters.
+      def footer_items
+        items = @breaking.first(MAX_FOOTER_ITEMS).map { |item| "- #{item}" }
+        items.pop while items.sum { |line| line.length + 1 } > MAX_FOOTER - 100
+        rest = @breaking.size - items.size
+        items << "- ... and #{rest} more (see the pull request)" if rest.positive?
+        items
       end
 
       def truncate(text)

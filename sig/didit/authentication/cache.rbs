@@ -37,10 +37,13 @@ module Didit
       @key_set: Entry[KeySet]?
       @key_set_attempted_at: Float?
       @key_set_failed: bool
+      @refused: Entry[String]?
 
       def initialize: (^() -> (Integer | Float) clock) -> void
       def discovery: () -> Discovery?
       def store_discovery: (Discovery discovery, Hash[String, String] headers) -> Discovery
+      def discovery_refused: (String message) -> nil
+      def refused_discovery: () -> String?
       def key_set: () -> KeySet?
       def store_key_set: (KeySet key_set, Hash[String, String] headers) -> KeySet
       def key_set_fetch_failed: () -> nil
