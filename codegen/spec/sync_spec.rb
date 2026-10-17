@@ -8,7 +8,7 @@ require "webmock/rspec"
 
 # The spec sync (codegen/spec_sync.rb) on small synthetic repositories. Nothing here reads
 # the live openapi/ files or touches the network.
-RSpec.describe "spec sync" do
+RSpec.describe DiditCodegen::Sync do
   let(:now) { Time.utc(2026, 10, 18, 6, 41, 7) }
   let(:fetched_at) { "2026-10-18T06:41:07Z" }
   let(:date) { "2026-10-18" }
@@ -219,22 +219,28 @@ RSpec.describe "spec sync" do
 
   # Runs the CLI in-process on the fixture repository; returns the exit code.
   def sync(*args, env: {}, downloader: nil)
-    @out = StringIO.new
-    @err = StringIO.new
+    @out = out_io = StringIO.new
+    @err = err_io = StringIO.new
     summary_file = File.join(root, "summary.md")
     commit_file = File.join(root, "commit.txt")
     output_file = File.join(root, "github_output")
-    options = { root: root, env: { "GITHUB_OUTPUT" => output_file }.merge(env), out: @out, err: @err, now: -> { now } }
+    options = { root: root, env: { "GITHUB_OUTPUT" => output_file }.merge(env), out: out_io, err: err_io,
+                now: -> { now } }
     options[:downloader] = downloader if downloader
     source = downloader ? [] : ["--from-dir", upstream_dir]
     code = DiditCodegen::Sync::CLI.new(**options).run(
       [*source, "--summary", summary_file, "--commit-message", commit_file, "--date", date, *args]
     )
-    @summary = File.exist?(summary_file) ? File.read(summary_file, encoding: "UTF-8") : nil
-    @commit_message = File.exist?(commit_file) ? File.read(commit_file, encoding: "UTF-8") : nil
-    @github_output = File.exist?(output_file) ? File.read(output_file, encoding: "UTF-8").lines(chomp: true) : nil
-    [summary_file, commit_file, output_file].each { |f| FileUtils.rm_f(f) }
+    @summary, @commit_message, output = [summary_file, commit_file, output_file].map { |f| take(f) }
+    @github_output = output&.lines(chomp: true)
     code
+  end
+
+  # The content of +path+ (nil when it was not written), which is then deleted.
+  def take(path)
+    return nil unless File.exist?(path)
+
+    File.read(path, encoding: "UTF-8").tap { FileUtils.rm_f(path) }
   end
 
   def section(heading)
@@ -274,32 +280,42 @@ RSpec.describe "spec sync" do
       upstream(verification: changed)
     end
 
-    it "copies the download byte for byte, regenerates and summarises the changes" do
+    it "copies the download byte for byte and leaves the other files alone" do
       overlay_before = File.binread(openapi("overlay.json"))
       account_before = File.binread(openapi("account.json"))
       expect(sync).to eq(0)
-      expect(File.binread(openapi("verification.json"))).to eq(File.binread(File.join(upstream_dir,
-                                                                                      "verification.json")))
+      expect(File.binread(openapi("verification.json")))
+        .to eq(File.binread(File.join(upstream_dir, "verification.json")))
       expect(File.binread(openapi("account.json"))).to eq(account_before)
       expect(File.binread(openapi("overlay.json"))).to eq(overlay_before)
       expect(File.exist?(openapi("deprecated-operations.json"))).to be(false)
+    end
+
+    it "regenerates the SDK" do
+      expect(sync).to eq(0)
       expect(generated("lib/didit/resources/billing.rb")).to include("def retrieve_balance(")
       expect(generated("spec/generated/billing_spec.rb")).to include("retrieve_balance")
+      expect(DiditCodegen::Generator.new(root).check.values.flatten).to be_empty
+    end
 
-      expect(summary.lines.first).to eq("chore(spec): sync API spec 2026-10-18\n")
-      expect(summary.lines[1]).to eq("\n")
-      expect(summary).to include("| `openapi/verification.json` | https://docs.didit.me/openapi-25.json | " \
-                                 "`#{Digest::SHA256.hexdigest(JSON.pretty_generate(verification))}` | " \
-                                 "`#{sha("verification.json")}` |")
-      expect(summary).to match(%r{\| `openapi/account\.json` \| https://docs\.didit\.me/openapi-auth\.json \| `\h{64}` \| unchanged \|})
+    it "summarises the changes" do
+      old_sha = sha("verification.json")
+      account_sha = sha("account.json")
+      expect(sync).to eq(0)
+      expect(summary.lines.first(2)).to eq(["chore(spec): sync API spec 2026-10-18\n", "\n"])
+      expect(summary).to include(
+        "| File | URL | Old SHA-256 | New SHA-256 |\n|---|---|---|---|\n",
+        "| `openapi/verification.json` | https://docs.didit.me/openapi-25.json | `#{old_sha}` | " \
+        "`#{sha("verification.json")}` |\n",
+        "| `openapi/account.json` | https://docs.didit.me/openapi-auth.json | `#{account_sha}` | unchanged |\n"
+      )
       expect(section("Breaking changes")).to include("None detected.")
-      changed = section("Operations")
-      expect(changed).to include("`GET /v3/billing/balance/` (`billing.retrieve_balance`)\n  - query parameter " \
-                                 "`currency`: added")
-      expect(changed).to include("response 201 `expires_at`: field added")
-      expect(changed).to include("response 201 `status`: enum value `Declined` added")
+      expect(section("Operations")).to include(
+        "`GET /v3/billing/balance/` (`billing.retrieve_balance`)\n  - query parameter `currency`: added",
+        "response 201 `expires_at`: field added", "response 201 `status`: enum value `Declined` added"
+      )
       expect(section("Schemas")).to include("`Extra` added (verification.json)",
-                                            "`Session` changed (verification.json)")
+                                            "`Session` changed (verification.json)\n")
       expect(commit_message).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
       expect(commit_message).not_to include("BREAKING CHANGE")
       expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
@@ -323,7 +339,7 @@ RSpec.describe "spec sync" do
       upstream(verification: changed)
       expect(sync).to eq(0)
       overlay = File.read(openapi("overlay.json"), encoding: "UTF-8")
-      remaining = base_overlay.reject { |k, _| k == "POST /v3/billing/top-up/" }.sort.to_h
+      remaining = base_overlay.except("POST /v3/billing/top-up/").sort.to_h
       expect(overlay).to eq(JSON.pretty_generate({ "description" => "test overlay", "version" => 1,
                                                    "operations" => remaining }, indent: " "))
       expect(section("SDK naming")).to include("`POST /v3/billing/top-up/`: overlay entry deleted, upstream " \
@@ -352,13 +368,16 @@ RSpec.describe "spec sync" do
   end
 
   describe "removed operations (docs/DESIGN.md section 3.1)" do
-    it "keeps the method as deprecated for one minor version" do
+    def remove_balance
       repo(version: "0.4.2")
       changed = verification
       changed["paths"].delete("/v3/billing/balance/")
       upstream(verification: changed)
-      expect(sync).to eq(0)
+      sync
+    end
 
+    it "records the method in deprecated-operations.json with a frozen copy of the operation" do
+      expect(remove_balance).to eq(0)
       entry = read_json("deprecated-operations.json")["methods"]["billing.retrieve_balance"]
       expect(entry).to include("reason" => "removed", "operation_key" => "GET /v3/billing/balance/",
                                "x-didit-sdk" => naming("billing", "retrieve_balance"), "since" => date,
@@ -368,12 +387,15 @@ RSpec.describe "spec sync" do
       expect(entry.dig("operation", "responses", "200", "content", "application/json", "schema", "properties"))
         .to eq(schemas["BillingBalance"]["properties"])
       expect(read_json("overlay.json")["operations"]).not_to have_key("GET /v3/billing/balance/")
+      expect(github_output).to eq(["changed=true", "breaking=true", "date=2026-10-18"])
+    end
 
+    it "keeps the method in the generated code, marked deprecated, and says so" do
+      expect(remove_balance).to eq(0)
       billing = generated("lib/didit/resources/billing.rb")
-      expect(billing).to include("def retrieve_balance(", "# @deprecated Removed from the API contract on " \
-                                                          "2026-10-18; this deprecated method is kept through " \
-                                                          "version 0.5.0.")
-      expect(billing).to include("def top_up(")
+      expect(billing).to include("def retrieve_balance(", "def top_up(",
+                                 "# @deprecated Removed from the API contract on 2026-10-18; this deprecated " \
+                                 "method is kept through version 0.5.0.")
       expect(generated("spec/generated/billing_spec.rb")).to include("retrieve_balance")
       expect(section("Breaking changes")).to include("`billing.retrieve_balance` (`GET /v3/billing/balance/`) was " \
                                                      "removed upstream; the method is deprecated and kept through " \
@@ -383,7 +405,6 @@ RSpec.describe "spec sync" do
       expect(section("Deprecations")).to include("### Added (1)", "`billing.retrieve_balance`: deprecated")
       expect(commit_message).to include("\n\nBREAKING CHANGE: the API spec sync changes the SDK surface.\n- " \
                                         "`billing.retrieve_balance`")
-      expect(github_output).to eq(["changed=true", "breaking=true", "date=2026-10-18"])
     end
 
     it "dereferences path-item parameters and scrubs credential-like examples" do
@@ -590,7 +611,7 @@ RSpec.describe "spec sync" do
     end
 
     it "suggests the old naming for an operation that lost it upstream" do
-      repo(overlay: base_overlay.reject { |k, _| k == "POST /v3/session/" })
+      repo(overlay: base_overlay.except("POST /v3/session/"))
       named = verification
       named["paths"]["/v3/session/"]["post"]["x-didit-sdk"] = naming("sessions", "create")
       File.write(openapi("verification.json"), JSON.generate(named))
@@ -608,9 +629,7 @@ RSpec.describe "spec sync" do
       section("Breaking changes")
     end
 
-    it "lists every change that breaks code written against the SDK" do
-      repo
-      changed = verification
+    def break_everything(changed)
       request = changed["components"]["schemas"]["SessionRequest"]
       request["properties"].delete("vendor_data")
       request["required"] << "callback"
@@ -624,7 +643,12 @@ RSpec.describe "spec sync" do
                            "schema")
       top_up["properties"]["currency"] = { "type" => "string" }
       top_up["required"] << "currency"
-      upstream(verification: changed)
+      changed
+    end
+
+    it "lists every change that breaks code written against the SDK" do
+      repo
+      upstream(verification: break_everything(verification))
       expect(sync).to eq(0)
       expect(breaking).to include(
         "`sessions.create` (`POST /v3/session/`): request body `vendor_data`: field removed",
@@ -641,6 +665,9 @@ RSpec.describe "spec sync" do
       expect(breaking).not_to include("`In Progress` removed")
       expect(section("Operations")).to include("response 201 `status`: enum value `In Progress` removed\n")
       expect(commit_message).to include("BREAKING CHANGE:", "request body `title`: type changed")
+      # A type change of a property named like a schema keyword is not "documentation only".
+      expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
+                                            "`SessionRequest` changed (verification.json)\n")
     end
 
     it "notices documentation-only changes, also of properties named like keywords" do

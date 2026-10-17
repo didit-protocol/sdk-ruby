@@ -101,7 +101,7 @@ module DiditCodegen
       # and the required fields of all parts. :intersection (oneOf/anyOf): every property,
       # the first variant wins, and the fields every variant requires.
       def merged_object(rest, parts, mode)
-        parts = parts.select { |p| p.is_a?(Hash) }
+        parts = parts.grep(Hash)
         props = {}
         parts.each do |part|
           hash(part["properties"]).each { |name, prop| props[name] = prop if mode == :union || !props.key?(name) }
