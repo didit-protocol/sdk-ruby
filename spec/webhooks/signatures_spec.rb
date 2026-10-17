@@ -111,7 +111,7 @@ module WebhookSpecs
       end
 
       it "uses the secret's UTF-8 bytes as the key" do
-        secret = "whsec_test_clé"
+        secret = "#{SECRET}é"
         raw, hdrs = delivery(data, secret: secret)
         expect(verify(raw, hdrs, secret.encode(Encoding::UTF_16LE)).verified_by).to eq("X-Signature")
         expect(verify(raw, hdrs, secret.b).verified_by).to eq("X-Signature")
