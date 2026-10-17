@@ -80,6 +80,25 @@ module DiditCodegen
       Gem::Version.correct?(remove_in.to_s) && Gem::Version.new(remove_in.to_s) <= Gem::Version.new(current)
     end
 
+    # A key that only documents (see DOC_KEYS), or an x- extension.
+    def doc_key?(key)
+      DOC_KEYS.include?(key) || key.start_with?("x-")
+    end
+
+    # +node+ without documentation keys; the keys of NAME_MAPS (property names) stay.
+    def strip_docs(node, names: false)
+      case node
+      when Hash
+        node.each_with_object({}) do |(k, v), out|
+          next if !names && doc_key?(k)
+
+          out[k] = strip_docs(v, names: !names && NAME_MAPS.include?(k))
+        end
+      when Array then node.map { |v| strip_docs(v) }
+      else node
+      end
+    end
+
     def sha256(bytes)
       bytes.nil? ? "none" : Digest::SHA256.hexdigest(bytes)
     end
@@ -92,6 +111,7 @@ module DiditCodegen
 end
 
 require_relative "sync/document"
+require_relative "sync/shapes"
 require_relative "sync/diff"
 require_relative "sync/freeze"
 require_relative "sync/json_text"

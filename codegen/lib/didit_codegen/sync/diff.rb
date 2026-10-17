@@ -19,38 +19,34 @@ module DiditCodegen
         @active = {}
       end
 
-      # +names+ tells that the keys of +a+ and +b+ are names (see NAME_MAPS).
-      def equal?(a, b, names: false)
-        if a.is_a?(Hash) && b.is_a?(Hash)
-          return refs_equal?(a, b) if !names && (a.key?("$ref") || b.key?("$ref"))
+      # +names+ tells that the keys of +before+ and +after+ are names (see NAME_MAPS).
+      def equal?(before, after, names: false)
+        if before.is_a?(Hash) && after.is_a?(Hash)
+          return refs_equal?(before, after) if !names && (before.key?("$ref") || after.key?("$ref"))
 
-          keys = a.keys | b.keys
-          keys = keys.reject { |k| doc_key?(k) } if @ignore_docs && !names
+          keys = before.keys | after.keys
+          keys = keys.reject { |k| Sync.doc_key?(k) } if @ignore_docs && !names
           keys.all? do |k|
-            a.key?(k) && b.key?(k) && equal?(a[k], b[k], names: !names && NAME_MAPS.include?(k))
+            before.key?(k) && after.key?(k) && equal?(before[k], after[k], names: !names && NAME_MAPS.include?(k))
           end
-        elsif a.is_a?(Array) && b.is_a?(Array)
-          a.size == b.size && a.each_index.all? { |i| equal?(a[i], b[i]) }
+        elsif before.is_a?(Array) && after.is_a?(Array)
+          before.size == after.size && before.each_index.all? { |i| equal?(before[i], after[i]) }
         else
-          a.instance_of?(b.class) && a == b
+          before.instance_of?(after.class) && before == after
         end
       end
 
       private
 
-      def doc_key?(key)
-        DOC_KEYS.include?(key) || key.start_with?("x-")
-      end
-
-      def refs_equal?(a, b)
-        key = [a["$ref"], b["$ref"]]
-        pure = (a.keys - ["$ref"]).empty? && (b.keys - ["$ref"]).empty?
+      def refs_equal?(before, after)
+        key = [before["$ref"], after["$ref"]]
+        pure = (before.keys - ["$ref"]).empty? && (after.keys - ["$ref"]).empty?
         return @memo[key] if pure && @memo.key?(key)
         # A recursive schema: equal unless something else differs.
         return true if @active.key?(key)
 
         @active[key] = true
-        result = equal?(@old.expand(a), @new.expand(b))
+        result = equal?(@old.expand(before), @new.expand(after))
         @active.delete(key)
         @memo[key] = result if pure
         result
@@ -64,7 +60,7 @@ module DiditCodegen
     # a type change, an enum value removed from a request (response enums are open,
     # docs/DESIGN.md section 5.1).
     class Details
-      MAX_DEPTH = 24
+      include Shapes
 
       attr_reader :notes
 
@@ -117,9 +113,9 @@ module DiditCodegen
         (old_content.keys - new_content.keys).each { |t| note("request body: content type `#{t}` removed", true) }
         (new_content.keys - old_content.keys).each { |t| note("request body: content type `#{t}` added", false) }
         note("request body: now required", true) if old_body["required"] != true && new_body["required"] == true
-        media_pairs(old_content, new_content).each do |a, b|
-          schema(hash(old_content[a])["schema"] || {}, hash(new_content[b])["schema"] || {}, "request body", "",
-                 :request)
+        media_pairs(old_content, new_content).each do |old_type, new_type|
+          schema(hash(old_content[old_type])["schema"] || {}, hash(new_content[new_type])["schema"] || {},
+                 "request body", "", :request)
         end
       end
 
@@ -134,30 +130,24 @@ module DiditCodegen
           (old_ok.keys - new_ok.keys).each { |s| note("response #{s}: removed", false) }
           (new_ok.keys - old_ok.keys).each { |s| note("response #{s}: added", false) }
         end
-        pairs.each { |a, b| response(old_ok[a], new_ok[b], b) }
+        pairs.each { |old_status, new_status| response(old_ok[old_status], new_ok[new_status], new_status) }
       end
 
       # Compares two schemas; +mode+ is :request or :response.
       def schema(old_schema, new_schema, label, path, mode, depth = 0)
-        return if depth > MAX_DEPTH
-        return unless first_visit?(old_schema, new_schema, mode)
+        return if depth > MAX_DEPTH || !first_visit?(old_schema, new_schema, mode)
 
-        a = flatten(@old, old_schema)
-        b = flatten(@new, new_schema)
+        before = flatten(@old, old_schema)
+        after = flatten(@new, new_schema)
         where = at(label, path)
-        return if type_changed?(a, b, where, mode)
-        return unless a.is_a?(Hash) && b.is_a?(Hash)
+        return if type_changed?(before, after, where, mode)
+        return unless before.is_a?(Hash) && after.is_a?(Hash)
 
-        nullability(a, b, where, mode)
-        enum(a, b, where, mode)
-        properties(a, b, label, path, mode, depth) if a["properties"] || b["properties"]
-        variants(a, b, where)
-        schema(a["items"] || {}, b["items"] || {}, label, "#{path}[]", mode, depth + 1) if kind(@old, a) == "array"
-        extra_a = a["additionalProperties"]
-        extra_b = b["additionalProperties"]
-        return unless extra_a.is_a?(Hash) && extra_b.is_a?(Hash)
-
-        schema(extra_a, extra_b, label, "#{path}{}", mode, depth + 1)
+        nullability(before, after, where, mode)
+        enum(before, after, where, mode)
+        properties(before, after, label, path, mode, depth) if before["properties"] || after["properties"]
+        variants(before, after, where)
+        nested(before, after, label, path, mode, depth)
       end
 
       private
@@ -167,12 +157,12 @@ module DiditCodegen
         nil
       end
 
-      def hash(value)
-        value.is_a?(Hash) ? value : {}
-      end
-
       def at(label, path)
         path.empty? ? label : "#{label} `#{path}`"
+      end
+
+      def child(path, name)
+        path.empty? ? name : "#{path}.#{name}"
       end
 
       def first_visit?(old_schema, new_schema, mode)
@@ -227,9 +217,9 @@ module DiditCodegen
         end
       end
 
-      def type_changed?(a, b, where, mode)
-        old_kind = kind(@old, a)
-        new_kind = kind(@new, b)
+      def type_changed?(before, after, where, mode)
+        old_kind = kind(@old, before)
+        new_kind = kind(@new, after)
         return false if old_kind.empty? || new_kind.empty? || old_kind == new_kind
 
         note("#{where}: type changed from #{old_kind} to #{new_kind}", !harmless?(old_kind, new_kind, mode))
@@ -246,16 +236,16 @@ module DiditCodegen
         end
       end
 
-      def nullability(a, b, where, mode)
-        old_null = nullable?(@old, a)
-        new_null = nullable?(@new, b)
+      def nullability(before, after, where, mode)
+        old_null = nullable?(@old, before)
+        new_null = nullable?(@new, after)
         note("#{where}: can now be null", true) if mode == :response && new_null && !old_null
         note("#{where}: no longer accepts null", true) if mode == :request && old_null && !new_null
       end
 
-      def enum(a, b, where, mode)
-        old_values = a["enum"]
-        new_values = b["enum"]
+      def enum(before, after, where, mode)
+        old_values = before["enum"]
+        new_values = after["enum"]
         if old_values.is_a?(Array) && new_values.is_a?(Array)
           (old_values - new_values).compact.each do |value|
             note("#{where}: enum value `#{value}` removed", mode == :request)
@@ -273,51 +263,41 @@ module DiditCodegen
         "#{list.size == 1 ? "value" : "values"} #{list.map { |v| "`#{v}`" }.join(", ")}"
       end
 
-      def properties(a, b, label, path, mode, depth)
-        old_props = hash(a["properties"])
-        new_props = hash(b["properties"])
-        old_required = Array(a["required"])
-        new_required = Array(b["required"])
+      def properties(before, after, label, path, mode, depth)
+        old_props = hash(before["properties"])
+        new_props = hash(after["properties"])
         hidden = mode == :request ? "readOnly" : "writeOnly"
         old_props.each do |name, prop|
           next if flag?(@old, prop, hidden)
 
           where = at(label, child(path, name))
-          if !new_props.key?(name) || flag?(@new, new_props[name], hidden)
-            note("#{where}: field removed", true)
-            next
-          end
-          required_change(name, old_required, new_required, where, mode)
+          next note("#{where}: field removed", true) if !new_props.key?(name) || flag?(@new, new_props[name], hidden)
+
+          required_change(Array(before["required"]).include?(name), Array(after["required"]).include?(name), where,
+                          mode)
           schema(prop, new_props[name], label, child(path, name), mode, depth + 1)
         end
         new_props.each do |name, prop|
           next if (old_props.key?(name) && !flag?(@old, old_props[name], hidden)) || flag?(@new, prop, hidden)
 
           where = at(label, child(path, name))
-          if mode == :request && new_required.include?(name)
-            note("#{where}: new required field", true)
-          else
-            note("#{where}: field added", false)
-          end
+          required = mode == :request && Array(after["required"]).include?(name)
+          required ? note("#{where}: new required field", true) : note("#{where}: field added", false)
         end
       end
 
-      def required_change(name, old_required, new_required, where, mode)
-        if mode == :request && new_required.include?(name) && !old_required.include?(name)
+      def required_change(was_required, is_required, where, mode)
+        if mode == :request && is_required && !was_required
           note("#{where}: now required", true)
-        elsif mode == :response && old_required.include?(name) && !new_required.include?(name)
+        elsif mode == :response && was_required && !is_required
           note("#{where}: no longer always present", true)
         end
       end
 
-      def child(path, name)
-        path.empty? ? name : "#{path}.#{name}"
-      end
-
-      def variants(a, b, where)
+      def variants(before, after, where)
         %w[oneOf anyOf].each do |keyword|
-          old_count = Array(a[keyword]).count { |v| !null_schema?(@old, v) }
-          new_count = Array(b[keyword]).count { |v| !null_schema?(@new, v) }
+          old_count = Array(before[keyword]).count { |v| !null_schema?(@old, v) }
+          new_count = Array(after[keyword]).count { |v| !null_schema?(@new, v) }
           if new_count < old_count
             note("#{where}: #{old_count - new_count} #{keyword} variant(s) removed", true)
           elsif new_count > old_count
@@ -326,113 +306,23 @@ module DiditCodegen
         end
       end
 
+      # Array items and map values.
+      def nested(before, after, label, path, mode, depth)
+        if kind(@old, before) == "array"
+          schema(before["items"] || {}, after["items"] || {}, label, "#{path}[]", mode, depth + 1)
+        end
+        old_extra = before["additionalProperties"]
+        new_extra = after["additionalProperties"]
+        return unless old_extra.is_a?(Hash) && new_extra.is_a?(Hash)
+
+        schema(old_extra, new_extra, label, "#{path}{}", mode, depth + 1)
+      end
+
       def flag?(doc, prop, flag)
         return true if prop.is_a?(Hash) && prop[flag] == true
 
         target = doc.expand(prop)
         target.is_a?(Hash) && target[flag] == true
-      end
-
-      def null_schema?(doc, schema)
-        schema = doc.expand(schema)
-        schema.is_a?(Hash) && ["null", ["null"]].include?(schema["type"])
-      end
-
-      def nullable?(doc, schema)
-        return false unless schema.is_a?(Hash)
-        return true if schema["nullable"] == true
-        return true if schema["type"].is_a?(Array) && schema["type"].include?("null")
-
-        %w[oneOf anyOf].any? { |k| Array(schema[k]).any? { |v| null_schema?(doc, v) } }
-      end
-
-      # A coarse type name; an empty string means any type.
-      def kind(doc, schema)
-        return "" unless schema.is_a?(Hash)
-
-        variants = schema["oneOf"] || schema["anyOf"]
-        variants = variants.is_a?(Array) ? variants.reject { |v| null_schema?(doc, v) } : []
-        unless variants.empty?
-          kinds = variants.map { |v| kind(doc, flatten(doc, v)) }.map { |k| k.empty? ? "any" : k }
-          return kinds.uniq.sort.join("|")
-        end
-
-        type = schema["type"]
-        type = type.find { |t| t != "null" } if type.is_a?(Array)
-        case type
-        when "string" then if %w[date date-time
-                                 binary].include?(schema["format"])
-                             "string(#{schema["format"]})"
-                           else
-                             "string"
-                           end
-        when "integer", "number", "boolean", "array" then type
-        else object_kind(schema, type)
-        end
-      end
-
-      def object_kind(schema, type)
-        return "" unless type == "object" || schema["properties"].is_a?(Hash)
-
-        extra = schema["additionalProperties"]
-        props = hash(schema["properties"])
-        props.empty? && extra.is_a?(Hash) && !extra.empty? ? "map" : "object"
-      end
-
-      def objectish?(schema)
-        schema.is_a?(Hash) && (schema["type"] == "object" || !hash(schema["properties"]).empty?)
-      end
-
-      # +schema+ resolved, with allOf parts merged and object oneOf/anyOf variants merged
-      # into one object (the properties of all, the required fields of every variant).
-      def flatten(doc, schema, depth = 0)
-        schema = doc.expand(schema)
-        return schema if !schema.is_a?(Hash) || depth > MAX_DEPTH
-
-        parts = schema["allOf"]
-        return merge_all_of(doc, schema, parts, depth) if parts.is_a?(Array) && !parts.empty?
-
-        keyword = %w[oneOf anyOf].find { |k| schema[k].is_a?(Array) && !schema[k].empty? }
-        return schema unless keyword
-
-        merge_variants(doc, schema, keyword, depth)
-      end
-
-      def merge_all_of(doc, schema, parts, depth)
-        flat = parts.map { |p| flatten(doc, p, depth + 1) }
-        rest = schema.except("allOf")
-        return flat.first.merge(rest) if flat.size == 1 && flat.first.is_a?(Hash) && !objectish?(flat.first)
-
-        props = {}
-        required = []
-        (flat + [rest]).each do |part|
-          next unless part.is_a?(Hash)
-
-          props.merge!(hash(part["properties"]))
-          required |= Array(part["required"])
-        end
-        out = rest.merge("type" => "object", "properties" => props, "required" => required)
-        out["nullable"] = true if flat.any? { |p| p.is_a?(Hash) && p["nullable"] == true }
-        out
-      end
-
-      def merge_variants(doc, schema, keyword, depth)
-        flat = schema[keyword].reject { |v| null_schema?(doc, v) }.map { |v| flatten(doc, v, depth + 1) }
-        rest = schema.except("oneOf", "anyOf")
-        nullable = schema[keyword].size != flat.size
-        if flat.size == 1 && flat.first.is_a?(Hash)
-          out = flat.first.merge(rest)
-          out["nullable"] = true if nullable
-          return out
-        end
-        return schema unless !flat.empty? && flat.all? { |v| objectish?(v) }
-
-        props = {}
-        flat.each { |v| hash(v["properties"]).each { |name, prop| props[name] ||= prop } }
-        required = flat.map { |v| Array(v["required"]) }.reduce(:&) || []
-        out = rest.merge("type" => "object", "properties" => props, "required" => required)
-        out["nullable"] = true if nullable
-        out
       end
     end
   end

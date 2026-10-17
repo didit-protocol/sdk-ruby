@@ -4,6 +4,8 @@ module DiditCodegen
   module Sync
     # Operations and schemas that changed upstream, field by field. Mixed into Syncer.
     module OperationChanges
+      PART_KEYS = %w[parameters requestBody responses x-didit-sdk].freeze
+
       private
 
       # Added and removed operations that have no server method (server methods are
@@ -54,20 +56,22 @@ module DiditCodegen
         end
         breaking = name ? notes.select(&:last) : []
         @report.changed << nested("#{label}#{" **breaking**" unless breaking.empty?}", notes, exposed: !name.nil?)
-        breaking.each { |text, _| @report.breaking << "`#{name}` (`#{key}`): #{text}" }
+        breaking.map(&:first).each { |text| @report.breaking << "`#{name}` (`#{key}`): #{text}" }
       end
 
       # What an operation sends and receives, plus everything else it documents.
       def parts(ref)
         {
           parameters: ref.parameters, body: ref.op["requestBody"], responses: ref.op["responses"],
-          rest: ref.op.reject { |k, _| %w[parameters requestBody responses x-didit-sdk].include?(k) }
+          rest: ref.op.except(*PART_KEYS)
         }
       end
 
-      def parts_equal?(comparer, a, b)
-        comparer.equal?(a[:parameters], b[:parameters], names: true) && comparer.equal?(a[:body], b[:body]) &&
-          comparer.equal?(a[:responses], b[:responses], names: true) && comparer.equal?(a[:rest], b[:rest])
+      def parts_equal?(comparer, before, after)
+        comparer.equal?(before[:parameters], after[:parameters], names: true) &&
+          comparer.equal?(before[:body], after[:body]) &&
+          comparer.equal?(before[:responses], after[:responses], names: true) &&
+          comparer.equal?(before[:rest], after[:rest])
       end
 
       def describe_schemas
@@ -138,20 +142,6 @@ module DiditCodegen
         when "delete" then "delete"
         else ref.http_method
         end
-      end
-    end
-
-    # +node+ without documentation keys; keys inside NAME_MAPS (property names) stay.
-    def self.strip_docs(node, names: false)
-      case node
-      when Hash
-        node.each_with_object({}) do |(k, v), out|
-          next if !names && (DOC_KEYS.include?(k) || k.start_with?("x-"))
-
-          out[k] = strip_docs(v, names: !names && NAME_MAPS.include?(k))
-        end
-      when Array then node.map { |v| strip_docs(v) }
-      else node
       end
     end
   end

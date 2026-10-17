@@ -100,7 +100,7 @@ module DiditCodegen
         breaking = notes.select(&:last)
         head = "`#{name}`#{" **breaking**" unless breaking.empty?}: moved from `#{old_key}` to `#{new_key}`"
         @report.moved << (notes.empty? ? "#{head}; same parameters, request body and response" : nested(head, notes))
-        breaking.each do |text, _|
+        breaking.map(&:first).each do |text|
           @report.breaking << "`#{name}` moved from `#{old_key}` to `#{new_key}`: #{text}"
         end
       end

@@ -16,7 +16,7 @@ module DiditCodegen
       module_function
 
       def operation(ref)
-        op = ref.op.reject { |k, _| SKIP_KEYS.include?(k) }
+        op = ref.op.except(*SKIP_KEYS)
         params = (Array(ref.item["parameters"]) + Array(op["parameters"])).each_with_object({}) do |raw, out|
           param = ref.doc.expand(raw)
           out["#{param["in"]} #{param["name"]}"] = raw if param.is_a?(Hash)
