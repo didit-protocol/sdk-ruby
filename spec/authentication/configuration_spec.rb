@@ -15,6 +15,15 @@ module AuthenticationHelper
         expect(described_class.from_publishable_key("  #{pk("pk_live_", "#{ISSUER}/")}\n").issuer).to eq(ISSUER)
       end
 
+      it "accepts a key with exactly the right base64 padding, as Python's urlsafe_b64encode writes it" do
+        # 59, 58 and 57 bytes: one, two and no "=".
+        [ISSUER, ISSUER.chop, ISSUER.chop.chop].each do |issuer|
+          padded = "pk_live_#{[issuer].pack("m0").tr("+/", "-_")}"
+          expect(padded.length % 4).to eq(0)
+          expect(described_class.from_publishable_key(padded).issuer).to eq(issuer)
+        end
+      end
+
       it "lets only a test key name a loopback http issuer" do
         locals = %w[http://acme.auth.localhost:8000 http://localhost:8000 http://127.0.0.1:8000 http://[::1]:8000]
         locals.each do |local|
@@ -32,7 +41,9 @@ module AuthenticationHelper
       [
         "", "pk_live_", "pk_", "sk_live_#{AuthenticationHelper.b64url(ISSUER)}",
         "PK_LIVE_#{AuthenticationHelper.b64url(ISSUER)}", "pk_live_!!!notbase64",
-        "pk_live_#{AuthenticationHelper.b64url(ISSUER)}=", "pk_live_#{[ISSUER].pack("m0")}=", "pk_live_a",
+        "pk_live_#{AuthenticationHelper.b64url(ISSUER)}==", "pk_live_#{[ISSUER].pack("m0")}=",
+        "pk_live_#{AuthenticationHelper.b64url(ISSUER.chop)}=", "pk_live_#{AuthenticationHelper.b64url(ISSUER)}=x",
+        "pk_live_a",
         "pk_live_#{AuthenticationHelper.b64url("\xff\xfe\xfd")}",
         "pk_live_#{AuthenticationHelper.b64url("http://acme.auth.didit.me")}",
         "pk_test_#{AuthenticationHelper.b64url("http://acme.auth.didit.me")}",
