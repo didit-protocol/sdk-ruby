@@ -119,7 +119,7 @@ module Didit
       raise ArgumentError, "#{self.class.name} needs a Hash, got #{data.class}" unless data.is_a?(Hash)
 
       # @type var normalized: Hash[String, untyped]
-      normalized = data.each_key.all?(String) ? (_ = data) : data.transform_keys(&:to_s)
+      normalized = data.each_key.all?(String) ? (_ = data.dup) : data.transform_keys(&:to_s)
       @data = normalized.freeze
       @cache = {}
     end
