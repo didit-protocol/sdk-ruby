@@ -1,0 +1,263 @@
+# Spec sync (docs/DESIGN.md section 3.1).
+#
+# Daily and on demand: codegen/spec_sync.rb downloads the upstream OpenAPI documents into
+# openapi/ and, when they changed, regenerates the SDK; this workflow then runs every check
+# and opens (or updates) the pull request "chore(spec): sync API spec YYYY-MM-DD" from the
+# branch chore/spec-sync. A failed check, or a generator failure (for example a new operation
+# without SDK naming), still publishes the pull request, as a draft, and fails the run.
+#
+# One-time setup by a repository admin:
+# - Settings > Actions > General > Workflow permissions: tick "Allow GitHub Actions to create
+#   and approve pull requests". Without it the default GITHUB_TOKEN cannot open the pull request.
+# - Optional repository secret SPEC_SYNC_TOKEN: a fine-grained personal access token (or a
+#   GitHub App token) with Contents and Pull requests read and write on this repository only.
+#   Pushes and pull requests made with the default GITHUB_TOKEN start no other workflow, so
+#   without it CI does not run on the sync pull request (close and reopen it to start CI).
+#
+# Commits that people push to chore/spec-sync (docs/DESIGN.md section 15: hand-written changes
+# go there) are never overwritten. While the open sync pull request has a commit whose author
+# or committer is not github-actions[bot], the sync runs on top of that branch, pushes a plain
+# fast-forward and posts its summary as a comment. Otherwise it rebuilds the branch from the
+# default branch and replaces it only if nobody pushed to it since this run started
+# (--force-with-lease). Nothing is pushed when only openapi/SOURCE.json (the fetch time) differs
+# from the open branch.
+#
+# The push token is only handed to git in the publish step, through GIT_CONFIG_* environment
+# variables; it is never written to .git/config, so it is not on disk while gems install or the
+# tests run.
+name: Spec sync
+
+on:
+  schedule:
+    - cron: "41 6 * * *" # daily, 06:41 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: spec-sync
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  sync:
+    name: Sync the API spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BRANCH: chore/spec-sync
+      BOT_NAME: github-actions[bot]
+      BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Prepare
+        # The summary, the commit message and the check results live outside the checkout,
+        # so they are never committed.
+        run: |
+          {
+            echo "SUMMARY=$RUNNER_TEMP/spec-sync-summary.md"
+            echo "COMMIT_MESSAGE=$RUNNER_TEMP/spec-sync-commit.txt"
+            echo "CHECKS=$RUNNER_TEMP/spec-sync-checks.md"
+            echo "BODY=$RUNNER_TEMP/spec-sync-body.md"
+          } >> "$GITHUB_ENV"
+
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Every branch, so that origin/chore/spec-sync is known as it was when this run started.
+          fetch-depth: 0
+
+      - name: Choose where the sync starts
+        id: base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The sync always starts from the default branch, also when it is dispatched from
+          # another branch (a scheduled run's event payload has no repository object, so ask).
+          BASE="$(gh api "repos/$GITHUB_REPOSITORY" --jq '.default_branch')"
+          echo "BASE=$BASE" >> "$GITHUB_ENV"
+          git switch --quiet --force-create "$BASE" "origin/$BASE"
+          remote_sha="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH" || true)"
+          pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base "$BASE" --state open \
+            --json number --jq '.[0].number // empty')"
+          mode="rebuild"
+          if [ -n "$remote_sha" ] && [ -n "$pr" ]; then
+            # Authors and committers of the branch commits that the default branch lacks.
+            others="$(git log --format='%ae%n%ce' "origin/$BASE..$remote_sha" \
+              | grep -v -x -F -e "$BOT_EMAIL" -e '' | sort -u || true)"
+            if [ -n "$others" ]; then
+              mode="continue"
+              git switch --quiet --force-create "$BRANCH" "$remote_sha"
+              echo "Pull request #$pr has commits by others; this run syncs on top of $BRANCH." \
+                >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          {
+            echo "mode=$mode"
+            echo "remote_sha=$remote_sha"
+            echo "pr=$pr"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+
+      - name: Download the upstream documents and regenerate
+        id: sync
+        # codegen/spec_sync.rb writes changed=, breaking= and date= to $GITHUB_OUTPUT.
+        # Exit 1: a download or input problem, nothing was written (the run fails here).
+        # Exit 2: the documents were written but the generator failed; the summary has an
+        # "Action needed" section and the pull request is published as a draft.
+        run: |
+          set -uo pipefail
+          code=0
+          ruby codegen/spec_sync.rb --summary "$SUMMARY" --commit-message "$COMMIT_MESSAGE" || code=$?
+          if [ -f "$SUMMARY" ]; then
+            cat "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          case "$code" in
+            0) echo "generator_failed=false" >> "$GITHUB_OUTPUT" ;;
+            2)
+              echo "generator_failed=true" >> "$GITHUB_OUTPUT"
+              echo "::error::The generator failed on the synced documents; see Action needed in the pull request."
+              ;;
+            *) exit "$code" ;;
+          esac
+
+      - name: Run the checks
+        id: checks
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GENERATOR_FAILED: ${{ steps.sync.outputs.generator_failed }}
+        run: |
+          set -uo pipefail
+          failed="$GENERATOR_FAILED"
+          printf '\n## Checks\n\n' > "$CHECKS"
+          run_check() {
+            local name="$1"
+            shift
+            echo "::group::$name"
+            if "$@"; then
+              echo "- [x] \`$name\`" >> "$CHECKS"
+            else
+              echo "- [ ] \`$name\`: **failed**, see the [workflow run]($RUN_URL)" >> "$CHECKS"
+              echo "::error::$name failed"
+              failed=true
+            fi
+            echo "::endgroup::"
+          }
+          # One rake task at a time, so that every check runs even when an earlier one fails.
+          for task in generate:check spec codegen:spec rubocop; do
+            run_check "bundle exec rake $task" bundle exec rake "$task"
+          done
+          run_check "bundle exec steep check" bundle exec steep check
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Publish chore/spec-sync and open or update the pull request
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          PUSH_TOKEN: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
+          MODE: ${{ steps.base.outputs.mode }}
+          REMOTE_SHA: ${{ steps.base.outputs.remote_sha }}
+          PR: ${{ steps.base.outputs.pr }}
+          FAILED: ${{ steps.checks.outputs.failed }}
+        run: |
+          set -euo pipefail
+          # gh opens the pull request with the same token, so that CI runs on it.
+          export GH_TOKEN="$PUSH_TOKEN"
+          title="$(head -n 1 "$SUMMARY")"
+          footer="$(sed -n '/^BREAKING CHANGE:/,$p' "$COMMIT_MESSAGE")"
+          {
+            tail -n +3 "$SUMMARY"
+            cat "$CHECKS"
+            printf '\nPublished by [spec sync run %s](%s).\n' "$GITHUB_RUN_ID" "$RUN_URL"
+            # A squash merge takes the pull request body as the commit message: keep the
+            # Conventional Commits footer last, so release-please sees the breaking change.
+            if [ -n "$footer" ]; then
+              printf '\n%s\n' "$footer"
+            fi
+          } > "$BODY"
+
+          git config user.name "$BOT_NAME"
+          git config user.email "$BOT_EMAIL"
+          if [ "$MODE" = rebuild ]; then
+            git switch --quiet --force-create "$BRANCH"
+          fi
+          # Only the spec copies and the generated layer; nothing else is committed.
+          git add --all -- openapi lib sig spec/generated
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit --quiet --file "$COMMIT_MESSAGE"
+
+          if [ -n "$REMOTE_SHA" ] && git diff --quiet "$REMOTE_SHA" HEAD -- . ':(exclude)openapi/SOURCE.json'; then
+            echo "$BRANCH already has this content (only the fetch time in openapi/SOURCE.json differs); not pushing."
+            exit 0
+          fi
+
+          basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$basic"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $basic"
+          if [ "$MODE" = continue ]; then
+            # A plain push: it is a fast-forward of the branch, and fails (losing nothing) if
+            # someone pushed in the meantime.
+            git push origin "HEAD:refs/heads/$BRANCH"
+          else
+            # Replaces the branch only while it still points where it did when this run
+            # started; an empty value means that it must not exist yet.
+            git push --force-with-lease="refs/heads/$BRANCH:$REMOTE_SHA" origin "HEAD:refs/heads/$BRANCH"
+          fi
+          unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 basic
+
+          want_draft=false
+          if [ "$FAILED" = true ]; then
+            want_draft=true
+          fi
+          if [ -z "$PR" ]; then
+            draft=()
+            if [ "$want_draft" = true ]; then
+              draft=(--draft)
+            fi
+            gh pr create --head "$BRANCH" --base "$BASE" --title "$title" --body-file "$BODY" "${draft[@]}"
+            exit 0
+          fi
+          if [ "$MODE" = continue ]; then
+            # The description still lists the changes since the default branch; this sync's
+            # own changes go into a comment. A breaking footer is added to the description
+            # when it has none, so that a squash merge still carries it.
+            gh pr edit "$PR" --title "$title"
+            gh pr comment "$PR" --body-file "$BODY"
+            if [ -n "$footer" ]; then
+              current="$(gh pr view "$PR" --json body --jq '.body')"
+              if ! printf '%s\n' "$current" | grep -q '^BREAKING CHANGE:'; then
+                printf '%s\n\n%s\n' "$current" "$footer" > "$BODY"
+                gh pr edit "$PR" --body-file "$BODY"
+              fi
+            fi
+          else
+            gh pr edit "$PR" --title "$title" --body-file "$BODY"
+          fi
+          is_draft="$(gh pr view "$PR" --json isDraft --jq '.isDraft')"
+          if [ "$want_draft" = true ] && [ "$is_draft" = false ]; then
+            gh pr ready "$PR" --undo
+          elif [ "$want_draft" = false ] && [ "$is_draft" = true ] && [ "$MODE" = rebuild ]; then
+            gh pr ready "$PR"
+          fi
+
+      - name: Fail the run when a check failed
+        if: steps.checks.outputs.failed == 'true'
+        run: |
+          echo "::error::The spec sync pull request was published as a draft, but at least one check failed; see its Checks section."
+          exit 1

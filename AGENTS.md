@@ -10,7 +10,33 @@ Status: in development, not released.
 
 ## Toolchain
 
-Bundler, RSpec, RuboCop, RBS signatures checked with Steep.
+Ruby 3.1 or newer, Bundler, RSpec, WebMock, RuboCop, RBS signatures checked with Steep (Steep needs Ruby 3.3 or newer; the Gemfile installs it only there).
+
+## Commands
+
+```sh
+bundle install                    # install the development gems
+bundle exec rake generate         # regenerate the generated layer from openapi/ (ruby codegen/generate.rb)
+bundle exec rake generate:check   # fail when the committed generated code is stale
+bundle exec rake spec             # all unit tests (spec/); live smoke tests are skipped
+bundle exec rake codegen:spec     # the generator's and the spec sync's own tests (codegen/spec)
+bundle exec rake rubocop          # lint
+bundle exec steep check           # type check (Ruby 3.3+)
+bundle exec rake build            # build the gem into pkg/ (never publishes)
+COVERAGE=1 bundle exec rspec      # fails under 90 % line coverage of the hand-written core
+ruby codegen/spec_sync.rb         # download the upstream spec, regenerate, summarise the changes
+DIDIT_SANDBOX_API_KEY=... bundle exec rspec --tag live   # live smoke tests against a sandbox application
+```
+
+## Layout
+
+- Generated (never edit by hand): `lib/didit/resources.rb`, `lib/didit/resources/`, `lib/didit/types.rb`, `lib/didit/types/`, `sig/didit/resources*`, `sig/didit/types/`, `spec/generated/`.
+- Generator: `codegen/generate.rb` and `codegen/lib/didit_codegen/` (reads only `openapi/`); spec sync: `codegen/spec_sync.rb`.
+- Hand-written core: `lib/didit.rb`, `lib/didit/client.rb`, `errors.rb`, `model.rb`, `page.rb`, `file_part.rb`, `raw_response.rb`, `resource.rb`, `lib/didit/internal/` (configuration, transport, retries, multipart, logging).
+- Webhooks: `lib/didit/webhooks*` (DESIGN.md section 9). Authentication: `lib/didit/authentication*` (DESIGN.md section 10).
+- Signatures for everything in `lib/` live in `sig/`, mirroring the paths.
+- Tests: `spec/didit/` (core), `spec/webhooks/`, `spec/authentication/`, `spec/contract_spec.rb` (spec operations == SDK methods), `spec/generated/`, `spec/live/`; generator tests in `codegen/spec/`.
+- CI: `.github/workflows/ci.yml`; spec sync: `.github/workflows/spec-sync.yml`; release (gated, never run before approval): `.github/workflows/release.yml`.
 
 ## Rules
 

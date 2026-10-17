@@ -1,0 +1,126 @@
+# NOTHING MAY BE PUBLISHED before Alex's explicit approval and the 2026-11-01 Didit release
+# (docs/DESIGN.md section 13). Both jobs are skipped until a maintainer sets the repository
+# variable RELEASES_ENABLED to "true", and the publish job waits for a required reviewer of
+# the rubygems environment. CONTRIBUTING.md lists the one-time setup.
+#
+# release-please opens and updates the release pull request (the version in
+# lib/didit/version.rb and the generated CHANGELOG.md). After that pull request is merged,
+# the next run creates the vX.Y.Z tag and the GitHub release, and the publish job checks out
+# that tag, runs the full test suite, builds and attests the gem and pushes it to
+# RubyGems.org with trusted publishing (OIDC, no API key stored anywhere).
+#
+# Publishing happens in this workflow on purpose: a release created with the default
+# GITHUB_TOKEN starts no other workflow, so a separate "on: release" workflow would never run.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release-please:
+    name: Release Please
+    if: vars.RELEASES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: release-please
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          # Optional RELEASE_PLEASE_TOKEN (a GitHub App or fine-grained token): a release pull
+          # request opened with the default GITHUB_TOKEN gets no CI run.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    name: Publish to RubyGems.org
+    needs: release-please
+    if: vars.RELEASES_ENABLED == 'true' && needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: publish-${{ needs.release-please.outputs.tag_name }}
+      cancel-in-progress: false
+    environment:
+      # Required reviewers and "Prevent self-review": Settings > Environments > rubygems.
+      name: rubygems
+      url: https://rubygems.org/gems/didit-sdk
+    permissions:
+      contents: write # attach the gem to the GitHub release
+      id-token: write # trusted publishing and the attestation signature
+      attestations: write
+    env:
+      TAG: ${{ needs.release-please.outputs.tag_name }}
+      VERSION: ${{ needs.release-please.outputs.version }}
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+          persist-credentials: false
+      - name: Set up Ruby 3.4
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+        with:
+          ruby-version: "3.4"
+          # No dependency cache in the release build.
+          bundler-cache: false
+      - name: Check that the tag matches Didit::VERSION
+        run: |
+          set -euo pipefail
+          version="$(ruby -Ilib -e 'require "didit/version"; print Didit::VERSION')"
+          manifest="$(ruby -rjson -e 'print JSON.parse(File.read(".release-please-manifest.json", encoding: "UTF-8")).fetch(".")')"
+          if [ "$TAG" != "v${version}" ] || [ "$VERSION" != "$version" ] || [ "$manifest" != "$version" ]; then
+            echo "::error::Tag ${TAG} (release ${VERSION}, manifest ${manifest}) does not match Didit::VERSION ${version}; expected v${version}."
+            exit 1
+          fi
+          echo "Tag ${TAG} matches Didit::VERSION ${version}."
+      - name: Install dependencies
+        run: bundle install --jobs 4
+      - name: Full test suite on the tagged code
+        run: |
+          set -euo pipefail
+          bundle exec rake generate:check spec codegen:spec rubocop
+          bundle exec steep check
+      - name: Build the gem
+        run: |
+          set -euo pipefail
+          bundle exec rake build
+          gem="pkg/didit-sdk-${VERSION}.gem"
+          test -f "$gem"
+          sha256sum "$gem" | tee "${gem}.sha256"
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: pkg/didit-sdk-${{ needs.release-please.outputs.version }}.gem
+      - name: Attach the gem to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$TAG" "pkg/didit-sdk-${VERSION}.gem" "pkg/didit-sdk-${VERSION}.gem.sha256" \
+            --repo "$GITHUB_REPOSITORY" --clobber
+      # Last, because the short-lived RubyGems.org key it exchanges for the OIDC token expires.
+      - name: Configure RubyGems.org credentials (trusted publishing)
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+      - name: Push the gem to RubyGems.org
+        run: gem push "pkg/didit-sdk-${VERSION}.gem"

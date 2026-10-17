@@ -1,0 +1,26 @@
+# Weekly dependency updates, one grouped pull request per ecosystem.
+# Commit messages follow conventional commits: "ci: ..." for actions, "chore(deps): ..."
+# and "chore(deps-dev): ..." for gems. Neither releases on its own (release-please-config.json).
+version: 2
+updates:
+  - package-ecosystem: bundler
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      ruby-dependencies:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
