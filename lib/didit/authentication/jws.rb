@@ -186,7 +186,12 @@ module Didit
         fail!(:missing_claim, "The token has no #{name} claim.") unless claims.key?(name)
 
         value = claims[name]
-        seconds = value.is_a?(Integer) || value.is_a?(Float) ? value.to_f : Float::NAN
+        seconds = case value
+                  when Float then value
+                  # An integer beyond any Float is as unusable as NaN.
+                  when Integer then value.abs < Float::MAX ? value.to_f : Float::NAN
+                  else Float::NAN
+                  end
         fail!(:malformed, "The token's #{name} claim is not a number of seconds.") unless seconds.finite?
 
         seconds
