@@ -146,7 +146,7 @@ module DiditCodegen
       call = "client.#{meth.resource}.#{meth.name}"
       return ["#{indent}result = #{call}"] if args.empty?
 
-      lines = args.each_with_index.map { |arg, i| "#{indent}  #{arg}#{',' unless i == args.size - 1}" }
+      lines = args.each_with_index.map { |arg, i| "#{indent}  #{arg}#{"," unless i == args.size - 1}" }
       ["#{indent}result = #{call}(", *lines, "#{indent})"]
     end
 

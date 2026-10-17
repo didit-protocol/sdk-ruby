@@ -17,7 +17,7 @@ module DiditCodegen
           param = doc.expand(raw)
           next unless param.is_a?(Hash) && param["in"].is_a?(String) && param["name"].is_a?(String)
 
-          out["#{param['in']} #{param['name']}"] = param
+          out["#{param["in"]} #{param["name"]}"] = param
         end
         out
       end

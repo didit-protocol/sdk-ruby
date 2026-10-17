@@ -59,7 +59,7 @@ module Didit
         Prepared.new(
           http_method: http_method, uri: uri, origin: Util.origin(base),
           headers: build_headers(config, auth, accept: accept, content_type: content_type, op_headers: headers,
-                                                 extra_headers: opts[:extra_headers]),
+                                               extra_headers: opts[:extra_headers]),
           body: body_bytes, timeout: opts[:timeout], max_retries: opts[:max_retries],
           redact: [config.api_key, config.account_token].compact
         )

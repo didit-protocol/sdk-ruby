@@ -19,7 +19,7 @@ module DiditCodegen
         op = ref.op.reject { |k, _| SKIP_KEYS.include?(k) }
         params = (Array(ref.item["parameters"]) + Array(op["parameters"])).each_with_object({}) do |raw, out|
           param = ref.doc.expand(raw)
-          out["#{param['in']} #{param['name']}"] = raw if param.is_a?(Hash)
+          out["#{param["in"]} #{param["name"]}"] = raw if param.is_a?(Hash)
         end
         op = op.merge("parameters" => params.values) unless params.empty?
         scrub(inline(ref.doc, op, []))
@@ -94,7 +94,7 @@ module DiditCodegen
         return "redacted-authorization" if value.match?(AUTH_VALUE)
         return nil unless key.is_a?(String) && key.match?(CREDENTIAL_KEY)
 
-        "redacted-#{key.downcase.gsub(/[^a-z0-9]+/, '-')}"
+        "redacted-#{key.downcase.gsub(/[^a-z0-9]+/, "-")}"
       end
     end
   end

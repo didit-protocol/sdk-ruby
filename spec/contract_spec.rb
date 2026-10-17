@@ -43,7 +43,7 @@ module Contract
   end
 
   def entry(naming, path, params)
-    { name: "#{naming['resource']}.#{naming['method']}", naming: naming, path: path, params: params }
+    { name: "#{naming["resource"]}.#{naming["method"]}", naming: naming, path: path, params: params }
   end
 
   def server
@@ -96,7 +96,7 @@ module Contract
       when RBS::AST::Declarations::Class, RBS::AST::Declarations::Module
         collect(member, path + [member.name.name.to_s], out)
       when RBS::AST::Members::MethodDefinition
-        out["#{path.drop(2).join('::')}##{member.name}"] = member
+        out["#{path.drop(2).join("::")}##{member.name}"] = member
       end
     end
   end
@@ -132,7 +132,9 @@ RSpec.describe "API contract" do
 
   it "takes request_options everywhere, idempotency_key where the API accepts one, and never the scope ids" do
     Contract.server.each do |op|
-      keywords = Contract.method_for(op[:name]).parameters.filter_map { |kind, name| name if kind.to_s.start_with?("key") }
+      keywords = Contract.method_for(op[:name]).parameters.filter_map do |kind, name|
+        name if kind.to_s.start_with?("key")
+      end
       idempotent = op[:params].any? { |p| p["in"] == "header" && p["name"].casecmp?("idempotency-key") }
       expect(keywords).to include(:request_options), op[:name]
       expect(keywords.include?(:idempotency_key)).to eq(idempotent), op[:name]
@@ -149,7 +151,7 @@ RSpec.describe "API contract" do
     signatures = Contract.signatures
     Contract.server.each do |op|
       method = Contract.method_for(op[:name])
-      key = "#{method.owner.name.delete_prefix('Didit::Resources::')}##{method.name}"
+      key = "#{method.owner.name.delete_prefix("Didit::Resources::")}##{method.name}"
       type = signatures.fetch(key) { raise "no RBS signature for #{key}" }.overloads.first.method_type.type
       params = method.parameters.group_by(&:first).transform_values { |list| list.map(&:last).sort }
       expect(type.required_positionals.size).to eq(params.fetch(:req, []).size), key

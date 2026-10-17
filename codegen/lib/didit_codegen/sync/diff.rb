@@ -88,7 +88,7 @@ module DiditCodegen
 
       def parameters(old_params, new_params)
         old_params.each do |key, param|
-          label = "#{param['in']} parameter `#{param['name']}`"
+          label = "#{param["in"]} parameter `#{param["name"]}`"
           other = new_params[key]
           if other.nil?
             note("#{label}: removed", true)
@@ -100,7 +100,7 @@ module DiditCodegen
         new_params.each do |key, param|
           next if old_params.key?(key)
 
-          label = "#{param['in']} parameter `#{param['name']}`"
+          label = "#{param["in"]} parameter `#{param["name"]}`"
           param["required"] == true ? note("#{label}: new required parameter", true) : note("#{label}: added", false)
         end
       end
@@ -152,9 +152,7 @@ module DiditCodegen
         enum(a, b, where, mode)
         properties(a, b, label, path, mode, depth) if a["properties"] || b["properties"]
         variants(a, b, where)
-        if kind(@old, a) == "array"
-          schema(a["items"] || {}, b["items"] || {}, label, "#{path}[]", mode, depth + 1)
-        end
+        schema(a["items"] || {}, b["items"] || {}, label, "#{path}[]", mode, depth + 1) if kind(@old, a) == "array"
         extra_a = a["additionalProperties"]
         extra_b = b["additionalProperties"]
         return unless extra_a.is_a?(Hash) && extra_b.is_a?(Hash)
@@ -192,7 +190,7 @@ module DiditCodegen
           Array(hash(flatten(@new, hash(media)["schema"] || {}))["required"])
         end.uniq.sort
         if body["required"] == true && !required.empty?
-          note("request body: added with required fields #{required.map { |r| "`#{r}`" }.join(', ')}", true)
+          note("request body: added with required fields #{required.map { |r| "`#{r}`" }.join(", ")}", true)
         else
           note("request body: added", false)
         end
@@ -222,7 +220,7 @@ module DiditCodegen
         old_type = old_content.empty? ? nil : main_type(old_content)
         new_type = new_content.empty? ? nil : main_type(new_content)
         if old_type != new_type
-          note("response #{status}: content type changed from #{old_type || 'none'} to #{new_type || 'none'}", true)
+          note("response #{status}: content type changed from #{old_type || "none"} to #{new_type || "none"}", true)
         elsif old_type
           schema(hash(old_content[old_type])["schema"] || {}, hash(new_content[new_type])["schema"] || {},
                  "response #{status}", "", :response)
@@ -272,7 +270,7 @@ module DiditCodegen
       end
 
       def values(list)
-        "#{list.size == 1 ? 'value' : 'values'} #{list.map { |v| "`#{v}`" }.join(', ')}"
+        "#{list.size == 1 ? "value" : "values"} #{list.map { |v| "`#{v}`" }.join(", ")}"
       end
 
       def properties(a, b, label, path, mode, depth)
@@ -337,7 +335,7 @@ module DiditCodegen
 
       def null_schema?(doc, schema)
         schema = doc.expand(schema)
-        schema.is_a?(Hash) && (schema["type"] == "null" || schema["type"] == ["null"])
+        schema.is_a?(Hash) && ["null", ["null"]].include?(schema["type"])
       end
 
       def nullable?(doc, schema)
@@ -362,7 +360,12 @@ module DiditCodegen
         type = schema["type"]
         type = type.find { |t| t != "null" } if type.is_a?(Array)
         case type
-        when "string" then %w[date date-time binary].include?(schema["format"]) ? "string(#{schema['format']})" : "string"
+        when "string" then if %w[date date-time
+                                 binary].include?(schema["format"])
+                             "string(#{schema["format"]})"
+                           else
+                             "string"
+                           end
         when "integer", "number", "boolean", "array" then type
         else object_kind(schema, type)
         end
