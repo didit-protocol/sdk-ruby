@@ -9,6 +9,7 @@ module WebhookSpecs
   PREVIOUS = "whsec_test_unit_secret_0000"
   NOW = 1_760_702_400
   VECTORS_FILE = File.expand_path("../../openapi/webhook-vectors.json", __dir__)
+  EXAMPLES_DIR = File.expand_path("../../examples/webhooks", __dir__)
   PYTHON_CONSTANTS = { nil => "None", true => "True", false => "False" }.freeze
 
   module_function
