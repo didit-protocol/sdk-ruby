@@ -113,7 +113,8 @@ RSpec.describe DiditCodegen::Sync do
                                                               "password" => { "type" => "string" } } }),
                                responses: ok({ "type" => "object",
                                                "properties" => { "access_token" => { "type" => "string" } } },
-                                             example: { "access_token" => jwt }))
+                                             example: { "access_token" => jwt, "signing_key" => "k" * 40 }))
+                     .merge("description" => "Send #{jwt} as a Bearer token.")
       },
       "/organizations/me/" => {
         "get" => op("List organizations",
@@ -420,7 +421,8 @@ RSpec.describe DiditCodegen::Sync do
       login = JSON.generate(methods["account.login"])
       expect(login).not_to include("eyJ")
       expect(methods.dig("account.login", "operation", "responses", "200", "content", "application/json",
-                         "example")).to eq("access_token" => "redacted-jwt")
+                         "example")).to eq("access_token" => "redacted-jwt", "signing_key" => "redacted-signing-key")
+      expect(methods.dig("account.login", "operation", "description")).to eq("Send redacted-jwt as a Bearer token.")
       decision = methods["sessions.retrieve_decision"]["operation"]
       expect(decision["parameters"]).to eq([path_param("sessionId")])
       expect(decision).not_to have_key("x-didit-sdk")

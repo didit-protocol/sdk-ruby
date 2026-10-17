@@ -4,13 +4,16 @@ module DiditCodegen
   module Sync
     # A removed operation made self-contained for openapi/deprecated-operations.json:
     # every $ref inlined (from the old document), path-item parameters merged in, and
-    # credential-like example values replaced.
+    # credential-like values replaced. Unlike the upstream copies, that file is not on the
+    # secret scan allowlist (.gitleaks.toml).
     module Freeze
       # Operation keys that are not part of the contract the SDK method is built from.
       SKIP_KEYS = %w[x-didit-sdk x-codeSamples].freeze
-      CREDENTIAL_KEY = /(token|secret|password|passwd|api_?key|private_?key|authorization|credential)s?\z/i
-      JWT = /\AeyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*\z/
-      PRIVATE_KEY = /-----BEGIN [A-Z ]*PRIVATE KEY-----/
+      # Example values of fields with these names are replaced whatever they look like.
+      CREDENTIAL_KEY = /(token|secret|password|passwd|passphrase|key|authorization|credential|cookie)s?\z/i
+      # Replaced wherever they appear, descriptions included.
+      JWT = /eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]*/
+      PRIVATE_KEY = /-----BEGIN [A-Z ]*PRIVATE KEY-----(?:.*?-----END [A-Z ]*PRIVATE KEY-----)?/m
       AUTH_VALUE = /\A(bearer|basic)\s+\S+/i
 
       module_function
@@ -43,7 +46,8 @@ module DiditCodegen
         end
       end
 
-      # Replaces credential-like values in example, examples and default.
+      # Replaces credential-like values in example, examples and default, and JWTs and
+      # private keys in every string.
       def scrub(node, name = nil)
         case node
         when Array then node.map { |v| scrub(v, name) }
@@ -58,8 +62,13 @@ module DiditCodegen
             else [key, scrub(value, name)]
             end
           end
+        when String then redact_patterns(node)
         else node
         end
+      end
+
+      def redact_patterns(text)
+        text.gsub(JWT, "redacted-jwt").gsub(PRIVATE_KEY, "redacted-private-key")
       end
 
       def scrub_examples(examples, name)
@@ -81,7 +90,7 @@ module DiditCodegen
         case value
         when Hash then value.to_h { |k, v| [k, scrub_value(v, k)] }
         when Array then value.map { |v| scrub_value(v, key) }
-        when String then credential(value, key) || value
+        when String then credential(value, key) || redact_patterns(value)
         else value
         end
       end
@@ -89,8 +98,7 @@ module DiditCodegen
       # The placeholder for a credential-like +value+, or nil when it looks harmless.
       def credential(value, key)
         return nil if value.empty?
-        return "redacted-jwt" if value.match?(JWT)
-        return "redacted-private-key" if value.match?(PRIVATE_KEY)
+        return "redacted-jwt" if value.match?(/\A#{JWT}\z/)
         return "redacted-authorization" if value.match?(AUTH_VALUE)
         return nil unless key.is_a?(String) && key.match?(CREDENTIAL_KEY)
 
