@@ -61,6 +61,14 @@ module WebhookSpecs
     end.join(":")
   end
 
+  # The reason of the WebhookVerificationError the block raises; nil when it raises none.
+  def reason_of
+    yield
+    nil
+  rescue Didit::WebhookVerificationError => e
+    e.reason
+  end
+
   def verification_error(reason)
     an_instance_of(Didit::WebhookVerificationError).and(having_attributes(reason: reason))
   end

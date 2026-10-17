@@ -113,7 +113,7 @@ module Didit
 
       @clock = clock || -> { Time.now.to_f }
       @cache = IssuerCache.new(@clock)
-      @transport = Transport.new(timeout: @timeout, http_client: http_client)
+      @http = Http.new(timeout: @timeout, http_client: http_client)
       @lock = Mutex.new
     end
 
@@ -215,7 +215,7 @@ module Didit
     # @return [nil]
     def revoke_session(access_token)
       call = bearer_call("DELETE", issuer_uri(SESSION_PATH), access_token)
-      @transport.read(call, @transport.perform(call))
+      @http.read(call, @http.perform(call))
       nil
     end
 
@@ -321,8 +321,8 @@ module Didit
       cached = @cache.discovery
       return cached if cached
 
-      call = Transport::Call.new("GET", issuer_uri(DISCOVERY_PATH))
-      response = @transport.perform(call)
+      call = Http::Call.new("GET", issuer_uri(DISCOVERY_PATH))
+      response = @http.perform(call)
       @cache.store_discovery(parse_discovery(call, response), response.headers)
     end
 
@@ -340,11 +340,11 @@ module Didit
       return cached if cached && !@cache.needs_key_set_fetch?(kid)
 
       begin
-        call = Transport::Call.new("GET", URI(discovery_locked.jwks_uri))
-        response = @transport.perform(call)
-        data = @transport.read(call, response)
+        call = Http::Call.new("GET", URI(discovery_locked.jwks_uri))
+        response = @http.perform(call)
+        data = @http.read(call, response)
         parsed = KeySet.parse(data)
-        raise @transport.validation_error(call, response, "The issuer's JWKS is not a key set.") unless parsed
+        raise @http.validation_error(call, response, "The issuer's JWKS is not a key set.") unless parsed
 
         @cache.store_key_set(parsed, response.headers)
       rescue *FETCH_ERRORS
@@ -364,10 +364,10 @@ module Didit
     end
 
     def parse_discovery(call, response)
-      data = @transport.read_object(call, response)
+      data = @http.read_object(call, response)
       found = data["issuer"]
       unless found.is_a?(String)
-        raise @transport.validation_error(call, response, "The discovery document names no issuer.")
+        raise @http.validation_error(call, response, "The discovery document names no issuer.")
       end
       if found != issuer
         raise ConfigurationError,
@@ -389,7 +389,7 @@ module Didit
     def issuer_endpoint(call, response, data, name)
       value = data[name]
       uri = endpoint_uri(value)
-      raise @transport.validation_error(call, response, "The discovery document has no valid #{name}.") unless uri
+      raise @http.validation_error(call, response, "The discovery document has no valid #{name}.") unless uri
 
       issuer_origin = Internal::Util.origin(issuer)
       return value if Internal::Util.origin(uri) == issuer_origin && value.is_a?(String)
@@ -399,7 +399,7 @@ module Didit
                 else
                   "is not on the issuer's origin #{issuer_origin}"
                 end
-      raise @transport.validation_error(call, response, "The discovery document's #{name} #{value.inspect} #{problem}.")
+      raise @http.validation_error(call, response, "The discovery document's #{name} #{value.inspect} #{problem}.")
     end
 
     def endpoint_uri(value)
@@ -415,7 +415,7 @@ module Didit
 
     def token_request(form, secrets)
       form["client_id"] = client_id if client_id
-      call = Transport::Call.new("POST", URI(current_discovery.token_endpoint), form: form, secrets: secrets)
+      call = Http::Call.new("POST", URI(current_discovery.token_endpoint), form: form, secrets: secrets)
       TokenResponse.new(send_object(call))
     end
 
@@ -423,11 +423,11 @@ module Didit
       token = required_text(access_token, "access_token")
       raise ConfigurationError, "access_token contains invalid characters." if token.match?(/[\x00-\x20\x7f]/)
 
-      Transport::Call.new(http_method, uri, bearer: token, json: json, secrets: [token])
+      Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token])
     end
 
     def send_object(call)
-      @transport.read_object(call, @transport.perform(call))
+      @http.read_object(call, @http.perform(call))
     end
 
     def issuer_uri(path)

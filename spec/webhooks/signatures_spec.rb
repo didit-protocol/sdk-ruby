@@ -16,13 +16,6 @@ module WebhookSpecs
       Didit::Webhooks.verify(raw, hdrs, secret, now: now, **options)
     end
 
-    def reason_of(&block)
-      block.call
-      nil
-    rescue Didit::WebhookVerificationError => e
-      e.reason
-    end
-
     describe "signatures" do
       it "is missing_signature without any signature header" do
         expect(reason_of { verify(body, headers.slice("X-Timestamp")) }).to eq(:missing_signature)

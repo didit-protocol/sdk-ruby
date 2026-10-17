@@ -17,13 +17,6 @@ module WebhookSpecs
       Didit::Webhooks.verify(raw, hdrs, secret, now: now, **options)
     end
 
-    def reason_of(&block)
-      block.call
-      nil
-    rescue Didit::WebhookVerificationError => e
-      e.reason
-    end
-
     describe "a valid delivery" do
       it "returns the typed event, verified by X-Signature" do
         event = verify
@@ -103,7 +96,7 @@ module WebhookSpecs
         expect(verify(now: NOW + 600, tolerance: 600)).to be_a(Didit::Webhooks::Event)
         expect(verify(now: NOW, tolerance: 0)).to be_a(Didit::Webhooks::Event)
         expect(reason_of { verify(now: NOW + 1, tolerance: 0) }).to eq(:timestamp_out_of_tolerance)
-        expect(verify(now: NOW + 10**9, tolerance: Float::INFINITY)).to be_a(Didit::Webhooks::Event)
+        expect(verify(now: NOW + (10**9), tolerance: Float::INFINITY)).to be_a(Didit::Webhooks::Event)
         expect(verify(now: NOW + 1.5, tolerance: 1.5)).to be_a(Didit::Webhooks::Event)
       end
 

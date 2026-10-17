@@ -66,7 +66,8 @@ module WebhookSpecs
             it "verifies with each secret of the rotation alone" do
               expect(verify(body, headers, vector["secret"]).verified_by).to eq("X-Signature")
               expect(verify(body, headers, vector["previous_secret"]).verified_by).to eq("X-Signature-Previous")
-              expect(verify(body, headers, [vector["previous_secret"], vector["secret"]]).body_authenticated?).to be(true)
+              reversed = [vector["previous_secret"], vector["secret"]]
+              expect(verify(body, headers, reversed).body_authenticated?).to be(true)
             end
           end
         when "valid_only_with_allow_simple"
