@@ -42,7 +42,8 @@ module ApiHelpers
   # Records the URL of every request as the SDK built it.
   def record_urls(recorder)
     transport = Didit::Internal::Transport
-    # rubocop:disable-next-line RSpec/AnyInstance
+    # Every client builds its own transport, so the spy goes on the class.
+    # rubocop:disable-next RSpec/AnyInstance
     allow_any_instance_of(transport).to receive(:execute).and_wrap_original do |original, *args, &block|
       recorder.urls << args[1].to_s
       original.call(*args, &block)
