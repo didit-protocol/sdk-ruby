@@ -123,15 +123,37 @@ module DiditCodegen
       def guess(ref)
         account = ref.file == "account.json"
         scoped = !account && ref.path.start_with?(APPLICATION_PREFIX)
-        segments = (scoped ? ref.path.delete_prefix(APPLICATION_PREFIX) : ref.path).split("/").reject(&:empty?)
-        segments.shift if segments.first&.match?(/\Av\d+\z/)
+        segments = path_segments(ref)
         names = segments.reject { |s| s.start_with?("{") }.map { |s| Naming.snake(s) }
+        # The top-level resource the named operations under the same first path segment use
+        # ("/v3/session/..." is "sessions").
+        names[0] = known_roots.fetch(names[0], names[0]) unless names.empty?
         names.unshift("account") if account && names.first != "account"
         out = {
           "auth" => account ? "account_token" : "api_key", "method" => guess_method(ref, segments),
           "resource" => names.empty? ? "root" : names.join("."), "server" => true
         }
         scoped ? out.merge("scope" => "application").sort.to_h : out
+      end
+
+      # The path below the version and the application scope prefix, split at "/".
+      def path_segments(ref)
+        path = ref.path.start_with?(APPLICATION_PREFIX) ? ref.path.delete_prefix(APPLICATION_PREFIX) : ref.path
+        segments = path.split("/").reject(&:empty?)
+        segments.shift if segments.first&.match?(/\Av\d+\z/)
+        segments
+      end
+
+      # First path segment (snake_case) => the first resource segment its named server
+      # operations use, for verification.json.
+      def known_roots
+        @known_roots ||= @new_ops.values.each_with_object({}) do |ref, out|
+          name = ref.file == "verification.json" ? JsonText.ident(new_naming(ref.key)) : nil
+          first = path_segments(ref).first
+          next if name.nil? || first.nil? || first.start_with?("{")
+
+          out[Naming.snake(first)] ||= name.split(".").first
+        end
       end
 
       def guess_method(ref, segments)
