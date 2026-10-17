@@ -40,8 +40,9 @@ module Didit
         end
 
         uri = parse(text)
-        secure = uri.scheme.downcase == "https"
-        local = allow_loopback_http && uri.scheme.downcase == "http" && loopback?(uri.hostname.to_s)
+        scheme = uri.scheme.to_s.downcase
+        secure = scheme == "https"
+        local = allow_loopback_http && scheme == "http" && loopback?(uri.hostname.to_s)
         unless secure || local
           raise ConfigurationError,
                 "The issuer must use https (http only for localhost while testing), got #{text.inspect}."

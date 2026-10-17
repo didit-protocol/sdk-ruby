@@ -24,7 +24,7 @@ module Didit
       end
 
       def self.cache_seconds: (Hash[String, String] headers) -> Integer
-      def self.deep_freeze: [T] (T value) -> T
+      def self.deep_freeze: (untyped value) -> untyped
 
       private
 
@@ -32,13 +32,13 @@ module Didit
 
       public
 
-      @clock: ^() -> Numeric
+      @clock: ^() -> (Integer | Float)
       @discovery: Entry[Discovery]?
       @key_set: Entry[KeySet]?
       @key_set_attempted_at: Float?
       @key_set_failed: bool
 
-      def initialize: (^() -> Numeric clock) -> void
+      def initialize: (^() -> (Integer | Float) clock) -> void
       def discovery: () -> Discovery?
       def store_discovery: (Discovery discovery, Hash[String, String] headers) -> Discovery
       def key_set: () -> KeySet?

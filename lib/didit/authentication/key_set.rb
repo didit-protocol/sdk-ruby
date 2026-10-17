@@ -49,7 +49,7 @@ module Didit
 
           # Reading the point as a SubjectPublicKeyInfo checks that it is on the curve.
           key = OpenSSL::PKey.read(SPKI_PREFIX + UNCOMPRESSED + x + y)
-          key if key.is_a?(OpenSSL::PKey::EC) && key.group.curve_name == "prime256v1"
+          key if key.is_a?(OpenSSL::PKey::EC) && key.group&.curve_name == "prime256v1"
         rescue OpenSSL::PKey::PKeyError, ArgumentError
           nil
         end

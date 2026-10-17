@@ -20,7 +20,7 @@ module Didit
       @timeout: Float
       @transport: Internal::Transport
 
-      def initialize: (timeout: Numeric, http_client: Internal::http_client?) -> void
+      def initialize: (timeout: Float, http_client: Internal::http_client?) -> void
       def perform: (Call call) -> Internal::Transport::Response
       def read: (Call call, Internal::Transport::Response response) -> untyped
       def read_object: (Call call, Internal::Transport::Response response) -> Hash[String, untyped]

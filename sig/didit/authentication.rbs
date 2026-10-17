@@ -17,23 +17,23 @@ module Didit
     NUMBER: Regexp
 
     def self.from_publishable_key: (String publishable_key, ?client_id: String?, ?timeout: Numeric, ?leeway: Numeric,
-                                    ?http_client: Internal::http_client?, ?clock: (^() -> Numeric)?) -> Authentication
+                                    ?http_client: Internal::http_client?, ?clock: (^() -> (Integer | Float))?) -> Authentication
     def self.create_pkce: () -> Pkce
     def self.create_state: () -> String
     def self.create_nonce: () -> String
 
     attr_reader issuer: String
     attr_reader client_id: String?
-    attr_reader timeout: Numeric
+    attr_reader timeout: Float
     attr_reader leeway: Float
 
-    @clock: ^() -> Numeric
+    @clock: ^() -> (Integer | Float)
     @cache: IssuerCache
     @http: Http
     @lock: Thread::Mutex
 
     def initialize: (String issuer, ?client_id: String?, ?timeout: Numeric, ?leeway: Numeric,
-                     ?http_client: Internal::http_client?, ?clock: (^() -> Numeric)?) -> void
+                     ?http_client: Internal::http_client?, ?clock: (^() -> (Integer | Float))?) -> void
 
     def verify_access_token: (untyped token, ?audience: audience?) -> AccessTokenClaims
     def verify_id_token: (untyped token, nonce: String?, ?audience: audience?) -> IdTokenClaims
@@ -71,7 +71,7 @@ module Didit
     def amount_text: (untyped amount) -> String
     def plain_decimal: (String text) -> String?
     def checked_client_id: (untyped client_id) -> String?
-    def checked_timeout: (untyped timeout) -> Numeric
+    def checked_timeout: (untyped timeout) -> Float
     def checked_leeway: (untyped leeway) -> Float
   end
 end

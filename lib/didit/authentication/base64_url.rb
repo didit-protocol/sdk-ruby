@@ -24,7 +24,8 @@ module Didit
         text = text.b
         return nil unless ALPHABET.match?(text) && text.length % 4 != 1
 
-        (text.tr("-_", "+/") + ("=" * (-text.length % 4))).unpack1("m0")
+        bytes = (text.tr("-_", "+/") + ("=" * (-text.length % 4))).unpack1("m0")
+        bytes if bytes.is_a?(String)
       rescue ArgumentError
         nil
       end

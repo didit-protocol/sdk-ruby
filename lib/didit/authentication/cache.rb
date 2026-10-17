@@ -82,6 +82,7 @@ module Didit
 
         # The max-age directive, 0 for no-store and no-cache, nil without either.
         def max_age(cache_control)
+          # @type var max_age: Integer?
           max_age = nil
           cache_control.split(",").each do |directive|
             name, value = directive.split("=", 2)

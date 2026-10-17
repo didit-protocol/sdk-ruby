@@ -25,11 +25,10 @@ module WebhookSpecs
     end
 
     describe "config.ru" do
-      let(:app) do
-        ENV["DIDIT_WEBHOOK_SECRET"] = SECRET
-        Rack::Builder.parse_file(File.join(EXAMPLES_DIR, "config.ru"))
-      end
+      let(:app) { WebhookSpecs.rack_example }
       let(:errors) { StringIO.new }
+
+      before { ENV["DIDIT_WEBHOOK_SECRET"] = SECRET } # read on every request; spec_helper clears it after
 
       def post(body, headers)
         env = headers.to_h { |name, value| ["HTTP_#{name.upcase.tr("-", "_")}", value] }

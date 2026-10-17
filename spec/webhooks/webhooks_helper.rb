@@ -14,6 +14,11 @@ module WebhookSpecs
 
   module_function
 
+  # examples/webhooks/config.ru, loaded once (it defines a class).
+  def self.rack_example
+    @rack_example ||= Rack::Builder.parse_file(File.join(EXAMPLES_DIR, "config.ru"))
+  end
+
   def vectors_document
     JSON.parse(File.read(VECTORS_FILE, encoding: "UTF-8"))
   end

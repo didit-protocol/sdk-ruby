@@ -85,7 +85,7 @@ module Didit
     attr_reader :issuer
     # @return [String, nil] the application id: sent with token requests and the default audience
     attr_reader :client_id
-    # @return [Numeric] seconds allowed to open a connection, and for each read and write
+    # @return [Float] seconds allowed to open a connection, and for each read and write
     attr_reader :timeout
     # @return [Float] seconds of clock skew allowed for +exp+, +nbf+ and +iat+
     attr_reader :leeway
@@ -498,7 +498,10 @@ module Didit
     end
 
     def checked_timeout(timeout)
-      return timeout if timeout.is_a?(Numeric) && !timeout.is_a?(Complex) && timeout.positive? && timeout.finite?
+      if timeout.is_a?(Integer) || timeout.is_a?(Float)
+        value = timeout.to_f
+        return value if value.finite? && value.positive?
+      end
 
       raise ConfigurationError, "timeout must be a positive number of seconds."
     end

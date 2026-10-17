@@ -22,10 +22,11 @@ module Didit
         # json 2.13 and newer can refuse duplicate member names; older versions keep the last one.
         Gem::Version.new(JSON::VERSION) >= Gem::Version.new("2.13.0") ? { allow_duplicate_key: false } : {}
       ).freeze
-      # Every check below is done here; the jwt gem only checks the signature.
+      # Every claim is checked here; the jwt gem only checks the signature, whatever
+      # its global configuration says.
       DECODE_OPTIONS = {
         algorithm: ALGORITHM, verify_expiration: false, verify_not_before: false, verify_iat: false,
-        verify_iss: false, verify_aud: false, verify_jti: false, verify_sub: false, required_claims: []
+        verify_iss: false, verify_aud: false, verify_jti: false, verify_sub: false, required_claims: nil
       }.freeze
 
       # A compact JWS whose header passed the algorithm, type and key id checks; not verified yet.
@@ -203,6 +204,7 @@ module Didit
         fail!(:missing_claim, "The token has no aud claim.") unless claims.key?("aud")
 
         aud = claims["aud"]
+        # @type var values: Array[String]
         values = case aud
                  when String then [aud]
                  when Array then aud.grep(String)
