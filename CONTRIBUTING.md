@@ -57,7 +57,7 @@ You may push commits to the branch of that pull request (for example an overlay 
 
 ## Checks and live smoke tests
 
-CI (`.github/workflows/ci.yml`) runs the tests on Ruby 3.1, 3.2, 3.3, 3.4 and 4.0 on Linux and on Ruby 3.4 on macOS and Windows, the Authentication tests with jwt 2.x (`JWT_VERSION=2.10.2`), RuboCop, Steep, the generated code check, the coverage gate, a build and clean install of the gem, a gitleaks scan of the full history (`.gitleaks.toml`) and a check that `CLAUDE.md` and `AGENTS.md` are identical. Run the same commands before you open a pull request.
+CI (`.github/workflows/ci.yml`) runs the tests on Ruby 3.1, 3.2, 3.3, 3.4 and 4.0 on Linux and on Ruby 3.4 on macOS and Windows, the Authentication tests with jwt 2.7.0 (the gemspec's floor) and 2.10.2 (`JWT_VERSION`), RuboCop, Steep, the generated code check, the coverage gate, a build and clean install of the gem, a gitleaks scan of the full history (`.gitleaks.toml`) and a check that `CLAUDE.md` and `AGENTS.md` are identical. Run the same commands before you open a pull request.
 
 Unit tests never touch the network (WebMock blocks it). Fixtures are synthetic: test webhook secrets start with `whsec_test_`, and keys and tokens are generated at test time.
 
