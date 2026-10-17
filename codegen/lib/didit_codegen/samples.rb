@@ -7,8 +7,10 @@ module DiditCodegen
   # otherwise values synthesised from the schema.
   module Samples
     UUID = "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
-    SECRET_KEYS = /\A(api_key|apikey|secret|client_secret|password|token|access_token|refresh_token|id_token|
-                     session_token|private_key|webhook_secret|secret_shared_key|authorization)\z/xi
+    # Example values under these keys, and anything shaped like a JWT, are replaced in tests,
+    # so committed tests never carry token-shaped strings (the repository's gitleaks scan).
+    SECRET_KEYS = /token|secret|password|api_?key|authorization|private_key|credential/i
+    TOKEN_SHAPED = /\AeyJ[A-Za-z0-9_-]{4,}/
     MAX_DEPTH = 4
 
     module_function
@@ -67,7 +69,8 @@ module DiditCodegen
     end
 
     def string_value(schema, name)
-      return safe_string(schema["example"]) if schema["example"].is_a?(String) && !secret?(name)
+      example = schema["example"]
+      return safe_string(example) if example.is_a?(String) && !secret?(name) && !example.match?(TOKEN_SHAPED)
 
       case schema["format"]
       when "date-time" then "2026-01-02T03:04:05Z"
@@ -92,7 +95,7 @@ module DiditCodegen
       case value
       when Hash then value.to_h { |k, v| [k, scrub(v, k)] }
       when Array then value.map { |v| scrub(v, key) }
-      when String then secret?(key) ? "redacted-#{key}" : value
+      when String then secret?(key) || value.match?(TOKEN_SHAPED) ? "redacted-#{key || 'value'}" : value
       else value
       end
     end
