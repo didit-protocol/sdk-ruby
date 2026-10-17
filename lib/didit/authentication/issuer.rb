@@ -15,7 +15,7 @@ module Didit
       LOOPBACK_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
       # Prefix => whether the key may name a plain http loopback issuer.
       PREFIXES = { "pk_live_" => false, "pk_test_" => true }.freeze
-      UNSAFE = /[\s\x00-\x1f\x7f?#]/
+      UNSAFE = /[\x00-\x20\x7f?#]/
 
       module_function
 

@@ -366,9 +366,7 @@ module Didit
     def parse_discovery(call, response)
       data = @http.read_object(call, response)
       found = data["issuer"]
-      unless found.is_a?(String)
-        raise @http.validation_error(call, response, "The discovery document names no issuer.")
-      end
+      raise @http.validation_error(call, response, "The discovery document names no issuer.") unless found.is_a?(String)
       if found != issuer
         raise ConfigurationError,
               "The discovery document at #{call.display_url} names the issuer #{found.inspect}, " \
