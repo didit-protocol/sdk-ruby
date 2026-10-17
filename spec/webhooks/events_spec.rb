@@ -158,6 +158,9 @@ module WebhookSpecs
         in Didit::Webhooks::Event then nil
         end
       expect(matched).to eq("11111111-2222-3333-4444-555555555555")
+      callback = { "event_type" => "kyb.registry_search.resolved", "search_resolved" => true }
+      resolved = Didit::Webhooks.parse_event(callback) in { webhook_type: "kyb.registry_search.resolved", search_resolved: true }
+      expect(resolved).to be(true)
     end
 
     it "parse_event needs a Hash and does not freeze it" do

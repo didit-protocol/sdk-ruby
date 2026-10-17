@@ -22,10 +22,8 @@ module Didit
         unknown = options.keys - FIELDS
         raise ConfigurationError, "Unknown client options #{unknown.map(&:inspect).join(", ")}." unless unknown.empty?
 
-        @api_key = present(options[:api_key])
-        @account_token = present(options[:account_token])
-        @organization_id = present(options[:organization_id])
-        @application_id = present(options[:application_id])
+        @api_key, @account_token, @organization_id, @application_id =
+          options.values_at(:api_key, :account_token, :organization_id, :application_id).map { |v| present(v) }
         @base_url = Config.check_url(:base_url, options[:base_url] || DEFAULT_BASE_URL)
         @account_base_url = Config.check_url(:account_base_url, options[:account_base_url] || DEFAULT_ACCOUNT_BASE_URL)
         @timeout = Config.check_timeout(options.fetch(:timeout, DEFAULT_TIMEOUT))

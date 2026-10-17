@@ -39,7 +39,7 @@ module AuthenticationHelper
         "pk_live_#{AuthenticationHelper.b64url("acme.auth.didit.me")}",
         "pk_live_#{AuthenticationHelper.b64url("https://acme.auth.didit.me?x=1")}",
         # Stray bits in the last character: not canonical base64url.
-        "pk_live_aHR0cHM6Ly9hY21lLmF1dGguZGlkaXQubWV",
+        "pk_live_#{AuthenticationHelper.b64url("https://acme.auth.didit.me").sub(/U\z/, "V")}",
         nil, 42
       ].each do |publishable_key|
         it "refuses #{publishable_key.inspect}" do
