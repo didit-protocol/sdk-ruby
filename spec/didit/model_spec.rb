@@ -35,20 +35,23 @@ RSpec.describe Didit::Model do
 
   let(:model) { model_class.new(data) }
 
-  it "converts values on access" do
+  it "converts scalars on access" do
     expect(model.name).to eq("Ada")
     expect(model.score).to eq(87.0)
     expect(model.score).to be_a(Float)
     expect(model.created_at).to eq(Time.utc(2026, 1, 2, 3, 4, 5.123456r))
     expect(model.birthday).to eq(Date.new(1990, 12, 31))
+    expect(model.method_).to eq("nfc")
+    expect(model.first_name).to eq("A")
+  end
+
+  it "converts nested values on access" do
     expect(model.address).to be_a(address_class)
     expect(model.address.city).to eq("Madrid")
     expect(model.tags).to eq(%w[a b])
     expect(model.addresses.map(&:city)).to eq(["Paris"])
     expect(model.by_id["x"].city).to eq("Rome")
     expect(model.either.city).to eq("Oslo")
-    expect(model.method_).to eq("nfc")
-    expect(model.first_name).to eq("A")
   end
 
   it "keeps unknown fields readable" do

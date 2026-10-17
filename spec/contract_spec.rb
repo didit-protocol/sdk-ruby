@@ -37,7 +37,7 @@ module Contract
     return [] unless File.exist?(file)
 
     read("deprecated-operations.json").fetch("methods", {}).values.map do |value|
-      path = value.fetch("operation_key").split(" ").last
+      path = value.fetch("operation_key").split.last
       entry(value.fetch("x-didit-sdk"), path, value.dig("operation", "parameters") || [])
     end
   end

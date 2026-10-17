@@ -85,8 +85,9 @@ RSpec.describe Didit::Client do
       calls = stub_api(body: decision)
       generated_test_client.sessions.retrieve_decision("s-1")
       request = calls.requests.first
+      platform = Regexp.escape(RUBY_PLATFORM)
       expect(header(request, "User-Agent"))
-        .to match(%r{\Adidit-ruby/#{Regexp.escape(Didit::VERSION)} \(#{RUBY_ENGINE} [0-9.]+; #{Regexp.escape(RUBY_PLATFORM)}\)\z}o)
+        .to match(%r{\Adidit-ruby/#{Regexp.escape(Didit::VERSION)} \(#{RUBY_ENGINE} [0-9.]+; #{platform}\)\z})
       expect(header(request, "X-Didit-Client")).to eq("ruby/#{Didit::VERSION}")
       expect(header(request, "Accept")).to eq("application/json")
       expect(header(request, "x-api-key")).to eq(ApiHelpers::TEST_API_KEY)

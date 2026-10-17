@@ -20,6 +20,10 @@ RSpec.describe Didit::RawResponse do
     expect(raw.parse).to be_a(Didit::Types::SessionsCreateResponse)
     expect(raw.parse).to equal(raw.parse)
     expect(raw.inspect).to include("status=201")
+  end
+
+  it "is a mode of the client that with_options keeps" do
+    client = generated_test_client
     expect(client.raw_response?).to be(false)
     expect(client.with_raw_response.raw_response?).to be(true)
     expect(client.with_raw_response.with_options(timeout: 1).raw_response?).to be(true)

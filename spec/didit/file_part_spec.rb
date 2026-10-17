@@ -68,7 +68,8 @@ RSpec.describe Didit::FilePart do
   end
 
   it "guesses content types from a fixed table" do
-    { "a.JPG" => "image/jpeg", "b.heic" => "image/heic", "c.pdf" => "application/pdf", "d" => "application/octet-stream",
+    { "a.JPG" => "image/jpeg", "b.heic" => "image/heic", "c.pdf" => "application/pdf",
+      "d" => "application/octet-stream",
       "e.unknown" => "application/octet-stream" }.each do |name, type|
       expect(described_class.new("x", filename: name).content_type).to eq(type)
     end

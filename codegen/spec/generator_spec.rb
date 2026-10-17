@@ -6,6 +6,9 @@ RSpec.describe DiditCodegen::Generator do
   end
 
   let(:scoped) { "/v3/organization/{organization_id}/application/{application_id}" }
+  let(:thing_id) { thing_id }
+  let(:address_ref) { { "$ref" => "#/components/schemas/Address" } }
+  let(:email) { { "type" => "object", "properties" => { "email" => { "type" => "string" } } } }
 
   let(:schemas) do
     {
@@ -27,7 +30,7 @@ RSpec.describe DiditCodegen::Generator do
                              "schema" => { "type" => "object", "properties" => {
                                "count" => { "type" => "integer" }, "next" => { "type" => "string", "nullable" => true },
                                "previous" => { "type" => "string", "nullable" => true },
-                               "results" => { "type" => "array", "items" => { "$ref" => "#/components/schemas/Address" } }
+                               "results" => { "type" => "array", "items" => address_ref }
                              } }
                            } } } }),
         "post" => operation("Create a thing", naming("things", "create"), "parameters" => [
@@ -36,7 +39,7 @@ RSpec.describe DiditCodegen::Generator do
                               "type" => "object", "required" => ["name"], "properties" => {
                                 "name" => { "type" => "string" }, "retry" => { "type" => "boolean" },
                                 "id" => { "type" => "string", "readOnly" => true },
-                                "contact" => { "type" => "object", "properties" => { "email" => { "type" => "string" } } },
+                                "contact" => email,
                                 "when" => { "type" => "string", "format" => "date-time" }
                               }
                             } } } }, "responses" => { "201" => { "description" => "ok", "content" => {
@@ -54,13 +57,13 @@ RSpec.describe DiditCodegen::Generator do
       },
       "/v3/things/{thingId}/pdf/" => {
         "get" => operation("PDF", naming("things", "download_pdf"), "parameters" => [
-                             { "in" => "path", "name" => "thingId", "required" => true, "schema" => { "type" => "string" } }
+                             thing_id
                            ], "responses" => { "200" => { "description" => "ok",
                                                           "content" => { "application/pdf" => {} } } })
       },
       "/v3/things/{thingId}/photo/" => {
         "post" => operation("Upload", naming("things.photos", "upload"), "parameters" => [
-                              { "in" => "path", "name" => "thingId", "required" => true, "schema" => { "type" => "string" } }
+                              thing_id
                             ], "requestBody" => { "content" => { "multipart/form-data" => { "schema" => {
                               "type" => "object", "required" => ["photo"], "properties" => {
                                 "photo" => { "type" => "string",
@@ -207,8 +210,8 @@ RSpec.describe DiditCodegen::Generator do
 
     it "writes matching RBS signatures" do
       rbs = files.fetch("sig/didit/resources/things.rbs")
-      expect(rbs).to include("def create: (name: String, ?retry: bool, ?contact: Didit::Types::things_create_params_contact, " \
-                             "?when: Time | String, ?idempotency_key: String, ?request_options: Didit::request_options?) " \
+      expect(rbs).to include("def create: (name: String, ?retry: bool, " \
+                             "?contact: Didit::Types::things_create_params_contact, ?when: Time | String, ?idempotency_key: String, ?request_options: Didit::request_options?) " \
                              "-> Didit::Types::ThingsCreateResponse")
       expect(rbs).to include("def list: (?limit: Integer, ?offset: Integer, ?status_in: String, " \
                              "?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::Address]")

@@ -41,10 +41,12 @@ module ApiHelpers
 
   # Records the URL of every request as the SDK built it.
   def record_urls(recorder)
-    allow_any_instance_of(Didit::Internal::Transport).to receive(:execute).and_wrap_original do |original, *args, &block| # rubocop:disable RSpec/AnyInstance
+    # rubocop:disable RSpec/AnyInstance
+    allow_any_instance_of(Didit::Internal::Transport).to receive(:execute).and_wrap_original do |original, *args, &block|
       recorder.urls << args[1].to_s
       original.call(*args, &block)
     end
+    # rubocop:enable RSpec/AnyInstance
   end
 
   # Asserts exactly one request was sent, with this method, URL (without query), query pairs in order,
@@ -56,11 +58,15 @@ module ApiHelpers
     expect(request.method).to eq(method)
     expect("#{uri.scheme}://#{uri.host}#{uri.path}").to eq(url)
     expect(uri.query ? URI.decode_www_form(uri.query) : []).to eq(query)
+    expect_sdk_headers(request, auth, accept)
+    request
+  end
+
+  def expect_sdk_headers(request, auth, accept)
     expect_credentials(request, auth)
     expect(header(request, "Accept")).to eq(accept)
     expect(header(request, "User-Agent")).to start_with("didit-ruby/#{Didit::VERSION} (")
     expect(header(request, "X-Didit-Client")).to eq("ruby/#{Didit::VERSION}")
-    request
   end
 
   def expect_credentials(request, auth)

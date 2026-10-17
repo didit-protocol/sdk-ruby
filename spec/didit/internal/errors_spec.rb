@@ -81,7 +81,7 @@ RSpec.describe Didit::Internal::Errors do
   end
 
   it "builds status errors for invalid UTF-8 bodies without raising" do
-    error = Didit::Internal::Errors.status_error(status: 500, headers: {}, raw_body: "\xffbad".b)
+    error = described_class.status_error(status: 500, headers: {}, raw_body: "\xffbad".b)
     expect(error.body).to eq("�bad")
   end
 

@@ -124,15 +124,15 @@ RSpec.describe Didit::Internal::Request do
   describe "delays" do
     it "uses exponential backoff with full jitter, capped at 8 seconds" do
       allow(Kernel).to receive(:rand).and_return(0.999)
-      expect((0..6).map { |n| Didit::Internal::Request.backoff(n).round(2) })
+      expect((0..6).map { |n| described_class.backoff(n).round(2) })
         .to eq([0.5, 1.0, 2.0, 4.0, 7.99, 7.99, 7.99])
       allow(Kernel).to receive(:rand).and_return(0.0)
-      expect(Didit::Internal::Request.backoff(3)).to eq(0.0)
+      expect(described_class.backoff(3)).to eq(0.0)
     end
 
     it "reads Retry-After as seconds or an HTTP date, capped at 60 and floored at 0" do
       now = Time.utc(2026, 1, 1, 0, 0, 0)
-      retry_after = ->(value) { Didit::Internal::Request.retry_after(value, now: now) }
+      retry_after = ->(value) { described_class.retry_after(value, now: now) }
       expect(retry_after.call("3")).to eq(3.0)
       expect(retry_after.call("1.5")).to eq(1.5)
       expect(retry_after.call("600")).to eq(60.0)

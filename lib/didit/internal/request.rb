@@ -184,9 +184,7 @@ module Didit
           headers.delete_if { |k, _| k.casecmp?(name) }
           headers[name] = value.to_s unless value.nil?
         end
-        put.call("Accept", accept)
-        put.call("User-Agent", Util.user_agent)
-        put.call("X-Didit-Client", Util.client_header)
+        { "Accept" => accept, "User-Agent" => Util.user_agent, "X-Didit-Client" => Util.client_header }.each(&put)
         config.default_headers.each { |name, value| put.call(name.to_s, value) }
         credential = credential_header(config, auth)
         put.call(credential[0], credential[1]) if credential
