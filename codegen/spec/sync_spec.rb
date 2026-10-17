@@ -753,7 +753,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(added.scan(%r{^- `GET /v3/things}).size).to eq(100)
     end
 
-    it "caps the summary at 60 000 characters with a truncation note" do
+    it "caps the summary at 50 000 characters with a truncation note" do
       report = DiditCodegen::Sync::Report.new(date)
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
       report.action_needed = ["x" * 70_000, {}]
@@ -761,12 +761,27 @@ RSpec.describe DiditCodegen::Sync do
         100.times { |i| report.send(list) << "`item #{i}` #{"y" * 300}" }
       end
       text = report.summary
-      expect(text.length).to be <= 60_000
+      expect(text.length).to be <= 50_000
       expect(text).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
-      expect(text).to end_with("_The summary was truncated at 60000 characters; the spec sync workflow log has " \
+      expect(text).to end_with("_The summary was truncated at 50000 characters; the spec sync workflow log has " \
                                "all of it._\n")
       expect(text.scan(/^```/).size).to be_even
-      expect(report.summary(limit: false).length).to be > 60_000
+      expect(report.summary(limit: false).length).to be > 50_000
+    end
+
+    it "keeps the pull request body (summary, checks and footer) under GitHub's 65 536 characters" do
+      report = DiditCodegen::Sync::Report.new(date)
+      report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
+      400.times { |i| report.breaking << "`thing.method_#{i}` (`GET /v3/things/#{i}/`) moved to `#{"/v3/x" * 80}/`" }
+      400.times { |i| report.moved << "`GET /v3/things/#{i}/` #{"z" * 300}" }
+      footer = report.commit_message[/^BREAKING CHANGE:.*/m]
+      expect(footer.length).to be <= 10_000
+      expect(footer).to end_with("more (see the pull request)\n")
+      # What .github/workflows/spec-sync.yml assembles: the summary without its title line,
+      # the checks, the run link and the footer.
+      checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
+      body = "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{footer}"
+      expect(body.length).to be < 65_536
     end
   end
 
