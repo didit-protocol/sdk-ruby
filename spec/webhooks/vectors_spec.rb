@@ -3,7 +3,7 @@
 require_relative "webhooks_helper"
 
 # Every vector of openapi/webhook-vectors.json, produced by the backend's own signing code.
-RSpec.describe "Didit::Webhooks vectors" do
+RSpec.describe Didit::Webhooks, "vectors" do
   include WebhookSpecHelpers
 
   document = WebhookSpecHelpers.vectors_document

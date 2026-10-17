@@ -2,7 +2,8 @@
 
 module Didit
   module Webhooks
-    # A webhook event (docs/DESIGN.md section 9.4); {Didit::Webhooks.verify} returns the subclass for its +webhook_type+.
+    # A webhook event (docs/DESIGN.md section 9.4); {Didit::Webhooks.verify} returns the subclass
+    # for its +webhook_type+.
     #
     # Every field Didit sent stays readable with {#[]} and {#to_h}, typed or not.
     class Event < Didit::Model

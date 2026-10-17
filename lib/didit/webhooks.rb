@@ -82,7 +82,9 @@ module Didit
       # @return [Event]
       # @raise [ArgumentError] when +payload+ is not a Hash
       def parse_event(payload)
-        raise ArgumentError, "parse_event needs the parsed JSON object (a Hash), not a #{payload.class}" unless payload.is_a?(Hash)
+        unless payload.is_a?(Hash)
+          raise ArgumentError, "parse_event needs the parsed JSON object (a Hash), not a #{payload.class}"
+        end
 
         Event.build(payload)
       end

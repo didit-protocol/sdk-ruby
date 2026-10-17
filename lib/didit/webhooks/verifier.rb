@@ -11,7 +11,9 @@ module Didit
     # @api private
     class Verifier
       # Signatures over the whole body, in the order they are tried for each secret.
-      FULL_BODY = [HEADER_SIGNATURE, HEADER_SIGNATURE_V2, HEADER_SIGNATURE_PREVIOUS, HEADER_SIGNATURE_V2_PREVIOUS].freeze
+      FULL_BODY = [
+        HEADER_SIGNATURE, HEADER_SIGNATURE_V2, HEADER_SIGNATURE_PREVIOUS, HEADER_SIGNATURE_V2_PREVIOUS
+      ].freeze
       # Signatures of the canonical JSON, the only ones a parsed body can be checked against.
       CANONICAL = [HEADER_SIGNATURE_V2, HEADER_SIGNATURE_V2_PREVIOUS].freeze
       # The deprecated envelope-only signatures.
@@ -79,7 +81,9 @@ module Didit
       end
 
       def key_bytes(secret)
-        raise ConfigurationError, "The webhook secret must be a String or an Array of Strings." unless secret.is_a?(String)
+        unless secret.is_a?(String)
+          raise ConfigurationError, "The webhook secret must be a String or an Array of Strings."
+        end
         raise ConfigurationError, "The webhook secret is empty." if secret.empty?
 
         (secret.encoding == Encoding::BINARY ? secret : secret.encode(Encoding::UTF_8)).b
@@ -144,7 +148,9 @@ module Didit
 
       def check_timestamp
         timestamp = payload["timestamp"]
-        raise failure(:missing_timestamp, "The webhook body has no integer \"timestamp\".") unless timestamp.is_a?(Integer)
+        unless timestamp.is_a?(Integer)
+          raise failure(:missing_timestamp, "The webhook body has no integer \"timestamp\".")
+        end
 
         stale = timestamp >= MAX_TIMESTAMP || timestamp <= -MAX_TIMESTAMP
         check_timestamp_header(timestamp) unless stale
