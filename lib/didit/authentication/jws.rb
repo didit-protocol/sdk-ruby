@@ -145,7 +145,9 @@ module Didit
 
       def check_header(header, kind)
         alg = header["alg"]
-        fail!(:unsupported_algorithm, "The token is signed with #{shown(alg)}; only ES256 is accepted.") if alg != ALGORITHM
+        if alg != ALGORITHM
+          fail!(:unsupported_algorithm, "The token is signed with #{shown(alg)}; only ES256 is accepted.")
+        end
         if header.key?("crit")
           fail!(:malformed, "The token header has critical extensions (crit), which are not supported.")
         end
@@ -206,7 +208,7 @@ module Didit
                  when Array then aud.grep(String)
                  else []
                  end
-        fail!(:invalid_audience, "The token was not issued for this audience.") if (values & audience).empty?
+        fail!(:invalid_audience, "The token was not issued for this audience.") unless values.intersect?(audience)
       end
 
       def check_nonce(claims, nonce)

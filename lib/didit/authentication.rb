@@ -107,8 +107,9 @@ module Didit
       @client_id = checked_client_id(client_id)
       @timeout = checked_timeout(timeout)
       @leeway = checked_leeway(leeway)
-      raise ConfigurationError, "http_client must respond to #call." unless http_client.nil? || http_client.respond_to?(:call)
-      raise ConfigurationError, "clock must respond to #call." unless clock.nil? || clock.respond_to?(:call)
+      [[http_client, "http_client"], [clock, "clock"]].each do |value, name|
+        raise ConfigurationError, "#{name} must respond to #call." unless value.nil? || value.respond_to?(:call)
+      end
 
       @clock = clock || -> { Time.now.to_f }
       @cache = IssuerCache.new(@clock)
@@ -343,7 +344,7 @@ module Didit
         response = @transport.perform(call)
         data = @transport.read(call, response)
         parsed = KeySet.parse(data)
-        raise @transport.validation_error(call, response, 'The issuer\'s JWKS is not a key set ({"keys": [...]}).') unless parsed
+        raise @transport.validation_error(call, response, "The issuer's JWKS is not a key set.") unless parsed
 
         @cache.store_key_set(parsed, response.headers)
       rescue *FETCH_ERRORS
@@ -365,12 +366,14 @@ module Didit
     def parse_discovery(call, response)
       data = @transport.read_object(call, response)
       found = data["issuer"]
-      raise @transport.validation_error(call, response, "The discovery document names no issuer.") unless found.is_a?(String)
+      unless found.is_a?(String)
+        raise @transport.validation_error(call, response, "The discovery document names no issuer.")
+      end
       if found != issuer
         raise ConfigurationError,
-              "The discovery document at #{call.display_url} names the issuer #{found.inspect}, not #{issuer.inspect}. " \
-              "Configure Didit::Authentication with #{found.inspect} (an application's issuer changes when its " \
-              "custom domain is activated)."
+              "The discovery document at #{call.display_url} names the issuer #{found.inspect}, " \
+              "not #{issuer.inspect}. Configure Didit::Authentication with #{found.inspect} (an application's " \
+              "issuer changes when its custom domain is activated)."
       end
 
       Discovery.new(
@@ -391,7 +394,11 @@ module Didit
       issuer_origin = Internal::Util.origin(issuer)
       return value if Internal::Util.origin(uri) == issuer_origin && value.is_a?(String)
 
-      problem = uri.scheme == "http" && issuer_origin.start_with?("https:") ? "does not use https" : "is not on the issuer's origin #{issuer_origin}"
+      problem = if uri.scheme == "http" && issuer_origin.start_with?("https:")
+                  "does not use https"
+                else
+                  "is not on the issuer's origin #{issuer_origin}"
+                end
       raise @transport.validation_error(call, response, "The discovery document's #{name} #{value.inspect} #{problem}.")
     end
 
@@ -455,7 +462,8 @@ module Didit
       text = plain_decimal(amount.to_s) if amount.is_a?(Numeric) && !amount.is_a?(Complex)
       return text if text
 
-      raise ConfigurationError, "amount must be a finite decimal String, Integer, Float or BigDecimal, got #{amount.inspect}."
+      raise ConfigurationError,
+            "amount must be a finite decimal String, Integer, Float or BigDecimal, got #{amount.inspect}."
     end
 
     # "1.5e-05" => "0.000015", "0.15e4" => "1500"; nil for anything else (NaN, Infinity, "3/2").
@@ -484,9 +492,7 @@ module Didit
 
     def checked_client_id(client_id)
       return nil if client_id.nil?
-      if client_id.is_a?(String) && !client_id.strip.empty?
-        return client_id.strip
-      end
+      return client_id.strip if client_id.is_a?(String) && !client_id.strip.empty?
 
       raise ConfigurationError, "client_id is empty: pass your application id or leave it out."
     end

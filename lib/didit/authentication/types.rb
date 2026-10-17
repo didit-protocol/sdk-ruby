@@ -17,7 +17,7 @@ module Didit
       # The agent's name.
       field :agent, "agent", :string
       # What the person allowed the agent to do; never act beyond these.
-      field :scopes, "scopes", [:array, :string]
+      field :scopes, "scopes", %i[array string]
     end
 
     # +verified+: the highest approved verification level and the claims the
@@ -25,8 +25,9 @@ module Didit
     class VerifiedClaims < Model
       # "liveness", "liveness_face_match" or "full_id"
       field :level, "level", :string
-      field :over_18, "over_18", :boolean
-      field :over_21, "over_21", :boolean
+      # The readers keep the claim names.
+      field :over_18, "over_18", :boolean # rubocop:disable Naming/VariableNumber
+      field :over_21, "over_21", :boolean # rubocop:disable Naming/VariableNumber
       field :given_name, "given_name", :string
       field :family_name, "family_name", :string
       # YYYY-MM-DD
@@ -54,7 +55,7 @@ module Didit
       # The person's reference across Didit products (verification sessions, monitoring).
       field :vendor_data, "vendor_data", :string
       # How the person signed in, for example ["passkey"]; empty on an agent token.
-      field :amr, "amr", [:array, :string]
+      field :amr, "amr", %i[array string]
       field :org, "org", OrganizationClaim
       field :verified, "verified", VerifiedClaims
       # nil for a person; the agent on an agent access token.
@@ -103,7 +104,7 @@ module Didit
     # A custom organization role of {SessionOrganization}.
     class SessionCustomRole < Model
       field :key, "key", :string
-      field :permissions, "permissions", [:array, :string]
+      field :permissions, "permissions", %i[array string]
     end
 
     # One organization of the person in {Session#organizations}.
@@ -124,12 +125,12 @@ module Didit
       field :sid, "sid", :string
       field :application_id, "application_id", :string
       field :vendor_data, "vendor_data", :string
-      field :amr, "amr", [:array, :string]
+      field :amr, "amr", %i[array string]
       field :mfa_verified, "mfa_verified", :boolean
       field :email, "email", :string
       field :email_verified, "email_verified", :boolean
       field :phone, "phone", :string
-      field :verified_identity, "verified_identity", [:map, :any]
+      field :verified_identity, "verified_identity", %i[map any]
       field :verified, "verified", VerifiedClaims
       field :expires_at, "expires_at", :datetime
       field :post_logout_redirect_uri, "post_logout_redirect_uri", :string

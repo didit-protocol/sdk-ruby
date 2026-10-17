@@ -43,7 +43,8 @@ module Didit
         secure = uri.scheme.downcase == "https"
         local = allow_loopback_http && uri.scheme.downcase == "http" && loopback?(uri.hostname.to_s)
         unless secure || local
-          raise ConfigurationError, "The issuer must use https (http only for localhost while testing), got #{text.inspect}."
+          raise ConfigurationError,
+                "The issuer must use https (http only for localhost while testing), got #{text.inspect}."
         end
 
         text.sub(%r{/+\z}, "")
@@ -96,7 +97,8 @@ module Didit
       end
 
       def invalid(text)
-        raise ConfigurationError, "The issuer must be an absolute https URL with no query or fragment, got #{text.inspect}."
+        raise ConfigurationError,
+              "The issuer must be an absolute https URL with no query or fragment, got #{text.inspect}."
       end
     end
   end

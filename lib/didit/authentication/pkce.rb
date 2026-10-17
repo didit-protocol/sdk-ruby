@@ -40,7 +40,8 @@ module Didit
       # @raise [Didit::ConfigurationError] when the verifier does not fit RFC 7636 section 4.1
       def initialize(code_verifier)
         unless code_verifier.is_a?(String) && VERIFIER.match?(code_verifier)
-          raise ConfigurationError, "A PKCE code_verifier is 43 to 128 characters of A-Z, a-z, 0-9, '-', '.', '_' and '~'."
+          raise ConfigurationError,
+                "A PKCE code_verifier is 43 to 128 characters of A-Z, a-z, 0-9, '-', '.', '_' and '~'."
         end
 
         @code_verifier = code_verifier.dup.freeze

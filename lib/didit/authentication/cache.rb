@@ -42,6 +42,7 @@ module Didit
       MIN_MAX_AGE = 60
       MAX_MAX_AGE = 86_400
       REFETCH_INTERVAL = 60
+      NO_CACHE = %w[no-store no-cache].freeze
 
       # A cached value and the clock reading it expires at.
       class Entry
@@ -61,8 +62,10 @@ module Didit
         # @return [Integer]
         def cache_seconds(headers)
           max_age = max_age(headers.fetch("cache-control", ""))
-          seconds = max_age.nil? ? DEFAULT_MAX_AGE : max_age - (Integer(headers.fetch("age", "").strip, 10, exception: false) || 0)
-          seconds.clamp(MIN_MAX_AGE, MAX_MAX_AGE)
+          return DEFAULT_MAX_AGE if max_age.nil?
+
+          age = Integer(headers.fetch("age", "").strip, 10, exception: false) || 0
+          (max_age - age).clamp(MIN_MAX_AGE, MAX_MAX_AGE)
         end
 
         # A deeply frozen copy of a parsed JSON value.
@@ -83,7 +86,7 @@ module Didit
           cache_control.split(",").each do |directive|
             name, value = directive.split("=", 2)
             name = name.to_s.strip.downcase
-            return 0 if %w[no-store no-cache].include?(name)
+            return 0 if NO_CACHE.include?(name)
 
             if name == "max-age"
               seconds = Integer(value.to_s.strip.delete_prefix('"').delete_suffix('"'), 10, exception: false)
