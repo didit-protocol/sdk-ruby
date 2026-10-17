@@ -62,7 +62,12 @@ module Didit
         "#{origin(uri)}#{uri.path}"
       end
 
-      # Whether the environment variable asks for debug logging.
+# Sleeps between retries (a separate method, so tests can skip the wait).
+def pause(seconds)
+  sleep(seconds) if seconds.positive?
+end
+
+# Whether the environment variable asks for debug logging.
       def debug_from_env?
         ENV.fetch("DIDIT_LOG", "").strip.casecmp?("debug")
       end
