@@ -98,7 +98,7 @@ module AuthenticationHelper
     describe "http_client" do
       let(:key) { AuthenticationHelper::SigningKey.generate("k_synthetic_key_1") }
 
-      it "builds every connection, with the SDK's timeouts and no retries" do
+      it "builds the connections, with the SDK's timeouts and no retries" do
         AuthenticationHelper::FakeIssuer.new([key])
         built = []
         factory = lambda do |uri|
@@ -110,7 +110,8 @@ module AuthenticationHelper
         auth = described_class.new(ISSUER, timeout: 4, http_client: factory, clock: AuthenticationHelper::FakeClock.new)
         auth.verify_access_token(key.sign(access_claims))
 
-        expect(built.map(&:first)).to eq(["#{ISSUER}#{DISCOVERY}", "#{ISSUER}#{JWKS}"])
+        # One connection per origin, kept alive for the next request.
+        expect(built.map(&:first)).to eq(["#{ISSUER}#{DISCOVERY}"])
         http = built.last.last
         expect([http.open_timeout, http.read_timeout, http.write_timeout, http.max_retries]).to eq([4, 4, 4, 0])
       end
