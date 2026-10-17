@@ -20,7 +20,7 @@ module Didit
 
       def initialize(**options)
         unknown = options.keys - FIELDS
-        raise ConfigurationError, "Unknown client options #{unknown.map(&:inspect).join(', ')}." unless unknown.empty?
+        raise ConfigurationError, "Unknown client options #{unknown.map(&:inspect).join(", ")}." unless unknown.empty?
 
         @api_key = present(options[:api_key])
         @account_token = present(options[:account_token])

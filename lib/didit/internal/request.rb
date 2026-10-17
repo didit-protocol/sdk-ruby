@@ -32,8 +32,8 @@ module Didit
 
         unknown = raw.keys.map(&:to_sym) - OPTION_KEYS
         unless unknown.empty?
-          raise ConfigurationError, "Unknown request_options #{unknown.map(&:inspect).join(', ')}; " \
-                                    "use #{OPTION_KEYS.map(&:inspect).join(', ')}."
+          raise ConfigurationError, "Unknown request_options #{unknown.map(&:inspect).join(", ")}; " \
+                                    "use #{OPTION_KEYS.map(&:inspect).join(", ")}."
         end
         opts = raw.transform_keys(&:to_sym)
         {
@@ -206,7 +206,7 @@ module Didit
           if block
             stream = lambda do |chunk|
               streamed = true
-              block.call(chunk)
+              yield(chunk)
             end
           end
           begin

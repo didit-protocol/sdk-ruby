@@ -116,6 +116,19 @@ module AuthenticationHelper
         expect([http.open_timeout, http.read_timeout, http.write_timeout, http.max_retries]).to eq([4, 4, 4, 0])
       end
 
+      it "keeps the connection open until close, and reconnects after it" do
+        AuthenticationHelper::FakeIssuer.new([key])
+        built = []
+        factory = ->(uri) { Net::HTTP.new(uri.hostname, uri.port).tap { |http| built << http } }
+        auth = described_class.new(ISSUER, http_client: factory, clock: AuthenticationHelper::FakeClock.new)
+        auth.discovery
+        expect(auth.close).to be_nil
+        auth.jwks
+
+        expect(built.length).to eq(2)
+        expect(built.first).not_to be_started
+      end
+
       it "must return a Net::HTTP" do
         auth = described_class.new(ISSUER, http_client: ->(_uri) { :not_http })
         expect { auth.get_session(ACCESS_TOKEN) }.to raise_error(Didit::ConfigurationError, /Net::HTTP/)

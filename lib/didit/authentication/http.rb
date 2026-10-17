@@ -67,6 +67,13 @@ module Didit
         raise error_class.new(http_method: call.http_method, url: call.display_url)
       end
 
+      # Closes the idle connections.
+      #
+      # @return [nil]
+      def close
+        @transport.close
+      end
+
       # The parsed JSON body of a 2xx response, nil when it has none.
       #
       # @return [Object, nil]

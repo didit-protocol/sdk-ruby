@@ -62,12 +62,12 @@ module Didit
       #
       # @return [Response]
       # @raise [Failure]
-      def execute(http_method, uri, headers, body, timeout, &block)
+      def execute(http_method, uri, headers, body, timeout, &)
         http = checkout(uri, timeout)
         reusable = false
         begin
           request = build(http_method, uri, headers, body)
-          response = perform(http, request, &block)
+          response = perform(http, request, &)
           reusable = response.headers["connection"]&.casecmp?("close") != true
           response
         rescue *NOT_SENT_ERRORS => e
@@ -101,7 +101,7 @@ module Didit
           res.each_header { |name, value| headers[name.downcase] = value }
           status = res.code.to_i
           if block && status.between?(200, 299)
-            res.read_body { |chunk| block.call(chunk) }
+            res.read_body(&block)
             result = Response.new(status: status, headers: headers, body: nil)
           else
             result = Response.new(status: status, headers: headers, body: res.read_body.to_s.b)

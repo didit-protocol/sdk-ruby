@@ -50,7 +50,9 @@ RSpec.describe Didit::Page do
   it "sends the API key and request options to every page" do
     stub_pages("#{base}?limit=2&offset=2", second_next: "#{base}?limit=2&offset=4")
     client.sessions.list(limit: 2, request_options: { extra_headers: { "X-Trace" => "t" } }).auto_paging_each.to_a
-    expect(a_request(:get, base).with(query: hash_including({}), headers: { "X-Trace" => "t", "X-Api-Key" => "test-key" }))
+    expect(a_request(:get, base).with(query: hash_including({}),
+                                      headers: { "X-Trace" => "t",
+                                                 "X-Api-Key" => "test-key" }))
       .to have_been_made.times(3)
   end
 

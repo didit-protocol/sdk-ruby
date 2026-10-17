@@ -8,6 +8,7 @@ module Didit
       SIMPLE_FIELDS: Array[String]
       MAX_TIMESTAMP: Integer
       TIMESTAMP_HEADER: Regexp
+      DUPLICATE_KEY_OPTION: bool
       PARSE_OPTIONS: Hash[Symbol, bool]
 
       type kind = :raw | :canonical | :simple

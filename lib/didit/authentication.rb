@@ -270,6 +270,13 @@ module Didit
       key_set(nil).document
     end
 
+    # Closes the idle connections to the issuer. The instance stays usable.
+    #
+    # @return [nil]
+    def close
+      @http.close
+    end
+
     def inspect
       "#<#{self.class.name} issuer=#{issuer.inspect} client_id=#{client_id.inspect}>"
     end

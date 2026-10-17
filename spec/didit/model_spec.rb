@@ -15,7 +15,7 @@ RSpec.describe Didit::Model do
       field :created_at, "created_at", :datetime
       field :birthday, "birthday", :date
       field :address, "address", address
-      field :tags, "tags", [:array, :string]
+      field :tags, "tags", %i[array string]
       field :addresses, "addresses", [:array, address]
       field :by_id, "by_id", [:map, address]
       field :either, "either", [:union, [:integer, address]]

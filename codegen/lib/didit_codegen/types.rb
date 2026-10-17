@@ -42,7 +42,7 @@ module DiditCodegen
       when :model then name.inspect
       when :array then "[:array, #{inner.runtime}]"
       when :map then "[:map, #{inner.runtime}]"
-      when :union then "[:union, [#{members.map(&:runtime).join(', ')}]]"
+      when :union then "[:union, [#{members.map(&:runtime).join(", ")}]]"
       when :string, :integer, :float, :boolean, :datetime, :date then ":#{kind}"
       else ":any"
       end
@@ -93,7 +93,7 @@ module DiditCodegen
       parts = parts.flat_map { |p| p.delete_prefix("(").delete_suffix(")").split(" | ") }.uniq
       return "untyped" if parts.include?("untyped")
 
-      parts.size == 1 ? parts.first : "(#{parts.join(' | ')})"
+      parts.size == 1 ? parts.first : "(#{parts.join(" | ")})"
     end
 
     def optionalize(base, optional)
@@ -427,7 +427,8 @@ module DiditCodegen
       return [nil, props] unless refs.size == 1
 
       target = document.resolve(refs.first)
-      return [nil, props] unless target["properties"] && !target.key?("allOf") && target.fetch("type", "object") == "object"
+      return [nil, props] unless target["properties"] && !target.key?("allOf") && target.fetch("type",
+                                                                                               "object") == "object"
 
       base = component_response(document, refs.first["$ref"].split("/").last)
       return [nil, props] unless base.kind == :model

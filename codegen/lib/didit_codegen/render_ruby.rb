@@ -1,53 +1,53 @@
 # frozen_string_literal: true
 
 module DiditCodegen
-# Comment text helpers shared by the renderers.
-module Text
-  WIDTH = 118
+  # Comment text helpers shared by the renderers.
+  module Text
+    WIDTH = 118
 
-  module_function
+    module_function
 
-  # Comment lines for +text+ at +indent+, wrapped at 118 columns, without em or en dashes
-  # (upstream descriptions use them).
-  def comment(text, indent)
-    return [] if text.nil? || text.strip.empty?
+    # Comment lines for +text+ at +indent+, wrapped at 118 columns, without em or en dashes
+    # (upstream descriptions use them).
+    def comment(text, indent)
+      return [] if text.nil? || text.strip.empty?
 
-    fenced = false
-    text.gsub("—", "-").gsub("–", "-").strip.lines.flat_map do |line|
-      line = line.rstrip
-      fenced = !fenced if line.lstrip.start_with?("```")
-      next ["#{indent}#"] if line.empty?
-      next ["#{indent}# #{line}"] if fenced || line.lstrip.start_with?("|", "```")
+      fenced = false
+      text.tr("—", "-").tr("–", "-").strip.lines.flat_map do |line|
+        line = line.rstrip
+        fenced = !fenced if line.lstrip.start_with?("```")
+        next ["#{indent}#"] if line.empty?
+        next ["#{indent}# #{line}"] if fenced || line.lstrip.start_with?("|", "```")
 
-      wrap(line, WIDTH - indent.length - 2).map { |part| "#{indent}# #{part}" }
-    end
-  end
-
-  # Splits +line+ at spaces so each part fits +width+; list items keep a hanging indent.
-  def wrap(line, width)
-    return [line] if line.length <= width
-
-    hang = " " * (line[/\A\s*(?:[-*]|\d+\.)\s+/] || line[/\A\s*/]).length
-    parts = []
-    current = +""
-    line.split(" ").each do |word|
-      prefix = parts.empty? ? line[/\A\s*/] : hang
-      candidate = current.empty? ? "#{prefix}#{word}" : "#{current} #{word}"
-      if candidate.length > width && !current.empty?
-        parts << current
-        current = +"#{hang}#{word}"
-      else
-        current = candidate
+        wrap(line, WIDTH - indent.length - 2).map { |part| "#{indent}# #{part}" }
       end
     end
-    parts << current unless current.empty?
-    parts
-  end
 
-  def ruby_string(value)
-    value.inspect
+    # Splits +line+ at spaces so each part fits +width+; list items keep a hanging indent.
+    def wrap(line, width)
+      return [line] if line.length <= width
+
+      hang = " " * (line[/\A\s*(?:[-*]|\d+\.)\s+/] || line[/\A\s*/]).length
+      parts = []
+      current = +""
+      line.split(" ").each do |word|
+        prefix = parts.empty? ? line[/\A\s*/] : hang
+        candidate = current.empty? ? "#{prefix}#{word}" : "#{current} #{word}"
+        if candidate.length > width && !current.empty?
+          parts << current
+          current = "#{hang}#{word}"
+        else
+          current = candidate
+        end
+      end
+      parts << current unless current.empty?
+      parts
+    end
+
+    def ruby_string(value)
+      value.inspect
+    end
   end
-end
 
   # Writes the Ruby side of the generated layer: lib/didit/types* and lib/didit/resources*.
   class RubyRenderer
@@ -111,7 +111,11 @@ end
       classes = @registry.classes.values.select { |c| c.group == group }.sort_by(&:name)
       done = []
       until classes.empty?
-        ready = classes.find { |c| c.superclass.nil? || done.any? { |d| d.name == c.superclass } || @registry.classes[c.superclass].group != group }
+        ready = classes.find do |c|
+          c.superclass.nil? || done.any? do |d|
+            d.name == c.superclass
+          end || @registry.classes[c.superclass].group != group
+        end
         done << ready
         classes.delete(ready)
       end
@@ -131,14 +135,14 @@ end
         name
       end
       lines << ""
-      lines << "      VALUES = [#{names.join(', ')}].freeze"
+      lines << "      VALUES = [#{names.join(", ")}].freeze"
       lines << "    end"
       "#{lines.join("\n")}\n"
     end
 
     def class_block(defn)
       lines = Text.comment(defn.description, "    ")
-      superclass = defn.superclass ? defn.superclass : "Didit::Model"
+      superclass = defn.superclass || "Didit::Model"
       lines << "    class #{defn.name} < #{superclass}"
       defn.fields.each do |field|
         lines << "      field :#{field.reader}, #{Text.ruby_string(field.wire)}, #{field.type.runtime}"
@@ -174,7 +178,7 @@ end
       [
         "#{indent}# @return [Didit::Resources::#{node.path_name}]",
         "#{indent}def #{node.segment}",
-        "#{indent}  @#{node.segment} ||= Resources::#{node.path_name}.new(#{node.parent&.parent ? '@client' : 'self'})",
+        "#{indent}  @#{node.segment} ||= Resources::#{node.path_name}.new(#{node.parent&.parent ? "@client" : "self"})",
         "#{indent}end"
       ].join("\n")
     end
@@ -184,7 +188,7 @@ end
         #{header}
         module Didit
           module Resources
-        #{resource_class(node, '    ').rstrip}
+        #{resource_class(node, "    ").rstrip}
           end
         end
       RUBY
@@ -215,22 +219,24 @@ end
     def method_source(meth, indent)
       lines = method_doc(meth, indent)
       lines.concat(signature(meth, indent))
-      lines << "#{indent}  @client.deprecated(#{"#{meth.resource}.#{meth.name}".inspect}, #{deprecation(meth).inspect})" if meth.deprecated?
+      if meth.deprecated?
+        lines << "#{indent}  @client.deprecated(#{"#{meth.resource}.#{meth.name}".inspect}, #{deprecation(meth).inspect})"
+      end
       lines.concat(call_lines(meth, "#{indent}  "))
       lines << "#{indent}end"
       lines.join("\n")
     end
 
-# The def line, one parameter per line when it would pass 120 columns.
-def signature(meth, indent)
-  params = parameters(meth)
-  line = "#{indent}def #{meth.name}(#{params.join(', ')})"
-  return [line] if line.length <= 120
+    # The def line, one parameter per line when it would pass 120 columns.
+    def signature(meth, indent)
+      params = parameters(meth)
+      line = "#{indent}def #{meth.name}(#{params.join(", ")})"
+      return [line] if line.length <= 120
 
-  ["#{indent}def #{meth.name}(", *params.each_with_index.map do |p, i|
-    "#{indent}  #{p}#{i == params.size - 1 ? '' : ','}"
-  end, "#{indent})"]
-end
+      ["#{indent}def #{meth.name}(", *params.each_with_index.map do |p, i|
+        "#{indent}  #{p}#{"," unless i == params.size - 1}"
+      end, "#{indent})"]
+    end
 
     def deprecation(meth)
       meth.op.deprecation_note || "The API marks this operation as deprecated."
@@ -238,7 +244,7 @@ end
 
     def parameters(meth)
       params = meth.path_args.map(&:name)
-      params << "#{meth.whole_body.name}:#{meth.whole_body.required ? '' : ' OMIT'}" if meth.whole_body
+      params << "#{meth.whole_body.name}:#{" OMIT" unless meth.whole_body.required}" if meth.whole_body
       meth.kwargs.each { |a| params << (a.required ? "#{a.name}:" : "#{a.name}: OMIT") }
       params << "#{meth.idempotency.name}: OMIT" if meth.idempotency
       params << "request_options: nil"
@@ -251,7 +257,7 @@ end
       args = [":#{op.http_method}", op.path.inspect]
       opts = []
       unless meth.path_args.empty?
-        opts << "path_params: { #{meth.path_args.map { |a| "#{a.wire.inspect} => #{a.reader}" }.join(', ')} }"
+        opts << "path_params: { #{meth.path_args.map { |a| "#{a.wire.inspect} => #{a.reader}" }.join(", ")} }"
       end
       opts << hash_option("query", meth.query_args, indent) unless meth.query_args.empty?
       if meth.whole_body
@@ -261,9 +267,9 @@ end
       elsif op.op["requestBody"]
         opts << "body: {}"
       end
-      if meth.encoding == :multipart || meth.encoding == :auto
+      if %i[multipart auto].include?(meth.encoding)
         opts << "encoding: :#{meth.encoding}"
-        opts << "file_fields: %w[#{meth.file_fields.join(' ')}]" unless meth.file_fields.empty?
+        opts << "file_fields: %w[#{meth.file_fields.join(" ")}]" unless meth.file_fields.empty?
       end
       opts << "headers: { #{meth.idempotency.wire.inspect} => #{meth.idempotency.reader} }" if meth.idempotency
       opts << "auth: :#{op.sdk.auth}" unless op.sdk.auth == "api_key"
@@ -295,7 +301,7 @@ end
       when :page then ["page: #{const(resp.item)}"]
       else
         if resp.by_status
-          ["response: { #{resp.by_status.map { |code, type| "#{code} => #{const(type)}" }.join(', ')} }"]
+          ["response: { #{resp.by_status.map { |code, type| "#{code} => #{const(type)}" }.join(", ")} }"]
         else
           ["response: #{const(resp.type)}"]
         end
@@ -308,7 +314,7 @@ end
       when :model then "Types::#{type.name}"
       when :array then "[:array, #{const(type.inner)}]"
       when :map then "[:map, #{const(type.inner)}]"
-      when :union then "[:union, [#{type.members.map { |m| const(m) }.join(', ')}]]"
+      when :union then "[:union, [#{type.members.map { |m| const(m) }.join(", ")}]]"
       else type.runtime
       end
     end
@@ -335,12 +341,13 @@ end
       lines
     end
 
-def param_doc(arg, indent)
-  text = arg.description ? " #{arg.description.gsub(/\s+/, ' ').gsub("—", '-').gsub("–", '-')}" : ""
-  text = "#{text[0, 400].rstrip}..." if text.length > 400
-  first, *rest = Text.wrap("@param #{arg.name} [#{yard(arg.type, request: true)}]#{text}", Text::WIDTH - indent.length - 2)
-  ["#{indent}# #{first}", *rest.map { |part| "#{indent}#   #{part.strip}" }]
-end
+    def param_doc(arg, indent)
+      text = arg.description ? " #{arg.description.gsub(/\s+/, " ").tr("—", "-").tr("–", "-")}" : ""
+      text = "#{text[0, 400].rstrip}..." if text.length > 400
+      first, *rest = Text.wrap("@param #{arg.name} [#{yard(arg.type, request: true)}]#{text}",
+                               Text::WIDTH - indent.length - 2)
+      ["#{indent}# #{first}", *rest.map { |part| "#{indent}#   #{part.strip}" }]
+    end
 
     def return_doc(meth, indent)
       resp = meth.response
@@ -348,7 +355,7 @@ end
       when :none then "#{indent}# @return [nil]"
       when :binary then "#{indent}# @return [String, nil] the body bytes, or nil when a block receives the chunks"
       when :page then "#{indent}# @return [Didit::Page<#{yard(resp.item)}>]"
-      else "#{indent}# @return [#{yard(resp.type)}#{resp.optional ? ', nil' : ''}]"
+      else "#{indent}# @return [#{yard(resp.type)}#{", nil" if resp.optional}]"
       end
     end
 

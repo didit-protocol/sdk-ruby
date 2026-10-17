@@ -82,7 +82,7 @@ RSpec.describe Didit::Internal::Transport do
   end
 
   it "streams a binary body to a block and returns bytes without one" do
-    pdf = "%PDF-1.7\n#{'x' * 50_000}".b
+    pdf = "%PDF-1.7\n#{"x" * 50_000}".b
     server = serve { { headers: { "Content-Type" => "application/pdf" }, chunks: pdf.scan(/.{1,8192}/m) } }
     client = client_for(server)
     expect(client.sessions.generate_pdf("s-1")).to eq(pdf)

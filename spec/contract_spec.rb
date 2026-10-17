@@ -57,7 +57,7 @@ RSpec.describe "API contract" do
   end
   sdk.reject! { |full| extra.any? { |resource, names| names.any? { |n| full == "#{resource}.#{n}" } } }
 
-  expected = server.map { |o| "#{o[:naming]['resource']}.#{o[:naming]['method']}" }
+  expected = server.map { |o| "#{o[:naming]["resource"]}.#{o[:naming]["method"]}" }
 
   it "has one method per server operation" do
     expect(expected.uniq.size).to eq(expected.size)
@@ -67,7 +67,7 @@ RSpec.describe "API contract" do
   end
 
   it "exposes no end-user or device token operation" do
-    names = hidden.map { |o| "#{o[:naming]['resource']}.#{o[:naming]['method']}" }
+    names = hidden.map { |o| "#{o[:naming]["resource"]}.#{o[:naming]["method"]}" }
     expect(sdk & names).to eq([])
   end
 
@@ -84,16 +84,16 @@ RSpec.describe "API contract" do
   it "takes path parameters positionally, without the application scope ids" do
     server.each do |op|
       naming = op[:naming]
-      method = resolve(client, "#{naming['resource']}.#{naming['method']}")
+      method = resolve(client, "#{naming["resource"]}.#{naming["method"]}")
       placeholders = op[:path].scan(/\{([^}]+)\}/).flatten
       placeholders -= %w[organization_id application_id] if naming["scope"] == "application"
       positional = method.parameters.select { |kind, _| kind == :req }.map(&:last)
-      expect(positional.size).to eq(placeholders.size), "#{naming['resource']}.#{naming['method']}"
+      expect(positional.size).to eq(placeholders.size), "#{naming["resource"]}.#{naming["method"]}"
       keywords = method.parameters.select { |kind, _| %i[key keyreq].include?(kind) }.map(&:last)
       expect(keywords).to include(:request_options)
       expect(keywords).not_to include(:organization_id, :application_id) if naming["scope"] == "application"
       idempotent = op[:params].any? { |p| p["in"] == "header" && p["name"].casecmp?("idempotency-key") }
-      expect(keywords.include?(:idempotency_key)).to eq(idempotent), "#{naming['resource']}.#{naming['method']}"
+      expect(keywords.include?(:idempotency_key)).to eq(idempotent), "#{naming["resource"]}.#{naming["method"]}"
     end
   end
 
@@ -114,11 +114,19 @@ RSpec.describe "API contract" do
           end
         end
       end
-      decls.each { |mod| mod.members.each { |m| m.members.each { |c| collect.call(c, c.name.name.to_s) } if m.respond_to?(:members) } }
+      decls.each do |mod|
+        mod.members.each do |m|
+          next unless m.respond_to?(:members)
+
+          m.members.each do |c|
+            collect.call(c, c.name.name.to_s)
+          end
+        end
+      end
     end
     expected.each do |dotted|
       method = resolve(client, dotted)
-      key = "#{method.owner.name.delete_prefix('Didit::Resources::')}##{method.name}"
+      key = "#{method.owner.name.delete_prefix("Didit::Resources::")}##{method.name}"
       signature = signatures.fetch(key) { raise "no RBS signature for #{key}" }
       type = signature.overloads.first.method_type.type
       ruby = method.parameters

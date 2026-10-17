@@ -26,13 +26,11 @@ module Didit
       MAX_TIMESTAMP = 1_000_000_000_000_000
       # X-Timestamp: an optional sign and digits (leading zeros allowed), at most 32 characters.
       TIMESTAMP_HEADER = /\A[+-]?[0-9]{1,31}\z/
-      # Strict JSON (no NaN). A repeated key keeps its last value, like Python: json 2.13 added
-      # allow_duplicate_key (without it json 2.13+ warns and json 3 raises), older versions reject
-      # unknown options in no case but are left without it.
-      PARSE_OPTIONS = {
-        allow_nan: false,
-        **((JSON::VERSION.split(".").map(&:to_i) <=> [2, 13]).to_i >= 0 ? { allow_duplicate_key: true } : {})
-      }.freeze
+      # Strict JSON (no NaN). A repeated key keeps its last value, like Python. json 2.13 added
+      # allow_duplicate_key for that (without it json 2.13+ warns and json 3 raises); older
+      # versions do not know the option and keep the last value anyway.
+      DUPLICATE_KEY_OPTION = (JSON::VERSION.split(".").map(&:to_i) <=> [2, 13]).to_i >= 0
+      PARSE_OPTIONS = (DUPLICATE_KEY_OPTION ? { allow_nan: false, allow_duplicate_key: true } : { allow_nan: false }).freeze
 
       # @raise [Didit::ConfigurationError] for a missing or empty secret, a bad tolerance or clock,
       #   or headers that cannot be read
@@ -235,6 +233,9 @@ module Didit
         message =
           if checked == CANONICAL && !present.intersect?(CANONICAL)
             "verify_parsed can check only X-Signature-V2, and the request has none; pass the raw body to verify."
+          elsif checked == CANONICAL
+            "X-Signature-V2 does not match: check that the secret belongs to this destination and that the " \
+              "payload is the body as parsed, unchanged."
           elsif !present.intersect?(checked)
             "The request carries only X-Signature-Simple, which does not cover the body and counts only " \
               "with allow_simple: true."

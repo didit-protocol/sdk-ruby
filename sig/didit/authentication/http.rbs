@@ -22,6 +22,7 @@ module Didit
 
       def initialize: (timeout: Float, http_client: Internal::http_client?) -> void
       def perform: (Call call) -> Internal::Transport::Response
+      def close: () -> nil
       def read: (Call call, Internal::Transport::Response response) -> untyped
       def read_object: (Call call, Internal::Transport::Response response) -> Hash[String, untyped]
       def validation_error: (Call call, Internal::Transport::Response response, String message) -> APIResponseValidationError

@@ -20,7 +20,8 @@ module DiditCodegen
       return "example" if depth > MAX_DEPTH
 
       if schema.key?("allOf")
-        merged = schema["allOf"].each_with_object({ "type" => "object", "properties" => {}, "required" => [] }) do |p, m|
+        merged = schema["allOf"].each_with_object({ "type" => "object", "properties" => {},
+                                                    "required" => [] }) do |p, m|
           p = document.resolve(p)
           m["properties"].merge!(p["properties"] || {})
           m["required"] |= Array(p["required"])

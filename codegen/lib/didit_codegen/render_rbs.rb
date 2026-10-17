@@ -73,9 +73,9 @@ module DiditCodegen
 
     def record_block(record)
       fields = record.fields.map do |field|
-        "#{field.required ? '' : '?'}#{field.wire}: #{field.type.rbs_request}"
+        "#{"?" unless field.required}#{field.wire}: #{field.type.rbs_request}"
       end
-      body = fields.empty? ? "{ }" : "{ #{fields.join(', ')} }"
+      body = fields.empty? ? "{ }" : "{ #{fields.join(", ")} }"
       "    type #{record.name} = #{body}\n"
     end
 
@@ -102,7 +102,7 @@ module DiditCodegen
 
         module Didit
           module Resources
-        #{resource_class(node, '    ').rstrip}
+        #{resource_class(node, "    ").rstrip}
           end
         end
       RBS
@@ -123,21 +123,21 @@ module DiditCodegen
     def method_sig(meth, indent)
       params = meth.path_args.map { |a| "String #{a.name}" }
       if meth.whole_body
-        params << "#{meth.whole_body.required ? '' : '?'}#{meth.whole_body.name}: #{meth.whole_body.type.rbs_request}"
+        params << "#{"?" unless meth.whole_body.required}#{meth.whole_body.name}: #{meth.whole_body.type.rbs_request}"
       end
       meth.kwargs.each do |a|
-        params << "#{a.required ? '' : '?'}#{a.name}: #{a.type.rbs_request}"
+        params << "#{"?" unless a.required}#{a.name}: #{a.type.rbs_request}"
       end
       params << "?#{meth.idempotency.name}: String" if meth.idempotency
       params << "?request_options: Didit::request_options?"
       name = RbsRenderer.method_name(meth.name)
-      head = "#{indent}def #{name}: (#{params.join(', ')})"
+      head = "#{indent}def #{name}: (#{params.join(", ")})"
       resp = meth.response
       case resp.kind
       when :none then ["#{head} -> nil"]
       when :binary
         pad = " " * (indent.length + name.length + 4)
-        ["#{head} -> String", "#{pad}| (#{params.join(', ')}) { (String chunk) -> void } -> nil"]
+        ["#{head} -> String", "#{pad}| (#{params.join(", ")}) { (String chunk) -> void } -> nil"]
       when :page then ["#{head} -> Didit::Page[#{resp.item.rbs_response}]"]
       else ["#{head} -> #{resp.type.rbs_response(optional: resp.optional)}"]
       end

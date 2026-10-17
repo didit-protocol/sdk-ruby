@@ -69,7 +69,8 @@ RSpec.describe "Didit errors" do
 
   it "raises APIResponseValidationError for a 2xx that is not JSON" do
     expect { call_with(status: 200, body: "<html>#{ApiHelpers::TEST_API_KEY}</html>", content_type: "text/html") }
-      .to raise_error(Didit::APIResponseValidationError, %r{Expected a JSON response from GET /v3/session/s-1/decision/}) do |e|
+      .to raise_error(Didit::APIResponseValidationError,
+                      %r{Expected a JSON response from GET /v3/session/s-1/decision/}) do |e|
         expect(e.status).to eq(200)
         expect(e.body).to eq("<html>[redacted]</html>")
       end

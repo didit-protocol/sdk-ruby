@@ -46,6 +46,7 @@ module Didit
     def retrieve_step_up: (String access_token, String step_up_id) -> StepUp
     def discovery: () -> Hash[String, untyped]
     def jwks: () -> Hash[String, untyped]
+    def close: () -> nil
     def inspect: () -> String
     def to_s: () -> String
 
@@ -63,7 +64,8 @@ module Didit
                           String name) -> String
     def endpoint_uri: (untyped value) -> URI::HTTP?
     def token_request: (Hash[String, String] form, Array[String] secrets) -> TokenResponse
-    def bearer_call: (String http_method, URI::Generic uri, untyped access_token, ?json: Hash[String, untyped]?) -> Http::Call
+    def bearer_call: (String http_method, URI::Generic uri, untyped access_token,
+                      ?json: Hash[String, untyped]?) -> Http::Call
     def send_object: (Http::Call call) -> Hash[String, untyped]
     def issuer_uri: (String path) -> URI::Generic
     def required_text: (untyped value, String name) -> String

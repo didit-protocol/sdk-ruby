@@ -22,7 +22,7 @@ RSpec.describe DiditCodegen::Generator do
                              { "in" => "query", "name" => "limit", "schema" => { "type" => "integer" } },
                              { "in" => "query", "name" => "offset", "schema" => { "type" => "integer" } },
                              { "in" => "query", "name" => "status__in", "schema" => { "type" => "string",
-                                                                                       "enum" => %w[a b] } }
+                                                                                      "enum" => %w[a b] } }
                            ], "responses" => { "200" => { "description" => "ok", "content" => { "application/json" => {
                              "schema" => { "type" => "object", "properties" => {
                                "count" => { "type" => "integer" }, "next" => { "type" => "string", "nullable" => true },
@@ -63,7 +63,8 @@ RSpec.describe DiditCodegen::Generator do
                               { "in" => "path", "name" => "thingId", "required" => true, "schema" => { "type" => "string" } }
                             ], "requestBody" => { "content" => { "multipart/form-data" => { "schema" => {
                               "type" => "object", "required" => ["photo"], "properties" => {
-                                "photo" => { "type" => "string", "format" => "binary" }, "note" => { "type" => "string" }
+                                "photo" => { "type" => "string",
+                                             "format" => "binary" }, "note" => { "type" => "string" }
                               }
                             } } } }, "responses" => { "204" => { "description" => "none" } })
       },

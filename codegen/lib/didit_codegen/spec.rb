@@ -30,10 +30,10 @@ module DiditCodegen
         raise Error, "#{where}: resource #{resource.inspect} must be a dot path of snake_case names."
       end
       unless raw["method"].is_a?(String) && raw["method"].match?(/\A[a-z][a-z0-9_]*\z/)
-        raise Error, "#{where}: method #{raw['method'].inspect} must be a snake_case name."
+        raise Error, "#{where}: method #{raw["method"].inspect} must be a snake_case name."
       end
       unless AUTH_VALUES.include?(raw["auth"])
-        raise Error, "#{where}: auth #{raw['auth'].inspect} must be one of #{AUTH_VALUES.sort.join(', ')}."
+        raise Error, "#{where}: auth #{raw["auth"].inspect} must be one of #{AUTH_VALUES.sort.join(", ")}."
       end
       raise Error, "#{where}: server must be true or false." unless [true, false].include?(raw["server"])
       return if raw["scope"].nil? || raw["scope"] == "application"
@@ -131,7 +131,7 @@ module DiditCodegen
             seen << key
             raw = op.key?("x-didit-sdk") ? op["x-didit-sdk"] : overlay[key]
             if raw.nil?
-              missing << "#{key} (operationId #{op['operationId'] || '-'})"
+              missing << "#{key} (operationId #{op["operationId"] || "-"})"
               next
             end
             @operations << Operation.new(
@@ -163,7 +163,7 @@ module DiditCodegen
     end
 
     def self.key(api, http_method, path)
-      "#{api == 'account' ? 'account ' : ''}#{http_method.upcase} #{path}"
+      "#{"account " if api == "account"}#{http_method.upcase} #{path}"
     end
 
     private
@@ -185,7 +185,10 @@ module DiditCodegen
       deprecated.sort.map do |name, entry|
         where = "openapi/deprecated-operations.json #{name}"
         sdk = SdkNaming.parse(where, entry["x-didit-sdk"])
-        raise Error, "#{where}: the entry name must equal its resource.method." if "#{sdk.resource}.#{sdk.method}" != name
+        if "#{sdk.resource}.#{sdk.method}" != name
+          raise Error,
+                "#{where}: the entry name must equal its resource.method."
+        end
         if live.key?(name)
           raise Error, "#{where}: #{live[name]} provides #{name} again, so it is no longer deprecated; " \
                        "delete this entry from openapi/deprecated-operations.json."
@@ -204,11 +207,11 @@ module DiditCodegen
 
       op = entry["operation"]
       note = entry["note"] || if entry["replacement"]
-                                "Renamed to #{entry['replacement']}; this name is removed in version " \
-                                  "#{entry['remove_in']}."
+                                "Renamed to #{entry["replacement"]}; this name is removed in version " \
+                                  "#{entry["remove_in"]}."
                               else
                                 "Removed from the API contract; this method is removed in version " \
-                                  "#{entry['remove_in']}."
+                                  "#{entry["remove_in"]}."
                               end
       Operation.new(
         key: key, api: api, http_method: http_method.downcase, path: path, op: op,

@@ -6,7 +6,8 @@ module DiditCodegen
   # Writes one RSpec example per server operation (docs/DESIGN.md section 11) under spec/generated/.
   # The examples use the helpers in spec/support/api_helpers.rb.
   class SpecRenderer
-    BASE_URLS = { "verification" => "https://verification.didit.me", "account" => "https://apx.didit.me/auth/v2" }.freeze
+    BASE_URLS = { "verification" => "https://verification.didit.me",
+                  "account" => "https://apx.didit.me/auth/v2" }.freeze
     ORGANIZATION_ID = "org-7f3a"
     APPLICATION_ID = "app-91c2"
     SAFE_SEGMENT = /\A[A-Za-z0-9_~-]+\z/
@@ -81,7 +82,7 @@ module DiditCodegen
       return Samples::UUID if schema["format"] == "uuid"
       return "123" if schema["type"] == "integer"
 
-      "#{arg.name.tr('_', '-')}-1"
+      "#{arg.name.tr("_", "-")}-1"
     end
 
     def query_values(meth)
@@ -137,16 +138,16 @@ module DiditCodegen
       args = meth.path_args.map { |a| path_values[a.wire].inspect }
       by_wire = meth.body_args.to_h { |a| [a.wire, a] }
       (body || {}).each do |wire, value|
-        arg = by_wire.fetch(wire)
-        args << "#{arg.name}: #{value == :file ? file_literal(wire) : Samples.literal(value, "#{indent}  ", symbols: true)}"
+        literal = value == :file ? file_literal(wire) : Samples.literal(value, "#{indent}  ", symbols: true)
+        args << "#{by_wire.fetch(wire).name}: #{literal}"
       end
       query.each { |arg, value| args << "#{arg.name}: #{Samples.literal(value, "#{indent}  ")}" }
       args << "#{meth.idempotency.name}: \"idem-key-1\"" if meth.idempotency
       call = "client.#{meth.resource}.#{meth.name}"
       return ["#{indent}result = #{call}"] if args.empty?
 
-      ["#{indent}result = #{call}(", *args.each_with_index.map { |a, i| "#{indent}  #{a}#{i == args.size - 1 ? '' : ','}" },
-       "#{indent})"]
+      lines = args.each_with_index.map { |arg, i| "#{indent}  #{arg}#{',' unless i == args.size - 1}" }
+      ["#{indent}result = #{call}(", *lines, "#{indent})"]
     end
 
     def file_literal(wire)
@@ -191,7 +192,8 @@ module DiditCodegen
          "#{indent}  files: #{Samples.literal(files, "#{indent}  ")}",
          "#{indent})"]
       elsif meth.encoding == :multipart
-        ["#{indent}expect_multipart_body(request, fields: #{Samples.literal(body.transform_values { |v| multipart_text(v) }, indent)}, files: {})"]
+        fields = Samples.literal(body.transform_values { |v| multipart_text(v) }, indent)
+        ["#{indent}expect_multipart_body(request, fields: #{fields}, files: {})"]
       else
         ["#{indent}expect_json_body(request, #{Samples.literal(body, indent)})"]
       end

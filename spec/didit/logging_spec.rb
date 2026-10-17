@@ -47,7 +47,7 @@ RSpec.describe "Didit debug logging" do
     expect(logger.lines.map(&:first)).to all(eq("didit"))
     expect(messages[0]).to match(%r{GET /v3/session/s-2/decision/ -> 503 in \d+ ms \(request id -\)})
     expect(messages[1]).to match(%r{GET /v3/session/s-2/decision/: HTTP 503; retrying in \d\.\d\d s \(1 retries left\)})
-    expect(messages[2]).to match(/-> 200/)
+    expect(messages[2]).to include("-> 200")
   end
 
   it "logs connection failures before a retry" do
@@ -55,6 +55,6 @@ RSpec.describe "Didit debug logging" do
     stub_request(:get, %r{/v3/session/s-3/decision/}).to_raise(Errno::ECONNREFUSED).then.to_return(body: "{}")
     logger = logger_class.new
     generated_test_client(logger: logger, max_retries: 1).sessions.retrieve_decision("s-3")
-    expect(logger.lines.first.last).to match(/Errno::ECONNREFUSED; retrying/)
+    expect(logger.lines.first.last).to include("Errno::ECONNREFUSED; retrying")
   end
 end

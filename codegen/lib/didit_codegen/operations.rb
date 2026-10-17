@@ -186,8 +186,8 @@ module DiditCodegen
 
     def build_response(op, rc, group)
       successes = (op.op["responses"] || {}).select { |code, _| code.to_s.start_with?("2") }
-                                             .map { |code, raw| [code.to_i, op.document.resolve(raw)] }
-                                             .sort_by(&:first)
+                                            .map { |code, raw| [code.to_i, op.document.resolve(raw)] }
+                                            .sort_by(&:first)
       json, binary, empty = classify_responses(op, successes)
       return json_response(op, rc, group, json, empty) unless json.empty?
 
@@ -229,7 +229,7 @@ module DiditCodegen
           by_status[code] = reuse.last
           next
         end
-        hint = "#{rc}Response#{index.zero? ? '' : code}"
+        hint = "#{rc}Response#{code unless index.zero?}"
         resolved = op.document.resolve(schema)
         type = if resolved.is_a?(Hash) && resolved["type"] == "array" && !schema.key?("$ref")
                  item = @types.response(op.document, resolved["items"] || {}, "#{hint}Item", group)

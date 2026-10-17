@@ -50,8 +50,10 @@ RSpec.describe Didit::FilePart do
     expect(parts[:files]["document"]).to eq(%w[doc.pdf application/pdf pdf])
     expect(parts[:fields]["fields"]).to eq('[{"name":"total","type":"number"}]')
     calls = stub_api(body: "{}")
-    client.face_match.compare(user_image: "a", ref_image: "b", rotate_image: true, face_match_score_decline_threshold: 40)
-    expect(sent_parts(calls)[:fields]).to include("rotate_image" => "true", "face_match_score_decline_threshold" => "40")
+    client.face_match.compare(user_image: "a", ref_image: "b", rotate_image: true,
+                              face_match_score_decline_threshold: 40)
+    expect(sent_parts(calls)[:fields]).to include("rotate_image" => "true",
+                                                  "face_match_score_decline_threshold" => "40")
   end
 
   it "uses JSON for operations that accept both when no file is given, and multipart when one is" do
@@ -70,7 +72,8 @@ RSpec.describe Didit::FilePart do
       "e.unknown" => "application/octet-stream" }.each do |name, type|
       expect(described_class.new("x", filename: name).content_type).to eq(type)
     end
-    expect(described_class.new("x", filename: "a.png", content_type: "image/x-custom").content_type).to eq("image/x-custom")
+    expect(described_class.new("x", filename: "a.png",
+                                    content_type: "image/x-custom").content_type).to eq("image/x-custom")
   end
 
   it "escapes quotes and line breaks in names" do

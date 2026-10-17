@@ -26,7 +26,8 @@ RSpec.describe Didit::RawResponse do
   end
 
   it "keeps a streamed binary body out of the raw response" do
-    stub_request(:get, %r{/v3/session/s-1/generate-pdf/}).to_return(body: "%PDF", headers: { "Content-Type" => "application/pdf" })
+    stub_request(:get, %r{/v3/session/s-1/generate-pdf/}).to_return(body: "%PDF",
+                                                                    headers: { "Content-Type" => "application/pdf" })
     chunks = []
     raw = generated_test_client.with_raw_response.sessions.generate_pdf("s-1") { |c| chunks << c }
     expect(chunks.join).to eq("%PDF")

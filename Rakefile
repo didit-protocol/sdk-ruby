@@ -44,7 +44,7 @@ end
 desc "Build the gem into pkg/ (never publishes)"
 task :build do
   mkdir_p "pkg"
-  sh "gem build didit-sdk.gemspec --output pkg/didit-sdk-#{Gem::Specification.load('didit-sdk.gemspec').version}.gem"
+  sh "gem build didit-sdk.gemspec --output pkg/didit-sdk-#{Gem::Specification.load("didit-sdk.gemspec").version}.gem"
 end
 
 task default: %i[generate:check spec codegen:spec rubocop]

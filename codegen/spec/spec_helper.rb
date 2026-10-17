@@ -23,7 +23,8 @@ module CodegenFixtures
     account ||= { "openapi" => "3.0.0", "info" => { "title" => "a", "version" => "1" }, "paths" => {} }
     write_json(File.join(dir, "openapi", "verification.json"), verification)
     write_json(File.join(dir, "openapi", "account.json"), account)
-    write_json(File.join(dir, "openapi", "overlay.json"), { "description" => "test", "version" => 1, "operations" => overlay })
+    write_json(File.join(dir, "openapi", "overlay.json"),
+               { "description" => "test", "version" => 1, "operations" => overlay })
     write_json(File.join(dir, "openapi", "deprecated-operations.json"), deprecated) if deprecated
     File.write(File.join(dir, "lib", "didit", "version.rb"),
                "# frozen_string_literal: true\n\nmodule Didit\n  VERSION = \"#{version}\"\nend\n")

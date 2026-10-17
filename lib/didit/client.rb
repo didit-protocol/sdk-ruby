@@ -101,7 +101,7 @@ module Didit
 
     def inspect
       "#<Didit::Client base_url=#{base_url.inspect} organization_id=#{organization_id.inspect} " \
-        "application_id=#{application_id.inspect} api_key=#{@config.api_key ? '[set]' : 'nil'}>"
+        "application_id=#{application_id.inspect} api_key=#{@config.api_key ? "[set]" : "nil"}>"
     end
     alias to_s inspect
 
@@ -119,8 +119,8 @@ module Didit
       opts = Internal::Request.options(@config, request_options)
       prepared = Internal::Request.prepare(
         @config, http_method, path, opts, path_params: path_params, query: query, body: body,
-        encoding: encoding, file_fields: file_fields, headers: headers, auth: auth, api: api, scope: scope,
-        accept: accept
+                                          encoding: encoding, file_fields: file_fields, headers: headers, auth: auth, api: api, scope: scope,
+                                          accept: accept
       )
       stream = response == :binary ? block : nil
       result = Internal::Request.perform(@config, @transport, prepared, &stream)
@@ -201,7 +201,7 @@ module Didit
       end
       raise APIResponseValidationError.new(
         "Expected a JSON response from #{prepared.http_method.to_s.upcase} #{prepared.uri.path}, got " \
-        "#{response.headers['content-type'] || 'no content type'}.",
+        "#{response.headers["content-type"] || "no content type"}.",
         status: response.status, headers: response.headers,
         body: Internal::Util.redact(text.scrub, prepared.redact), request_id: Internal::Util.request_id(response.headers)
       )
