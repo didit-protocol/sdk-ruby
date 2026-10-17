@@ -21,15 +21,27 @@ module Didit
       #
       # @return [Hash{Symbol => Array}]
       def fields
-        @fields ||= superclass <= Model ? superclass.fields.dup : {}
+        @fields ||= begin
+          parent = superclass
+          parent.is_a?(Class) && parent < Model ? Model.fields_of(parent) : {}
+        end
+      end
+
+      # @api private
+      def fields_of(klass)
+        # @type var klass: singleton(Model)
+        klass.fields.dup
       end
 
       # Declares a typed reader +name+ for the JSON property +wire+.
       #
       # @return [void]
       def field(name, wire, type = :any)
-        fields[name] = [wire, type].freeze
-        define_method(name) { read_field(name) }
+        fields[name] = [wire, type]
+        define_method(name) do
+          # @type self: Didit::Model
+          read_field(name)
+        end
       end
 
       # Builds an instance from a parsed JSON value; anything but an object is returned unchanged.
@@ -106,7 +118,9 @@ module Didit
     def initialize(data = {})
       raise ArgumentError, "#{self.class.name} needs a Hash, got #{data.class}" unless data.is_a?(Hash)
 
-      @data = (data.each_key.all?(String) ? data : data.transform_keys(&:to_s)).freeze
+      # @type var normalized: Hash[String, untyped]
+      normalized = data.each_key.all?(String) ? data : data.transform_keys(&:to_s)
+      @data = normalized.freeze
       @cache = {}
     end
 
@@ -131,13 +145,13 @@ module Didit
 
     # @return [String] the JSON object, unchanged
     def to_json(*args)
-      @data.to_json(*args)
+      JSON.generate(@data, *args)
     end
 
     # Pattern matching on the typed readers: +in {status: "Approved"}+.
     def deconstruct_keys(keys)
       names = keys || self.class.fields.keys
-      names.each_with_object({}) do |name, out|
+      names.each_with_object({}) do |name, out| # : Hash[Symbol, untyped]
         out[name] = public_send(name) if self.class.fields.key?(name)
       end
     end

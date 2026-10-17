@@ -2,12 +2,12 @@ D = Steep::Diagnostic
 target :core do
   signature "sig", "tmp/stubsig"
   check "lib/didit.rb", "lib/didit/client.rb", "lib/didit/errors.rb", "lib/didit/file_part.rb", "lib/didit/internal", "lib/didit/internal.rb", "lib/didit/model.rb", "lib/didit/page.rb", "lib/didit/raw_response.rb", "lib/didit/resource.rb", "lib/didit/version.rb"
-  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile"
+  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile", "zlib", "set"
   configure_code_diagnostics(D::Ruby.strict)
 end
 target :generated do
   signature "sig", "tmp/stubsig"
   check "lib/didit/resources", "lib/didit/resources.rb", "lib/didit/types", "lib/didit/types.rb"
-  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile"
+  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile", "zlib", "set"
   configure_code_diagnostics(D::Ruby.default)
 end

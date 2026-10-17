@@ -76,6 +76,7 @@ module Didit
     def auto_paging_each(&block)
       return enum_for(:auto_paging_each) unless block
 
+      # @type var page: Page[untyped]?
       page = self
       while page
         page.results.each(&block)

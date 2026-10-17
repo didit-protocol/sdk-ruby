@@ -7,6 +7,6 @@ target :core do
   signature "sig"
   check "lib"
   ignore "lib/didit/resources", "lib/didit/resources.rb", "lib/didit/types", "lib/didit/types.rb"
-  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile"
+  library "json", "uri", "net-http", "openssl", "time", "date", "securerandom", "digest", "socket", "pathname", "stringio", "tempfile", "zlib", "set"
   configure_code_diagnostics(D::Ruby.strict)
 end

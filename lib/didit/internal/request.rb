@@ -27,7 +27,7 @@ module Didit
 
       # Per-request options (+request_options:+ of every method) merged over the client's.
       def options(config, raw)
-        raw ||= {}
+        raw ||= {} # : Hash[untyped, untyped]
         raise ConfigurationError, "request_options must be a Hash, got #{raw.class}." unless raw.is_a?(Hash)
 
         unknown = raw.keys.map(&:to_sym) - OPTION_KEYS
@@ -92,7 +92,7 @@ module Didit
       # Fills +{name}+ placeholders with percent-encoded single path segments.
       def encode_path(path, params)
         path.gsub(/\{([^}]+)\}/) do
-          name = Regexp.last_match(1)
+          name = Regexp.last_match(1).to_s
           value = params.fetch(name) { raise ConfigurationError, "Missing path parameter #{name}." }
           segment = path_segment(name, value)
           segment.b.gsub(UNRESERVED) { |c| format("%%%02X", c.ord) }.force_encoding(Encoding::US_ASCII)
@@ -112,6 +112,7 @@ module Didit
       end
 
       def merge(values, extra)
+        # @type var out: Hash[String, untyped]
         out = {}
         (values || {}).each { |k, v| out[k.to_s] = v unless v.equal?(OMIT) }
         (extra || {}).each { |k, v| out[k.to_s] = v }
@@ -120,6 +121,7 @@ module Didit
 
       # Query values: nil and omitted values are left out, arrays repeat the key.
       def encode_query(values)
+        # @type var pairs: Array[[String, String]]
         pairs = []
         values.each do |key, value|
           Array(value.is_a?(Hash) ? JSON.generate(json_value(value)) : value).each do |item|
@@ -154,7 +156,10 @@ module Didit
       # A value ready for JSON: string keys, Time and Date as ISO 8601.
       def json_value(value)
         case value
-        when Hash then value.each_with_object({}) { |(k, v), out| out[k.to_s] = json_value(v) unless v.equal?(OMIT) }
+        when Hash
+          value.each_with_object({}) do |(k, v), out| # : Hash[String, untyped]
+            out[k.to_s] = json_value(v) unless v.equal?(OMIT)
+          end
         when Array then value.map { |v| json_value(v) }
         when Time then value.utc.iso8601(6)
         when Date then value.iso8601
@@ -167,6 +172,7 @@ module Didit
       end
 
       def build_headers(config, auth, accept, content_type, op_headers, extra_headers)
+        # @type var headers: Hash[String, String]
         headers = {}
         put = lambda do |name, value|
           headers.delete_if { |k, _| k.casecmp?(name) }
@@ -194,7 +200,14 @@ module Didit
         loop do
           started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
           streamed = false
-          stream = block && proc { |chunk| streamed = true; block.call(chunk) } # rubocop:disable Style/Semicolon
+          # @type var stream: (^(String) -> void)?
+          stream = nil
+          if block
+            stream = lambda do |chunk|
+              streamed = true
+              block.call(chunk)
+            end
+          end
           begin
             response = transport.execute(prepared.http_method, prepared.uri, prepared.headers, prepared.body,
                                          prepared.timeout, &stream)
