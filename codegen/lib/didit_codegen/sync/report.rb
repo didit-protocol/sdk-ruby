@@ -65,8 +65,12 @@ module DiditCodegen
         counts = OPERATION_LISTS.map { |list, label, _| "#{send(list).size} #{label.downcase}" }.join(", ")
         out = "#{title}\n\n"
         out << "Synced #{changed_files.map { |f| "openapi/#{f}" }.join(" and ")} from the published API contract " \
-               "and regenerated the SDK (docs/DESIGN.md section 3.1).\nOperations: #{counts}.\n"
-        out << "The generator failed; see Action needed in the pull request.\n" if action_needed
+               "(docs/DESIGN.md section 3.1).\nOperations: #{counts}.\n"
+        out << if action_needed
+                 "The generator failed, so the generated code is not updated; see Action needed in the pull request.\n"
+               else
+                 "Regenerated the SDK.\n"
+               end
         return out unless breaking?
 
         out << "\nBREAKING CHANGE: the API spec sync changes the SDK surface.\n"
@@ -113,7 +117,8 @@ module DiditCodegen
         message, suggestions = action_needed
         out = ["## Action needed", "",
                "The generator failed on the synced documents. Fix it on this branch (usually an entry in " \
-               "`openapi/overlay.json`, or `x-didit-sdk` upstream; docs/DESIGN.md section 4) and push:",
+               "`openapi/overlay.json`, or `x-didit-sdk` upstream; docs/DESIGN.md section 4), run " \
+               "`bundle exec rake generate` and push the result:",
                "", "```text", message.to_s.strip, "```", ""]
         return out if suggestions.nil? || suggestions.empty?
 
