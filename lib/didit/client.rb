@@ -127,7 +127,7 @@ module Didit
       parser = -> { parse(prepared, result.response, response, page) }
       return parser.call unless @raw
 
-      raw = result.response
+      raw = check_status(prepared, result.response)
       RawResponse.new(status: raw.status, headers: raw.headers, body: raw.body, retries_taken: result.retries_taken,
                       elapsed: result.elapsed, parser: parser)
     end

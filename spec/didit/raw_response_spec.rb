@@ -34,10 +34,9 @@ RSpec.describe Didit::RawResponse do
     expect(raw.parse).to be_nil
   end
 
-  it "raises status errors when parsed, not when received" do
+  it "raises status errors like the parsed call does" do
     stub_request(:get, %r{/v3/session/s-1/decision/}).to_return(status: 404, body: '{"detail":"x"}')
-    raw = generated_test_client.with_raw_response.sessions.retrieve_decision("s-1")
-    expect(raw.status).to eq(404)
-    expect { raw.parse }.to raise_error(Didit::NotFoundError)
+    expect { generated_test_client.with_raw_response.sessions.retrieve_decision("s-1") }
+      .to raise_error(Didit::NotFoundError)
   end
 end

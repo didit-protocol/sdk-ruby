@@ -18,7 +18,7 @@ module Didit
           next if value.nil?
 
           if file_fields.include?(name) || value.is_a?(FilePart)
-            Array(value).each { |item| file_part(body, boundary, name, FilePart.wrap(item, name)) }
+            (value.is_a?(Array) ? value : [value]).each { |item| file_part(body, boundary, name, FilePart.wrap(item, name)) }
           else
             field_part(body, boundary, name, text(value))
           end

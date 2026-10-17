@@ -23,7 +23,7 @@ module Didit
       SIMPLE_FIELDS = %w[timestamp session_id status webhook_type].freeze
 
       # Timestamps at or beyond this many seconds from 1970 (16 digits) are never in tolerance.
-      MAX_TIMESTAMP = 10**15
+      MAX_TIMESTAMP = 1_000_000_000_000_000
       # X-Timestamp: an optional sign and digits (leading zeros allowed), at most 32 characters.
       TIMESTAMP_HEADER = /\A[+-]?[0-9]{1,31}\z/
       # Strict JSON (no NaN); a repeated key keeps its last value, like Python
@@ -44,8 +44,9 @@ module Didit
 
       # @return [Event]
       def verify(raw_body, allow_simple:)
-        @raw = body_bytes(raw_body)
-        @payload = normalize(parse_json(@raw))
+        raw = body_bytes(raw_body)
+        @raw = raw
+        @payload = normalize(parse_json(raw))
         verified_by = check_signatures(allow_simple ? FULL_BODY + SIMPLE : FULL_BODY)
         Event.build(payload, verified_by)
       end

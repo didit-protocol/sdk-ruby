@@ -109,12 +109,15 @@ module Didit
       def normalize_object(value, depth)
         raise ArgumentError, "JSON nesting is deeper than #{MAX_NESTING}" if depth >= MAX_NESTING
 
-        value.each_with_object({}) do |(key, item), out|
+        # @type var out: Hash[String, untyped]
+        out = {}
+        value.each do |key, item|
           name = key_name(key)
           raise ArgumentError, "the object has the key #{name.inspect} twice" if out.key?(name)
 
           out[name] = normalize(item, depth + 1)
         end
+        out
       end
 
       def normalize_array(value, depth)
