@@ -249,7 +249,7 @@ module Didit
 
       # Exponential backoff from 0.5 s with full jitter, capped at 8 s.
       def backoff(retries_taken)
-        rand * [MAX_RETRY_DELAY, INITIAL_RETRY_DELAY * (2**retries_taken)].min
+        Kernel.rand * [MAX_RETRY_DELAY, INITIAL_RETRY_DELAY * (2**retries_taken)].min
       end
 
       # Seconds to wait from a Retry-After header (seconds or HTTP date), capped at 60.
