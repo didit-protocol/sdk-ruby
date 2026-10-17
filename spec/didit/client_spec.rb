@@ -116,7 +116,7 @@ RSpec.describe Didit::Client do
       calls = stub_api(body: "[]")
       generated_test_client.account.organizations.list
       request = calls.requests.first
-      expect(request.uri.to_s).to start_with("https://apx.didit.me/auth/v2/")
+      expect(calls.urls.first).to start_with("https://apx.didit.me/auth/v2/")
       expect(header(request, "Authorization")).to eq("Bearer #{ApiHelpers::TEST_ACCOUNT_TOKEN}")
       expect(header(request, "x-api-key")).to be_nil
     end
@@ -216,7 +216,7 @@ RSpec.describe Didit::Client do
       calls = stub_api(body: '{"count":0,"results":[]}')
       generated_test_client.sessions.list(status: %w[Approved Declined], vendor_data: nil,
                                           is_kyc_to_be_reviewed: true, limit: 5)
-      pairs = URI.decode_www_form(calls.requests.first.uri.query).sort
+      pairs = URI.decode_www_form(URI(calls.urls.first).query).sort
       expect(pairs).to eq([%w[is_kyc_to_be_reviewed true], %w[limit 5], %w[status Approved], %w[status Declined]])
     end
 

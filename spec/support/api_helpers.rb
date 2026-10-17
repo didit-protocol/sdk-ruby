@@ -9,12 +9,14 @@ module ApiHelpers
   TEST_API_KEY = "test-key"
   TEST_ACCOUNT_TOKEN = "test-account-token"
 
-  # Requests a stub received, plus the body it answered with.
+  # Requests a stub received, the exact URLs the SDK sent (WebMock normalises its copy)
+  # and the body it answered with.
   class Recorder
-    attr_reader :requests, :body
+    attr_reader :requests, :urls, :body
 
     def initialize(body)
       @requests = []
+      @urls = []
       @body = body
     end
   end
@@ -27,6 +29,7 @@ module ApiHelpers
   # Answers every request with +status+ and +body+, recording what was sent.
   def stub_api(status: 200, body: nil, content_type: "application/json", headers: {})
     recorder = Recorder.new(body)
+    record_urls(recorder)
     response_headers = headers.dup
     response_headers["Content-Type"] = content_type if content_type
     stub_request(:any, /.*/).to_return do |request|
@@ -36,15 +39,23 @@ module ApiHelpers
     recorder
   end
 
-  # Asserts exactly one request was sent, with this method, URL (without query), query pairs and credentials.
+  # Records the URL of every request as the SDK built it.
+  def record_urls(recorder)
+    allow_any_instance_of(Didit::Internal::Transport).to receive(:execute).and_wrap_original do |original, *args, &block| # rubocop:disable RSpec/AnyInstance
+      recorder.urls << args[1].to_s
+      original.call(*args, &block)
+    end
+  end
+
+  # Asserts exactly one request was sent, with this method, URL (without query), query pairs in order,
+  # and credentials.
   def expect_api_request(recorder, method:, url:, query: [], auth: :api_key, accept: "application/json")
     expect(recorder.requests.size).to eq(1)
     request = recorder.requests.first
-    uri = URI(request.uri.to_s)
+    uri = URI(recorder.urls.first)
     expect(request.method).to eq(method)
     expect("#{uri.scheme}://#{uri.host}#{uri.path}").to eq(url)
-    # WebMock normalises the query string (sorted keys), so compare the pairs as a multiset.
-    expect((uri.query ? URI.decode_www_form(uri.query) : []).sort).to eq(query.sort)
+    expect(uri.query ? URI.decode_www_form(uri.query) : []).to eq(query)
     expect_credentials(request, auth)
     expect(header(request, "Accept")).to eq(accept)
     expect(header(request, "User-Agent")).to start_with("didit-ruby/#{Didit::VERSION} (")
