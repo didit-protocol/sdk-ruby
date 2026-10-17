@@ -29,7 +29,7 @@ module DiditCodegen
 
         prepare(old_bytes, new_data, changed)
         analyse
-        @state.write(@downloads, changed, @now.utc.strftime("%Y-%m-%dT%H:%M:%SZ"))
+        @state.write(@downloads, changed, @now.getutc.strftime("%Y-%m-%dT%H:%M:%SZ"))
         Result.new(changed: true, report: @report, generator_error: regenerate)
       end
 

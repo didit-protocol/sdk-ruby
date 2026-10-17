@@ -30,7 +30,7 @@ module DiditCodegen
         return 0 if options[:help]
 
         now = @now.call
-        date = options[:date] || now.utc.strftime("%Y-%m-%d")
+        date = options[:date] || now.getutc.strftime("%Y-%m-%d")
         result = Sync.run(options[:root] || @root, downloads(options[:from_dir]), date: date, now: now)
         result.changed ? report(result, options, date) : unchanged(options, date)
       rescue OptionParser::ParseError => e

@@ -95,8 +95,9 @@ module DiditCodegen
       end
 
       def moved(name, old_key, new_key)
-        notes = Details.new(@old_ops[old_key].doc, @new_ops[new_key].doc).operation(@old_ops[old_key],
-                                                                                    @new_ops[new_key])
+        before = @old_ops[old_key]
+        after = @new_ops[new_key]
+        notes = Details.new(before.doc, after.doc).operation(before, after)
         breaking = notes.select(&:last)
         head = "`#{name}`#{" **breaking**" unless breaking.empty?}: moved from `#{old_key}` to `#{new_key}`"
         @report.moved << (notes.empty? ? "#{head}; same parameters, request body and response" : nested(head, notes))
