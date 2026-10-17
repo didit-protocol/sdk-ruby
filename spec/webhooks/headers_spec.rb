@@ -64,8 +64,8 @@ module WebhookSpecs
     end
 
     it "treats empty values as absent" do
-      empty = { "X-Signature" => "", "X-Signature-V2" => "  ", "X-Signature-Previous" => [], "X-Signature-Simple" => ",",
-                "X-Timestamp" => "" }
+      empty = { "X-Signature" => "", "X-Signature-V2" => "  ", "X-Signature-Previous" => [],
+                "X-Signature-Simple" => ",", "X-Timestamp" => "" }
       expect(reason_of { verify(empty) }).to eq(:missing_signature)
       expect(verify(headers.merge("X-Timestamp" => "")).verified_by).to eq("X-Signature")
     end

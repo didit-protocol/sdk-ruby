@@ -1,0 +1,10 @@
+module Didit
+  class Authentication
+    module Base64Url
+      ALPHABET: Regexp
+
+      def self?.encode: (String bytes) -> String
+      def self?.decode: (String text) -> String?
+    end
+  end
+end

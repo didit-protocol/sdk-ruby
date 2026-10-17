@@ -1,0 +1,36 @@
+module Didit
+  class Authentication
+    class Http
+      class Call
+        attr_reader http_method: String
+        attr_reader uri: URI::Generic
+        attr_reader bearer: String?
+        attr_reader form: Hash[String, String]?
+        attr_reader json: Hash[String, untyped]?
+        attr_reader secrets: Array[String]
+
+        def initialize: (String http_method, URI::Generic uri, ?bearer: String?, ?form: Hash[String, String]?,
+                         ?json: Hash[String, untyped]?, ?secrets: Array[String]) -> void
+        def display_url: () -> String
+        def describe: () -> String
+      end
+
+      VERBS: Hash[String, Symbol]
+
+      @timeout: Float
+      @transport: Internal::Transport
+
+      def initialize: (timeout: Numeric, http_client: Internal::http_client?) -> void
+      def perform: (Call call) -> Internal::Transport::Response
+      def read: (Call call, Internal::Transport::Response response) -> untyped
+      def read_object: (Call call, Internal::Transport::Response response) -> Hash[String, untyped]
+      def validation_error: (Call call, Internal::Transport::Response response, String message) -> APIResponseValidationError
+
+      private
+
+      def headers_for: (Call call) -> Hash[String, String]
+      def body_for: (Call call) -> String?
+      def text_of: (String body) -> String
+    end
+  end
+end
