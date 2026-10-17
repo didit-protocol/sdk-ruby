@@ -3,8 +3,8 @@
 require "json"
 require "openssl"
 
-# Shared by the webhook specs: synthetic secrets and deliveries signed like the backend does.
-module WebhookSpecHelpers
+# The namespace of the webhook specs: synthetic secrets and deliveries signed like the backend does.
+module WebhookSpecs
   SECRET = "whsec_test_unit_secret_0001"
   PREVIOUS = "whsec_test_unit_secret_0000"
   NOW = 1_760_702_400

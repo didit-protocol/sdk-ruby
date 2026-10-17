@@ -134,7 +134,8 @@ module Didit
       VALUES = [DELETE_WITH_SESSION, RETAIN_UNTIL_USER_DELETED].freeze
     end
 
-    # How the template was created: a session deletion (API or Console), the application's automatic data-retention window, or a Didit-operated backfill you instructed.
+    # How the template was created: a session deletion (API or Console), the application's automatic data-retention
+    # window, or a Didit-operated backfill you instructed.
     module BiometricTemplatesListResponseResultsSourceType
       SESSION_DELETE = "session_delete"
       AUTOMATIC_RETENTION = "automatic_retention"
@@ -143,7 +144,8 @@ module Didit
       VALUES = [SESSION_DELETE, AUTOMATIC_RETENTION, BACKFILL].freeze
     end
 
-    # Only `active` templates that are not held, not past `expires_at`, and whose User still exists take part in matching.
+    # Only `active` templates that are not held, not past `expires_at`, and whose User still exists take part in
+    # matching.
     module BiometricTemplatesListResponseResultsStatus
       PENDING = "pending"
       ACTIVE = "active"
@@ -198,7 +200,8 @@ module Didit
       VALUES = [DELETE_WITH_SESSION, RETAIN_UNTIL_USER_DELETED].freeze
     end
 
-    # How the template was created: a session deletion (API or Console), the application's automatic data-retention window, or a Didit-operated backfill you instructed.
+    # How the template was created: a session deletion (API or Console), the application's automatic data-retention
+    # window, or a Didit-operated backfill you instructed.
     module BiometricTemplatesRetrieveResponseSourceType
       SESSION_DELETE = "session_delete"
       AUTOMATIC_RETENTION = "automatic_retention"
@@ -207,7 +210,8 @@ module Didit
       VALUES = [SESSION_DELETE, AUTOMATIC_RETENTION, BACKFILL].freeze
     end
 
-    # Only `active` templates that are not held, not past `expires_at`, and whose User still exists take part in matching.
+    # Only `active` templates that are not held, not past `expires_at`, and whose User still exists take part in
+    # matching.
     module BiometricTemplatesRetrieveResponseStatus
       PENDING = "pending"
       ACTIVE = "active"

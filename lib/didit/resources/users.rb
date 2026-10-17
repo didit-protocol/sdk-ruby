@@ -7,9 +7,16 @@ module Didit
     class Users < Didit::Resource
       # Batch delete users
       #
-      # **Permanently delete** users - the user records are removed permanently. For everyday blocking prefer [Update User Status](#patch-/v3/users/-vendor_data-/update-status/) with `BLOCKED`. Select users with `vendor_data_list`, with `didit_internal_id_list`, or with both at once; or pass `delete_all: true`. The Console's `filter_*` batch params are rejected with a `400` rather than ignored, so a narrowed intent can never turn into a full wipe.
+      # **Permanently delete** users - the user records are removed permanently. For everyday blocking prefer [Update
+      # User Status](#patch-/v3/users/-vendor_data-/update-status/) with `BLOCKED`. Select users with
+      # `vendor_data_list`, with `didit_internal_id_list`, or with both at once; or pass `delete_all: true`. The
+      # Console's `filter_*` batch params are rejected with a `400` rather than ignored, so a narrowed intent can
+      # never turn into a full wipe.
       #
-      # **Biometric templates:** every image-free biometric template retained for these users after session deletion (see `/v3/biometric-templates/`) is purged before the user is deleted, so the person stops matching in duplicate detection and Face Search. If a template cannot be purged because a biometric store is unavailable, the call returns `503`, no user in the request is deleted, and repeating the request finishes the job.
+      # **Biometric templates:** every image-free biometric template retained for these users after session deletion
+      # (see `/v3/biometric-templates/`) is purged before the user is deleted, so the person stops matching in
+      # duplicate detection and Face Search. If a template cannot be purged because a biometric store is unavailable,
+      # the call returns `503`, no user in the request is deleted, and repeating the request finishes the job.
       #
       # +POST /v3/users/delete/+
       #
@@ -34,7 +41,8 @@ module Didit
 
       # Create user
       #
-      # Pre-create a [user](/entities/users) by `vendor_data` *without* a verification session. `vendor_data` must be unique among non-deleted users for the application (exact match; conflicts return 400). Not idempotent.
+      # Pre-create a [user](/entities/users) by `vendor_data` *without* a verification session. `vendor_data` must be
+      # unique among non-deleted users for the application (exact match; conflicts return 400). Not idempotent.
       #
       # +POST /v3/users/create/+
       #
@@ -49,7 +57,18 @@ module Didit
       # @param issuing_states [Array<String>] Pre-recorded issuing countries (ISO 3166-1 alpha-3), e.g. `["USA"]`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
-      def create(vendor_data:, full_name: OMIT, display_name: OMIT, date_of_birth: OMIT, status: OMIT, metadata: OMIT, approved_emails: OMIT, approved_phones: OMIT, issuing_states: OMIT, request_options: nil)
+      def create(
+        vendor_data:,
+        full_name: OMIT,
+        display_name: OMIT,
+        date_of_birth: OMIT,
+        status: OMIT,
+        metadata: OMIT,
+        approved_emails: OMIT,
+        approved_phones: OMIT,
+        issuing_states: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/users/create/",
@@ -71,23 +90,44 @@ module Didit
 
       # Download the full user history PDF report
       #
-      # Render and download one compliance-ready PDF containing the full verification history of the user identified by `vendor_data`. It is the same document the Console produces from **User detail → Actions → Download PDF**, so periodic compliance exports no longer need a person clicking in the Console.
+      # Render and download one compliance-ready PDF containing the full verification history of the user identified
+      # by `vendor_data`. It is the same document the Console produces from **User detail → Actions → Download PDF**,
+      # so periodic compliance exports no longer need a person clicking in the Console.
       #
-      # **What the report contains.** A cover page with the profile summary (name, date of birth, issuing states, approved emails and phones), the latest status of every feature, the session counters and an index of the sessions included - followed by the standard report of every included session, in chronological order (oldest first). Each session report is the same document `GET /v3/session/{sessionId}/generate-pdf/` returns for that session.
+      # **What the report contains.** A cover page with the profile summary (name, date of birth, issuing states,
+      # approved emails and phones), the latest status of every feature, the session counters and an index of the
+      # sessions included - followed by the standard report of every included session, in chronological order (oldest
+      # first). Each session report is the same document `GET /v3/session/{sessionId}/generate-pdf/` returns for that
+      # session.
       #
-      # **Eligible sessions.** Only User Verification (KYC) sessions in `Approved`, `Declined`, `In Review` or `Kyc Expired` are included; sessions in any other status are skipped. If the user has no session in one of those statuses the endpoint returns `403` - see below.
+      # **Eligible sessions.** Only User Verification (KYC) sessions in `Approved`, `Declined`, `In Review` or `Kyc
+      # Expired` are included; sessions in any other status are skipped. If the user has no session in one of those
+      # statuses the endpoint returns `403` - see below.
       #
-      # **Cap.** The report is capped at the **20 most recent** reportable sessions. When a user has more, the newest 20 are included and the cover page states how many older sessions were left out. Use `GET /v3/sessions/?vendor_data=…` for the complete list as JSON.
+      # **Cap.** The report is capped at the **20 most recent** reportable sessions. When a user has more, the newest
+      # 20 are included and the cover page states how many older sessions were left out. Use `GET
+      # /v3/sessions/?vendor_data=…` for the complete list as JSON.
       #
-      # **Branding.** If your application has white-label customization, the cover and every session report are rendered with your logo and privacy-policy URL; otherwise they carry Didit branding. Reports are rendered in English - there is no language parameter.
+      # **Branding.** If your application has white-label customization, the cover and every session report are
+      # rendered with your logo and privacy-policy URL; otherwise they carry Didit branding. Reports are rendered in
+      # English - there is no language parameter.
       #
-      # **No caching.** Every call re-renders the PDF from the current data, so a report generated after a manual review reflects the reviewer's decision. Two calls for the same user can produce byte-different files - archive the downloaded file if you need an immutable copy.
+      # **No caching.** Every call re-renders the PDF from the current data, so a report generated after a manual
+      # review reflects the reviewer's decision. Two calls for the same user can produce byte-different files -
+      # archive the downloaded file if you need an immutable copy.
       #
-      # **Latency.** Rendering is synchronous and downloads every stored image of every included session, so a user with many media-heavy sessions can take tens of seconds. Use a generous client read timeout (120 s recommended) and stream the body to disk. Generation stops at a server-side time budget instead of running until your client gives up: if that budget is reached, the response is still a valid PDF containing the most recent sessions, and the cover states how many were omitted.
+      # **Latency.** Rendering is synchronous and downloads every stored image of every included session, so a user
+      # with many media-heavy sessions can take tens of seconds. Use a generous client read timeout (120 s
+      # recommended) and stream the body to disk. Generation stops at a server-side time budget instead of running
+      # until your client gives up: if that budget is reached, the response is still a valid PDF containing the most
+      # recent sessions, and the cover states how many were omitted.
       #
-      # **Scope.** The user is resolved inside the application that owns the API key. A key can never export a user of another application - such a user does not exist for it and the endpoint returns `404`.
+      # **Scope.** The user is resolved inside the application that owns the API key. A key can never export a user of
+      # another application - such a user does not exist for it and the endpoint returns `404`.
       #
-      # **Trailing slash.** The canonical route ends with a trailing slash (`…/generate-pdf/`). A request without it is served directly with the same response - there is no `301` redirect, so no client has to follow redirects and `curl` does not need `-L`. Use the slashed URL as in the samples.
+      # **Trailing slash.** The canonical route ends with a trailing slash (`…/generate-pdf/`). A request without it
+      # is served directly with the same response - there is no `301` redirect, so no client has to follow redirects
+      # and `curl` does not need `-L`. Use the slashed URL as in the samples.
       #
       # +GET /v3/users/{vendor_data}/generate-pdf/+
       #
@@ -107,7 +147,9 @@ module Didit
 
       # List users
       #
-      # List [users](/entities/users) Didit assembles from KYC sessions sharing the same `vendor_data` (free-form string, NOT a UUID), plus users created via the API. Paginated, ordered by `last_session_at` desc. This endpoint does not support filtering or search parameters - fetch pages and filter client-side.
+      # List [users](/entities/users) Didit assembles from KYC sessions sharing the same `vendor_data` (free-form
+      # string, NOT a UUID), plus users created via the API. Paginated, ordered by `last_session_at` desc. This
+      # endpoint does not support filtering or search parameters - fetch pages and filter client-side.
       #
       # +GET /v3/users/+
       #
@@ -150,7 +192,8 @@ module Didit
 
       # Get user
       #
-      # Fetch one [user](/entities/users) by `vendor_data` (exact match). Adds `metadata`, `comments`, and `updated_at` to the list view, and switches `tags` to the detailed tag-link shape.
+      # Fetch one [user](/entities/users) by `vendor_data` (exact match). Adds `metadata`, `comments`, and
+      # `updated_at` to the list view, and switches `tags` to the detailed tag-link shape.
       #
       # +GET /v3/users/{vendor_data}/+
       #
@@ -169,7 +212,8 @@ module Didit
 
       # Get AML ongoing monitoring job
       #
-      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is PENDING or PROCESSING.
+      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is
+      # PENDING or PROCESSING.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/vendor-users/toggle-ongoing-monitoring/{job_id}/+
       #
@@ -189,9 +233,18 @@ module Didit
 
       # Enable or disable AML ongoing monitoring for users
       #
-      # Turns AML ongoing monitoring on or off for the selected users, with the same semantics as the Business Console. Exactly one monitored AML screening is kept per user, so a profile that verified several times is monitored and billed once; disabling turns monitoring off across all of the profile's screenings. Users without any AML screening are screened first (billed as a regular AML screening) when they have the full name, date of birth and country needed; otherwise they are reported as `skipped_no_identity_data`.
+      # Turns AML ongoing monitoring on or off for the selected users, with the same semantics as the Business
+      # Console. Exactly one monitored AML screening is kept per user, so a profile that verified several times is
+      # monitored and billed once; disabling turns monitoring off across all of the profile's screenings. Users
+      # without any AML screening are screened first (billed as a regular AML screening) when they have the full name,
+      # date of birth and country needed; otherwise they are reported as `skipped_no_identity_data`.
       #
-      # Set `estimate_only: true` to preview counts and costs without writing anything. Selections of 20 profiles or fewer resolve inline and return `200` with the completed job; larger selections return `202` and run in the background - poll [Get AML monitoring job](#get-/v3/aml-monitoring/jobs/-job_id-/) with the returned `job_id`. Enabling is refused with `403` when the organization balance does not cover the estimate. Identifiers that match nothing are listed in `unmatched` and never fail the request: a selection that matches nothing completes as an empty job (`total` 0), the same convention as the batch delete endpoints.
+      # Set `estimate_only: true` to preview counts and costs without writing anything. Selections of 20 profiles or
+      # fewer resolve inline and return `200` with the completed job; larger selections return `202` and run in the
+      # background - poll [Get AML monitoring job](#get-/v3/aml-monitoring/jobs/-job_id-/) with the returned `job_id`.
+      # Enabling is refused with `403` when the organization balance does not cover the estimate. Identifiers that
+      # match nothing are listed in `unmatched` and never fail the request: a selection that matches nothing completes
+      # as an empty job (`total` 0), the same convention as the batch delete endpoints.
       #
       # +POST /v3/users/aml-monitoring/+
       #
@@ -201,7 +254,13 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Didit internal ids of the users to toggle - the `didit_internal_id` returned by the create, get and list endpoints.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersSetAmlMonitoringResponse, Didit::Types::UsersSetAmlMonitoringResponse202]
-      def set_aml_monitoring(is_enabled:, estimate_only: OMIT, vendor_data_list: OMIT, didit_internal_id_list: OMIT, request_options: nil)
+      def set_aml_monitoring(
+        is_enabled:,
+        estimate_only: OMIT,
+        vendor_data_list: OMIT,
+        didit_internal_id_list: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/users/aml-monitoring/",
@@ -218,7 +277,10 @@ module Didit
 
       # Toggle AML ongoing monitoring for users
       #
-      # Enables or disables AML ongoing monitoring at the user level. Exactly one monitored AML screening is kept per user; users without any AML screening (for example imported users) get one created and screened first, billed as a regular AML screening. Set estimate_only to preview counts and costs without writing. Batches of 20 or fewer resolve inline (200, COMPLETED); larger batches return 202 and run asynchronously.
+      # Enables or disables AML ongoing monitoring at the user level. Exactly one monitored AML screening is kept per
+      # user; users without any AML screening (for example imported users) get one created and screened first, billed
+      # as a regular AML screening. Set estimate_only to preview counts and costs without writing. Batches of 20 or
+      # fewer resolve inline (200, COMPLETED); larger batches return 202 and run asynchronously.
       #
       # +PATCH /v3/organization/{organization_id}/application/{application_id}/vendor-users/toggle-ongoing-monitoring/+
       #
@@ -233,7 +295,18 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Entities to toggle. Required unless update_all is true.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersSetOngoingMonitoringResponse, Didit::Types::UsersSetOngoingMonitoringResponse202]
-      def set_ongoing_monitoring(is_enabled:, estimate_only: OMIT, update_all: OMIT, filter_search: OMIT, filter_status: OMIT, filter_country: OMIT, filter_date_from: OMIT, filter_date_to: OMIT, didit_internal_id_list: OMIT, request_options: nil)
+      def set_ongoing_monitoring(
+        is_enabled:,
+        estimate_only: OMIT,
+        update_all: OMIT,
+        filter_search: OMIT,
+        filter_status: OMIT,
+        filter_country: OMIT,
+        filter_date_from: OMIT,
+        filter_date_to: OMIT,
+        didit_internal_id_list: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/vendor-users/toggle-ongoing-monitoring/",
@@ -256,7 +329,11 @@ module Didit
 
       # Update user
       #
-      # Partial update of a user: `display_name`, `full_name`, `date_of_birth`, `status`, `metadata`, `approved_emails`/`approved_phones`/`issuing_states`. `metadata` fully replaces. **Note:** unlike [Update User Status](#patch-/v3/users/-vendor_data-/update-status/), changing `status` here does NOT record a status-change activity and does NOT sync the system blocklist - use the dedicated update-status endpoint for `BLOCKED`/unblock flows.
+      # Partial update of a user: `display_name`, `full_name`, `date_of_birth`, `status`, `metadata`,
+      # `approved_emails`/`approved_phones`/`issuing_states`. `metadata` fully replaces. **Note:** unlike [Update User
+      # Status](#patch-/v3/users/-vendor_data-/update-status/), changing `status` here does NOT record a status-change
+      # activity and does NOT sync the system blocklist - use the dedicated update-status endpoint for
+      # `BLOCKED`/unblock flows.
       #
       # +PATCH /v3/users/{vendor_data}/+
       #
@@ -271,7 +348,18 @@ module Didit
       # @param issuing_states [Array<String>] Issuing countries (ISO 3166-1 alpha-3), e.g. `["USA"]`. Fully replaces the stored list.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
-      def update(vendor_data, full_name: OMIT, display_name: OMIT, date_of_birth: OMIT, status: OMIT, metadata: OMIT, approved_emails: OMIT, approved_phones: OMIT, issuing_states: OMIT, request_options: nil)
+      def update(
+        vendor_data,
+        full_name: OMIT,
+        display_name: OMIT,
+        date_of_birth: OMIT,
+        status: OMIT,
+        metadata: OMIT,
+        approved_emails: OMIT,
+        approved_phones: OMIT,
+        issuing_states: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/users/{vendor_data}/",
@@ -293,7 +381,9 @@ module Didit
 
       # Update user status
       #
-      # Flip only the lifecycle `status` of a user - `ACTIVE`/`FLAGGED`/`BLOCKED` (NOT session statuses). `BLOCKED` adds the `vendor_data` to the system blocklist; moving away from `BLOCKED` removes that entry. Each change is recorded as a `STATUS_CHANGED` activity on the user.
+      # Flip only the lifecycle `status` of a user - `ACTIVE`/`FLAGGED`/`BLOCKED` (NOT session statuses). `BLOCKED`
+      # adds the `vendor_data` to the system blocklist; moving away from `BLOCKED` removes that entry. Each change is
+      # recorded as a `STATUS_CHANGED` activity on the user.
       #
       # +PATCH /v3/users/{vendor_data}/update-status/+
       #
@@ -316,7 +406,9 @@ module Didit
 
       # Upload user face
       #
-      # Attach a trusted imported face image to an existing User profile. Use this after creating or retrieving a User by `vendor_data` and reading its `didit_internal_id`. The uploaded face is stored on the User profile and indexed for duplicate detection and face search. It is not added to a face blocklist.
+      # Attach a trusted imported face image to an existing User profile. Use this after creating or retrieving a User
+      # by `vendor_data` and reading its `didit_internal_id`. The uploaded face is stored on the User profile and
+      # indexed for duplicate detection and face search. It is not added to a face blocklist.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/vendor-users/by-id/{didit_internal_id}/faces/upload/+
       #

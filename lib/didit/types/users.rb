@@ -108,7 +108,8 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
-    # User lifecycle status. Changing it via this generic PATCH does NOT sync the system blocklist or record a status-change activity; prefer the update-status endpoint.
+    # User lifecycle status. Changing it via this generic PATCH does NOT sync the system blocklist or record a
+    # status-change activity; prefer the update-status endpoint.
     module UsersUpdateParamsStatus
       ACTIVE = "ACTIVE"
       FLAGGED = "FLAGGED"
@@ -165,7 +166,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class UsersRetrieveOngoingMonitoringJobResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -232,7 +234,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently skipped.
+    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
+    # skipped.
     class UsersSetAmlMonitoringResponse202Outcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -264,7 +267,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently skipped.
+    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
+    # skipped.
     class UsersSetAmlMonitoringResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -327,7 +331,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class UsersSetOngoingMonitoringResponse202Outcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -353,7 +358,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class UsersSetOngoingMonitoringResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer

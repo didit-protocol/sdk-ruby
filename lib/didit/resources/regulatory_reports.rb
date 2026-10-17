@@ -7,7 +7,8 @@ module Didit
     class RegulatoryReports < Didit::Resource
       # Create standalone report
       #
-      # Create a draft FIU report from the standalone Reports page: both case and template are required (unlike the case-scoped create, which can omit template).
+      # Create a draft FIU report from the standalone Reports page: both case and template are required (unlike the
+      # case-scoped create, which can omit template).
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/+
       #
@@ -33,7 +34,29 @@ module Didit
       # @param included_fields [Array<String>]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportDetail]
-      def create(case:, template:, report_type: OMIT, jurisdiction: OMIT, transactions: OMIT, rentity_id: OMIT, rentity_branch: OMIT, submission_code: OMIT, entity_reference: OMIT, fiu_ref_number: OMIT, currency_code_local: OMIT, submission_date: OMIT, reporting_person: OMIT, location: OMIT, reason: OMIT, action: OMIT, activity: OMIT, narrative: OMIT, report_indicators: OMIT, included_fields: OMIT, request_options: nil)
+      def create(
+        case:,
+        template:,
+        report_type: OMIT,
+        jurisdiction: OMIT,
+        transactions: OMIT,
+        rentity_id: OMIT,
+        rentity_branch: OMIT,
+        submission_code: OMIT,
+        entity_reference: OMIT,
+        fiu_ref_number: OMIT,
+        currency_code_local: OMIT,
+        submission_date: OMIT,
+        reporting_person: OMIT,
+        location: OMIT,
+        reason: OMIT,
+        action: OMIT,
+        activity: OMIT,
+        narrative: OMIT,
+        report_indicators: OMIT,
+        included_fields: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/regulatory-reports/",
@@ -86,7 +109,8 @@ module Didit
 
       # Finalize report
       #
-      # Re-validate, then render the goAML XML and PDF and upload both to S3. On SAR/STR/TFR reports, this also moves the case's transaction alerts from Pending SAR to SAR filed.
+      # Re-validate, then render the goAML XML and PDF and upload both to S3. On SAR/STR/TFR reports, this also moves
+      # the case's transaction alerts from Pending SAR to SAR filed.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/finalize/+
       #
@@ -203,7 +227,26 @@ module Didit
       # @param included_fields [Array<String>]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportDetail]
-      def update(report_uuid, jurisdiction: OMIT, rentity_id: OMIT, rentity_branch: OMIT, submission_code: OMIT, entity_reference: OMIT, fiu_ref_number: OMIT, currency_code_local: OMIT, submission_date: OMIT, reporting_person: OMIT, location: OMIT, reason: OMIT, action: OMIT, activity: OMIT, narrative: OMIT, report_indicators: OMIT, included_fields: OMIT, request_options: nil)
+      def update(
+        report_uuid,
+        jurisdiction: OMIT,
+        rentity_id: OMIT,
+        rentity_branch: OMIT,
+        submission_code: OMIT,
+        entity_reference: OMIT,
+        fiu_ref_number: OMIT,
+        currency_code_local: OMIT,
+        submission_date: OMIT,
+        reporting_person: OMIT,
+        location: OMIT,
+        reason: OMIT,
+        action: OMIT,
+        activity: OMIT,
+        narrative: OMIT,
+        report_indicators: OMIT,
+        included_fields: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/",
@@ -234,7 +277,10 @@ module Didit
 
       # Validate report
       #
-      # Check the report against the obligatory goAML header fields (reporting entity ID, submission code, local currency, action taken, submission date), plus at least one attached transaction and a 2-letter jurisdiction, without generating any files. Also stores the result on the report: validation_errors and validated_at are updated, and a non-finalized report's status moves to VALIDATED (no errors) or back to DRAFT (errors).
+      # Check the report against the obligatory goAML header fields (reporting entity ID, submission code, local
+      # currency, action taken, submission date), plus at least one attached transaction and a 2-letter jurisdiction,
+      # without generating any files. Also stores the result on the report: validation_errors and validated_at are
+      # updated, and a non-finalized report's status moves to VALIDATED (no errors) or back to DRAFT (errors).
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/validate/+
       #

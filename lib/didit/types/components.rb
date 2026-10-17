@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # Lifecycle status of the business record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks it for manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
+    # Lifecycle status of the business record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks it for
+    # manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
     module BusinessListItemStatus
       ACTIVE = "ACTIVE"
       FLAGGED = "FLAGGED"
@@ -602,7 +603,8 @@ module Didit
       VALUES = [APPROVED, IN_REVIEW, DECLINED].freeze
     end
 
-    # Final decision for this API session. Normally `Approved`; the risk evaluation can produce `In Review` or `Declined`.
+    # Final decision for this API session. Normally `Approved`; the risk evaluation can produce `In Review` or
+    # `Declined`.
     module EmailRiskResponseStatus
       APPROVED = "Approved"
       IN_REVIEW = "In Review"
@@ -632,7 +634,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED, EXPIRED].freeze
     end
 
-    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded without affecting the status.
+    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded
+    # without affecting the status.
     module EmailVerificationCheckResponseEmailWarningsLogType
       ERROR = "error"
       WARNING = "warning"
@@ -641,7 +644,9 @@ module Didit
       VALUES = [ERROR, WARNING, INFORMATION].freeze
     end
 
-    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending verification for this address in the last 5 minutes.
+    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt
+    # budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending
+    # verification for this address in the last 5 minutes.
     module EmailVerificationCheckResponseStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -658,7 +663,9 @@ module Didit
       VALUES = [EMAIL_CAN_NOT_BE_DELIVERED].freeze
     end
 
-    # `Success` - OTP emailed to a new verification (billed). `Retry` - fresh OTP emailed for the pending verification created by a previous send (free). `Undeliverable` - the address failed deliverability validation or the message could not be sent; the verification is immediately finalized as `Declined` and nothing is billed.
+    # `Success` - OTP emailed to a new verification (billed). `Retry` - fresh OTP emailed for the pending verification
+    # created by a previous send (free). `Undeliverable` - the address failed deliverability validation or the message
+    # could not be sent; the verification is immediately finalized as `Declined` and nothing is billed.
     module EmailVerificationSendResponseStatus
       SUCCESS = "Success"
       RETRY = "Retry"
@@ -836,7 +843,8 @@ module Didit
       VALUES = [EMAIL, PHONE, NATIONAL_ID, TAX_NUMBER, PASSPORT_NUMBER, DRIVING_LICENCE_NUMBER, RESIDENCE_PERMIT_NUMBER, VOTER_ID, EXTERNAL_ID].freeze
     end
 
-    # `In Review` when the resolved country conflicts with `claimed_country`, or when the address is associated with VPN, Tor, or data-center infrastructure. Otherwise `Approved`.
+    # `In Review` when the resolved country conflicts with `claimed_country`, or when the address is associated with
+    # VPN, Tor, or data-center infrastructure. Otherwise `Approved`.
     module IPRiskResponseIpStatus
       APPROVED = "Approved"
       IN_REVIEW = "In Review"
@@ -852,7 +860,8 @@ module Didit
       VALUES = [APPROVED, IN_REVIEW].freeze
     end
 
-    # `delivered` when the registry published ownership; `unavailable` when it did not (see `unavailable_reason`); `pending` while the registry is still fetching it; `not_requested` for the Basic tier.
+    # `delivered` when the registry published ownership; `unavailable` when it did not (see `unavailable_reason`);
+    # `pending` while the registry is still fetching it; `not_requested` for the Basic tier.
     module KYBRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       PENDING = "pending"
@@ -862,7 +871,8 @@ module Didit
       VALUES = [NOT_REQUESTED, PENDING, DELIVERED, UNAVAILABLE].freeze
     end
 
-    # The tier the registry delivered (and that is billed). A UBO request answered with direct shareholders only is `shareholders`.
+    # The tier the registry delivered (and that is billed). A UBO request answered with direct shareholders only is
+    # `shareholders`.
     module KYBRegistryOwnershipTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"
@@ -955,7 +965,8 @@ module Didit
       VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
     end
 
-    # Network lifecycle status. Distinct from the per-applicant outcome_status inside a network (approved/in_review/declined/not_completed).
+    # Network lifecycle status. Distinct from the per-applicant outcome_status inside a network
+    # (approved/in_review/declined/not_completed).
     module NetworkListItemStatus
       ACTIVE = "active"
       IN_REVIEW = "in_review"
@@ -965,7 +976,8 @@ module Didit
       VALUES = [ACTIVE, IN_REVIEW, RESOLVED, DISMISSED].freeze
     end
 
-    # For a member row this is always one of the subject-outcome values: approved, in_review, declined, or not_completed.
+    # For a member row this is always one of the subject-outcome values: approved, in_review, declined, or
+    # not_completed.
     module NetworkMemberNodeStatus
       APPROVED = "approved"
       IN_REVIEW = "in_review"
@@ -985,7 +997,8 @@ module Didit
       VALUES = [CUSTOMER, QUALITY].freeze
     end
 
-    # Where the tag came from: a tag on the user/business, a tag on a session in this network, a tag on a transaction a party belongs to, or a signal guard condition (e.g. hub, datacenter IP).
+    # Where the tag came from: a tag on the user/business, a tag on a session in this network, a tag on a transaction
+    # a party belongs to, or a signal guard condition (e.g. hub, datacenter IP).
     module NetworkNodeTagSource
       SUBJECT_TAG = "subject_tag"
       SESSION_TAG = "session_tag"
@@ -1034,7 +1047,8 @@ module Didit
       VALUES = [APPROVED, IN_REVIEW, DECLINED].freeze
     end
 
-    # Final decision for this API session. Normally `Approved`; the risk evaluation can produce `In Review` or `Declined`.
+    # Final decision for this API session. Normally `Approved`; the risk evaluation can produce `In Review` or
+    # `Declined`.
     module PhoneRiskResponseStatus
       APPROVED = "Approved"
       IN_REVIEW = "In Review"
@@ -1064,7 +1078,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED, EXPIRED].freeze
     end
 
-    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded without affecting the status.
+    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded
+    # without affecting the status.
     module PhoneVerificationCheckResponsePhoneWarningsLogType
       ERROR = "error"
       WARNING = "warning"
@@ -1073,7 +1088,9 @@ module Didit
       VALUES = [ERROR, WARNING, INFORMATION].freeze
     end
 
-    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending verification for this number in the last 5 minutes.
+    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt
+    # budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending
+    # verification for this number in the last 5 minutes.
     module PhoneVerificationCheckResponseStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -1083,7 +1100,9 @@ module Didit
       VALUES = [APPROVED, DECLINED, FAILED, EXPIRED_OR_NOT_FOUND].freeze
     end
 
-    # `Success` - OTP sent to a new verification. `Retry` - OTP re-sent for the pending verification created by a previous send. `Blocked` - the anti-fraud layer refused to send; the verification is immediately finalized as `Declined` and nothing is billed.
+    # `Success` - OTP sent to a new verification. `Retry` - OTP re-sent for the pending verification created by a
+    # previous send. `Blocked` - the anti-fraud layer refused to send; the verification is immediately finalized as
+    # `Declined` and nothing is billed.
     module PhoneVerificationSendResponseStatus
       SUCCESS = "Success"
       RETRY = "Retry"
@@ -1153,7 +1172,13 @@ module Didit
       VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR].freeze
     end
 
-    # What kind of activity this entry records. `STATUS_UPDATED` rows come from manual decisions (`PATCH /v3/session/{session_id}/update-status/`) and from entries added via `POST …/reviews/` (which default to this type even when no status is recorded). `COMMENT` rows come from Console reviewers; Console detail-page views are also stored as `COMMENT` rows flagged with `metadata.system_event = "DETAIL_VIEWED"`. The remaining types track data edits, file changes, tags, and AML monitoring activity. STATUS_UPDATED rows are also written by system actors (e.g. AML ongoing monitoring with actor_type SYSTEM, and automatic feature-status updates), not only by the update-status endpoint and manual review posts.
+    # What kind of activity this entry records. `STATUS_UPDATED` rows come from manual decisions (`PATCH
+    # /v3/session/{session_id}/update-status/`) and from entries added via `POST …/reviews/` (which default to this
+    # type even when no status is recorded). `COMMENT` rows come from Console reviewers; Console detail-page views are
+    # also stored as `COMMENT` rows flagged with `metadata.system_event = "DETAIL_VIEWED"`. The remaining types track
+    # data edits, file changes, tags, and AML monitoring activity. STATUS_UPDATED rows are also written by system
+    # actors (e.g. AML ongoing monitoring with actor_type SYSTEM, and automatic feature-status updates), not only by
+    # the update-status endpoint and manual review posts.
     module ReviewItemActivityType
       COMMENT = "COMMENT"
       STATUS_UPDATED = "STATUS_UPDATED"
@@ -1172,7 +1197,8 @@ module Didit
       VALUES = [COMMENT, STATUS_UPDATED, KYC_DATA_UPDATED, POA_DATA_UPDATED, FILE_ADDED, FILE_REMOVED, AML_ONGOING_MATCH, AML_STATUS_UPDATED, AML_HIT_STATUS_UPDATED, KYB_DATA_UPDATED, KYB_DOCUMENT_UPLOADED, TAG_ADDED, TAG_REMOVED].freeze
     end
 
-    # Who performed the action: an API key, a Console user, or Didit itself (`SYSTEM`, e.g. AML ongoing monitoring). Entries created via `POST …/reviews/` carry the default `CONSOLE_USER` regardless of the caller.
+    # Who performed the action: an API key, a Console user, or Didit itself (`SYSTEM`, e.g. AML ongoing monitoring).
+    # Entries created via `POST …/reviews/` carry the default `CONSOLE_USER` regardless of the caller.
     module ReviewItemActorType
       API_KEY = "API_KEY"
       CONSOLE_USER = "CONSOLE_USER"
@@ -1197,7 +1223,8 @@ module Didit
       VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
     end
 
-    # Status the session had before the change. Populated on `STATUS_UPDATED` entries written by the update-status endpoint; `null` on entries added via `POST …/reviews/`. Also populated on system-written STATUS_UPDATED rows.
+    # Status the session had before the change. Populated on `STATUS_UPDATED` entries written by the update-status
+    # endpoint; `null` on entries added via `POST …/reviews/`. Also populated on system-written STATUS_UPDATED rows.
     module ReviewItemPreviousStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1388,7 +1415,8 @@ module Didit
       VALUES = [OPEN, INVESTIGATING, AWAITING_USER, PENDING_SAR, SAR_FILED, RESOLVED, DISMISSED].freeze
     end
 
-    # Direction relative to the subject. Stored uppercase regardless of the casing submitted (`in`/`out`/`inbound`/`outbound` are accepted on input).
+    # Direction relative to the subject. Stored uppercase regardless of the casing submitted
+    # (`in`/`out`/`inbound`/`outbound` are accepted on input).
     module TransactionDetailDirection
       INBOUND = "INBOUND"
       OUTBOUND = "OUTBOUND"
@@ -1396,7 +1424,8 @@ module Didit
       VALUES = [INBOUND, OUTBOUND].freeze
     end
 
-    # Environment of the application that owns the transaction. A `sandbox` transaction is stored but never evaluated, screened, notified or billed, so its empty `rule_runs` means "not evaluated".
+    # Environment of the application that owns the transaction. A `sandbox` transaction is stored but never evaluated,
+    # screened, notified or billed, so its empty `rule_runs` means "not evaluated".
     module TransactionDetailEnvironment
       LIVE = "live"
       SANDBOX = "sandbox"
@@ -1414,7 +1443,8 @@ module Didit
       VALUES = [INDIVIDUAL, COMPANY, EXTERNAL, UNHOSTED_WALLET].freeze
     end
 
-    # `USER`/`BUSINESS` parties link back to a Didit-owned entity via `vendor_data`. `EXTERNAL` parties have no Didit entity behind them.
+    # `USER`/`BUSINESS` parties link back to a Didit-owned entity via `vendor_data`. `EXTERNAL` parties have no Didit
+    # entity behind them.
     module TransactionDetailPartiesKind
       USER = "USER"
       BUSINESS = "BUSINESS"
@@ -1454,7 +1484,8 @@ module Didit
       VALUES = [BANK_CARD, BANK_ACCOUNT, E_WALLET, CRYPTO_WALLET, UNHOSTED_WALLET, OTHER].freeze
     end
 
-    # How this method was used in the transaction. The create endpoint assigns `SOURCE`/`DESTINATION` from the direction (outbound: subject = SOURCE; inbound: subject = DESTINATION).
+    # How this method was used in the transaction. The create endpoint assigns `SOURCE`/`DESTINATION` from the
+    # direction (outbound: subject = SOURCE; inbound: subject = DESTINATION).
     module TransactionDetailPaymentMethodsRole
       SOURCE = "SOURCE"
       DESTINATION = "DESTINATION"
@@ -1485,7 +1516,8 @@ module Didit
       VALUES = [ACTIVE, DISABLED, TEST].freeze
     end
 
-    # Categorical risk severity set by rules/providers (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). `null` until something sets it.
+    # Categorical risk severity set by rules/providers (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). `null` until
+    # something sets it.
     module TransactionDetailSeverity
       UNKNOWN = "UNKNOWN"
       LOW = "LOW"
@@ -1496,7 +1528,8 @@ module Didit
       VALUES = [UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL].freeze
     end
 
-    # How the record originated: `LIVE` for transactions submitted through the API or SDK, `IMPORTED` for transactions loaded through the console import.
+    # How the record originated: `LIVE` for transactions submitted through the API or SDK, `IMPORTED` for transactions
+    # loaded through the console import.
     module TransactionDetailSource
       LIVE = "LIVE"
       IMPORTED = "IMPORTED"
@@ -1504,7 +1537,8 @@ module Didit
       VALUES = [LIVE, IMPORTED].freeze
     end
 
-    # Current monitoring verdict. Transactions are created `APPROVED`; rules may flip them to `IN_REVIEW`/`DECLINED` synchronously.
+    # Current monitoring verdict. Transactions are created `APPROVED`; rules may flip them to `IN_REVIEW`/`DECLINED`
+    # synchronously.
     module TransactionDetailStatus
       APPROVED = "APPROVED"
       IN_REVIEW = "IN_REVIEW"
@@ -1637,7 +1671,12 @@ module Didit
       VALUES = [AND, OR].freeze
     end
 
-    # Comparison operator. in/not_in test membership (value may be a list or a single scalar). contains/not_contains are case-insensitive substring checks against a string value. contains_any takes a list of strings and matches when any is a case-insensitive substring of the field value. regex matches the value pattern against the field. fuzzy_match compares against the value string with the required `score` threshold (0-100). gt/gte/lt/lte never match when either side is missing. exists/is_not_empty/is_not_null (aliases) and not_exists/is_empty/is_null (aliases) are presence checks that ignore `value`.
+    # Comparison operator. in/not_in test membership (value may be a list or a single scalar). contains/not_contains
+    # are case-insensitive substring checks against a string value. contains_any takes a list of strings and matches
+    # when any is a case-insensitive substring of the field value. regex matches the value pattern against the field.
+    # fuzzy_match compares against the value string with the required `score` threshold (0-100). gt/gte/lt/lte never
+    # match when either side is missing. exists/is_not_empty/is_not_null (aliases) and not_exists/is_empty/is_null
+    # (aliases) are presence checks that ignore `value`.
     module TransactionRuleConditionOperator
       EQ = "eq"
       NE = "ne"
@@ -1662,7 +1701,9 @@ module Didit
       VALUES = [EQ, NE, GT, GTE, LT, LTE, IN, NOT_IN, CONTAINS, NOT_CONTAINS, CONTAINS_ANY, REGEX, FUZZY_MATCH, EXISTS, IS_NOT_EMPTY, IS_NOT_NULL, NOT_EXISTS, IS_EMPTY, IS_NULL].freeze
     end
 
-    # Optional value interpretation. `list`: value is a List UUID and the list's entries become the comparison value. `field`: value is another field path, compared field-to-field. `relative_date`: value is a relative-date object, e.g. {"direction": "past", "unit": "days", "amount": 30}.
+    # Optional value interpretation. `list`: value is a List UUID and the list's entries become the comparison value.
+    # `field`: value is another field path, compared field-to-field. `relative_date`: value is a relative-date object,
+    # e.g. {"direction": "past", "unit": "days", "amount": 30}.
     module TransactionRuleConditionValueType
       LIST = "list"
       FIELD = "field"
@@ -1679,7 +1720,8 @@ module Didit
       VALUES = [ALL, ANY].freeze
     end
 
-    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended starting mode. DISABLED is skipped.
+    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended
+    # starting mode. DISABLED is skipped.
     module TransactionRuleDetailMode
       ACTIVE = "ACTIVE"
       DISABLED = "DISABLED"
@@ -1743,7 +1785,8 @@ module Didit
       VALUES = [NONE, STRICT, DEFAULT, FUZZY].freeze
     end
 
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off: platform routing disabled with no own membership; unavailable: neither membership available.
+    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
+    # platform routing disabled with no own membership; unavailable: neither membership available.
     module TravelRuleSettingsDetailNetworksGtrMode
       OWN = "own"
       DIDIT = "didit"
@@ -1760,7 +1803,8 @@ module Didit
       VALUES = [GTR].freeze
     end
 
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off: platform routing disabled with no own membership; unavailable: neither membership available.
+    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
+    # platform routing disabled with no own membership; unavailable: neither membership available.
     module TravelRuleSettingsDetailNetworksSygnaMode
       OWN = "own"
       DIDIT = "didit"
@@ -1777,7 +1821,8 @@ module Didit
       VALUES = [SYGNA].freeze
     end
 
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off: platform routing disabled with no own membership; unavailable: neither membership available.
+    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
+    # platform routing disabled with no own membership; unavailable: neither membership available.
     module TravelRuleSettingsDetailNetworksTrustMode
       OWN = "own"
       DIDIT = "didit"
@@ -1794,7 +1839,8 @@ module Didit
       VALUES = [TRUST].freeze
     end
 
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off: platform routing disabled with no own membership; unavailable: neither membership available.
+    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
+    # platform routing disabled with no own membership; unavailable: neither membership available.
     module TravelRuleSettingsDetailNetworksVerifyvaspMode
       OWN = "own"
       DIDIT = "didit"
@@ -1887,7 +1933,8 @@ module Didit
       VALUES = [ACTIVE, FLAGGED, BLOCKED].freeze
     end
 
-    # Lifecycle status of the user record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks the user for manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
+    # Lifecycle status of the user record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks the user
+    # for manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
     module UserListItemStatus
       ACTIVE = "ACTIVE"
       FLAGGED = "FLAGGED"
@@ -1933,7 +1980,8 @@ module Didit
       VALUES = [DIRECT, INDIRECT].freeze
     end
 
-    # Direction of the fund flow, `attribution` when the driver is the address's own tag, or `unknown` when the provider did not report a direction.
+    # Direction of the fund flow, `attribution` when the driver is the address's own tag, or `unknown` when the
+    # provider did not report a direction.
     module WalletScreeningResultRiskFactorsDirection
       INCOMING = "incoming"
       OUTGOING = "outgoing"
@@ -1944,7 +1992,8 @@ module Didit
       VALUES = [INCOMING, OUTGOING, CONNECTED, UNKNOWN, ATTRIBUTION].freeze
     end
 
-    # `direct` (1 hop) or `indirect` (multi-hop), `attribution` for the address's own tag, or `unknown` when the provider did not state how many hops away the counterparty is. Treat `unknown` as unclassified, not as `direct`.
+    # `direct` (1 hop) or `indirect` (multi-hop), `attribution` for the address's own tag, or `unknown` when the
+    # provider did not state how many hops away the counterparty is. Treat `unknown` as unclassified, not as `direct`.
     module WalletScreeningResultRiskFactorsExposureType
       DIRECT = "direct"
       INDIRECT = "indirect"
@@ -1954,7 +2003,8 @@ module Didit
       VALUES = [DIRECT, INDIRECT, UNKNOWN, ATTRIBUTION].freeze
     end
 
-    # `attribution` is what the provider says the address itself is (its own tag or cluster); `exposure` is where its funds actually moved.
+    # `attribution` is what the provider says the address itself is (its own tag or cluster); `exposure` is where its
+    # funds actually moved.
     module WalletScreeningResultRiskFactorsSource
       ATTRIBUTION = "attribution"
       EXPOSURE = "exposure"
@@ -1969,7 +2019,11 @@ module Didit
       VALUES = [WALLET_SCREENING].freeze
     end
 
-    # Risk bucket derived from `risk_score`: `0-9` UNKNOWN, `10-39` LOW, `40-69` MEDIUM, `70-89` HIGH, `90-100` CRITICAL. `UNKNOWN` is the lowest band, not a separate no-data state: `risk_score` 0 (the common clean-address case) means no adverse assessment, while a non-zero score in the 1-9 range is a real but sub-LOW signal - read the `risk_score`, not just the band. Never treat `UNKNOWN` as an affirmative low-risk or clear rating; do not display it as a pass.
+    # Risk bucket derived from `risk_score`: `0-9` UNKNOWN, `10-39` LOW, `40-69` MEDIUM, `70-89` HIGH, `90-100`
+    # CRITICAL. `UNKNOWN` is the lowest band, not a separate no-data state: `risk_score` 0 (the common clean-address
+    # case) means no adverse assessment, while a non-zero score in the 1-9 range is a real but sub-LOW signal - read
+    # the `risk_score`, not just the band. Never treat `UNKNOWN` as an affirmative low-risk or clear rating; do not
+    # display it as a pass.
     module WalletScreeningResultSeverity
       UNKNOWN = "UNKNOWN"
       LOW = "LOW"
@@ -2038,7 +2092,8 @@ module Didit
       VALUES = [DRAFT, PUBLISHED].freeze
     end
 
-    # White-label branding for an application: colors, fonts, radii, logo URLs and UI/UX options. Logo URLs are read-only (set them by uploading images). Custom domain and white-label email are not included.
+    # White-label branding for an application: colors, fonts, radii, logo URLs and UI/UX options. Logo URLs are
+    # read-only (set them by uploading images). Custom domain and white-label email are not included.
     class BrandingCustomization < Didit::Model
       field :color_primary, "color_primary", :string
       field :color_secondary, "color_secondary", :string
@@ -2171,7 +2226,8 @@ module Didit
       field :default_deadline_hours, "default_deadline_hours", :integer
     end
 
-    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys are rejected.
+    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys
+    # are rejected.
     class CaseBlueprintDetailContentConfig < Didit::Model
       field :checklist, "checklist", "CaseBlueprintDetailContentConfigChecklist"
       field :aml_control, "aml_control", "CaseBlueprintDetailContentConfigAmlControl"
@@ -2295,7 +2351,8 @@ module Didit
       field :results, "results", [:array, "CaseCollaborationCaseNote"]
     end
 
-    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys are rejected.
+    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys
+    # are rejected.
     class CaseContentConfig < Didit::Model
       field :checklist, "checklist", "CaseContentConfigChecklist"
       field :aml_control, "aml_control", "CaseContentConfigAmlControl"
@@ -2719,7 +2776,8 @@ module Didit
       field :parsed_payload, "parsed_payload", :any
     end
 
-    # Normalized email-intelligence block. Present only when the intelligence add-on ran for this email; when present it is also exposed as the `enrichment` alias with identical values.
+    # Normalized email-intelligence block. Present only when the intelligence add-on ran for this email; when present
+    # it is also exposed as the `enrichment` alias with identical values.
     class EmailIntelligence < Didit::Model
       field :score, "score", :float
       field :deliverable, "deliverable", :string
@@ -2785,7 +2843,10 @@ module Didit
       field :is_verified, "is_verified", :boolean
     end
 
-    # Social footprint of the email address: the online platforms it is registered on. Present only when `enable_social` was set and the check completed. Every count may be null when no data was returned for it. `profiles_registered: 0` means the platforms were checked and the email address was found on none of them - a valid, billable answer and a common synthetic-identity signal.
+    # Social footprint of the email address: the online platforms it is registered on. Present only when
+    # `enable_social` was set and the check completed. Every count may be null when no data was returned for it.
+    # `profiles_registered: 0` means the platforms were checked and the email address was found on none of them - a
+    # valid, billable answer and a common synthetic-identity signal.
     class EmailSocialFootprint < Didit::Model
       field :profiles_registered, "profiles_registered", :integer
       field :profiles_checked, "profiles_checked", :integer
@@ -2816,7 +2877,8 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
-    # Full email report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and absent on `Expired or Not Found`.
+    # Full email report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and
+    # absent on `Expired or Not Found`.
     class EmailVerificationCheckResponseEmail < Didit::Model
       field :status, "status", :string
       field :email, "email", :string
@@ -3004,7 +3066,8 @@ module Didit
       field :threat, "threat", :any
     end
 
-    # An address the registry states, in the same shape for every country and registry source. Every key is always present; a part the registry does not publish is null.
+    # An address the registry states, in the same shape for every country and registry source. Every key is always
+    # present; a part the registry does not publish is null.
     class KYBRegistryAddress < Didit::Model
       field :type, "type", :string
       field :address, "address", :string
@@ -3039,7 +3102,9 @@ module Didit
       field :section, "section", :string
     end
 
-    # What an owner holds, in the same shape for every country and registry source. Null when the registry states no holding. A band (for example a UK PSC's 25-50%) is not a stake: `percentage` is null and the band stays in `ownership_min_shares` / `ownership_max_shares`.
+    # What an owner holds, in the same shape for every country and registry source. Null when the registry states no
+    # holding. A band (for example a UK PSC's 25-50%) is not a stake: `percentage` is null and the band stays in
+    # `ownership_min_shares` / `ownership_max_shares`.
     class KYBRegistryShareholding < Didit::Model
       field :share_class, "share_class", :string
       field :number_of_shares, "number_of_shares", :float
@@ -3076,7 +3141,11 @@ module Didit
       field :hub_signal_count, "hub_signal_count", :integer
     end
 
-    # A subject node or a signal node, distinguished by kind. Subject nodes (kind: vendor_user | vendor_business | transaction_party) carry id, kind, subject, node_status (approved | in_review | declined | not_completed), and tags. Signal nodes (kind: signal) carry id, kind, uuid, signal_type, subject_count, coverage, is_hub, is_datacenter_ip, is_high_collision_device, node_status (signal_active | signal_guarded), tags, risk_evidence, first_seen_at, and last_seen_at.
+    # A subject node or a signal node, distinguished by kind. Subject nodes (kind: vendor_user | vendor_business |
+    # transaction_party) carry id, kind, subject, node_status (approved | in_review | declined | not_completed), and
+    # tags. Signal nodes (kind: signal) carry id, kind, uuid, signal_type, subject_count, coverage, is_hub,
+    # is_datacenter_ip, is_high_collision_device, node_status (signal_active | signal_guarded), tags, risk_evidence,
+    # first_seen_at, and last_seen_at.
     class NetworkGraphNode < Didit::Model
       field :id, "id", :string
       field :kind, "kind", :string
@@ -3187,7 +3256,8 @@ module Didit
       field :metadata, "metadata", :any
     end
 
-    # Normalized phone-intelligence block. Present only when the intelligence add-on ran for this lookup; when present it is also exposed under the `enrichment` alias with identical values.
+    # Normalized phone-intelligence block. Present only when the intelligence add-on ran for this lookup; when present
+    # it is also exposed under the `enrichment` alias with identical values.
     class PhoneIntelligence < Didit::Model
       field :score, "score", :float
       field :phone_type_risk, "phone_type_risk", :string
@@ -3250,7 +3320,10 @@ module Didit
       field :type, "type", :string
     end
 
-    # Social footprint of the phone number: the online platforms it is registered on. Present only when `enable_social` was set and the check completed. Every count may be null when no data was returned for it. `profiles_registered: 0` means the platforms were checked and the phone number was found on none of them - a valid, billable answer and a common synthetic-identity signal.
+    # Social footprint of the phone number: the online platforms it is registered on. Present only when
+    # `enable_social` was set and the check completed. Every count may be null when no data was returned for it.
+    # `profiles_registered: 0` means the platforms were checked and the phone number was found on none of them - a
+    # valid, billable answer and a common synthetic-identity signal.
     class PhoneSocialFootprint < Didit::Model
       field :profiles_registered, "profiles_registered", :integer
       field :profiles_checked, "profiles_checked", :integer
@@ -3281,7 +3354,8 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
-    # Full phone report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and absent on `Expired or Not Found`.
+    # Full phone report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and
+    # absent on `Expired or Not Found`.
     class PhoneVerificationCheckResponsePhone < Didit::Model
       field :status, "status", :string
       field :phone_number_prefix, "phone_number_prefix", :string
@@ -3443,7 +3517,9 @@ module Didit
       field :updated_at, "updated_at", :datetime
     end
 
-    # One entry in a session's review / activity feed. Status changes carry `previous_status`, `new_status`, `previous_value`, `new_value`, and `changed_fields`; comments carry `comment` and (for Console comments) `mentioned_emails`; the remaining fields are `null` or empty when they do not apply to the activity type.
+    # One entry in a session's review / activity feed. Status changes carry `previous_status`, `new_status`,
+    # `previous_value`, `new_value`, and `changed_fields`; comments carry `comment` and (for Console comments)
+    # `mentioned_emails`; the remaining fields are `null` or empty when they do not apply to the activity type.
     class ReviewItem < Didit::Model
       field :uuid, "uuid", :string
       field :activity_type, "activity_type", :string
@@ -3575,7 +3651,8 @@ module Didit
       field :business_account, "business_account", :boolean
     end
 
-    # Full monitoring record for one transaction, as returned by `GET /v3/transactions/{transaction_id}/` and `POST /v3/transactions/`.
+    # Full monitoring record for one transaction, as returned by `GET /v3/transactions/{transaction_id}/` and `POST
+    # /v3/transactions/`.
     class TransactionDetail < Didit::Model
       field :uuid, "uuid", :string
       field :environment, "environment", :string
@@ -3619,7 +3696,12 @@ module Didit
       field :cost_breakdown, "cost_breakdown", :any
     end
 
-    # Pending end-user action required to complete this transaction, or null when there is none. The Didit SDKs auto-launch the action by default and refresh the transaction when it finishes. Two variants, discriminated by `type`: `verification_session` (a hosted verification session created by a rule action) and `wallet_ownership` (a wallet-ownership widget session auto-minted for a Travel Rule transfer that needs proof of wallet control, gated by the `auto_wallet_verification` Travel Rule setting). When both could apply, `wallet_ownership` takes precedence because it blocks the Travel Rule exchange.
+    # Pending end-user action required to complete this transaction, or null when there is none. The Didit SDKs
+    # auto-launch the action by default and refresh the transaction when it finishes. Two variants, discriminated by
+    # `type`: `verification_session` (a hosted verification session created by a rule action) and `wallet_ownership`
+    # (a wallet-ownership widget session auto-minted for a Travel Rule transfer that needs proof of wallet control,
+    # gated by the `auto_wallet_verification` Travel Rule setting). When both could apply, `wallet_ownership` takes
+    # precedence because it blocks the Travel Rule exchange.
     class TransactionDetailActionRequired < Didit::Model
       field :type, "type", :string
       field :url, "url", :string
@@ -3669,7 +3751,9 @@ module Didit
       field :file_size, "file_size", :integer
     end
 
-    # Graph snapshot of related transactions/parties used by the rules engine. Either the `network_snapshot` submitted with the transaction or the graph Didit builds from a successful AML wallet screening (which replaces a submitted one). `null` when neither exists.
+    # Graph snapshot of related transactions/parties used by the rules engine. Either the `network_snapshot` submitted
+    # with the transaction or the graph Didit builds from a successful AML wallet screening (which replaces a
+    # submitted one). `null` when neither exists.
     class TransactionDetailNetworkSnapshot < Didit::Model
       field :uuid, "uuid", :string
       field :nodes, "nodes", [:array, :any]
@@ -3694,7 +3778,8 @@ module Didit
       field :external_party_snapshot, "external_party_snapshot", :any
     end
 
-    # Normalized device context, including server-side IP enrichment under network_context (geolocation, VPN/data-center flags) when an IP was provided.
+    # Normalized device context, including server-side IP enrichment under network_context (geolocation,
+    # VPN/data-center flags) when an IP was provided.
     class TransactionDetailPartiesDevice < Didit::Model
       field :fingerprint, "fingerprint", :string
       field :persistent_device_id, "persistent_device_id", :string
@@ -3746,7 +3831,8 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
-    # Remediation session offered to the user when re-verification is required. Superseded by `action_required`, which is the canonical block; kept for backward compatibility.
+    # Remediation session offered to the user when re-verification is required. Superseded by `action_required`, which
+    # is the canonical block; kept for backward compatibility.
     class TransactionDetailRemediation < Didit::Model
       field :session_id, "session_id", :string
       field :session_token, "session_token", :string
@@ -3779,7 +3865,9 @@ module Didit
       field :source, "source", :string
     end
 
-    # Travel Rule transfer or check. Populated when `travel_rule_details` was submitted, and also when Travel Rule is enabled and the transaction was created with `transaction_category: travelRule` (Didit initiates the exchange itself, even without `travel_rule_details`). `null` when no transfer or check exists.
+    # Travel Rule transfer or check. Populated when `travel_rule_details` was submitted, and also when Travel Rule is
+    # enabled and the transaction was created with `transaction_category: travelRule` (Didit initiates the exchange
+    # itself, even without `travel_rule_details`). `null` when no transfer or check exists.
     class TransactionDetailTravelRule < Didit::Model
       field :uuid, "uuid", :string
       field :status, "status", :string
@@ -3791,7 +3879,8 @@ module Didit
       field :metadata, "metadata", :any
     end
 
-    # One rule action. A rule can carry several; all are applied together when it matches. Rules in TEST mode record what they would have done without applying any action.
+    # One rule action. A rule can carry several; all are applied together when it matches. Rules in TEST mode record
+    # what they would have done without applying any action.
     class TransactionRuleAction < Didit::Model
       field :type, "type", :string
       field :value, "value", :integer
@@ -3806,7 +3895,10 @@ module Didit
       field :attach_matched_transaction, "attach_matched_transaction", :boolean
     end
 
-    # Velocity check over the application's historical transactions inside the window. Every aggregation entry must match for the rule to match, regardless of evaluation_mode. An aggregation constrains only the window; the transaction being evaluated is constrained by scope and conditions, so repeat direction, currency or transaction_type on both halves when the rule promises them.
+    # Velocity check over the application's historical transactions inside the window. Every aggregation entry must
+    # match for the rule to match, regardless of evaluation_mode. An aggregation constrains only the window; the
+    # transaction being evaluated is constrained by scope and conditions, so repeat direction, currency or
+    # transaction_type on both halves when the rule promises them.
     class TransactionRuleAggregation < Didit::Model
       field :metric, "metric", :string
       field :field, "field", :string
@@ -3922,7 +4014,8 @@ module Didit
       field :networks, "networks", "TravelRuleSettingsDetailNetworks"
     end
 
-    # Effective membership configuration for each network. No network, including GTR, is included by default. This is not a live health or delivery check.
+    # Effective membership configuration for each network. No network, including GTR, is included by default. This is
+    # not a live health or delivery check.
     class TravelRuleSettingsDetailNetworks < Didit::Model
       field :gtr, "gtr", "TravelRuleSettingsDetailNetworksGtr"
       field :trust, "trust", "TravelRuleSettingsDetailNetworksTrust"
@@ -3958,7 +4051,8 @@ module Didit
       field :connected, "connected", :boolean
     end
 
-    # Full transfer object returned by the ownership-confirmation and finish/cancel endpoints. originator_data/beneficiary_data are omitted while PII is masked (see description).
+    # Full transfer object returned by the ownership-confirmation and finish/cancel endpoints.
+    # originator_data/beneficiary_data are omitted while PII is masked (see description).
     class TravelRuleTransferDetail < Didit::Model
       field :uuid, "uuid", :string
       field :status, "status", :string
@@ -4080,7 +4174,8 @@ module Didit
       field :travel_address, "travel_address", :string
     end
 
-    # PATCH is a partial update; the response echoes only holder_name, holder_vendor_data, entity_type, and travel_address.
+    # PATCH is a partial update; the response echoes only holder_name, holder_vendor_data, entity_type, and
+    # travel_address.
     class WalletAddressEntryUpdate < Didit::Model
       field :holder_name, "holder_name", :string
       field :holder_vendor_data, "holder_vendor_data", :string
@@ -4214,7 +4309,8 @@ module Didit
       field :updated_at, "updated_at", :datetime
     end
 
-    # Who created this version: `{name, email, type}` where `type` is `user` (Console user, `email` set) or `api_key` (`name` is the client id, `email` is null). `null` when no creator was recorded.
+    # Who created this version: `{name, email, type}` where `type` is `user` (Console user, `email` set) or `api_key`
+    # (`name` is the client id, `email` is null). `null` when no creator was recorded.
     class WorkflowListItemCreatedBy < Didit::Model
       field :name, "name", :string
       field :email, "email", :string

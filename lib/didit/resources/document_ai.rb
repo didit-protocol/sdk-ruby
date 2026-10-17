@@ -7,19 +7,46 @@ module Didit
     class DocumentAi < Didit::Resource
       # Document AI (custom field extraction + tamper checks)
       #
-      # Extract the fields **you** define from any supporting document - payslips, proof of funds, source-of-wealth letters, tax statements, contracts, invoices - in one call. Send the file plus a `fields` definition (key, name, extraction instruction, type) and get back typed values (`text`, `number`, `date` as `YYYY-MM-DD`), an optional name-match score against the expected person or company, PDF/EXIF tamper signals, an `Approved`/`Declined`/`In Review` `status`, and a `warnings` list explaining every issue found. This is the server-to-server counterpart of the hosted Document AI workflow step (see `/core-technology/document-ai/overview`); it uses Didit's default extraction model and does not expose provider selection.
+      # Extract the fields **you** define from any supporting document - payslips, proof of funds, source-of-wealth
+      # letters, tax statements, contracts, invoices - in one call. Send the file plus a `fields` definition (key,
+      # name, extraction instruction, type) and get back typed values (`text`, `number`, `date` as `YYYY-MM-DD`), an
+      # optional name-match score against the expected person or company, PDF/EXIF tamper signals, an
+      # `Approved`/`Declined`/`In Review` `status`, and a `warnings` list explaining every issue found. This is the
+      # server-to-server counterpart of the hosted Document AI workflow step (see
+      # `/core-technology/document-ai/overview`); it uses Didit's default extraction model and does not expose
+      # provider selection.
       #
-      # **Latency.** Extraction is LLM-based: typical calls take **5-15 seconds**, multi-page PDFs up to **~30 seconds**. Configure a client timeout of **at least 45 seconds** and do not retry before the call completes.
+      # **Latency.** Extraction is LLM-based: typical calls take **5-15 seconds**, multi-page PDFs up to **~30
+      # seconds**. Configure a client timeout of **at least 45 seconds** and do not retry before the call completes.
       #
-      # **Request format.** `multipart/form-data` only. `fields` is **one JSON-encoded array string** (1-30 items, at most 16 KB); bracket-style form arrays are rejected with `400`. Each item is `{key, name, instruction, type, required, is_full_name}` - `key` is the JSON key you get back (`^[a-z0-9_]{1,64}$`, unique), `instruction` tells the model what to read, `type` is `text` (default) | `number` | `date`, `required` raises `DOCUMENT_AI_MISSING_REQUIRED_FIELDS` when the value cannot be read, and at most one field may set `is_full_name: true` to mark the value compared against the expected name.
+      # **Request format.** `multipart/form-data` only. `fields` is **one JSON-encoded array string** (1-30 items, at
+      # most 16 KB); bracket-style form arrays are rejected with `400`. Each item is `{key, name, instruction, type,
+      # required, is_full_name}` - `key` is the JSON key you get back (`^[a-z0-9_]{1,64}$`, unique), `instruction`
+      # tells the model what to read, `type` is `text` (default) | `number` | `date`, `required` raises
+      # `DOCUMENT_AI_MISSING_REQUIRED_FIELDS` when the value cannot be read, and at most one field may set
+      # `is_full_name: true` to mark the value compared against the expected name.
       #
-      # **Name matching.** Pass `expected_first_name` + `expected_last_name` (person) **or** `expected_company_name` (+ optional `expected_company_country`) - not both. The value of the `is_full_name` field (or, when none is marked, the first text field whose key looks like a name) is compared fuzzily; `name_match_score` (0-100) and `name_on_document` are always returned when both sides exist, and a score below `document_ai_name_match_score_threshold` (default 80) adds `DOCUMENT_AI_NAME_MISMATCH`, governed by `document_ai_name_mismatch_action`.
+      # **Name matching.** Pass `expected_first_name` + `expected_last_name` (person) **or** `expected_company_name`
+      # (+ optional `expected_company_country`) - not both. The value of the `is_full_name` field (or, when none is
+      # marked, the first text field whose key looks like a name) is compared fuzzily; `name_match_score` (0-100) and
+      # `name_on_document` are always returned when both sides exist, and a score below
+      # `document_ai_name_match_score_threshold` (default 80) adds `DOCUMENT_AI_NAME_MISMATCH`, governed by
+      # `document_ai_name_mismatch_action`.
       #
-      # **Decision logic.** Each risk maps to a configurable action: `DECLINE` → `status: "Declined"`, `REVIEW` → `status: "In Review"`, `NO_ACTION` → informational only. Defaults mirror the workflow step: unreadable document `REVIEW`, missing required fields `REVIEW`, suspected manipulation `DECLINE`, name mismatch `NO_ACTION`, unsupported file `REVIEW`. A document that cannot be processed at all returns `400`; a readable but problematic document returns `200` with `Declined`/`In Review` - always inspect `document_ai.status` and `document_ai.warnings`, not just the HTTP code.
+      # **Decision logic.** Each risk maps to a configurable action: `DECLINE` → `status: "Declined"`, `REVIEW` →
+      # `status: "In Review"`, `NO_ACTION` → informational only. Defaults mirror the workflow step: unreadable
+      # document `REVIEW`, missing required fields `REVIEW`, suspected manipulation `DECLINE`, name mismatch
+      # `NO_ACTION`, unsupported file `REVIEW`. A document that cannot be processed at all returns `400`; a readable
+      # but problematic document returns `200` with `Declined`/`In Review` - always inspect `document_ai.status` and
+      # `document_ai.warnings`, not just the HTTP code.
       #
-      # **Billing.** Each `200` response consumes one Document AI API credit - **$0.20 per document, no free tier** (standalone APIs never have one). When the organization's balance cannot cover the call, the endpoint returns `403` before any processing. Sandbox API keys return a deterministic mock response and are not charged.
+      # **Billing.** Each `200` response consumes one Document AI API credit - **$0.20 per document, no free tier**
+      # (standalone APIs never have one). When the organization's balance cannot cover the call, the endpoint returns
+      # `403` before any processing. Sandbox API keys return a deterministic mock response and are not charged.
       #
-      # **Persistence.** With `save_api_request=true` (default) the call is stored as an API-type session: the document, the extracted values, the field definitions and the name-match snapshot are kept, the session shows up in the Business Console, and `request_id` works with `GET /v3/session/{sessionId}/decision/`.
+      # **Persistence.** With `save_api_request=true` (default) the call is stored as an API-type session: the
+      # document, the extracted values, the field definitions and the name-match snapshot are kept, the session shows
+      # up in the Business Console, and `request_id` works with `GET /v3/session/{sessionId}/decision/`.
       #
       # +POST /v3/document-ai/+
       #
@@ -40,7 +67,24 @@ module Didit
       # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"onb...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DocumentAiAnalyzeResponse]
-      def analyze(document:, fields:, expected_first_name: OMIT, expected_last_name: OMIT, expected_company_name: OMIT, expected_company_country: OMIT, document_ai_name_match_score_threshold: OMIT, document_ai_unreadable_document_action: OMIT, document_ai_missing_required_fields_action: OMIT, document_ai_document_tampering_action: OMIT, document_ai_name_mismatch_action: OMIT, document_ai_unsupported_file_action: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def analyze(
+        document:,
+        fields:,
+        expected_first_name: OMIT,
+        expected_last_name: OMIT,
+        expected_company_name: OMIT,
+        expected_company_country: OMIT,
+        document_ai_name_match_score_threshold: OMIT,
+        document_ai_unreadable_document_action: OMIT,
+        document_ai_missing_required_fields_action: OMIT,
+        document_ai_document_tampering_action: OMIT,
+        document_ai_name_mismatch_action: OMIT,
+        document_ai_unsupported_file_action: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/document-ai/",

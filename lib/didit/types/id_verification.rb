@@ -3,7 +3,12 @@
 
 module Didit
   module Types
-    # What to do when a critical printed field was physically covered on the capture (`CRITICAL_FIELD_OCCLUSION_DETECTED`) - an identity number, a name, the date of birth, or the expiry date. Declines by default, like this endpoint's other document-integrity risks: covering the numbers a report is reconciled against is what a redacted document looks like. The value read for a covered field is dropped from the extraction either way, so the matching `*_NOT_DETECTED` warning usually accompanies it. `REVIEW` is not supported on this endpoint and returns `400`.
+    # What to do when a critical printed field was physically covered on the capture
+    # (`CRITICAL_FIELD_OCCLUSION_DETECTED`) - an identity number, a name, the date of birth, or the expiry date.
+    # Declines by default, like this endpoint's other document-integrity risks: covering the numbers a report is
+    # reconciled against is what a redacted document looks like. The value read for a covered field is dropped from
+    # the extraction either way, so the matching `*_NOT_DETECTED` warning usually accompanies it. `REVIEW` is not
+    # supported on this endpoint and returns `400`.
     module IdVerificationVerifyParamsCriticalFieldOcclusionAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -11,7 +16,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when a number does not match the format its issuing authority uses for that document type (`DOCUMENT_NUMBER_FORMAT_MISMATCH`, `PERSONAL_NUMBER_FORMAT_MISMATCH`). Default `NO_ACTION`, which reports the warning without changing the status. `REVIEW` is not supported on this endpoint and returns `400`.
+    # What to do when a number does not match the format its issuing authority uses for that document type
+    # (`DOCUMENT_NUMBER_FORMAT_MISMATCH`, `PERSONAL_NUMBER_FORMAT_MISMATCH`). Default `NO_ACTION`, which reports the
+    # warning without changing the status. `REVIEW` is not supported on this endpoint and returns `400`.
     module IdVerificationVerifyParamsDocumentOrPersonalNumberFormatMismatchAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -19,7 +26,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when no expiration date can be read (`EXPIRATION_DATE_NOT_DETECTED`). Default `NO_ACTION` because many identity documents print no expiry date. Note: a *detected and past* expiry date always declines (`DOCUMENT_EXPIRED`), regardless of this option.
+    # What to do when no expiration date can be read (`EXPIRATION_DATE_NOT_DETECTED`). Default `NO_ACTION` because
+    # many identity documents print no expiry date. Note: a *detected and past* expiry date always declines
+    # (`DOCUMENT_EXPIRED`), regardless of this option.
     module IdVerificationVerifyParamsExpirationDateNotDetectedAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -27,7 +36,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when extracted data is internally inconsistent: `DATA_INCONSISTENT`, `MRZ_AND_DATA_EXTRACTED_FROM_OCR_NOT_SAME` (visual zone disagrees with the MRZ), or `DOCUMENT_NAME_DIFFERENT_FROM_OTHER_APPROVED_DOCUMENTS`.
+    # What to do when extracted data is internally inconsistent: `DATA_INCONSISTENT`,
+    # `MRZ_AND_DATA_EXTRACTED_FROM_OCR_NOT_SAME` (visual zone disagrees with the MRZ), or
+    # `DOCUMENT_NAME_DIFFERENT_FROM_OTHER_APPROVED_DOCUMENTS`.
     module IdVerificationVerifyParamsInconsistentDataAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -35,7 +46,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when the extracted MRZ fails check-digit validation (`MRZ_VALIDATION_FAILED`). A missing MRZ raises no warning on this endpoint. Only relevant for documents that carry an MRZ. `REVIEW` is not supported on this endpoint and returns `400`.
+    # What to do when the extracted MRZ fails check-digit validation (`MRZ_VALIDATION_FAILED`). A missing MRZ raises
+    # no warning on this endpoint. Only relevant for documents that carry an MRZ. `REVIEW` is not supported on this
+    # endpoint and returns `400`.
     module IdVerificationVerifyParamsInvalidMrzAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -43,7 +56,8 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # Preferred script for name/address fields on documents that print both Latin and non-Latin text (Arabic, Cyrillic, CJK, …). `latin` returns transliterated/Latin values; `non_latin` prefers the native script.
+    # Preferred script for name/address fields on documents that print both Latin and non-Latin text (Arabic,
+    # Cyrillic, CJK, …). `latin` returns transliterated/Latin values; `non_latin` prefers the native script.
     module IdVerificationVerifyParamsPreferredCharacters
       LATIN = "latin"
       NON_LATIN = "non_latin"
@@ -66,7 +80,8 @@ module Didit
       VALUES = [ID_VERIFICATION].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `information` entries are advisory and never decline on their own. (`warning` is not produced by this endpoint - its options only accept `DECLINE` or `NO_ACTION`.)
+    # Severity. `error` warnings drive `status` to `Declined`; `information` entries are advisory and never decline on
+    # their own. (`warning` is not produced by this endpoint - its options only accept `DECLINE` or `NO_ACTION`.)
     module IdVerificationVerifyResponseIdVerificationWarningsLogType
       ERROR = "error"
       WARNING = "warning"
@@ -120,7 +135,8 @@ module Didit
       field :barcodes, "barcodes", [:array, "IdVerificationVerifyResponseIdVerificationBarcodes"]
     end
 
-    # Capture-quality diagnostics for the uploaded image (`null` when the side was not provided or scoring failed). All scores are 0-100.
+    # Capture-quality diagnostics for the uploaded image (`null` when the side was not provided or scoring failed).
+    # All scores are 0-100.
     class IdVerificationVerifyResponseIdVerificationBackImageQualityScore < Didit::Model
       field :focus_score, "focus_score", :float
       field :brightness_score, "brightness_score", :float
@@ -138,7 +154,8 @@ module Didit
       field :side, "side", :string
     end
 
-    # Capture-quality diagnostics for the uploaded image (`null` when the side was not provided or scoring failed). All scores are 0-100.
+    # Capture-quality diagnostics for the uploaded image (`null` when the side was not provided or scoring failed).
+    # All scores are 0-100.
     class IdVerificationVerifyResponseIdVerificationFrontImageQualityScore < Didit::Model
       field :focus_score, "focus_score", :float
       field :brightness_score, "brightness_score", :float
@@ -148,7 +165,8 @@ module Didit
       field :overall_score, "overall_score", :float
     end
 
-    # Parsed machine-readable zone. An **empty object** (`{}`) when the document has no MRZ or it could not be read - also check the `warnings` list in that case. Dates inside the MRZ use the raw `YYMMDD` format.
+    # Parsed machine-readable zone. An **empty object** (`{}`) when the document has no MRZ or it could not be read -
+    # also check the `warnings` list in that case. Dates inside the MRZ use the raw `YYMMDD` format.
     class IdVerificationVerifyResponseIdVerificationMrz < Didit::Model
       field :surname, "surname", :string
       field :name, "name", :string
@@ -173,7 +191,8 @@ module Didit
       field :mrz_key, "mrz_key", :string
     end
 
-    # Structured, geocoded breakdown of `address`. `null` when the document carries no address or it could not be parsed.
+    # Structured, geocoded breakdown of `address`. `null` when the document carries no address or it could not be
+    # parsed.
     class IdVerificationVerifyResponseIdVerificationParsedAddress < Didit::Model
       field :street_1, "street_1", :string
       field :street_2, "street_2", :string

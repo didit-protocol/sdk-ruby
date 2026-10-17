@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # Payload schema version Didit will send. `v3` is the current/recommended format; older versions are kept for backward compatibility with legacy integrations.
+    # Payload schema version Didit will send. `v3` is the current/recommended format; older versions are kept for
+    # backward compatibility with legacy integrations.
     module WebhooksDestinationsCreateParamsWebhookVersion
       V1 = "v1"
       V2 = "v2"

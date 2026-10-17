@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # What to do when the extracted details disagree with the `expected_*` fields: `ADDRESS_MISMATCH_WITH_PROVIDED`, `NAME_MISMATCH_WITH_PROVIDED`, and `POA_COUNTRY_MISMATCH_WITH_PROVIDED` all follow this action.
+    # What to do when the extracted details disagree with the `expected_*` fields: `ADDRESS_MISMATCH_WITH_PROVIDED`,
+    # `NAME_MISMATCH_WITH_PROVIDED`, and `POA_COUNTRY_MISMATCH_WITH_PROVIDED` all follow this action.
     module ProofOfAddressVerifyParamsPoaAddressMismatchAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -11,7 +12,9 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # What to do when document manipulation is suspected (`SUSPECTED_DOCUMENT_MANIPULATION`) - e.g. the PDF was modified after digital signing, processed by a known PDF editor, shows overlay-text manipulation, or has inconsistent EXIF dates.
+    # What to do when document manipulation is suspected (`SUSPECTED_DOCUMENT_MANIPULATION`) - e.g. the PDF was
+    # modified after digital signing, processed by a known PDF editor, shows overlay-text manipulation, or has
+    # inconsistent EXIF dates.
     module ProofOfAddressVerifyParamsPoaDocumentAuthenticityAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -19,7 +22,8 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # What to do on file-integrity problems - in practice only `DOCUMENT_METADATA_MISMATCH` is produced by this endpoint.
+    # What to do on file-integrity problems - in practice only `DOCUMENT_METADATA_MISMATCH` is produced by this
+    # endpoint.
     module ProofOfAddressVerifyParamsPoaDocumentIssuesAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -35,7 +39,9 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # Accepted but **currently not applied** - name-mismatch warnings (`NAME_MISMATCH_WITH_PROVIDED`) follow `poa_address_mismatch_action` instead. Set `poa_address_mismatch_action` to control both name and address mismatch behavior.
+    # Accepted but **currently not applied** - name-mismatch warnings (`NAME_MISMATCH_WITH_PROVIDED`) follow
+    # `poa_address_mismatch_action` instead. Set `poa_address_mismatch_action` to control both name and address
+    # mismatch behavior.
     module ProofOfAddressVerifyParamsPoaNameMismatchAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -51,7 +57,9 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # Detected document category. `UNKNOWN` means the document could not be classified as an acceptable Proof of Address and auto-declines with `INVALID_DOCUMENT_TYPE`. Never null - classification failures fall back to `UNKNOWN`.
+    # Detected document category. `UNKNOWN` means the document could not be classified as an acceptable Proof of
+    # Address and auto-declines with `INVALID_DOCUMENT_TYPE`. Never null - classification failures fall back to
+    # `UNKNOWN`.
     module ProofOfAddressVerifyResponsePoaDocumentType
       UTILITY_BILL = "UTILITY_BILL"
       BANK_STATEMENT = "BANK_STATEMENT"
@@ -77,7 +85,8 @@ module Didit
       VALUES = [PROOF_OF_ADDRESS].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `information` entries are advisory and never decline on their own. (`warning` is not produced by this endpoint - its options only accept `DECLINE` or `NO_ACTION`.)
+    # Severity. `error` warnings drive `status` to `Declined`; `information` entries are advisory and never decline on
+    # their own. (`warning` is not produced by this endpoint - its options only accept `DECLINE` or `NO_ACTION`.)
     module ProofOfAddressVerifyResponsePoaWarningsLogType
       ERROR = "error"
       INFORMATION = "information"
@@ -114,7 +123,8 @@ module Didit
       field :detected_codes, "detected_codes", [:array, "DocumentAIDetectedCode"]
     end
 
-    # Document-specific extras. Bank fields are populated for bank statements when printed on the document; `null` otherwise.
+    # Document-specific extras. Bank fields are populated for bank statements when printed on the document; `null`
+    # otherwise.
     class ProofOfAddressVerifyResponsePoaExtraFields < Didit::Model
       field :bank_account_number, "bank_account_number", :string
       field :bank_iban, "bank_iban", :string

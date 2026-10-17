@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # What to do when PDF/EXIF forensics suspect manipulation - modified after digital signing, known PDF editor, overlay-text manipulation, suspicious re-export, image anomalies (`DOCUMENT_AI_SUSPECTED_MANIPULATION`).
+    # What to do when PDF/EXIF forensics suspect manipulation - modified after digital signing, known PDF editor,
+    # overlay-text manipulation, suspicious re-export, image anomalies (`DOCUMENT_AI_SUSPECTED_MANIPULATION`).
     module DocumentAiAnalyzeParamsDocumentAiDocumentTamperingAction
       DECLINE = "DECLINE"
       REVIEW = "REVIEW"
@@ -12,7 +13,8 @@ module Didit
       VALUES = [DECLINE, REVIEW, NO_ACTION].freeze
     end
 
-    # What to do when at least one `required` field could not be read (`DOCUMENT_AI_MISSING_REQUIRED_FIELDS`; `additional_data.missing_fields` lists them).
+    # What to do when at least one `required` field could not be read (`DOCUMENT_AI_MISSING_REQUIRED_FIELDS`;
+    # `additional_data.missing_fields` lists them).
     module DocumentAiAnalyzeParamsDocumentAiMissingRequiredFieldsAction
       DECLINE = "DECLINE"
       REVIEW = "REVIEW"
@@ -57,7 +59,8 @@ module Didit
       VALUES = [TEXT, NUMBER, DATE].freeze
     end
 
-    # `Approved` when no warning resolves to a decline or review; `Declined` when at least one risk maps to `DECLINE`; otherwise `In Review` when at least one maps to `REVIEW`. The `warnings` list explains why.
+    # `Approved` when no warning resolves to a decline or review; `Declined` when at least one risk maps to `DECLINE`;
+    # otherwise `In Review` when at least one maps to `REVIEW`. The `warnings` list explains why.
     module DocumentAiAnalyzeResponseDocumentAiStatus
       APPROVED = "Approved"
       DECLINED = "Declined"

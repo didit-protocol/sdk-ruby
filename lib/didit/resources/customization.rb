@@ -7,7 +7,9 @@ module Didit
     class Customization < Didit::Resource
       # Get branding customization
       #
-      # Returns the white-label branding for the application resolved from the API key: colors, fonts, border radii, logo URLs and UI/UX options. Custom domain and white-label email settings are managed only in the Business Console and are not part of this response.
+      # Returns the white-label branding for the application resolved from the API key: colors, fonts, border radii,
+      # logo URLs and UI/UX options. Custom domain and white-label email settings are managed only in the Business
+      # Console and are not part of this response.
       #
       # +GET /v3/customization/+
       #
@@ -24,7 +26,9 @@ module Didit
 
       # Update branding customization
       #
-      # Partial update of the application's white-label branding. Send `application/json` to change colors, fonts, radii and UI options, or `multipart/form-data` to upload logo images. Only the fields you include are changed. Custom domain and white-label email cannot be set through this endpoint - use the Business Console for those.
+      # Partial update of the application's white-label branding. Send `application/json` to change colors, fonts,
+      # radii and UI options, or `multipart/form-data` to upload logo images. Only the fields you include are changed.
+      # Custom domain and white-label email cannot be set through this endpoint - use the Business Console for those.
       #
       # +PATCH /v3/customization/+
       #
@@ -59,7 +63,38 @@ module Didit
       # @param image_favicon [Pathname, IO, String, Didit::FilePart] Favicon image. Max **500 KB**.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BrandingCustomization]
-      def update(color_primary: OMIT, color_secondary: OMIT, color_background: OMIT, color_panel: OMIT, color_panel_10: OMIT, color_on_panel_1: OMIT, color_on_panel_2: OMIT, color_on_background: OMIT, color_button_1: OMIT, color_button_2: OMIT, color_button_text_1: OMIT, color_button_text_2: OMIT, color_pill_text: OMIT, border_radius_panel: OMIT, border_radius_buttons: OMIT, font_family: OMIT, font_weight: OMIT, app_public_name: OMIT, privacy_policy_url: OMIT, skip_welcome_screen: OMIT, disable_login_with_didit: OMIT, hide_progress_bar: OMIT, callback_seconds: OMIT, delete_logo_square: OMIT, delete_logo_rectangular: OMIT, delete_favicon: OMIT, image_square: OMIT, image_rectangular: OMIT, image_favicon: OMIT, request_options: nil)
+      def update(
+        color_primary: OMIT,
+        color_secondary: OMIT,
+        color_background: OMIT,
+        color_panel: OMIT,
+        color_panel_10: OMIT,
+        color_on_panel_1: OMIT,
+        color_on_panel_2: OMIT,
+        color_on_background: OMIT,
+        color_button_1: OMIT,
+        color_button_2: OMIT,
+        color_button_text_1: OMIT,
+        color_button_text_2: OMIT,
+        color_pill_text: OMIT,
+        border_radius_panel: OMIT,
+        border_radius_buttons: OMIT,
+        font_family: OMIT,
+        font_weight: OMIT,
+        app_public_name: OMIT,
+        privacy_policy_url: OMIT,
+        skip_welcome_screen: OMIT,
+        disable_login_with_didit: OMIT,
+        hide_progress_bar: OMIT,
+        callback_seconds: OMIT,
+        delete_logo_square: OMIT,
+        delete_logo_rectangular: OMIT,
+        delete_favicon: OMIT,
+        image_square: OMIT,
+        image_rectangular: OMIT,
+        image_favicon: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/customization/",

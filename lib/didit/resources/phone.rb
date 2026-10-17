@@ -7,21 +7,34 @@ module Didit
     class Phone < Didit::Resource
       # Risk-score a phone number
       #
-      # Resolve a phone number and return carrier, line-type, porting, disposable-number, cross-session match, and normalized risk-intelligence signals without sending an OTP. The endpoint creates an API session and returns its id as `request_id`.
+      # Resolve a phone number and return carrier, line-type, porting, disposable-number, cross-session match, and
+      # normalized risk-intelligence signals without sending an OTP. The endpoint creates an API session and returns
+      # its id as `request_id`.
       #
-      # **Decision.** The top-level `status` mirrors `phone.status`. It is normally `Approved`; the risk evaluation can produce `In Review` or `Declined`.
+      # **Decision.** The top-level `status` mirrors `phone.status`. It is normally `Approved`; the risk evaluation
+      # can produce `In Review` or `Declined`.
       #
-      # **Compatibility aliases.** Live responses expose the normalized intelligence object as both `phone.phone_intelligence` and `phone.enrichment`. The values are identical. New integrations can read `phone.enrichment`. Both keys are absent when no usable intelligence data was returned.
+      # **Compatibility aliases.** Live responses expose the normalized intelligence object as both
+      # `phone.phone_intelligence` and `phone.enrichment`. The values are identical. New integrations can read
+      # `phone.enrichment`. Both keys are absent when no usable intelligence data was returned.
       #
-      # **Billing.** Live calls use Phone Risk API pricing. The request is billable once the lookup starts, even when some best-effort fields are unavailable.
+      # **Billing.** Live calls use Phone Risk API pricing. The request is billable once the lookup starts, even when
+      # some best-effort fields are unavailable.
       #
-      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without sending an OTP, consuming credits, creating a session, or contributing to Networks.
+      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without sending an OTP,
+      # consuming credits, creating a session, or contributing to Networks.
       #
-      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return `403` - this API never returns `401`.
+      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return
+      # `403` - this API never returns `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE endpoints.
+      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE
+      # endpoints.
       #
-      # **Social footprint.** Set `enable_social` to `true` to add a `phone_social` block: the online platforms this number is registered on, with per-category counts and any profile details available. `profiles_registered: 0` means the platforms were checked and the number was found on none of them - a valid, billable answer. The block is absent when the add-on was not requested or the check could not be completed, and it is not billed in that case. Billing adds one `phone_social` unit per request on top of this endpoint's own price.
+      # **Social footprint.** Set `enable_social` to `true` to add a `phone_social` block: the online platforms this
+      # number is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
+      # means the platforms were checked and the number was found on none of them - a valid, billable answer. The
+      # block is absent when the add-on was not requested or the check could not be completed, and it is not billed in
+      # that case. Billing adds one `phone_social` unit per request on top of this endpoint's own price.
       #
       # +POST /v3/phone/risk/+
       #
@@ -33,7 +46,15 @@ module Didit
       # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging, social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per request in additio...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneRiskResponse]
-      def assess_risk(phone_number:, country_code: OMIT, signals: OMIT, vendor_data: OMIT, metadata: OMIT, enable_social: OMIT, request_options: nil)
+      def assess_risk(
+        phone_number:,
+        country_code: OMIT,
+        signals: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        enable_social: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/phone/risk/",
@@ -52,27 +73,53 @@ module Didit
 
       # Check Phone Code
       #
-      # Verify the OTP delivered by [`POST /v3/phone/send/`](/standalone-apis/phone-send) and get the final verification result plus phone intelligence: carrier name and line type, virtual (VoIP) and disposable flags, and duplicate usage of the number across your sessions.
+      # Verify the OTP delivered by [`POST /v3/phone/send/`](/standalone-apis/phone-send) and get the final
+      # verification result plus phone intelligence: carrier name and line type, virtual (VoIP) and disposable flags,
+      # and duplicate usage of the number across your sessions.
       #
-      # **How the check finds the verification.** Matching is by your application plus the E.164 `phone_number` - `request_id` is not an input. The most recent pending verification created within the last **5 minutes** is checked. If there is none (never sent, already finalized, or older than 5 minutes) the endpoint returns `200` with `status: "Expired or Not Found"`.
+      # **How the check finds the verification.** Matching is by your application plus the E.164 `phone_number` -
+      # `request_id` is not an input. The most recent pending verification created within the last **5 minutes** is
+      # checked. If there is none (never sent, already finalized, or older than 5 minutes) the endpoint returns `200`
+      # with `status: "Expired or Not Found"`.
       #
-      # **Attempt budget.** Each verification allows **3 code attempts**. The first two wrong codes return `status: "Failed"` with the attempts remaining and `phone: null`; the third wrong code finalizes the verification as `Declined` with a `VERIFICATION_CODE_ATTEMPTS_EXCEEDED` warning and returns the full phone report.
+      # **Attempt budget.** Each verification allows **3 code attempts**. The first two wrong codes return `status:
+      # "Failed"` with the attempts remaining and `phone: null`; the third wrong code finalizes the verification as
+      # `Declined` with a `VERIFICATION_CODE_ATTEMPTS_EXCEEDED` warning and returns the full phone report.
       #
-      # **Outcomes.** `Approved` - correct code and no declining risk. `Declined` - terminal: the code was correct but a declining risk matched (a `DECLINE` action below, a blocklisted or high-risk number), or the attempt budget was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - nothing to check. On `Approved`/`Declined` the `request_id` equals the send's `request_id` (the session id) and `phone` carries the full report (`carrier`, `is_virtual`, `is_disposable`, `warnings`, `lifecycle`, `matches`); on `Failed` and `Expired or Not Found` the `request_id` is a one-off random UUID.
+      # **Outcomes.** `Approved` - correct code and no declining risk. `Declined` - terminal: the code was correct but
+      # a declining risk matched (a `DECLINE` action below, a blocklisted or high-risk number), or the attempt budget
+      # was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - nothing to check. On
+      # `Approved`/`Declined` the `request_id` equals the send's `request_id` (the session id) and `phone` carries the
+      # full report (`carrier`, `is_virtual`, `is_disposable`, `warnings`, `lifecycle`, `matches`); on `Failed` and
+      # `Expired or Not Found` the `request_id` is a one-off random UUID.
       #
-      # **Risk actions.** `duplicated_phone_number_action`, `disposable_number_action`, and `voip_number_action` decide what happens when the corresponding risk is detected on a correct code: `DECLINE` flips the final status to `Declined`; `NO_ACTION` (default) records the risk in `phone.warnings` without affecting the status.
+      # **Risk actions.** `duplicated_phone_number_action`, `disposable_number_action`, and `voip_number_action`
+      # decide what happens when the corresponding risk is detected on a correct code: `DECLINE` flips the final
+      # status to `Declined`; `NO_ACTION` (default) records the risk in `phone.warnings` without affecting the status.
       #
-      # **Billing.** Checks are free - delivery is billed on the send side (see [Phone Verification Pricing](/getting-started/phone-verification-pricing)).
+      # **Billing.** Checks are free - delivery is billed on the send side (see [Phone Verification
+      # Pricing](/getting-started/phone-verification-pricing)).
       #
-      # **Session persistence.** A finalized check updates the session created by the send (visible in the Business Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
+      # **Session persistence.** A finalized check updates the session created by the send (visible in the Business
+      # Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
       #
-      # **Sandbox.** Sandbox API keys skip all processing: any well-formed code (4-8 digits, `123456` included) returns a static `Approved` payload with a simplified flat `phone` object (`status`, `phone_number`, `country_code`, `carrier_name`, `line_type`, `flags`); malformed input still returns `400`. Nothing is persisted.
+      # **Sandbox.** Sandbox API keys skip all processing: any well-formed code (4-8 digits, `123456` included)
+      # returns a static `Approved` payload with a simplified flat `phone` object (`status`, `phone_number`,
+      # `country_code`, `carrier_name`, `line_type`, `flags`); malformed input still returns `400`. Nothing is
+      # persisted.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limits.** Shared write budget of 300 requests/min per API key, plus the upstream anti-abuse cap of 4 attempts per number per hour; exceeding either returns `429`.
+      # **Rate limits.** Shared write budget of 300 requests/min per API key, plus the upstream anti-abuse cap of 4
+      # attempts per number per hour; exceeding either returns `429`.
       #
-      # **Social footprint.** Set `enable_social` to `true` to add a `phone_social` block: the online platforms this number is registered on, with per-category counts and any profile details available. `profiles_registered: 0` means the platforms were checked and the number was found on none of them - a valid, billable answer. The block is absent when the add-on was not requested or the check could not be completed, and it is not billed in that case. Billing adds one `phone_social` unit per request on top of this endpoint's own price.
+      # **Social footprint.** Set `enable_social` to `true` to add a `phone_social` block: the online platforms this
+      # number is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
+      # means the platforms were checked and the number was found on none of them - a valid, billable answer. The
+      # block is absent when the add-on was not requested or the check could not be completed, and it is not billed in
+      # that case. Billing adds one `phone_social` unit per request on top of this endpoint's own price.
       #
       # +POST /v3/phone/check/+
       #
@@ -85,7 +132,16 @@ module Didit
       # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow co...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationCheckResponse]
-      def check_code(phone_number:, code:, duplicated_phone_number_action: OMIT, disposable_number_action: OMIT, voip_number_action: OMIT, enable_social: OMIT, phone_no_social_presence_action: OMIT, request_options: nil)
+      def check_code(
+        phone_number:,
+        code:,
+        duplicated_phone_number_action: OMIT,
+        disposable_number_action: OMIT,
+        voip_number_action: OMIT,
+        enable_social: OMIT,
+        phone_no_social_presence_action: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/phone/check/",
@@ -105,25 +161,53 @@ module Didit
 
       # Send Phone Code
       #
-      # Send a one-time passcode (OTP) to a phone number over WhatsApp, SMS, or another supported channel, then verify it with [`POST /v3/phone/check/`](/standalone-apis/phone-check).
+      # Send a one-time passcode (OTP) to a phone number over WhatsApp, SMS, or another supported channel, then verify
+      # it with [`POST /v3/phone/check/`](/standalone-apis/phone-check).
       #
-      # **How send and check pair up.** Verification state is keyed by your application plus the E.164 `phone_number` - the check call does not take `request_id`. Each new send creates a pending verification that lives for **5 minutes**: call the check with the same number and the code the user received before the window closes. Calling send again for the same number while a verification is pending re-sends a code for that same verification (`status: "Retry"`, same `request_id`). At most one retry is attached this way (two sends total); a further send starts a fresh verification with a new `request_id`. The 5-minute window is measured from the first send and is not extended by retries.
+      # **How send and check pair up.** Verification state is keyed by your application plus the E.164 `phone_number`
+      # - the check call does not take `request_id`. Each new send creates a pending verification that lives for **5
+      # minutes**: call the check with the same number and the code the user received before the window closes.
+      # Calling send again for the same number while a verification is pending re-sends a code for that same
+      # verification (`status: "Retry"`, same `request_id`). At most one retry is attached this way (two sends total);
+      # a further send starts a fresh verification with a new `request_id`. The 5-minute window is measured from the
+      # first send and is not extended by retries.
       #
-      # **Delivery channels.** `options.preferred_channel` selects the channel (`whatsapp` by default; `sms`, `telegram`, `voice`, `rcs`, `viber`, and `zalo` are also supported). When the preferred channel is unavailable for the destination country or number, delivery automatically falls back to SMS - the send still reports `Success`, and the channel actually used is reported by the check response (`phone.verification_method` and the `lifecycle` events).
+      # **Delivery channels.** `options.preferred_channel` selects the channel (`whatsapp` by default; `sms`,
+      # `telegram`, `voice`, `rcs`, `viber`, and `zalo` are also supported). When the preferred channel is unavailable
+      # for the destination country or number, delivery automatically falls back to SMS - the send still reports
+      # `Success`, and the channel actually used is reported by the check response (`phone.verification_method` and
+      # the `lifecycle` events).
       #
-      # **Branding.** SMS codes carry your application's SMS sender name, set in the Business Console, at no extra cost. Pass `options.sms_sender_name` to sign one code with another name, or `options.use_white_label_customization: true` to fall back to your white-label public name when no sender name is set. WhatsApp codes use a fixed message and are not branded.
+      # **Branding.** SMS codes carry your application's SMS sender name, set in the Business Console, at no extra
+      # cost. Pass `options.sms_sender_name` to sign one code with another name, or
+      # `options.use_white_label_customization: true` to fall back to your white-label public name when no sender name
+      # is set. WhatsApp codes use a fixed message and are not branded.
       #
-      # **Send statuses.** `Success` - OTP sent for a new verification; `Retry` - OTP re-sent for the pending verification; `Blocked` - the anti-fraud layer refused to send (see `reason`, e.g. `repeated_attempts`, `suspicious`, `spam`). A `Blocked` send immediately finalizes the verification as `Declined` with a high-risk warning, so a follow-up check returns `Expired or Not Found`.
+      # **Send statuses.** `Success` - OTP sent for a new verification; `Retry` - OTP re-sent for the pending
+      # verification; `Blocked` - the anti-fraud layer refused to send (see `reason`, e.g. `repeated_attempts`,
+      # `suspicious`, `spam`). A `Blocked` send immediately finalizes the verification as `Declined` with a high-risk
+      # warning, so a follow-up check returns `Expired or Not Found`.
       #
-      # **Billing.** The price depends on the destination country and the channel that actually delivers the message - see [Phone Verification Pricing](/getting-started/phone-verification-pricing). Only `Blocked` sends are guaranteed free: any other unbilled send attempt is charged at verification finalization or expiration, even if delivery was never confirmed or the delivery provider reported the message undeliverable. Checks are always free. As an anti-abuse measure, phone verification is disabled until your organization's first top-up (`403`).
+      # **Billing.** The price depends on the destination country and the channel that actually delivers the message -
+      # see [Phone Verification Pricing](/getting-started/phone-verification-pricing). Only `Blocked` sends are
+      # guaranteed free: any other unbilled send attempt is charged at verification finalization or expiration, even
+      # if delivery was never confirmed or the delivery provider reported the message undeliverable. Checks are always
+      # free. As an anti-abuse measure, phone verification is disabled until your organization's first top-up (`403`).
       #
-      # **Session persistence.** Every new verification is persisted as an API-type session: `request_id` is a real session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business Console, and `status.updated` webhooks fire as it progresses.
+      # **Session persistence.** Every new verification is persisted as an API-type session: `request_id` is a real
+      # session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business
+      # Console, and `status.updated` webhooks fire as it progresses.
       #
-      # **Sandbox.** Sandbox API keys skip delivery and billing: after request validation (malformed input still returns `400`), the endpoint returns a static `Success` payload with a random `request_id`; no message is sent and nothing is persisted. Use code `123456` on the sandbox check.
+      # **Sandbox.** Sandbox API keys skip delivery and billing: after request validation (malformed input still
+      # returns `400`), the endpoint returns a static `Success` payload with a random `request_id`; no message is sent
+      # and nothing is persisted. Use code `123456` on the sandbox check.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limits.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints, plus an anti-abuse cap of 4 send attempts per phone number per hour; exceeding either returns `429`.
+      # **Rate limits.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints,
+      # plus an anti-abuse cap of 4 send attempts per phone number per hour; exceeding either returns `429`.
       #
       # +POST /v3/phone/send/+
       #
@@ -134,7 +218,14 @@ module Didit
       # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the send response, the matching check response, webhooks, and the Business Console.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationSendResponse]
-      def send_code(phone_number:, options: OMIT, signals: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def send_code(
+        phone_number:,
+        options: OMIT,
+        signals: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/phone/send/",

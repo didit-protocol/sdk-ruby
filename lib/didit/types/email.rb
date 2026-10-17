@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # What to do when the address appears in known data breaches (`email.is_breached`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
+    # What to do when the address appears in known data breaches (`email.is_breached`). `DECLINE` flips the final
+    # `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
     module EmailCheckCodeParamsBreachedEmailAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -11,7 +12,8 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when the domain belongs to a disposable/temporary-mail provider (`email.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
+    # What to do when the domain belongs to a disposable/temporary-mail provider (`email.is_disposable`). `DECLINE`
+    # flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
     module EmailCheckCodeParamsDisposableEmailAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -19,7 +21,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when the same address was already used and approved by a different user (only previously Approved verifications count) (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings` and fills `email.matches`.
+    # What to do when the same address was already used and approved by a different user (only previously Approved
+    # verifications count) (different `vendor_data`) of your application. `DECLINE` flips the final `status` to
+    # `Declined`; `NO_ACTION` records the risk in `email.warnings` and fills `email.matches`.
     module EmailCheckCodeParamsDuplicatedEmailAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -27,7 +31,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # Action when the social footprint check finds the address registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of the same name.
+    # Action when the social footprint check finds the address registered on none of the platforms it covers. Only
+    # NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of
+    # the same name.
     module EmailCheckCodeParamsEmailNoSocialPresenceAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -35,7 +41,8 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # Language of the OTP email template. Defaults to `en`. Unsupported values return `400` listing all supported locales.
+    # Language of the OTP email template. Defaults to `en`. Unsupported values return `400` listing all supported
+    # locales.
     module EmailSendCodeParamsOptionsLocale
       EN = "en"
       AR = "ar"

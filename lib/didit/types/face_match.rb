@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # `Approved` when the similarity score is strictly above `face_match_score_decline_threshold` and a score could be computed; `Declined` otherwise (a warning explains why).
+    # `Approved` when the similarity score is strictly above `face_match_score_decline_threshold` and a score could be
+    # computed; `Declined` otherwise (a warning explains why).
     module FaceMatchCompareResponseFaceMatchStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -18,7 +19,8 @@ module Didit
       VALUES = [FACEMATCH].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and never decline on their own.
+    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and
+    # never decline on their own.
     module FaceMatchCompareResponseFaceMatchWarningsLogType
       ERROR = "error"
       WARNING = "warning"

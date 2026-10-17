@@ -50,7 +50,8 @@ module Didit
       field :completed_at, "completed_at", :datetime
     end
 
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently skipped.
+    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
+    # skipped.
     class AmlMonitoringRetrieveJobResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer

@@ -12,7 +12,9 @@ module Didit
 
       # Mint a wallet-ownership widget session
       #
-      # Mint a hosted wallet-ownership widget URL/token. Send the customer to the returned url to prove control of a wallet (message signing, Satoshi test, screenshot, or self-declaration). The widget is web-only in this release - open the url in the system browser or a custom tab, never inside a mobile SDK webview.
+      # Mint a hosted wallet-ownership widget URL/token. Send the customer to the returned url to prove control of a
+      # wallet (message signing, Satoshi test, screenshot, or self-declaration). The widget is web-only in this
+      # release - open the url in the system browser or a custom tab, never inside a mobile SDK webview.
       #
       # +POST /v3/travel-rule/widget-session/+
       #
@@ -26,7 +28,17 @@ module Didit
       # @param expires_in_minutes [Integer] Optional. Lifetime of the minted link, in minutes. Automatically extended to cover the Satoshi test window when SATOSHI_TEST is offered.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleWidgetSessionResponse]
-      def create_widget_session(wallet_address:, chain:, holder_name: OMIT, vendor_data: OMIT, transaction_id: OMIT, satoshi_deposit_address: OMIT, callback_url: OMIT, expires_in_minutes: OMIT, request_options: nil)
+      def create_widget_session(
+        wallet_address:,
+        chain:,
+        holder_name: OMIT,
+        vendor_data: OMIT,
+        transaction_id: OMIT,
+        satoshi_deposit_address: OMIT,
+        callback_url: OMIT,
+        expires_in_minutes: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/travel-rule/widget-session/",
@@ -47,7 +59,8 @@ module Didit
 
       # Search the VASP directory
       #
-      # Paginated search across discoverable Didit customers with Travel Rule enabled, plus VASPs catalogued in the internal counterparty registry. Excludes your own application's profile.
+      # Paginated search across discoverable Didit customers with Travel Rule enabled, plus VASPs catalogued in the
+      # internal counterparty registry. Excludes your own application's profile.
       #
       # +GET /v3/travel-rule/vasps/+
       #
@@ -72,7 +85,9 @@ module Didit
 
       # Register an after-deposit (sunrise) inbound transfer
       #
-      # Register Travel Rule data for a crypto deposit that already settled on-chain before any exchange took place. Creates an inbound travelRule transaction (or reuses an unclaimed deposit) and resolves the transfer against your wallet address book. A transaction.created webhook fires for newly-created transactions.
+      # Register Travel Rule data for a crypto deposit that already settled on-chain before any exchange took place.
+      # Creates an inbound travelRule transaction (or reuses an unclaimed deposit) and resolves the transfer against
+      # your wallet address book. A transaction.created webhook fires for newly-created transactions.
       #
       # +POST /v3/travel-rule/inbound/+
       #
@@ -86,7 +101,17 @@ module Didit
       # @param originating_vasp [Hash] Optional description of the sending VASP.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleInboundResponse]
-      def register_inbound(chain:, txid:, wallet_address:, amount:, currency:, originator_data: OMIT, beneficiary_data: OMIT, originating_vasp: OMIT, request_options: nil)
+      def register_inbound(
+        chain:,
+        txid:,
+        wallet_address:,
+        amount:,
+        currency:,
+        originator_data: OMIT,
+        beneficiary_data: OMIT,
+        originating_vasp: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/travel-rule/inbound/",
@@ -107,7 +132,8 @@ module Didit
 
       # Get Travel Rule settings
       #
-      # Read the application's Travel Rule settings and VASP profile. Auto-creates a default (disabled) settings row and an empty profile on first read.
+      # Read the application's Travel Rule settings and VASP profile. Auto-creates a default (disabled) settings row
+      # and an empty profile on first read.
       #
       # +GET /v3/travel-rule/settings/+
       #
@@ -124,7 +150,9 @@ module Didit
 
       # Update Travel Rule settings
       #
-      # Upsert the application's Travel Rule settings and VASP profile. Partial update - only send the fields you want to change. Setting `is_enabled: true` requires a non-blank `legal_name` (already stored or included in the same request), otherwise returns 400.
+      # Upsert the application's Travel Rule settings and VASP profile. Partial update - only send the fields you want
+      # to change. Setting `is_enabled: true` requires a non-blank `legal_name` (already stored or included in the
+      # same request), otherwise returns 400.
       #
       # +PUT /v3/travel-rule/settings/+
       #
@@ -146,7 +174,25 @@ module Didit
       # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your connected own memberships or provision unavailable networks.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleSettingsDetail]
-      def update_settings(is_enabled: OMIT, legal_name: OMIT, lei: OMIT, jurisdiction: OMIT, name_matching_strictness: OMIT, confirmation_timeout_hours: OMIT, timeout_outcome: OMIT, compliance_email: OMIT, is_discoverable: OMIT, threshold_amount: OMIT, inbound_auto_accept: OMIT, allow_self_declaration: OMIT, allow_screenshot_proof: OMIT, auto_wallet_verification: OMIT, vasp_attribution_enabled: OMIT, disabled_networks: OMIT, request_options: nil)
+      def update_settings(
+        is_enabled: OMIT,
+        legal_name: OMIT,
+        lei: OMIT,
+        jurisdiction: OMIT,
+        name_matching_strictness: OMIT,
+        confirmation_timeout_hours: OMIT,
+        timeout_outcome: OMIT,
+        compliance_email: OMIT,
+        is_discoverable: OMIT,
+        threshold_amount: OMIT,
+        inbound_auto_accept: OMIT,
+        allow_self_declaration: OMIT,
+        allow_screenshot_proof: OMIT,
+        auto_wallet_verification: OMIT,
+        vasp_attribution_enabled: OMIT,
+        disabled_networks: OMIT,
+        request_options: nil
+      )
         @client.request(
           :put,
           "/v3/travel-rule/settings/",
@@ -177,7 +223,8 @@ module Didit
       class WalletAddresses < Didit::Resource
         # Register a wallet address
         #
-        # Add an entry to your Travel Rule wallet address book so inbound INTERNAL-rail transfers can resolve against it.
+        # Add an entry to your Travel Rule wallet address book so inbound INTERNAL-rail transfers can resolve against
+        # it.
         #
         # +POST /v3/travel-rule/wallet-addresses/+
         #
@@ -190,7 +237,16 @@ module Didit
         # @param travel_address [String] Optional. The counterparty VASP's travel address for this wallet, enabling TRP routing.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntry]
-        def create(address:, chain: OMIT, holder_vendor_data: OMIT, holder_name: OMIT, entity_type: OMIT, self_declared: OMIT, travel_address: OMIT, request_options: nil)
+        def create(
+          address:,
+          chain: OMIT,
+          holder_vendor_data: OMIT,
+          holder_name: OMIT,
+          entity_type: OMIT,
+          self_declared: OMIT,
+          travel_address: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/travel-rule/wallet-addresses/",
@@ -210,7 +266,8 @@ module Didit
 
         # Delete a wallet address
         #
-        # Deletes the entry. It stops matching new transfers immediately and the address is freed up for re-registration.
+        # Deletes the entry. It stops matching new transfers immediately and the address is freed up for
+        # re-registration.
         #
         # +DELETE /v3/travel-rule/wallet-addresses/{entry_uuid}/+
         #
@@ -251,7 +308,9 @@ module Didit
 
         # Update wallet address holder metadata
         #
-        # Partial update of holder_name, holder_vendor_data, entity_type, and travel_address. Setting travel_address attaches a TRP routing address to the entry; invalid values are rejected with 400. The response echoes only these four fields.
+        # Partial update of holder_name, holder_vendor_data, entity_type, and travel_address. Setting travel_address
+        # attaches a TRP routing address to the entry; invalid values are rejected with 400. The response echoes only
+        # these four fields.
         #
         # +PATCH /v3/travel-rule/wallet-addresses/{entry_uuid}/+
         #
@@ -262,7 +321,14 @@ module Didit
         # @param travel_address [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntryUpdate]
-        def update(entry_uuid, holder_name: OMIT, holder_vendor_data: OMIT, entity_type: OMIT, travel_address: OMIT, request_options: nil)
+        def update(
+          entry_uuid,
+          holder_name: OMIT,
+          holder_vendor_data: OMIT,
+          entity_type: OMIT,
+          travel_address: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/travel-rule/wallet-addresses/{entry_uuid}/",

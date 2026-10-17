@@ -7,7 +7,8 @@ module Didit
     class Billing < Didit::Resource
       # Get credit balance
       #
-      # Get current pre-paid credit balance in USD (organization-wide) plus auto-refill config. Amounts are decimal strings - parse with a decimal library.
+      # Get current pre-paid credit balance in USD (organization-wide) plus auto-refill config. Amounts are decimal
+      # strings - parse with a decimal library.
       #
       # +GET /v3/billing/balance/+
       #
@@ -24,7 +25,8 @@ module Didit
 
       # Top up credits
       #
-      # Add credits via a hosted Stripe Checkout session (**$50 minimum**); not available on annual plans. Redirect the customer to the returned `checkout_session_url`.
+      # Add credits via a hosted Stripe Checkout session (**$50 minimum**); not available on annual plans. Redirect
+      # the customer to the returned `checkout_session_url`.
       #
       # +POST /v3/billing/top-up/+
       #

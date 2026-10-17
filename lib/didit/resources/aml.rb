@@ -9,19 +9,41 @@ module Didit
       #
       # Screen a person or company against PEP, sanctions, warning/watchlist, and adverse-media datasets in one call.
       #
-      # **Two-score model.** Each hit carries a `match_score` (0-100, identity confidence) and a `risk_score` (0-100, entity risk). Hits whose `match_score` is below `aml_match_score_threshold` (default **93**) are tagged `review_status: "False Positive"` and ignored for risk purposes; the highest `risk_score` among the remaining hits becomes `aml.score`. The final `aml.status` follows your thresholds: `score` > `aml_score_review_threshold` (default **100**) → `Declined`; `score` > `aml_score_approve_threshold` (default **80**) → `In Review`; otherwise `Approved`. Whenever `score` is non-zero and ≥ the approve threshold a `POSSIBLE_MATCH_FOUND` warning is added (a score of exactly 0 never warns).
+      # **Two-score model.** Each hit carries a `match_score` (0-100, identity confidence) and a `risk_score` (0-100,
+      # entity risk). Hits whose `match_score` is below `aml_match_score_threshold` (default **93**) are tagged
+      # `review_status: "False Positive"` and ignored for risk purposes; the highest `risk_score` among the remaining
+      # hits becomes `aml.score`. The final `aml.status` follows your thresholds: `score` >
+      # `aml_score_review_threshold` (default **100**) → `Declined`; `score` > `aml_score_approve_threshold` (default
+      # **80**) → `In Review`; otherwise `Approved`. Whenever `score` is non-zero and ≥ the approve threshold a
+      # `POSSIBLE_MATCH_FOUND` warning is added (a score of exactly 0 never warns).
       #
-      # **Match-score weights.** `aml_name_weight` + `aml_dob_weight` + `aml_country_weight` must sum to exactly 100 (defaults 60/25/15). Components missing from the request are re-normalized away; a matching `document_number` acts as a golden key that overrides `match_score` to 100.
+      # **Match-score weights.** `aml_name_weight` + `aml_dob_weight` + `aml_country_weight` must sum to exactly 100
+      # (defaults 60/25/15). Components missing from the request are re-normalized away; a matching `document_number`
+      # acts as a golden key that overrides `match_score` to 100.
       #
-      # **Latency.** Plain screenings typically complete in a few seconds. With `include_adverse_media=true` the API waits for adverse-media enrichment (an initial ~5 s pause plus up to ~25 s of polling) - configure a client timeout of **at least 60 seconds**.
+      # **Latency.** Plain screenings typically complete in a few seconds. With `include_adverse_media=true` the API
+      # waits for adverse-media enrichment (an initial ~5 s pause plus up to ~25 s of polling) - configure a client
+      # timeout of **at least 60 seconds**.
       #
-      # **Persistence.** `save_api_request` defaults to **true**: the screening is stored as a session (`request_id` works with `GET /v3/session/{sessionId}/decision/`), it appears in the console, a `status.updated` webhook fires, and hit review statuses can be updated later. With `save_api_request=false` nothing is stored and `request_id` is a transient correlation id. `include_ongoing_monitoring=true` keeps re-screening the profile and requires `save_api_request=true` (enforced with a `400`).
+      # **Persistence.** `save_api_request` defaults to **true**: the screening is stored as a session (`request_id`
+      # works with `GET /v3/session/{sessionId}/decision/`), it appears in the console, a `status.updated` webhook
+      # fires, and hit review statuses can be updated later. With `save_api_request=false` nothing is stored and
+      # `request_id` is a transient correlation id. `include_ongoing_monitoring=true` keeps re-screening the profile
+      # and requires `save_api_request=true` (enforced with a `400`).
       #
-      # **Idempotency.** Send an `Idempotency-Key` header when retrying after a timeout or transient error. The key is scoped to your application and the exact request body. The first completed request stores its response; later identical retries return that same response and do not run or bill another AML screening. If the original request is still running, retry later with the same key. If the same key is reused with a different body, the API returns `409`.
+      # **Idempotency.** Send an `Idempotency-Key` header when retrying after a timeout or transient error. The key is
+      # scoped to your application and the exact request body. The first completed request stores its response; later
+      # identical retries return that same response and do not run or bill another AML screening. If the original
+      # request is still running, retry later with the same key. If the same key is reused with a different body, the
+      # API returns `409`.
       #
-      # **Billing.** One AML API credit is charged after the first successful screening. Replayed idempotent responses are not charged again; an insufficient balance returns `403` before any new screening happens.
+      # **Billing.** One AML API credit is charged after the first successful screening. Replayed idempotent responses
+      # are not charged again; an insufficient balance returns `403` before any new screening happens.
       #
-      # **Sandbox.** Keys from sandbox applications skip screening and billing entirely and return a mocked result - `Approved` with zero hits unless you pass `sandbox_scenario`. `save_api_request` works the same as on live keys, so a saved sandbox screening is retrievable through `GET /v3/session/{sessionId}/decision/` and `GET /v3/session/{sessionId}/generate-pdf/`.
+      # **Sandbox.** Keys from sandbox applications skip screening and billing entirely and return a mocked result -
+      # `Approved` with zero hits unless you pass `sandbox_scenario`. `save_api_request` works the same as on live
+      # keys, so a saved sandbox screening is retrievable through `GET /v3/session/{sessionId}/decision/` and `GET
+      # /v3/session/{sessionId}/generate-pdf/`.
       #
       # +POST /v3/aml/+
       #
@@ -45,7 +67,27 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AmlScreenResponse]
-      def screen(full_name:, entity_type: OMIT, date_of_birth: OMIT, nationality: OMIT, document_number: OMIT, aml_score_approve_threshold: OMIT, aml_score_review_threshold: OMIT, aml_name_weight: OMIT, aml_dob_weight: OMIT, aml_country_weight: OMIT, aml_match_score_threshold: OMIT, include_adverse_media: OMIT, include_ongoing_monitoring: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, idempotency_key: OMIT, request_options: nil)
+      def screen(
+        full_name:,
+        entity_type: OMIT,
+        date_of_birth: OMIT,
+        nationality: OMIT,
+        document_number: OMIT,
+        aml_score_approve_threshold: OMIT,
+        aml_score_review_threshold: OMIT,
+        aml_name_weight: OMIT,
+        aml_dob_weight: OMIT,
+        aml_country_weight: OMIT,
+        aml_match_score_threshold: OMIT,
+        include_adverse_media: OMIT,
+        include_ongoing_monitoring: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/aml/",

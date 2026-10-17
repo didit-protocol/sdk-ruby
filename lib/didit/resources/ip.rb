@@ -7,19 +7,26 @@ module Didit
     class Ip < Didit::Resource
       # Risk-score an IP address
       #
-      # Return geolocation, network ownership, VPN/Tor and data-center flags, threat data, and `country_mismatch` for a supplied IP address. The endpoint creates an API session and returns its id as `request_id`.
+      # Return geolocation, network ownership, VPN/Tor and data-center flags, threat data, and `country_mismatch` for
+      # a supplied IP address. The endpoint creates an API session and returns its id as `request_id`.
       #
-      # **Decision.** `status` is `In Review` when the resolved country conflicts with `claimed_country`, or when the address is associated with VPN, Tor, or data-center infrastructure. Otherwise it is `Approved`.
+      # **Decision.** `status` is `In Review` when the resolved country conflicts with `claimed_country`, or when the
+      # address is associated with VPN, Tor, or data-center infrastructure. Otherwise it is `Approved`.
       #
-      # **Best effort.** IP enrichment is best effort. If no enrichment source returns usable data, the endpoint returns an approved response with `ip.ip_address: null`, `ip.country_mismatch: null`, and an empty `ip.threat` object.
+      # **Best effort.** IP enrichment is best effort. If no enrichment source returns usable data, the endpoint
+      # returns an approved response with `ip.ip_address: null`, `ip.country_mismatch: null`, and an empty `ip.threat`
+      # object.
       #
       # **Billing.** Live calls use IP Risk API pricing. The request is billable once the lookup starts.
       #
-      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without consuming credits, creating a session, or contributing to Networks.
+      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without consuming
+      # credits, creating a session, or contributing to Networks.
       #
-      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return `403` - this API never returns `401`.
+      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return
+      # `403` - this API never returns `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE endpoints.
+      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE
+      # endpoints.
       #
       # +POST /v3/ip/risk/+
       #
@@ -30,7 +37,14 @@ module Didit
       # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the response.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::IPRiskResponse]
-      def assess_risk(ip_address:, claimed_country: OMIT, user_agent: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def assess_risk(
+        ip_address:,
+        claimed_country: OMIT,
+        user_agent: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/ip/risk/",

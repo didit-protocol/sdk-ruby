@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # What to do when the carrier lookup flags the number as a temporary/burner line (`phone.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`.
+    # What to do when the carrier lookup flags the number as a temporary/burner line (`phone.is_disposable`).
+    # `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`.
     module PhoneCheckCodeParamsDisposableNumberAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -11,7 +12,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when the same number was already used by a different user (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings` and fills `phone.matches`.
+    # What to do when the same number was already used by a different user (different `vendor_data`) of your
+    # application. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`
+    # and fills `phone.matches`.
     module PhoneCheckCodeParamsDuplicatedPhoneNumberAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -19,7 +22,9 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # Action when the social footprint check finds the number registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of the same name.
+    # Action when the social footprint check finds the number registered on none of the platforms it covers. Only
+    # NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of
+    # the same name.
     module PhoneCheckCodeParamsPhoneNoSocialPresenceAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -27,7 +32,8 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # What to do when the carrier lookup reports a virtual line type - `voip`, `isp`, or `vpn` (`phone.is_virtual`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`.
+    # What to do when the carrier lookup reports a virtual line type - `voip`, `isp`, or `vpn` (`phone.is_virtual`).
+    # `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`.
     module PhoneCheckCodeParamsVoipNumberAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
@@ -35,7 +41,8 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
-    # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message automatically falls back to SMS - the send still reports `Success`.
+    # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message
+    # automatically falls back to SMS - the send still reports `Success`.
     module PhoneSendCodeParamsOptionsPreferredChannel
       WHATSAPP = "whatsapp"
       SMS = "sms"

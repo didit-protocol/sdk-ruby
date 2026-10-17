@@ -17,7 +17,11 @@ module Didit
 
       # Create transaction
       #
-      # Submit a transaction for synchronous AML/risk monitoring. The transaction is created `APPROVED`, then your rules (and crypto screening, when applicable) run inline and may flip the returned `status` to `IN_REVIEW` or `DECLINED`. **`transaction_id` is your idempotency key** (max 128 chars, unique per app); reusing it returns 400. A `transaction.created` webhook is dispatched on success (sandbox applications are not billed and do not emit webhooks).
+      # Submit a transaction for synchronous AML/risk monitoring. The transaction is created `APPROVED`, then your
+      # rules (and crypto screening, when applicable) run inline and may flip the returned `status` to `IN_REVIEW` or
+      # `DECLINED`. **`transaction_id` is your idempotency key** (max 128 chars, unique per app); reusing it returns
+      # 400. A `transaction.created` webhook is dispatched on success (sandbox applications are not billed and do not
+      # emit webhooks).
       #
       # +POST /v3/transactions/+
       #
@@ -34,7 +38,20 @@ module Didit
       # @param include_crypto_screening [Boolean, nil] Per-transaction override for crypto blockchain analytics screening. When `true`, crypto screening is performed regardless of the application default. When `false`, crypto screening is skipped even if...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionDetail]
-      def create(transaction_id:, transaction_category:, transaction_details:, subject:, transaction_at: OMIT, time_zone: OMIT, counterparty: OMIT, custom_properties: OMIT, travel_rule_details: OMIT, network_snapshot: OMIT, include_crypto_screening: OMIT, request_options: nil)
+      def create(
+        transaction_id:,
+        transaction_category:,
+        transaction_details:,
+        subject:,
+        transaction_at: OMIT,
+        time_zone: OMIT,
+        counterparty: OMIT,
+        custom_properties: OMIT,
+        travel_rule_details: OMIT,
+        network_snapshot: OMIT,
+        include_crypto_screening: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/transactions/",
@@ -58,7 +75,11 @@ module Didit
 
       # Mint an SDK transaction token
       #
-      # Mint a short-lived scoped token your app passes to the Didit SDKs so they can submit transactions directly from the end-user's device via `POST /v1/transactions/`. The token is bound to one `vendor_data` (your user id): every transaction submitted with it has its subject identity enforced server-side from that binding, so a tampered client cannot submit on behalf of another user. Mint tokens from your backend - never ship the API key itself in an app. camelCase aliases (`vendorData`, `ttlSeconds`, `maxUses`) are also accepted.
+      # Mint a short-lived scoped token your app passes to the Didit SDKs so they can submit transactions directly
+      # from the end-user's device via `POST /v1/transactions/`. The token is bound to one `vendor_data` (your user
+      # id): every transaction submitted with it has its subject identity enforced server-side from that binding, so a
+      # tampered client cannot submit on behalf of another user. Mint tokens from your backend - never ship the API
+      # key itself in an app. camelCase aliases (`vendorData`, `ttlSeconds`, `maxUses`) are also accepted.
       #
       # +POST /v3/transactions/sdk-token/+
       #
@@ -83,7 +104,8 @@ module Didit
 
       # List transactions
       #
-      # Paginated list of monitored transactions, newest first (`txn_date` desc). `count` is capped at 100; use `total_transactions` for the true row count. This endpoint does not support filtering or search parameters.
+      # Paginated list of monitored transactions, newest first (`txn_date` desc). `count` is capped at 100; use
+      # `total_transactions` for the true row count. This endpoint does not support filtering or search parameters.
       #
       # +GET /v3/transactions/+
       #
@@ -106,7 +128,8 @@ module Didit
 
       # List networks for a transaction
       #
-      # List the networks the transaction's backing KYC/KYB subject belongs to (resolved through the transaction's session or business session).
+      # List the networks the transaction's backing KYC/KYB subject belongs to (resolved through the transaction's
+      # session or business session).
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/networks/+
       #
@@ -126,7 +149,8 @@ module Didit
 
       # List networks for a transaction party
       #
-      # List the networks a transaction party (remitter, beneficiary, or counterparty) belongs to, resolved through the party itself rather than through the transaction's backing session.
+      # List the networks a transaction party (remitter, beneficiary, or counterparty) belongs to, resolved through
+      # the party itself rather than through the transaction's backing session.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/parties/{transaction_party_uuid}/networks/+
       #
@@ -147,7 +171,8 @@ module Didit
 
       # Get transaction
       #
-      # Retrieve the full monitoring record for one transaction: parties, score/severity, rule runs, alerts, Travel Rule outcome, remediation session.
+      # Retrieve the full monitoring record for one transaction: parties, score/severity, rule runs, alerts, Travel
+      # Rule outcome, remediation session.
       #
       # +GET /v3/transactions/{transaction_id}/+
       #
@@ -168,7 +193,9 @@ module Didit
       class Rules < Didit::Resource
         # Backtest rule configuration
         #
-        # Evaluate a hypothetical rule configuration against your recent transactions (most recent first, up to the backtest cap) without creating a rule or touching any transaction. Use it before activating a rule to see how often it would have matched and how many subjects it would have affected.
+        # Evaluate a hypothetical rule configuration against your recent transactions (most recent first, up to the
+        # backtest cap) without creating a rule or touching any transaction. Use it before activating a rule to see
+        # how often it would have matched and how many subjects it would have affected.
         #
         # +POST /v3/transactions/rules/backtest/+
         #
@@ -179,7 +206,14 @@ module Didit
         # @param period_days [Integer]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleBacktestResult]
-        def backtest(conditions: OMIT, aggregation: OMIT, evaluation_mode: OMIT, scope: OMIT, period_days: OMIT, request_options: nil)
+        def backtest(
+          conditions: OMIT,
+          aggregation: OMIT,
+          evaluation_mode: OMIT,
+          scope: OMIT,
+          period_days: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/transactions/rules/backtest/",
@@ -197,7 +231,10 @@ module Didit
 
         # Create rule
         #
-        # Create a CUSTOM transaction-monitoring rule. Titles are unique per application (duplicate -> 400). A `change_status` action targeting `AWAITING_USER` must carry `workflow_id`. Rules created in ACTIVE mode apply to new transactions immediately - the recommended workflow is create in TEST mode, backtest, then switch mode to ACTIVE.
+        # Create a CUSTOM transaction-monitoring rule. Titles are unique per application (duplicate -> 400). A
+        # `change_status` action targeting `AWAITING_USER` must carry `workflow_id`. Rules created in ACTIVE mode
+        # apply to new transactions immediately - the recommended workflow is create in TEST mode, backtest, then
+        # switch mode to ACTIVE.
         #
         # +POST /v3/transactions/rules/+
         #
@@ -213,7 +250,19 @@ module Didit
         # @param metadata [Hash] Free-form metadata stored on the rule.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleDetail]
-        def create(title:, category:, mode:, description: OMIT, evaluation_mode: OMIT, scope: OMIT, conditions: OMIT, aggregation: OMIT, actions: OMIT, metadata: OMIT, request_options: nil)
+        def create(
+          title:,
+          category:,
+          mode:,
+          description: OMIT,
+          evaluation_mode: OMIT,
+          scope: OMIT,
+          conditions: OMIT,
+          aggregation: OMIT,
+          actions: OMIT,
+          metadata: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/transactions/rules/",
@@ -236,7 +285,10 @@ module Didit
 
         # Delete rule
         #
-        # Delete a CUSTOM rule. Deletion is immediate and permanent: the rule stops evaluating for new transactions and disappears from listings, while past rule runs on already-evaluated transactions keep their recorded results. Library rules cannot be deleted - uninstall them via the install endpoint instead (they can always be reinstalled from the library).
+        # Delete a CUSTOM rule. Deletion is immediate and permanent: the rule stops evaluating for new transactions
+        # and disappears from listings, while past rule runs on already-evaluated transactions keep their recorded
+        # results. Library rules cannot be deleted - uninstall them via the install endpoint instead (they can always
+        # be reinstalled from the library).
         #
         # +DELETE /v3/transactions/rules/{rule_uuid}/+
         #
@@ -254,7 +306,8 @@ module Didit
 
         # Install library rules
         #
-        # Install one or more presets onto the application, by `library_keys` or a whole `bundle`. Installed presets evaluate immediately in their default mode; already-installed keys are skipped.
+        # Install one or more presets onto the application, by `library_keys` or a whole `bundle`. Installed presets
+        # evaluate immediately in their default mode; already-installed keys are skipped.
         #
         # +POST /v3/transactions/rules/install/+
         #
@@ -277,7 +330,10 @@ module Didit
 
         # List rules
         #
-        # List the application's transaction-monitoring rules: your custom rules plus any library presets you have installed. Filter by source, category, mode, bundle or free-text search; order with `ordering` (run_count, approved_pct, reviewed_pct, declined_pct, latest_triggered_at, title, created_at, source, each with an optional `-` prefix).
+        # List the application's transaction-monitoring rules: your custom rules plus any library presets you have
+        # installed. Filter by source, category, mode, bundle or free-text search; order with `ordering` (run_count,
+        # approved_pct, reviewed_pct, declined_pct, latest_triggered_at, title, created_at, source, each with an
+        # optional `-` prefix).
         #
         # +GET /v3/transactions/rules/+
         #
@@ -291,7 +347,17 @@ module Didit
         # @param offset [Integer] Page offset
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Page<Didit::Types::TransactionRuleDetail>]
-        def list(source: OMIT, category: OMIT, mode: OMIT, bundle: OMIT, search: OMIT, ordering: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+        def list(
+          source: OMIT,
+          category: OMIT,
+          mode: OMIT,
+          bundle: OMIT,
+          search: OMIT,
+          ordering: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          request_options: nil
+        )
           @client.request(
             :get,
             "/v3/transactions/rules/",
@@ -312,7 +378,8 @@ module Didit
 
         # List rule library
         #
-        # Browse the full preset rule library (150+ rules) with each entry's complete configuration and an `is_installed` flag for this application. Filter by bundle, category, or free-text search.
+        # Browse the full preset rule library (150+ rules) with each entry's complete configuration and an
+        # `is_installed` flag for this application. Filter by bundle, category, or free-text search.
         #
         # +GET /v3/transactions/rules/library/+
         #
@@ -360,7 +427,8 @@ module Didit
 
         # Uninstall library rules
         #
-        # Remove installed presets from the application, by `library_keys` or a whole `bundle`. Uninstalled presets stop evaluating immediately and can be reinstalled from the library at any time.
+        # Remove installed presets from the application, by `library_keys` or a whole `bundle`. Uninstalled presets
+        # stop evaluating immediately and can be reinstalled from the library at any time.
         #
         # +DELETE /v3/transactions/rules/install/+
         #
@@ -383,7 +451,8 @@ module Didit
 
         # Update rule
         #
-        # Partially update a rule. Custom rules accept every configuration field. Library (PRESET) rules accept only `mode` - use it to activate, disable, or switch a preset to TEST; any other field returns 400.
+        # Partially update a rule. Custom rules accept every configuration field. Library (PRESET) rules accept only
+        # `mode` - use it to activate, disable, or switch a preset to TEST; any other field returns 400.
         #
         # +PATCH /v3/transactions/rules/{rule_uuid}/+
         #
@@ -400,7 +469,20 @@ module Didit
         # @param metadata [Hash] Free-form metadata stored on the rule.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleDetail]
-        def update(rule_uuid, title: OMIT, description: OMIT, category: OMIT, mode: OMIT, evaluation_mode: OMIT, scope: OMIT, conditions: OMIT, aggregation: OMIT, actions: OMIT, metadata: OMIT, request_options: nil)
+        def update(
+          rule_uuid,
+          title: OMIT,
+          description: OMIT,
+          category: OMIT,
+          mode: OMIT,
+          evaluation_mode: OMIT,
+          scope: OMIT,
+          conditions: OMIT,
+          aggregation: OMIT,
+          actions: OMIT,
+          metadata: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/transactions/rules/{rule_uuid}/",
@@ -427,7 +509,9 @@ module Didit
       class TravelRule < Didit::Resource
         # Confirm or deny wallet ownership
         #
-        # Called by the beneficiary's application when its INTERNAL-rail transfer is UNCONFIRMED_OWNERSHIP. Confirming marks the matching wallet address book entry as ownership-verified and runs the beneficiary name match on both sides of the transfer; denying declines both sides.
+        # Called by the beneficiary's application when its INTERNAL-rail transfer is UNCONFIRMED_OWNERSHIP. Confirming
+        # marks the matching wallet address book entry as ownership-verified and runs the beneficiary name match on
+        # both sides of the transfer; denying declines both sides.
         #
         # +POST /v3/transactions/{transaction_id}/travel-rule/ownership/+
         #
@@ -450,7 +534,11 @@ module Didit
 
         # Finish, cancel, or resend a Travel Rule transfer
         #
-        # Provide `payment_txn_id` to report the on-chain hash and move an outbound COMPLETED transfer to FINISHED (its INTERNAL-rail counterpart also moves to FINISHED), `{"action": "cancel"}` to cancel a non-terminal transfer, or `{"action": "resend"}` to re-run routing for an outbound transfer stuck in COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA (improve the counterparty data first, e.g. add a travel_address to the destination wallet entry).
+        # Provide `payment_txn_id` to report the on-chain hash and move an outbound COMPLETED transfer to FINISHED
+        # (its INTERNAL-rail counterpart also moves to FINISHED), `{"action": "cancel"}` to cancel a non-terminal
+        # transfer, or `{"action": "resend"}` to re-run routing for an outbound transfer stuck in
+        # COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA (improve the
+        # counterparty data first, e.g. add a travel_address to the destination wallet entry).
         #
         # +PATCH /v3/transactions/{transaction_id}/travel-rule/+
         #

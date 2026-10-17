@@ -3,7 +3,9 @@
 
 module Didit
   module Types
-    # Search policy. `most_similar` (default) ranks every enrolled face in your application by similarity. `blocklisted_or_approved` restricts candidates to blocklisted faces, allowlisted faces, faces from approved sessions, and imported user-profile faces - with blocklisted entries ranked first.
+    # Search policy. `most_similar` (default) ranks every enrolled face in your application by similarity.
+    # `blocklisted_or_approved` restricts candidates to blocklisted faces, allowlisted faces, faces from approved
+    # sessions, and imported user-profile faces - with blocklisted entries ranked first.
     module FaceSearchSearchParamsSearchType
       MOST_SIMILAR = "most_similar"
       BLOCKLISTED_OR_APPROVED = "blocklisted_or_approved"
@@ -11,7 +13,10 @@ module Didit
       VALUES = [MOST_SIMILAR, BLOCKLISTED_OR_APPROVED].freeze
     end
 
-    # Where the matched face was enrolled from: `session` - a verification session or a saved standalone API call; `imported` - a face uploaded directly to a User profile; `list_entry` - a face attached to one of your lists; `retained_template` - an image-free biometric template stored on a User, listed under `/v3/biometric-templates/`.
+    # Where the matched face was enrolled from: `session` - a verification session or a saved standalone API call;
+    # `imported` - a face uploaded directly to a User profile; `list_entry` - a face attached to one of your lists;
+    # `retained_template` - an image-free biometric template stored on a User, listed under
+    # `/v3/biometric-templates/`.
     module FaceSearchSearchResponseFaceSearchMatchesSource
       SESSION = "session"
       IMPORTED = "imported"
@@ -21,7 +26,8 @@ module Didit
       VALUES = [SESSION, IMPORTED, LIST_ENTRY, RETAINED_TEMPLATE].freeze
     end
 
-    # `Declined` only when a `FACE_IN_BLOCKLIST` or `POSSIBLE_FACE_IN_BLOCKLIST` warning fired. Duplicate matches and multiple-face warnings never decline.
+    # `Declined` only when a `FACE_IN_BLOCKLIST` or `POSSIBLE_FACE_IN_BLOCKLIST` warning fired. Duplicate matches and
+    # multiple-face warnings never decline.
     module FaceSearchSearchResponseFaceSearchStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -36,7 +42,8 @@ module Didit
       VALUES = [LIVENESS].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and never decline on their own.
+    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and
+    # never decline on their own.
     module FaceSearchSearchResponseFaceSearchWarningsLogType
       ERROR = "error"
       WARNING = "warning"
@@ -89,7 +96,10 @@ module Didit
       field :api_service, "api_service", :string
     end
 
-    # Identity data extracted during the matched session's document verification. `null` when the matched session has no document data (e.g. liveness-only sessions) and always `null` for `retained_template` matches. For `source: imported` matches it is populated from the User profile instead: `full_name` set, `document_type`/`document_number` null.
+    # Identity data extracted during the matched session's document verification. `null` when the matched session has
+    # no document data (e.g. liveness-only sessions) and always `null` for `retained_template` matches. For `source:
+    # imported` matches it is populated from the User profile instead: `full_name` set,
+    # `document_type`/`document_number` null.
     class FaceSearchSearchResponseFaceSearchMatchesUserDetails < Didit::Model
       field :full_name, "full_name", :string
       field :document_type, "document_type", :string

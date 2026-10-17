@@ -7,7 +7,9 @@ module Didit
     class AmlMonitoring < Didit::Resource
       # Get AML ongoing monitoring job
       #
-      # Status, outcome counters and per-record results of a monitoring toggle job started from `POST /v3/users/aml-monitoring/` or `POST /v3/businesses/aml-monitoring/`. Poll every couple of seconds while `status` is `PENDING` or `PROCESSING`; `results` is complete once it is `COMPLETED`.
+      # Status, outcome counters and per-record results of a monitoring toggle job started from `POST
+      # /v3/users/aml-monitoring/` or `POST /v3/businesses/aml-monitoring/`. Poll every couple of seconds while
+      # `status` is `PENDING` or `PROCESSING`; `results` is complete once it is `COMPLETED`.
       #
       # +GET /v3/aml-monitoring/jobs/{job_id}/+
       #

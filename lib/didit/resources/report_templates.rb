@@ -7,7 +7,10 @@ module Didit
     class ReportTemplates < Didit::Resource
       # Create report template
       #
-      # Create a reusable per-jurisdiction, per-report-type goAML header template. Rejected with 400 if any of the template-level obligatory fields (rentity_id, submission_code, currency_code_local) is missing from field_config; an invalid template cannot be saved or used to create a report. Per-filing header fields (action, submission_date, transactions) are enforced at report validate/finalize time instead.
+      # Create a reusable per-jurisdiction, per-report-type goAML header template. Rejected with 400 if any of the
+      # template-level obligatory fields (rentity_id, submission_code, currency_code_local) is missing from
+      # field_config; an invalid template cannot be saved or used to create a report. Per-filing header fields
+      # (action, submission_date, transactions) are enforced at report validate/finalize time instead.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/report-templates/+
       #
@@ -109,7 +112,14 @@ module Didit
       # @param field_config [Hash] Reusable goAML header defaults. Template-level obligatory fields: rentity_id, submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to include) p...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ReportTemplateDetail]
-      def update(template_uuid, name: OMIT, jurisdiction: OMIT, report_type: OMIT, field_config: OMIT, request_options: nil)
+      def update(
+        template_uuid,
+        name: OMIT,
+        jurisdiction: OMIT,
+        report_type: OMIT,
+        field_config: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/report-templates/{template_uuid}/",

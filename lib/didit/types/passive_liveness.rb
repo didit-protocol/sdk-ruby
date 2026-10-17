@@ -10,7 +10,9 @@ module Didit
       VALUES = [PASSIVE].freeze
     end
 
-    # `Declined` when at least one `error`-severity warning fired (no face, low score, presentation attack, or a blocklist hit); `Approved` otherwise. `warning`/`information` entries (multiple faces, duplicates) never decline on their own.
+    # `Declined` when at least one `error`-severity warning fired (no face, low score, presentation attack, or a
+    # blocklist hit); `Approved` otherwise. `warning`/`information` entries (multiple faces, duplicates) never decline
+    # on their own.
     module PassiveLivenessCheckResponseLivenessStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -25,7 +27,8 @@ module Didit
       VALUES = [LIVENESS].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and never decline on their own.
+    # Severity. `error` warnings drive `status` to `Declined`; `warning` and `information` entries are advisory and
+    # never decline on their own.
     module PassiveLivenessCheckResponseLivenessWarningsLogType
       ERROR = "error"
       WARNING = "warning"

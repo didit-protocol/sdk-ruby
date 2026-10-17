@@ -7,15 +7,27 @@ module Didit
     class Kyb < Didit::Resource
       # KYB registry company with shareholders (standalone)
       #
-      # Retrieve the Lite profile **plus the direct shareholders** (natural persons and corporate entities, with their ownership bands) of one candidate returned by `POST /v3/kyb/search/`.
+      # Retrieve the Lite profile **plus the direct shareholders** (natural persons and corporate entities, with their
+      # ownership bands) of one candidate returned by `POST /v3/kyb/search/`.
       #
-      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same application. The search runs on the Lite registry chain; when the country's ownership data lives at another registry Didit re-finds the company there by registration number, at no extra cost.
+      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same
+      # application. The search runs on the Lite registry chain; when the country's ownership data lives at another
+      # registry Didit re-finds the company there by registration number, at no extra cost.
       #
-      # **Billing.** Billed at the country's Shareholders price - see [KYB registry pricing](/getting-started/kyb-registry-pricing). When the registry holds no shareholder record for the company (or the country offers no ownership data at all) the Lite profile is delivered and billed instead: read `registry_tier_delivered` and `registry_ownership_status`. The balance is checked against the Shareholders price before any registry call (`403` when short).
+      # **Billing.** Billed at the country's Shareholders price - see [KYB registry
+      # pricing](/getting-started/kyb-registry-pricing). When the registry holds no shareholder record for the company
+      # (or the country offers no ownership data at all) the Lite profile is delivered and billed instead: read
+      # `registry_tier_delivered` and `registry_ownership_status`. The balance is checked against the Shareholders
+      # price before any registry call (`403` when short).
       #
       # **Availability.** v3 only. Every call creates a business session (its id is the `request_id`).
       #
-      # **Pending reports.** When a report is still being prepared, or the ownership section has not been retrieved from the registry yet, the endpoint returns 202 Accepted, kyb_registry.fetch_status=pending, kyb_registry.registry_ownership_status=pending, and registry_tier_delivered=null. Keep request_id and retrieve GET /v3/session/{request_id}/decision/ until registry_checks[0].company.fetch_status is resolved. Didit completes the report automatically and charges the delivered tier once it is ready. Do not repeat the purchase while it is pending; every new POST creates a separate request.
+      # **Pending reports.** When a report is still being prepared, or the ownership section has not been retrieved
+      # from the registry yet, the endpoint returns 202 Accepted, kyb_registry.fetch_status=pending,
+      # kyb_registry.registry_ownership_status=pending, and registry_tier_delivered=null. Keep request_id and retrieve
+      # GET /v3/session/{request_id}/decision/ until registry_checks[0].company.fetch_status is resolved. Didit
+      # completes the report automatically and charges the delivered tier once it is ready. Do not repeat the purchase
+      # while it is pending; every new POST creates a separate request.
       #
       # +POST /v3/kyb/shareholders/+
       #
@@ -25,7 +37,13 @@ module Didit
       # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so billing and retrieval can be tracked; `false` returns `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybListShareholdersResponse, Didit::Types::KybListShareholdersResponse202]
-      def list_shareholders(kyb_response_id:, vendor_data: OMIT, metadata: OMIT, save_api_request: OMIT, request_options: nil)
+      def list_shareholders(
+        kyb_response_id:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        save_api_request: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/kyb/shareholders/",
@@ -42,15 +60,28 @@ module Didit
 
       # KYB registry company with ultimate beneficial owners (standalone)
       #
-      # Retrieve the Lite profile, the direct shareholders **and the ultimate beneficial owners** resolved through the ownership chain (`registry_data.ubo_resolution` carries the corporate parent chain) of one candidate returned by `POST /v3/kyb/search/`.
+      # Retrieve the Lite profile, the direct shareholders **and the ultimate beneficial owners** resolved through the
+      # ownership chain (`registry_data.ubo_resolution` carries the corporate parent chain) of one candidate returned
+      # by `POST /v3/kyb/search/`.
       #
-      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same application. The search runs on the Lite registry chain; when the country's ownership data lives at another registry Didit re-finds the company there by registration number, at no extra cost.
+      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same
+      # application. The search runs on the Lite registry chain; when the country's ownership data lives at another
+      # registry Didit re-finds the company there by registration number, at no extra cost.
       #
-      # **Billing.** Billed at the country's UBO price - see [KYB registry pricing](/getting-started/kyb-registry-pricing). The tier delivered is the highest the country and the registry can serve: Shareholders when the resolved report names no natural person as a beneficial owner, Lite when there is no ownership record at all; `registry_tier_delivered` names what was billed. The balance is checked against the UBO price before any registry call (`403` when short).
+      # **Billing.** Billed at the country's UBO price - see [KYB registry
+      # pricing](/getting-started/kyb-registry-pricing). The tier delivered is the highest the country and the
+      # registry can serve: Shareholders when the resolved report names no natural person as a beneficial owner, Lite
+      # when there is no ownership record at all; `registry_tier_delivered` names what was billed. The balance is
+      # checked against the UBO price before any registry call (`403` when short).
       #
       # **Availability.** v3 only. Every call creates a business session (its id is the `request_id`).
       #
-      # **Pending reports.** When a report is still being prepared, or the ownership section has not been retrieved from the registry yet, the endpoint returns 202 Accepted, kyb_registry.fetch_status=pending, kyb_registry.registry_ownership_status=pending, and registry_tier_delivered=null. Keep request_id and retrieve GET /v3/session/{request_id}/decision/ until registry_checks[0].company.fetch_status is resolved. Didit completes the report automatically and charges the delivered tier once it is ready. Do not repeat the purchase while it is pending; every new POST creates a separate request.
+      # **Pending reports.** When a report is still being prepared, or the ownership section has not been retrieved
+      # from the registry yet, the endpoint returns 202 Accepted, kyb_registry.fetch_status=pending,
+      # kyb_registry.registry_ownership_status=pending, and registry_tier_delivered=null. Keep request_id and retrieve
+      # GET /v3/session/{request_id}/decision/ until registry_checks[0].company.fetch_status is resolved. Didit
+      # completes the report automatically and charges the delivered tier once it is ready. Do not repeat the purchase
+      # while it is pending; every new POST creates a separate request.
       #
       # +POST /v3/kyb/ubo/+
       #
@@ -77,17 +108,34 @@ module Didit
 
       # KYB registry company search (standalone)
       #
-      # Search official company registries for candidate companies by name and/or registration number. This is step 1 of the two-step registry flow: **search** returns lightweight candidates, then `POST /v3/kyb/select/` retrieves the full profile of one candidate.
+      # Search official company registries for candidate companies by name and/or registration number. This is step 1
+      # of the two-step registry flow: **search** returns lightweight candidates, then `POST /v3/kyb/select/`
+      # retrieves the full profile of one candidate.
       #
-      # **Search billing.** Successful searches using a paid company-data source cost USD 0.50 per request, regardless of candidate count. Empty results, failures and results served only by other sources are not charged. The applicable price is reserved before searching; insufficient balance returns 403 with code `insufficient_credits`. Contract rates apply where agreed, and an unconfigured contract search rate returns 403. Sandbox searches are free. Repeating a successful search can incur another charge; callback delivery does not add a charge. Profile retrieval is billed separately. This search fee also applies to v2. Candidates always come back with `fetch_status: "pending"`: the full company data is only fetched (and billed) on select.
+      # **Search billing.** Successful searches using a paid company-data source cost USD 0.50 per request, regardless
+      # of candidate count. Empty results, failures and results served only by other sources are not charged. The
+      # applicable price is reserved before searching; insufficient balance returns 403 with code
+      # `insufficient_credits`. Contract rates apply where agreed, and an unconfigured contract search rate returns
+      # 403. Sandbox searches are free. Repeating a successful search can incur another charge; callback delivery does
+      # not add a charge. Profile retrieval is billed separately. This search fee also applies to v2. Candidates
+      # always come back with `fetch_status: "pending"`: the full company data is only fetched (and billed) on select.
       #
-      # **`kyb_response_id` is ephemeral.** It is a per-search handle, not a stable company id. Select promptly after searching and re-search to get a fresh handle instead of storing it.
+      # **`kyb_response_id` is ephemeral.** It is a per-search handle, not a stable company id. Select promptly after
+      # searching and re-search to get a fresh handle instead of storing it.
       #
       # **Two modes.**
-      # - *Synchronous (default):* the API polls the registry until the search resolves and returns the final candidate list (`search_resolved: true`).
-      # - *Asynchronous:* pass `webhook_url` and the API returns immediately - usually with `search_status: "pending"` and an empty candidate list - then POSTs a `kyb.registry_search.resolved` callback to your URL when the registry finishes. The callback body is `{"event_id", "event_type": "kyb.registry_search.resolved", "request_id", "vendor_data", "metadata", "search_status", "search_resolved", "kyb_registry", "timestamp", "created_at"}` - note `timestamp` and `created_at` in the callback are epoch integers, unlike this endpoint's ISO `created_at` - and is sent **unsigned** (header `X-Didit-Unsigned-Callback: true`, no `X-Signature`).
+      # - *Synchronous (default):* the API polls the registry until the search resolves and returns the final
+      #   candidate list (`search_resolved: true`).
+      # - *Asynchronous:* pass `webhook_url` and the API returns immediately - usually with `search_status: "pending"`
+      #   and an empty candidate list - then POSTs a `kyb.registry_search.resolved` callback to your URL when the
+      #   registry finishes. The callback body is `{"event_id", "event_type": "kyb.registry_search.resolved",
+      #   "request_id", "vendor_data", "metadata", "search_status", "search_resolved", "kyb_registry", "timestamp",
+      #   "created_at"}` - note `timestamp` and `created_at` in the callback are epoch integers, unlike this
+      #   endpoint's ISO `created_at` - and is sent **unsigned** (header `X-Didit-Unsigned-Callback: true`, no
+      #   `X-Signature`).
       #
-      # **Country codes.** ISO 3166-1 alpha-2 (`GB`, `DE`), plus `XX-YY` subdivision codes where registries are regional - e.g. `US-CA` for California.
+      # **Country codes.** ISO 3166-1 alpha-2 (`GB`, `DE`), plus `XX-YY` subdivision codes where registries are
+      # regional - e.g. `US-CA` for California.
       #
       # **Sandbox.** Keys from sandbox applications return one static candidate without contacting any registry.
       #
@@ -102,7 +150,16 @@ module Didit
       # @param webhook_url [String] Switches the search to asynchronous mode: the API returns immediately and POSTs an unsigned `kyb.registry_search.resolved` callback to this URL when the candidate list is ready.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybSearchResponse]
-      def search(country_code:, name: OMIT, registration_number: OMIT, search_type: OMIT, vendor_data: OMIT, metadata: OMIT, webhook_url: OMIT, request_options: nil)
+      def search(
+        country_code:,
+        name: OMIT,
+        registration_number: OMIT,
+        search_type: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        webhook_url: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/kyb/search/",
@@ -122,13 +179,21 @@ module Didit
 
       # KYB registry company select - Lite tier (standalone)
       #
-      # Retrieve the **Lite** registry profile of one candidate returned by `POST /v3/kyb/search/` - company details, registered address, identifiers, status, activity and the officers, plus the raw registry payload. Shareholders and ultimate beneficial owners are sold by `POST /v3/kyb/shareholders/` and `POST /v3/kyb/ubo/`.
+      # Retrieve the **Lite** registry profile of one candidate returned by `POST /v3/kyb/search/` - company details,
+      # registered address, identifiers, status, activity and the officers, plus the raw registry payload.
+      # Shareholders and ultimate beneficial owners are sold by `POST /v3/kyb/shareholders/` and `POST /v3/kyb/ubo/`.
       #
-      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same application. The handle is ephemeral and scoped to that search - select promptly, and re-search for a fresh handle rather than storing it.
+      # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same
+      # application. The handle is ephemeral and scoped to that search - select promptly, and re-search for a fresh
+      # handle rather than storing it.
       #
-      # **Billing.** Each select is billed at the country's Lite price (any search fee is separate); see [KYB registry pricing](/getting-started/kyb-registry-pricing). The balance is checked before any registry call (`403` when short) and the charge is recorded against the created business session.
+      # **Billing.** Each select is billed at the country's Lite price (any search fee is separate); see [KYB registry
+      # pricing](/getting-started/kyb-registry-pricing). The balance is checked before any registry call (`403` when
+      # short) and the charge is recorded against the created business session.
       #
-      # **Persistence is mandatory.** Every select creates a business session (its id is the `request_id`) so billing and retrieval can be tracked; it appears in the console. `save_api_request` is accepted for symmetry but must be `true` (the default) - sending `false` returns `400`.
+      # **Persistence is mandatory.** Every select creates a business session (its id is the `request_id`) so billing
+      # and retrieval can be tracked; it appears in the console. `save_api_request` is accepted for symmetry but must
+      # be `true` (the default) - sending `false` returns `400`.
       #
       # +POST /v3/kyb/select/+
       #

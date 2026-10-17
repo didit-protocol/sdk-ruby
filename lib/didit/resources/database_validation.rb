@@ -7,21 +7,56 @@ module Didit
     class DatabaseValidation < Didit::Resource
       # Database Validation (standalone)
       #
-      # Validate a person's identity data against official government and registry sources - CPF in Brazil, RENAPER in Argentina, DNI registries in Spain and Peru, INE in Mexico, and 100+ more services across 60+ countries.
+      # Validate a person's identity data against official government and registry sources - CPF in Brazil, RENAPER in
+      # Argentina, DNI registries in Spain and Peru, INE in Mexico, and 100+ more services across 60+ countries.
       #
-      # **Service selection.** Each country exposes one or more catalog services identified by a `service_id` (e.g. `bra_cpf`, `arg_renaper`, `pan_cedula_sib`). Pin the services you want with the `services` array - if you omit it, exactly **one** default service runs (the longest-established live service for the country). Sending `services` also switches the response to the extended shape with `services_used` and `match_score`. Discover services, their required fields, and prices via `GET /v1/organization/database-validation-countries/` (a catalog endpoint not documented in this spec) or the Business Console workflow editor. Some services are flagged `requires_consent=true` in the catalog and demand `consent=true`; others require onboarding for your organization before they can be called.
+      # **Service selection.** Each country exposes one or more catalog services identified by a `service_id` (e.g.
+      # `bra_cpf`, `arg_renaper`, `pan_cedula_sib`). Pin the services you want with the `services` array - if you omit
+      # it, exactly **one** default service runs (the longest-established live service for the country). Sending
+      # `services` also switches the response to the extended shape with `services_used` and `match_score`. Discover
+      # services, their required fields, and prices via `GET /v1/organization/database-validation-countries/` (a
+      # catalog endpoint not documented in this spec) or the Business Console workflow editor. Some services are
+      # flagged `requires_consent=true` in the catalog and demand `consent=true`; others require onboarding for your
+      # organization before they can be called.
       #
-      # **Input fields.** `identification_number` is a universal field that maps to the right country-specific field automatically (see its description). Country format rules are enforced before any provider is called (e.g. BRA CPF must be exactly 11 digits) and format failures are never billed. Biometric services need a `selfie` upload (multipart only); Argentina RENAPER additionally requires `gender`.
+      # **Input fields.** `identification_number` is a universal field that maps to the right country-specific field
+      # automatically (see its description). Country format rules are enforced before any provider is called (e.g. BRA
+      # CPF must be exactly 11 digits) and format failures are never billed. Biometric services need a `selfie` upload
+      # (multipart only); Argentina RENAPER additionally requires `gender`.
       #
-      # **Results.** Each service returns a field-by-field `validation` map plus a vendor-neutral `outcome_code` (`MATCH`, `PARTIAL_MATCH`, `NO_MATCH`, `DOCUMENT_NOT_FOUND`, `INVALID_DOCUMENT_FORMAT`, `INVALID_INPUT`, `MINOR_BLOCKED`, `DECEASED`, `BIOMETRIC_NO_MATCH`, `BIOMETRIC_IMAGE_UNUSABLE`, `INCONCLUSIVE`, `DOCUMENT_SUPERSEDED`, `REGISTRY_UNAVAILABLE`, `REGISTRY_ERROR`). Note the distinctions: `NO_MATCH` is a definitive mismatch, `INCONCLUSIVE` means the registry could not confirm either way (review, not decline), and `BIOMETRIC_IMAGE_UNUSABLE` is a technical selfie problem (retake), unlike the definitive `BIOMETRIC_NO_MATCH`. The overall `match_type` aggregates across services (any full → `full_match`, else any partial → `partial_match`, else `no_match`) and `no_match_action`/`partial_match_action` translate it into the final `status`. `validation_type` is derived: `two_by_two` when two or more distinct services produced a full match (on the identification number, on full name + date of birth together, or on the address without contradictions), else `one_by_one`.
+      # **Results.** Each service returns a field-by-field `validation` map plus a vendor-neutral `outcome_code`
+      # (`MATCH`, `PARTIAL_MATCH`, `NO_MATCH`, `DOCUMENT_NOT_FOUND`, `INVALID_DOCUMENT_FORMAT`, `INVALID_INPUT`,
+      # `MINOR_BLOCKED`, `DECEASED`, `BIOMETRIC_NO_MATCH`, `BIOMETRIC_IMAGE_UNUSABLE`, `INCONCLUSIVE`,
+      # `DOCUMENT_SUPERSEDED`, `REGISTRY_UNAVAILABLE`, `REGISTRY_ERROR`). Note the distinctions: `NO_MATCH` is a
+      # definitive mismatch, `INCONCLUSIVE` means the registry could not confirm either way (review, not decline), and
+      # `BIOMETRIC_IMAGE_UNUSABLE` is a technical selfie problem (retake), unlike the definitive `BIOMETRIC_NO_MATCH`.
+      # The overall `match_type` aggregates across services (any full → `full_match`, else any partial →
+      # `partial_match`, else `no_match`) and `no_match_action`/`partial_match_action` translate it into the final
+      # `status`. `validation_type` is derived: `two_by_two` when two or more distinct services produced a full match
+      # (on the identification number, on full name + date of birth together, or on the address without
+      # contradictions), else `one_by_one`.
       #
-      # **Persistence.** `save_api_request` defaults to **true**: the result is stored as a session (`request_id` works with `GET /v3/session/{sessionId}/decision/`), appears in the console, and fires a `status.updated` webhook. It also controls the `validations` shape - per-service objects when saved, a merged `{field: match}` map when not.
+      # **Persistence.** `save_api_request` defaults to **true**: the result is stored as a session (`request_id`
+      # works with `GET /v3/session/{sessionId}/decision/`), appears in the console, and fires a `status.updated`
+      # webhook. It also controls the `validations` shape - per-service objects when saved, a merged `{field: match}`
+      # map when not.
       #
-      # **Billing.** Per-service: each service that returns a billable result is charged its own catalog price. Failed or skipped services are not billed, and requests rejected with `400` cost nothing. The pre-flight balance check covers the sum of the selected services' prices (`403` when short).
+      # **Billing.** Per-service: each service that returns a billable result is charged its own catalog price. Failed
+      # or skipped services are not billed, and requests rejected with `400` cost nothing. The pre-flight balance
+      # check covers the sum of the selected services' prices (`403` when short).
       #
-      # **Failures.** When no selected service returns a usable result, the API returns `400` with `validation_errors` if every unanswered attempt explicitly refused the input (`provider_rejected_input`, `retryable: false`). Correct the input before trying again. Otherwise it returns `502` with `validation_errors` (`empty_provider_response`, `retryable: true`), including mixed input rejection and unavailable fallback attempts; nothing is billed (a session is still recorded with status `Not Finished` when `save_api_request=true`). When only some services fail, the `200` response carries their failures in `database_validation.errors`.
+      # **Failures.** When no selected service returns a usable result, the API returns `400` with `validation_errors`
+      # if every unanswered attempt explicitly refused the input (`provider_rejected_input`, `retryable: false`).
+      # Correct the input before trying again. Otherwise it returns `502` with `validation_errors`
+      # (`empty_provider_response`, `retryable: true`), including mixed input rejection and unavailable fallback
+      # attempts; nothing is billed (a session is still recorded with status `Not Finished` when
+      # `save_api_request=true`). When only some services fail, the `200` response carries their failures in
+      # `database_validation.errors`.
       #
-      # **Sandbox.** Keys from sandbox applications skip the registry calls and billing and return a static `full_match` response - the sandbox payload always includes `services_used` and `match_score: 100` regardless of how `services` was sent, so don't validate the live extended-shape gating or the 0.0-1.0 `match_score` fraction against sandbox responses.
+      # **Sandbox.** Keys from sandbox applications skip the registry calls and billing and return a static
+      # `full_match` response - the sandbox payload always includes `services_used` and `match_score: 100` regardless
+      # of how `services` was sent, so don't validate the live extended-shape gating or the 0.0-1.0 `match_score`
+      # fraction against sandbox responses.
       #
       # Send the request as `application/json`, or as `multipart/form-data` when uploading a `selfie`.
       #
@@ -95,7 +130,75 @@ module Didit
       # @param selfie [Pathname, IO, String, Didit::FilePart] Selfie image (`jpg`, `jpeg`, `png`, `webp`; max 2 MB - images are compressed to ~1.5 MB before upload to the registry) for biometric validation services, e.g. Argentina RENAPER (`arg_renaper`) and Pa...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DatabaseValidationValidateResponse]
-      def validate(issuing_state:, services: OMIT, validation_type: OMIT, consent: OMIT, identification_number: OMIT, first_name: OMIT, last_name: OMIT, middle_name: OMIT, full_name: OMIT, date_of_birth: OMIT, personal_number: OMIT, tax_number: OMIT, document_number: OMIT, document_type: OMIT, expiration_date: OMIT, date_of_issue: OMIT, nationality: OMIT, gender: OMIT, address: OMIT, address_element_1: OMIT, address_element_2: OMIT, address_element_3: OMIT, address_element_4: OMIT, address_element_5: OMIT, postal_code: OMIT, driver_license_number: OMIT, driver_license_card_number: OMIT, driver_license_state: OMIT, driver_license_version: OMIT, passport_number: OMIT, passport_expiration_date: OMIT, passport_file_number: OMIT, passport_issue_country: OMIT, medicare_card_number: OMIT, immi_card_number: OMIT, immi_card_expiry_date: OMIT, citizenship_certificate_number: OMIT, birth_registration_number: OMIT, birth_registration_date: OMIT, birth_registration_state: OMIT, marriage_certificate_number: OMIT, change_of_name_certificate_number: OMIT, first_partner_name: OMIT, last_partner_name: OMIT, voter_id: OMIT, epic_card: OMIT, pan: OMIT, national_id: OMIT, cic: OMIT, identificador_ciudadano: OMIT, ocr: OMIT, voter_number: OMIT, emission_number: OMIT, bvn: OMIT, bank_card_number: OMIT, ssn: OMIT, phone: OMIT, landline: OMIT, email: OMIT, country_of_residence: OMIT, partial_match_action: OMIT, no_match_action: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, selfie: OMIT, request_options: nil)
+      def validate(
+        issuing_state:,
+        services: OMIT,
+        validation_type: OMIT,
+        consent: OMIT,
+        identification_number: OMIT,
+        first_name: OMIT,
+        last_name: OMIT,
+        middle_name: OMIT,
+        full_name: OMIT,
+        date_of_birth: OMIT,
+        personal_number: OMIT,
+        tax_number: OMIT,
+        document_number: OMIT,
+        document_type: OMIT,
+        expiration_date: OMIT,
+        date_of_issue: OMIT,
+        nationality: OMIT,
+        gender: OMIT,
+        address: OMIT,
+        address_element_1: OMIT,
+        address_element_2: OMIT,
+        address_element_3: OMIT,
+        address_element_4: OMIT,
+        address_element_5: OMIT,
+        postal_code: OMIT,
+        driver_license_number: OMIT,
+        driver_license_card_number: OMIT,
+        driver_license_state: OMIT,
+        driver_license_version: OMIT,
+        passport_number: OMIT,
+        passport_expiration_date: OMIT,
+        passport_file_number: OMIT,
+        passport_issue_country: OMIT,
+        medicare_card_number: OMIT,
+        immi_card_number: OMIT,
+        immi_card_expiry_date: OMIT,
+        citizenship_certificate_number: OMIT,
+        birth_registration_number: OMIT,
+        birth_registration_date: OMIT,
+        birth_registration_state: OMIT,
+        marriage_certificate_number: OMIT,
+        change_of_name_certificate_number: OMIT,
+        first_partner_name: OMIT,
+        last_partner_name: OMIT,
+        voter_id: OMIT,
+        epic_card: OMIT,
+        pan: OMIT,
+        national_id: OMIT,
+        cic: OMIT,
+        identificador_ciudadano: OMIT,
+        ocr: OMIT,
+        voter_number: OMIT,
+        emission_number: OMIT,
+        bvn: OMIT,
+        bank_card_number: OMIT,
+        ssn: OMIT,
+        phone: OMIT,
+        landline: OMIT,
+        email: OMIT,
+        country_of_residence: OMIT,
+        partial_match_action: OMIT,
+        no_match_action: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        selfie: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/database-validation/",

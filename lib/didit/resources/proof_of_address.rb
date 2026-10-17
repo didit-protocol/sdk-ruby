@@ -7,25 +7,55 @@ module Didit
     class ProofOfAddress < Didit::Resource
       # Proof of Address (document OCR + address checks)
       #
-      # Extract and validate a Proof of Address document - utility bills, bank statements, and government-issued documents - in one call. Returns the issuer, issue/expiry dates, the holder name, the raw and parsed/geocoded address, an `Approved`/`Declined` `status`, and a `warnings` list explaining every issue found.
+      # Extract and validate a Proof of Address document - utility bills, bank statements, and government-issued
+      # documents - in one call. Returns the issuer, issue/expiry dates, the holder name, the raw and parsed/geocoded
+      # address, an `Approved`/`Declined` `status`, and a `warnings` list explaining every issue found.
       #
-      # **Latency.** Extraction is LLM-based: typical calls take **5-15 seconds**, multi-page PDFs up to **~30 seconds**. Configure a client timeout of **at least 45 seconds** and do not retry before the call completes.
+      # **Latency.** Extraction is LLM-based: typical calls take **5-15 seconds**, multi-page PDFs up to **~30
+      # seconds**. Configure a client timeout of **at least 45 seconds** and do not retry before the call completes.
       #
-      # **How it works.** The document (image or PDF, up to 15 MB; encrypted PDFs require `document_password`) is classified into a document type and subtype (e.g. `UTILITY_BILL` / `WATER_BILL`), and the issuer, dates, holder name, and address are extracted with LLM-based extraction. The address is parsed and geocoded into `poa_parsed_address`. PDF/EXIF forensics screen for tampering - modification after digital signing, known PDF editors, overlay-text manipulation, suspicious re-exports - surfacing `SUSPECTED_DOCUMENT_MANIPULATION` or `DOCUMENT_METADATA_MISMATCH`. Document age is validated against `poa_document_age_months`, and the language against `poa_languages_allowed`. If you pass `expected_address`, `expected_country`, or `expected_first_name`/`expected_last_name`, the extracted values are cross-checked and mismatches are flagged.
+      # **How it works.** The document (image or PDF, up to 15 MB; encrypted PDFs require `document_password`) is
+      # classified into a document type and subtype (e.g. `UTILITY_BILL` / `WATER_BILL`), and the issuer, dates,
+      # holder name, and address are extracted with LLM-based extraction. The address is parsed and geocoded into
+      # `poa_parsed_address`. PDF/EXIF forensics screen for tampering - modification after digital signing, known PDF
+      # editors, overlay-text manipulation, suspicious re-exports - surfacing `SUSPECTED_DOCUMENT_MANIPULATION` or
+      # `DOCUMENT_METADATA_MISMATCH`. Document age is validated against `poa_document_age_months`, and the language
+      # against `poa_languages_allowed`. If you pass `expected_address`, `expected_country`, or
+      # `expected_first_name`/`expected_last_name`, the extracted values are cross-checked and mismatches are flagged.
       #
-      # **Decision logic.** `status` is `Approved` unless at least one warning resolves to a decline. Hard failures always decline: `MISSING_ADDRESS_INFORMATION`, `POA_DOCUMENT_EXPIRED`, `INVALID_DOCUMENT_TYPE`, `UNABLE_TO_VALIDATE_DOCUMENT_AGE`, plus `UNABLE_TO_EXTRACT_ISSUE_DATE` and `POA_NAME_NOT_DETECTED` (not configurable on this endpoint). Five risk groups are configurable per request via the `poa_*_action` options (`DECLINE` or `NO_ACTION`, all defaulting to `DECLINE`). `POA_DOCUMENT_NOT_SUPPORTED_FOR_APPLICATION` and `UNPARSABLE_OR_INVALID_ADDRESS` are informational on this endpoint and never decline. A document that cannot be processed at all returns `400`; a readable but problematic document returns `200` with `status: "Declined"` - always inspect `poa.status` and `poa.warnings`, not just the HTTP code.
+      # **Decision logic.** `status` is `Approved` unless at least one warning resolves to a decline. Hard failures
+      # always decline: `MISSING_ADDRESS_INFORMATION`, `POA_DOCUMENT_EXPIRED`, `INVALID_DOCUMENT_TYPE`,
+      # `UNABLE_TO_VALIDATE_DOCUMENT_AGE`, plus `UNABLE_TO_EXTRACT_ISSUE_DATE` and `POA_NAME_NOT_DETECTED` (not
+      # configurable on this endpoint). Five risk groups are configurable per request via the `poa_*_action` options
+      # (`DECLINE` or `NO_ACTION`, all defaulting to `DECLINE`). `POA_DOCUMENT_NOT_SUPPORTED_FOR_APPLICATION` and
+      # `UNPARSABLE_OR_INVALID_ADDRESS` are informational on this endpoint and never decline. A document that cannot
+      # be processed at all returns `400`; a readable but problematic document returns `200` with `status: "Declined"`
+      # - always inspect `poa.status` and `poa.warnings`, not just the HTTP code.
       #
-      # **Billing.** Each `200` response consumes one Proof of Address API credit (standalone APIs have no free tier). When the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits error before any document processing.
+      # **Billing.** Each `200` response consumes one Proof of Address API credit (standalone APIs have no free tier).
+      # When the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits
+      # error before any document processing.
       #
-      # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an API-type session: it appears in the Business Console, the uploaded document is stored, the returned `request_id` is a real session id you can pass to `GET /v3/session/{sessionId}/decision/` (the decision additionally exposes `document_file` and the `document_metadata` forensics, which this response omits), and a `status.updated` webhook is emitted. When `false`, nothing is stored and `request_id` is a one-off correlation UUID that cannot be looked up later.
+      # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an
+      # API-type session: it appears in the Business Console, the uploaded document is stored, the returned
+      # `request_id` is a real session id you can pass to `GET /v3/session/{sessionId}/decision/` (the decision
+      # additionally exposes `document_file` and the `document_metadata` forensics, which this response omits), and a
+      # `status.updated` webhook is emitted. When `false`, nothing is stored and `request_id` is a one-off correlation
+      # UUID that cannot be looked up later.
       #
-      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still returns `400`), the endpoint returns a static `Approved` mock payload (a fictional "Sandbox Power Co." electricity bill), no session is persisted, and no credits are consumed.
+      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still
+      # returns `400`), the endpoint returns a static `Approved` mock payload (a fictional "Sandbox Power Co."
+      # electricity bill), no session is persisted, and no credits are consumed.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
-      # Note: `FUTURE_ISSUE_DATE` and `POOR_DOCUMENT_QUALITY` exist in workflow sessions but are never produced by this standalone endpoint - a future-dated document is not auto-declined here.
+      # Note: `FUTURE_ISSUE_DATE` and `POOR_DOCUMENT_QUALITY` exist in workflow sessions but are never produced by
+      # this standalone endpoint - a future-dated document is not auto-declined here.
       #
       # +POST /v3/poa/+
       #
@@ -48,7 +78,26 @@ module Didit
       # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"onb...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ProofOfAddressVerifyResponse]
-      def verify(document:, document_password: OMIT, expected_address: OMIT, expected_country: OMIT, expected_first_name: OMIT, expected_last_name: OMIT, poa_languages_allowed: OMIT, poa_document_age_months: OMIT, poa_name_mismatch_action: OMIT, poa_document_issues_action: OMIT, poa_document_authenticity_action: OMIT, poa_unsupported_language_action: OMIT, poa_address_mismatch_action: OMIT, poa_issuer_not_identified_action: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def verify(
+        document:,
+        document_password: OMIT,
+        expected_address: OMIT,
+        expected_country: OMIT,
+        expected_first_name: OMIT,
+        expected_last_name: OMIT,
+        poa_languages_allowed: OMIT,
+        poa_document_age_months: OMIT,
+        poa_name_mismatch_action: OMIT,
+        poa_document_issues_action: OMIT,
+        poa_document_authenticity_action: OMIT,
+        poa_unsupported_language_action: OMIT,
+        poa_address_mismatch_action: OMIT,
+        poa_issuer_not_identified_action: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/poa/",

@@ -17,7 +17,8 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
-    # Minimal application shape returned inline by `POST /programmatic/verify-email/`. Persist the `api_key` immediately.
+    # Minimal application shape returned inline by `POST /programmatic/verify-email/`. Persist the `api_key`
+    # immediately.
     class ApplicationCredentialsSummary < Didit::Model
       field :uuid, "uuid", :string
       field :name, "name", :string

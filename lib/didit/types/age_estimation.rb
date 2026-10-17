@@ -32,7 +32,11 @@ module Didit
       VALUES = [ERROR].freeze
     end
 
-    # Machine-readable risk code. `NO_FACE_DETECTED` - the liveness model found no face; `LOW_LIVENESS_SCORE` - liveness `score` at or below `face_liveness_score_decline_threshold`; `LIVENESS_FACE_ATTACK` - a presentation attack (photo/screen/mask) was detected; `AGE_NOT_DETECTED` - no face age could be estimated; `AGE_BELOW_MINIMUM` - estimated age below `age_estimation_decline_threshold`. `NO_FACE_DETECTED` and `LOW_LIVENESS_SCORE` are mutually exclusive - when no face is found only `NO_FACE_DETECTED` is emitted.
+    # Machine-readable risk code. `NO_FACE_DETECTED` - the liveness model found no face; `LOW_LIVENESS_SCORE` -
+    # liveness `score` at or below `face_liveness_score_decline_threshold`; `LIVENESS_FACE_ATTACK` - a presentation
+    # attack (photo/screen/mask) was detected; `AGE_NOT_DETECTED` - no face age could be estimated;
+    # `AGE_BELOW_MINIMUM` - estimated age below `age_estimation_decline_threshold`. `NO_FACE_DETECTED` and
+    # `LOW_LIVENESS_SCORE` are mutually exclusive - when no face is found only `NO_FACE_DETECTED` is emitted.
     module AgeEstimationEstimateResponseAgeEstimationWarningsRisk
       NO_FACE_DETECTED = "NO_FACE_DETECTED"
       LOW_LIVENESS_SCORE = "LOW_LIVENESS_SCORE"

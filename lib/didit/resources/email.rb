@@ -7,21 +7,33 @@ module Didit
     class Email < Didit::Resource
       # Risk-score an email address
       #
-      # Return deliverability, disposable-address, breach, cross-session match, and normalized risk-intelligence signals without sending an OTP. The endpoint creates an API session and returns its id as `request_id`.
+      # Return deliverability, disposable-address, breach, cross-session match, and normalized risk-intelligence
+      # signals without sending an OTP. The endpoint creates an API session and returns its id as `request_id`.
       #
-      # **Decision.** The top-level `status` mirrors `email.status`. It is normally `Approved`; the risk evaluation can produce `In Review` or `Declined`.
+      # **Decision.** The top-level `status` mirrors `email.status`. It is normally `Approved`; the risk evaluation
+      # can produce `In Review` or `Declined`.
       #
-      # **Compatibility aliases.** Live responses expose the normalized intelligence object as both `email.email_intelligence` and `email.enrichment`. The values are identical. New integrations can read `email.enrichment`. Both keys are absent when no usable intelligence data was returned.
+      # **Compatibility aliases.** Live responses expose the normalized intelligence object as both
+      # `email.email_intelligence` and `email.enrichment`. The values are identical. New integrations can read
+      # `email.enrichment`. Both keys are absent when no usable intelligence data was returned.
       #
-      # **Billing.** Live calls use Email Risk API pricing. The request is billable once the lookup starts, even when some best-effort fields are unavailable.
+      # **Billing.** Live calls use Email Risk API pricing. The request is billable once the lookup starts, even when
+      # some best-effort fields are unavailable.
       #
-      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without sending an email, consuming credits, creating a session, or contributing to Networks.
+      # **Sandbox.** Sandbox keys validate the request and return deterministic approved data without sending an
+      # email, consuming credits, creating a session, or contributing to Networks.
       #
-      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return `403` - this API never returns `401`.
+      # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return
+      # `403` - this API never returns `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE endpoints.
+      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE
+      # endpoints.
       #
-      # **Social footprint.** Set `enable_social` to `true` to add a `email_social` block: the online platforms this address is registered on, with per-category counts and any profile details available. `profiles_registered: 0` means the platforms were checked and the address was found on none of them - a valid, billable answer. The block is absent when the add-on was not requested or the check could not be completed, and it is not billed in that case. Billing adds one `email_social` unit per request on top of this endpoint's own price.
+      # **Social footprint.** Set `enable_social` to `true` to add a `email_social` block: the online platforms this
+      # address is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
+      # means the platforms were checked and the address was found on none of them - a valid, billable answer. The
+      # block is absent when the add-on was not requested or the check could not be completed, and it is not billed in
+      # that case. Billing adds one `email_social` unit per request on top of this endpoint's own price.
       #
       # +POST /v3/email/risk/+
       #
@@ -33,7 +45,15 @@ module Didit
       # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email, social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social` unit per reques...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::EmailRiskResponse]
-      def assess_risk(email:, country_code: OMIT, signals: OMIT, vendor_data: OMIT, metadata: OMIT, enable_social: OMIT, request_options: nil)
+      def assess_risk(
+        email:,
+        country_code: OMIT,
+        signals: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        enable_social: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/email/risk/",
@@ -52,27 +72,55 @@ module Didit
 
       # Check Email Code
       #
-      # Verify the OTP delivered by [`POST /v3/email/send/`](/standalone-apis/email-send) and get the final verification result plus email intelligence: deliverability, breach exposure (`is_breached` and the `breaches` list from a breach-intelligence database), disposable-provider detection, and duplicate usage of the address across your sessions.
+      # Verify the OTP delivered by [`POST /v3/email/send/`](/standalone-apis/email-send) and get the final
+      # verification result plus email intelligence: deliverability, breach exposure (`is_breached` and the `breaches`
+      # list from a breach-intelligence database), disposable-provider detection, and duplicate usage of the address
+      # across your sessions.
       #
-      # **How the check finds the verification.** Matching is by your application plus the `email` address - `request_id` is not an input. The most recent pending verification created within the last **5 minutes** is checked. If there is none (never sent, already finalized, undeliverable at send time, or older than 5 minutes) the endpoint returns `200` with `status: "Expired or Not Found"`.
+      # **How the check finds the verification.** Matching is by your application plus the `email` address -
+      # `request_id` is not an input. The most recent pending verification created within the last **5 minutes** is
+      # checked. If there is none (never sent, already finalized, undeliverable at send time, or older than 5 minutes)
+      # the endpoint returns `200` with `status: "Expired or Not Found"`.
       #
-      # **Attempt budget.** Each verification allows **3 code attempts**. The first two wrong codes return `status: "Failed"` with the attempts remaining and `email: null`; the third wrong code finalizes the verification as `Declined` with an `EMAIL_CODE_ATTEMPTS_EXCEEDED` warning and returns the full email report. Codes are compared case-insensitively (relevant for `alphanumeric_code` sends); only the most recently sent code is valid.
+      # **Attempt budget.** Each verification allows **3 code attempts**. The first two wrong codes return `status:
+      # "Failed"` with the attempts remaining and `email: null`; the third wrong code finalizes the verification as
+      # `Declined` with an `EMAIL_CODE_ATTEMPTS_EXCEEDED` warning and returns the full email report. Codes are
+      # compared case-insensitively (relevant for `alphanumeric_code` sends); only the most recently sent code is
+      # valid.
       #
-      # **Outcomes.** `Approved` - correct code and no declining risk. `Declined` - terminal: the code was correct but a declining risk matched (a `DECLINE` action below, a blocklisted address, or the address found undeliverable at finalization), or the attempt budget was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - nothing to check. On `Approved`/`Declined` the `request_id` equals the send's `request_id` (the session id) and `email` carries the full report (`is_breached`, `breaches`, `is_disposable`, `is_undeliverable`, `warnings`, `lifecycle`, `matches`); on `Failed` and `Expired or Not Found` the `request_id` is a one-off random UUID.
+      # **Outcomes.** `Approved` - correct code and no declining risk. `Declined` - terminal: the code was correct but
+      # a declining risk matched (a `DECLINE` action below, a blocklisted address, or the address found undeliverable
+      # at finalization), or the attempt budget was exhausted. `Failed` - wrong code, attempts remaining. `Expired or
+      # Not Found` - nothing to check. On `Approved`/`Declined` the `request_id` equals the send's `request_id` (the
+      # session id) and `email` carries the full report (`is_breached`, `breaches`, `is_disposable`,
+      # `is_undeliverable`, `warnings`, `lifecycle`, `matches`); on `Failed` and `Expired or Not Found` the
+      # `request_id` is a one-off random UUID.
       #
-      # **Risk actions.** `duplicated_email_action`, `breached_email_action`, and `disposable_email_action` decide what happens when the corresponding risk is detected on a correct code: `DECLINE` flips the final status to `Declined`; `NO_ACTION` (default) records the risk in `email.warnings` without affecting the status.
+      # **Risk actions.** `duplicated_email_action`, `breached_email_action`, and `disposable_email_action` decide
+      # what happens when the corresponding risk is detected on a correct code: `DECLINE` flips the final status to
+      # `Declined`; `NO_ACTION` (default) records the risk in `email.warnings` without affecting the status.
       #
       # **Billing.** Checks are free - the credit is consumed by the successful send.
       #
-      # **Session persistence.** A finalized check updates the session created by the send (visible in the Business Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
+      # **Session persistence.** A finalized check updates the session created by the send (visible in the Business
+      # Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
       #
-      # **Sandbox.** Sandbox API keys skip all processing: any well-formed code (`123456` included) returns a static `Approved` payload with a simplified `email` object (`status`, `email`, `is_breached`, `is_disposable`, `is_undeliverable`); malformed input still returns `400`. Nothing is persisted.
+      # **Sandbox.** Sandbox API keys skip all processing: any well-formed code (`123456` included) returns a static
+      # `Approved` payload with a simplified `email` object (`status`, `email`, `is_breached`, `is_disposable`,
+      # `is_undeliverable`); malformed input still returns `400`. Nothing is persisted.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
-      # **Social footprint.** Set `enable_social` to `true` to add a `email_social` block: the online platforms this address is registered on, with per-category counts and any profile details available. `profiles_registered: 0` means the platforms were checked and the address was found on none of them - a valid, billable answer. The block is absent when the add-on was not requested or the check could not be completed, and it is not billed in that case. Billing adds one `email_social` unit per request on top of this endpoint's own price.
+      # **Social footprint.** Set `enable_social` to `true` to add a `email_social` block: the online platforms this
+      # address is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
+      # means the platforms were checked and the address was found on none of them - a valid, billable answer. The
+      # block is absent when the add-on was not requested or the check could not be completed, and it is not billed in
+      # that case. Billing adds one `email_social` unit per request on top of this endpoint's own price.
       #
       # +POST /v3/email/check/+
       #
@@ -85,7 +133,16 @@ module Didit
       # @param email_no_social_presence_action [String] Action when the social footprint check finds the address registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow c...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::EmailVerificationCheckResponse]
-      def check_code(email:, code:, duplicated_email_action: OMIT, breached_email_action: OMIT, disposable_email_action: OMIT, enable_social: OMIT, email_no_social_presence_action: OMIT, request_options: nil)
+      def check_code(
+        email:,
+        code:,
+        duplicated_email_action: OMIT,
+        breached_email_action: OMIT,
+        disposable_email_action: OMIT,
+        enable_social: OMIT,
+        email_no_social_presence_action: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/email/check/",
@@ -105,23 +162,45 @@ module Didit
 
       # Send Email Code
       #
-      # Send a one-time passcode (OTP) to an email address, then verify it with [`POST /v3/email/check/`](/standalone-apis/email-check).
+      # Send a one-time passcode (OTP) to an email address, then verify it with [`POST
+      # /v3/email/check/`](/standalone-apis/email-check).
       #
-      # **How send and check pair up.** Verification state is keyed by your application plus the `email` address - the check call does not take `request_id`. Each new send creates a pending verification that lives for **5 minutes**: call the check with the same address and the code the user received before the window closes. Calling send again for the same address while a verification is pending generates a fresh code for that same verification (`status: "Retry"`, same `request_id`); the previous code stops working. At most one retry is attached this way (two sends total); a further send starts a fresh verification with a new `request_id`. The 5-minute window is measured from the first send and is not extended by retries.
+      # **How send and check pair up.** Verification state is keyed by your application plus the `email` address - the
+      # check call does not take `request_id`. Each new send creates a pending verification that lives for **5
+      # minutes**: call the check with the same address and the code the user received before the window closes.
+      # Calling send again for the same address while a verification is pending generates a fresh code for that same
+      # verification (`status: "Retry"`, same `request_id`); the previous code stops working. At most one retry is
+      # attached this way (two sends total); a further send starts a fresh verification with a new `request_id`. The
+      # 5-minute window is measured from the first send and is not extended by retries.
       #
-      # **Deliverability pre-check.** Before anything is sent, the address goes through syntax and DNS/MX validation. Addresses that cannot receive mail return `200` with `status: "Undeliverable"` and `reason: "email_can_not_be_delivered"` - no email is sent, nothing is billed, and the verification is immediately finalized as `Declined` (a follow-up check returns `Expired or Not Found`). A downstream send failure reports the same way.
+      # **Deliverability pre-check.** Before anything is sent, the address goes through syntax and DNS/MX validation.
+      # Addresses that cannot receive mail return `200` with `status: "Undeliverable"` and `reason:
+      # "email_can_not_be_delivered"` - no email is sent, nothing is billed, and the verification is immediately
+      # finalized as `Declined` (a follow-up check returns `Expired or Not Found`). A downstream send failure reports
+      # the same way.
       #
-      # **Code format and branding.** Codes are 4-8 characters (`options.code_size`, default 6), numeric by default; set `options.alphanumeric_code: true` for uppercase letters and digits (the check comparison is case-insensitive). The email template is localized via `options.locale` (54 supported languages) and can use your application's white-label branding via `options.use_white_label_customization`.
+      # **Code format and branding.** Codes are 4-8 characters (`options.code_size`, default 6), numeric by default;
+      # set `options.alphanumeric_code: true` for uppercase letters and digits (the check comparison is
+      # case-insensitive). The email template is localized via `options.locale` (54 supported languages) and can use
+      # your application's white-label branding via `options.use_white_label_customization`.
       #
-      # **Billing.** One Email Verification API credit per successful send (`status: "Success"`), charged at send time. `Retry` and `Undeliverable` sends are free, and checks are free.
+      # **Billing.** One Email Verification API credit per successful send (`status: "Success"`), charged at send
+      # time. `Retry` and `Undeliverable` sends are free, and checks are free.
       #
-      # **Session persistence.** Every new verification is persisted as an API-type session: `request_id` is a real session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business Console, and `status.updated` webhooks fire as it progresses.
+      # **Session persistence.** Every new verification is persisted as an API-type session: `request_id` is a real
+      # session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business
+      # Console, and `status.updated` webhooks fire as it progresses.
       #
-      # **Sandbox.** Sandbox API keys skip delivery and billing: after request validation (malformed input still returns `400`), the endpoint returns a static `Success` payload with a random `request_id`; no email is sent and nothing is persisted. Use code `123456` on the sandbox check.
+      # **Sandbox.** Sandbox API keys skip delivery and billing: after request validation (malformed input still
+      # returns `400`), the endpoint returns a static `Success` payload with a random `request_id`; no email is sent
+      # and nothing is persisted. Use code `123456` on the sandbox check.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
       # +POST /v3/email/send/+
       #

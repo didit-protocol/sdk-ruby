@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # Omit this field to create a published workflow ready for sessions. Use `draft` only when you want to save without publishing.
+    # Omit this field to create a published workflow ready for sessions. Use `draft` only when you want to save
+    # without publishing.
     module WorkflowsCreateParamsStatus
       DRAFT = "draft"
       PUBLISHED = "published"
@@ -11,7 +12,9 @@ module Didit
       VALUES = [DRAFT, PUBLISHED].freeze
     end
 
-    # Controls versioning. Omit to update the current version in place (drafts auto-publish). `published` on an already-published version creates and returns a NEW version. `draft` is only valid while the version is still a draft.
+    # Controls versioning. Omit to update the current version in place (drafts auto-publish). `published` on an
+    # already-published version creates and returns a NEW version. `draft` is only valid while the version is still a
+    # draft.
     module WorkflowsUpdateParamsStatus
       DRAFT = "draft"
       PUBLISHED = "published"

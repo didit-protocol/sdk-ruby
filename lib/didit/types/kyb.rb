@@ -37,7 +37,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, PENDING].freeze
     end
 
-    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint typically emits director, non_executive_director, secretary, chairman, or company_officer.
+    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint
+    # typically emits director, non_executive_director, secretary, chairman, or company_officer.
     module KybListShareholdersResponse202KybRegistryOfficersRole
       DIRECTOR = "director"
       NON_EXECUTIVE_DIRECTOR = "non_executive_director"
@@ -60,7 +61,9 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
+    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
+    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
     module KybListShareholdersResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
@@ -96,7 +99,8 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or ownership data could not be derived).
+    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or
+    # ownership data could not be derived).
     module KybListShareholdersResponse202KybRegistryStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -106,7 +110,8 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module KybListShareholdersResponse202KybRegistryVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -122,7 +127,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module KybListShareholdersResponse202KybRegistryVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -134,7 +144,8 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership data, or the registry has no ownership record for this company.
+    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
+    # data, or the registry has no ownership record for this company.
     module KybListShareholdersResponse202RegistryTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"
@@ -186,7 +197,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, PENDING].freeze
     end
 
-    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint typically emits director, non_executive_director, secretary, chairman, or company_officer.
+    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint
+    # typically emits director, non_executive_director, secretary, chairman, or company_officer.
     module KybListShareholdersResponseKybRegistryOfficersRole
       DIRECTOR = "director"
       NON_EXECUTIVE_DIRECTOR = "non_executive_director"
@@ -209,7 +221,9 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
+    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
+    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
     module KybListShareholdersResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
@@ -245,7 +259,8 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or ownership data could not be derived).
+    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or
+    # ownership data could not be derived).
     module KybListShareholdersResponseKybRegistryStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -255,7 +270,8 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module KybListShareholdersResponseKybRegistryVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -271,7 +287,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module KybListShareholdersResponseKybRegistryVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -283,7 +304,8 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership data, or the registry has no ownership record for this company.
+    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
+    # data, or the registry has no ownership record for this company.
     module KybListShareholdersResponseRegistryTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"
@@ -335,7 +357,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, PENDING].freeze
     end
 
-    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint typically emits director, non_executive_director, secretary, chairman, or company_officer.
+    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint
+    # typically emits director, non_executive_director, secretary, chairman, or company_officer.
     module KybListUbosResponse202KybRegistryOfficersRole
       DIRECTOR = "director"
       NON_EXECUTIVE_DIRECTOR = "non_executive_director"
@@ -358,7 +381,9 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
+    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
+    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
     module KybListUbosResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
@@ -394,7 +419,8 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or ownership data could not be derived).
+    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or
+    # ownership data could not be derived).
     module KybListUbosResponse202KybRegistryStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -404,7 +430,8 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module KybListUbosResponse202KybRegistryVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -420,7 +447,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module KybListUbosResponse202KybRegistryVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -432,7 +464,9 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership data, when the registry has no ownership record for this company, or when the resolved report of a `ubo` request names no natural person as a beneficial owner.
+    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
+    # data, when the registry has no ownership record for this company, or when the resolved report of a `ubo` request
+    # names no natural person as a beneficial owner.
     module KybListUbosResponse202RegistryTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"
@@ -484,7 +518,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, PENDING].freeze
     end
 
-    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint typically emits director, non_executive_director, secretary, chairman, or company_officer.
+    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint
+    # typically emits director, non_executive_director, secretary, chairman, or company_officer.
     module KybListUbosResponseKybRegistryOfficersRole
       DIRECTOR = "director"
       NON_EXECUTIVE_DIRECTOR = "non_executive_director"
@@ -507,7 +542,9 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
+    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
+    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
     module KybListUbosResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
@@ -543,7 +580,8 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or ownership data could not be derived).
+    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or
+    # ownership data could not be derived).
     module KybListUbosResponseKybRegistryStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -553,7 +591,8 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module KybListUbosResponseKybRegistryVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -569,7 +608,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module KybListUbosResponseKybRegistryVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -581,7 +625,9 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership data, when the registry has no ownership record for this company, or when the resolved report of a `ubo` request names no natural person as a beneficial owner.
+    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
+    # data, when the registry has no ownership record for this company, or when the resolved report of a `ubo` request
+    # names no natural person as a beneficial owner.
     module KybListUbosResponseRegistryTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"
@@ -650,7 +696,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, PENDING].freeze
     end
 
-    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint typically emits director, non_executive_director, secretary, chairman, or company_officer.
+    # Normalized role derived from the designation. Full 17-value model set; registry parsing on this endpoint
+    # typically emits director, non_executive_director, secretary, chairman, or company_officer.
     module KybSelectResponseKybRegistryOfficersRole
       DIRECTOR = "director"
       NON_EXECUTIVE_DIRECTOR = "non_executive_director"
@@ -673,7 +720,8 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the registry had none for this company (see `registry_data.ownership_error`), `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
+    # registry had none for this company (see `registry_data.ownership_error`), `not_requested` on the Lite tier.
     module KybSelectResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
@@ -708,7 +756,8 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or ownership data could not be derived).
+    # Didit's assessment of the registry check (e.g. `In Review` when the company is not active in the registry or
+    # ownership data could not be derived).
     module KybSelectResponseKybRegistryStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -718,7 +767,8 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module KybSelectResponseKybRegistryVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -734,7 +784,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module KybSelectResponseKybRegistryVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -746,7 +801,8 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership data, or the registry has no ownership record for this company.
+    # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
+    # data, or the registry has no ownership record for this company.
     module KybSelectResponseRegistryTierDelivered
       BASIC = "basic"
       SHAREHOLDERS = "shareholders"

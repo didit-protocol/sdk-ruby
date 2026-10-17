@@ -7,7 +7,11 @@ module Didit
     class IdWallets < Didit::Resource
       # Cancel a wallet verification
       #
-      # Withdraw a pending verification: it is declined as cancelled and never billed. A decided one is returned unchanged. Smart-ID and Mobile-ID: a cancel that arrives while a poll is checking the sign-in waits a few seconds for that poll, then declines it, or returns it verified if the user had already confirmed. A verification the user is completing right now cannot be cancelled (409 verification_in_progress with Retry-After): retry after that many seconds to read its outcome.
+      # Withdraw a pending verification: it is declined as cancelled and never billed. A decided one is returned
+      # unchanged. Smart-ID and Mobile-ID: a cancel that arrives while a poll is checking the sign-in waits a few
+      # seconds for that poll, then declines it, or returns it verified if the user had already confirmed. A
+      # verification the user is completing right now cannot be cancelled (409 verification_in_progress with
+      # Retry-After): retry after that many seconds to read its outcome.
       #
       # +POST /v3/id-verification/wallets/verifications/{request_id}/cancel/+
       #
@@ -26,7 +30,8 @@ module Didit
 
       # List Digital ID wallets
       #
-      # Every Digital ID wallet with its start endpoint, countries, required fields and whether this application can start it in this environment now. Listed does not mean live.
+      # Every Digital ID wallet with its start endpoint, countries, required fields and whether this application can
+      # start it in this environment now. Listed does not mean live.
       #
       # +GET /v3/id-verification/wallets/+
       #
@@ -43,7 +48,9 @@ module Didit
 
       # Poll a wallet verification
       #
-      # Smart-ID and Mobile-ID: ask the provider whether the user confirmed, refused or let the prompt lapse, and verify the signed identity when they confirmed. Redirect wallets complete through the user's browser, so for them this only reads the verification back. Answers the verification as it is afterwards.
+      # Smart-ID and Mobile-ID: ask the provider whether the user confirmed, refused or let the prompt lapse, and
+      # verify the signed identity when they confirmed. Redirect wallets complete through the user's browser, so for
+      # them this only reads the verification back. Answers the verification as it is afterwards.
       #
       # +POST /v3/id-verification/wallets/verifications/{request_id}/poll/+
       #
@@ -62,7 +69,9 @@ module Didit
 
       # Get a wallet verification
       #
-      # Status and result of a wallet verification: the normalized identity and the wallet's own attributes once verified, the error code once declined, the next action while pending. A verification past expires_at is decided timeout.
+      # Status and result of a wallet verification: the normalized identity and the wallet's own attributes once
+      # verified, the error code once declined, the next action while pending. A verification past expires_at is
+      # decided timeout.
       #
       # +GET /v3/id-verification/wallets/verifications/{request_id}/+
       #
@@ -81,7 +90,11 @@ module Didit
 
       # Start Auðkenni verification
       #
-      # Start a Auðkenni sign-in (Auðkenni (Icelandic electronic ID); ISL) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Auðkenni sign-in (Auðkenni (Icelandic electronic ID); ISL) without any workflow. Billed once, only
+      # when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's
+      # browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/audkenni/+
       #
@@ -94,7 +107,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_audkenni(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_audkenni(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/audkenni/",
@@ -114,7 +136,11 @@ module Didit
 
       # Start Bank iD verification
       #
-      # Start a Bank iD sign-in (Bankovní identita, a.s.; CZE) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Bank iD sign-in (Bankovní identita, a.s.; CZE) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/bankid-cz/+
       #
@@ -127,7 +153,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_bankid_cz(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_bankid_cz(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/bankid-cz/",
@@ -147,7 +182,11 @@ module Didit
 
       # Start BankID (NOR) verification
       #
-      # Start a BankID (NOR) sign-in (BankID BankAxept AS; NOR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a BankID (NOR) sign-in (BankID BankAxept AS; NOR) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/bankid-no/+
       #
@@ -160,7 +199,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_bankid_no(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_bankid_no(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/bankid-no/",
@@ -180,7 +228,11 @@ module Didit
 
       # Start BankID (SWE) verification
       #
-      # Start a BankID (SWE) sign-in (Finansiell ID-Teknik / bank consortium; SWE) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a BankID (SWE) sign-in (Finansiell ID-Teknik / bank consortium; SWE) without any workflow. Billed once,
+      # only when the identity is verified. The response carries next_action.type=redirect with the URL to send the
+      # user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with
+      # GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/bankid-se/+
       #
@@ -193,7 +245,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_bankid_se(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_bankid_se(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/bankid-se/",
@@ -213,7 +274,11 @@ module Didit
 
       # Start Buypass ID verification
       #
-      # Start a Buypass ID sign-in (Buypass AS; NOR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Buypass ID sign-in (Buypass AS; NOR) without any workflow. Billed once, only when the identity is
+      # verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user
+      # returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/buypass/+
       #
@@ -226,7 +291,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_buypass(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_buypass(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/buypass/",
@@ -246,7 +320,11 @@ module Didit
 
       # Start ConnectID verification
       #
-      # Start a ConnectID sign-in (Australian Payments Plus; AUS) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a ConnectID sign-in (Australian Payments Plus; AUS) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/connectid/+
       #
@@ -260,7 +338,17 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_connectid(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, authorisation_server_id: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_connectid(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        authorisation_server_id: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/connectid/",
@@ -281,7 +369,11 @@ module Didit
 
       # Start Diia verification
       #
-      # Start a Diia sign-in (Ministry of Digital Transformation of Ukraine; UKR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Diia sign-in (Ministry of Digital Transformation of Ukraine; UKR) without any workflow. Billed once,
+      # only when the identity is verified. The response carries next_action.type=redirect with the URL to send the
+      # user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with
+      # GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/diia/+
       #
@@ -294,7 +386,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_diia(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_diia(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/diia/",
@@ -314,7 +415,12 @@ module Didit
 
       # Start eParaksts mobile verification
       #
-      # Start a eParaksts mobile sign-in (LVRTC (Latvian State Radio and Television Centre); LVA) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a eParaksts mobile sign-in (LVRTC (Latvian State Radio and Television Centre); LVA) without any
+      # workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with
+      # the URL to send the user's browser to; the user returns to return_url with request_id and result appended.
+      # Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never
+      # from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the
+      # provider.
       #
       # +POST /v3/id-verification/wallets/eparaksts-mobile/+
       #
@@ -327,7 +433,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_eparaksts_mobile(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_eparaksts_mobile(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/eparaksts-mobile/",
@@ -347,7 +462,13 @@ module Didit
 
       # Start EUDI Wallet verification
       #
-      # Start a EUDI Wallet sign-in (The user's own member state; the issuer differs per country; AUT, BEL, BGR, HRV, CYP, CZE, DNK, EST, FIN, FRA, DEU, GRC, HUN, IRL, ITA, LVA, LTU, LUX, MLT, NLD, POL, PRT, ROU, SVK, SVN, ESP, SWE, ISL, LIE, NOR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a EUDI Wallet sign-in (The user's own member state; the issuer differs per country; AUT, BEL, BGR, HRV,
+      # CYP, CZE, DNK, EST, FIN, FRA, DEU, GRC, HUN, IRL, ITA, LVA, LTU, LUX, MLT, NLD, POL, PRT, ROU, SVK, SVN, ESP,
+      # SWE, ISL, LIE, NOR) without any workflow. Billed once, only when the identity is verified. The response
+      # carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url
+      # with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/eudi/+
       #
@@ -360,7 +481,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_eudi(country:, return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_eudi(
+        country:,
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/eudi/",
@@ -380,7 +510,11 @@ module Didit
 
       # Start FranceConnect verification
       #
-      # Start a FranceConnect sign-in (DINUM (French state); FRA) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a FranceConnect sign-in (DINUM (French state); FRA) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/franceconnect/+
       #
@@ -393,7 +527,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_franceconnect(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_franceconnect(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/franceconnect/",
@@ -413,7 +556,11 @@ module Didit
 
       # Start Freja eID verification
       #
-      # Start a Freja eID sign-in (Freja eID Group; SWE) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Freja eID sign-in (Freja eID Group; SWE) without any workflow. Billed once, only when the identity is
+      # verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user
+      # returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/frejaid/+
       #
@@ -426,7 +573,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_frejaid(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_frejaid(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/frejaid/",
@@ -446,7 +602,11 @@ module Didit
 
       # Start Finnish Trust Network verification
       #
-      # Start a Finnish Trust Network sign-in (Finnish banks and mobile operators (FTN); FIN) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Finnish Trust Network sign-in (Finnish banks and mobile operators (FTN); FIN) without any workflow.
+      # Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL
+      # to send the user's browser to; the user returns to return_url with request_id and result appended. Read the
+      # outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the
+      # URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/ftn/+
       #
@@ -459,7 +619,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_ftn(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_ftn(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/ftn/",
@@ -479,7 +648,11 @@ module Didit
 
       # Start gov.br verification
       #
-      # Start a gov.br sign-in (Governo Federal do Brasil; BRA) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a gov.br sign-in (Governo Federal do Brasil; BRA) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/govbr/+
       #
@@ -492,7 +665,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_govbr(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_govbr(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/govbr/",
@@ -512,7 +694,11 @@ module Didit
 
       # Start GOV.UK Wallet verification
       #
-      # Start a GOV.UK Wallet sign-in (UK Government Digital Service; GBR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a GOV.UK Wallet sign-in (UK Government Digital Service; GBR) without any workflow. Billed once, only
+      # when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's
+      # browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/govuk-wallet/+
       #
@@ -525,7 +711,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_govuk_wallet(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_govuk_wallet(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/govuk-wallet/",
@@ -545,7 +740,11 @@ module Didit
 
       # Start Estonian ID-card verification
       #
-      # Start a Estonian ID-card sign-in (Police and Border Guard Board (Estonia); EST) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Estonian ID-card sign-in (Police and Border Guard Board (Estonia); EST) without any workflow. Billed
+      # once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send
+      # the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome
+      # with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL.
+      # Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/idcard-ee/+
       #
@@ -558,7 +757,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_idcard_ee(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_idcard_ee(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/idcard-ee/",
@@ -578,7 +786,11 @@ module Didit
 
       # Start iDIN verification
       #
-      # Start a iDIN sign-in (Dutch banks (Currence iDIN); NLD) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a iDIN sign-in (Dutch banks (Currence iDIN); NLD) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/idin/+
       #
@@ -591,7 +803,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_idin(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_idin(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/idin/",
@@ -611,7 +832,11 @@ module Didit
 
       # Start itsme verification
       #
-      # Start a itsme sign-in (Belgian Mobile ID; BEL, LUX, NLD) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a itsme sign-in (Belgian Mobile ID; BEL, LUX, NLD) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/itsme/+
       #
@@ -624,7 +849,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_itsme(country:, return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_itsme(
+        country:,
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/itsme/",
@@ -644,7 +878,11 @@ module Didit
 
       # Start MitID verification
       #
-      # Start a MitID sign-in (Danish Agency for Digital Government; DNK) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a MitID sign-in (Danish Agency for Digital Government; DNK) without any workflow. Billed once, only when
+      # the identity is verified. The response carries next_action.type=redirect with the URL to send the user's
+      # browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/mitid/+
       #
@@ -657,7 +895,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_mitid(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_mitid(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/mitid/",
@@ -677,7 +924,12 @@ module Didit
 
       # Start Mobile-ID verification
       #
-      # Start a Mobile-ID sign-in (SK ID Solutions with the national mobile operators; EST, LTU) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=confirm_in_app with the comparison code to show the user; the user confirms it and enters their PIN in the app (never collect the PIN). Poll POST /v3/id-verification/wallets/verifications/{request_id}/poll/ every poll_interval_seconds, or rely on the webhook: Didit polls in the background too. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Mobile-ID sign-in (SK ID Solutions with the national mobile operators; EST, LTU) without any workflow.
+      # Billed once, only when the identity is verified. The response carries next_action.type=confirm_in_app with the
+      # comparison code to show the user; the user confirms it and enters their PIN in the app (never collect the
+      # PIN). Poll POST /v3/id-verification/wallets/verifications/{request_id}/poll/ every poll_interval_seconds, or
+      # rely on the webhook: Didit polls in the background too. Sandbox applications get a deterministic simulation
+      # (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/mobile-id/+
       #
@@ -690,7 +942,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_mobile_id(country:, personal_code:, phone_number:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_mobile_id(
+        country:,
+        personal_code:,
+        phone_number:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/mobile-id/",
@@ -710,7 +971,11 @@ module Didit
 
       # Start MojeID verification
       #
-      # Start a MojeID sign-in (CZ.NIC; CZE) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a MojeID sign-in (CZ.NIC; CZE) without any workflow. Billed once, only when the identity is verified.
+      # The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to
+      # return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/mojeid/+
       #
@@ -723,7 +988,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_mojeid(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_mojeid(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/mojeid/",
@@ -743,7 +1017,11 @@ module Didit
 
       # Start OneID verification
       #
-      # Start a OneID sign-in (OneID (UK bank-verified identity); GBR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a OneID sign-in (OneID (UK bank-verified identity); GBR) without any workflow. Billed once, only when
+      # the identity is verified. The response carries next_action.type=redirect with the URL to send the user's
+      # browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/oneid/+
       #
@@ -756,7 +1034,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_oneid(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_oneid(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/oneid/",
@@ -776,7 +1063,11 @@ module Didit
 
       # Start Personalausweis verification
       #
-      # Start a Personalausweis sign-in (Bundesministerium des Innern (eID); DEU) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Personalausweis sign-in (Bundesministerium des Innern (eID); DEU) without any workflow. Billed once,
+      # only when the identity is verified. The response carries next_action.type=redirect with the URL to send the
+      # user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with
+      # GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/personalausweis/+
       #
@@ -789,7 +1080,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_personalausweis(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_personalausweis(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/personalausweis/",
@@ -809,7 +1109,12 @@ module Didit
 
       # Start Smart-ID verification
       #
-      # Start a Smart-ID sign-in (SK ID Solutions; EST, LVA, LTU, BEL) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=confirm_in_app with the comparison code to show the user; the user confirms it and enters their PIN in the app (never collect the PIN). Poll POST /v3/id-verification/wallets/verifications/{request_id}/poll/ every poll_interval_seconds, or rely on the webhook: Didit polls in the background too. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Smart-ID sign-in (SK ID Solutions; EST, LVA, LTU, BEL) without any workflow. Billed once, only when
+      # the identity is verified. The response carries next_action.type=confirm_in_app with the comparison code to
+      # show the user; the user confirms it and enters their PIN in the app (never collect the PIN). Poll POST
+      # /v3/id-verification/wallets/verifications/{request_id}/poll/ every poll_interval_seconds, or rely on the
+      # webhook: Didit polls in the background too. Sandbox applications get a deterministic simulation (simulated:
+      # true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/smart-id/+
       #
@@ -821,7 +1126,15 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_smart_id(country:, personal_code:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_smart_id(
+        country:,
+        personal_code:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/smart-id/",
@@ -840,7 +1153,11 @@ module Didit
 
       # Start UAE PASS verification
       #
-      # Start a UAE PASS sign-in (UAE Digital Government Authority; ARE) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a UAE PASS sign-in (UAE Digital Government Authority; ARE) without any workflow. Billed once, only when
+      # the identity is verified. The response carries next_action.type=redirect with the URL to send the user's
+      # browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/uae-pass/+
       #
@@ -853,7 +1170,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_uae_pass(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_uae_pass(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/uae-pass/",
@@ -873,7 +1199,11 @@ module Didit
 
       # Start Vipps verification
       #
-      # Start a Vipps sign-in (Vipps MobilePay / BankID NO; NOR) without any workflow. Billed once, only when the identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser to; the user returns to return_url with request_id and result appended. Read the outcome with GET /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox applications get a deterministic simulation (simulated: true) that never contacts the provider.
+      # Start a Vipps sign-in (Vipps MobilePay / BankID NO; NOR) without any workflow. Billed once, only when the
+      # identity is verified. The response carries next_action.type=redirect with the URL to send the user's browser
+      # to; the user returns to return_url with request_id and result appended. Read the outcome with GET
+      # /v3/id-verification/wallets/verifications/{request_id}/ or from the webhook, never from the URL. Sandbox
+      # applications get a deterministic simulation (simulated: true) that never contacts the provider.
       #
       # +POST /v3/id-verification/wallets/vipps/+
       #
@@ -886,7 +1216,16 @@ module Didit
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def start_vipps(return_url:, vendor_data: OMIT, metadata: OMIT, sandbox_scenario: OMIT, country: OMIT, device: OMIT, idempotency_key: OMIT, request_options: nil)
+      def start_vipps(
+        return_url:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        country: OMIT,
+        device: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/id-verification/wallets/vipps/",

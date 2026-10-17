@@ -3,7 +3,10 @@
 
 module Didit
   module Types
-    # The class of instruction you are giving. `operational_session_delete` deletes the session and retains a template only when the policy or `retain_face_embeddings` says so. `privacy_erasure` purges every retained biometric template anchored to the session's User before deleting the session, cannot be overridden by the application policy, and cannot be combined with `retain_face_embeddings: true` (`400`).
+    # The class of instruction you are giving. `operational_session_delete` deletes the session and retains a template
+    # only when the policy or `retain_face_embeddings` says so. `privacy_erasure` purges every retained biometric
+    # template anchored to the session's User before deleting the session, cannot be overridden by the application
+    # policy, and cannot be combined with `retain_face_embeddings: true` (`400`).
     module SessionsBatchDeleteParamsDeletionInstruction
       OPERATIONAL_SESSION_DELETE = "operational_session_delete"
       PRIVACY_ERASURE = "privacy_erasure"
@@ -11,7 +14,8 @@ module Didit
       VALUES = [OPERATIONAL_SESSION_DELETE, PRIVACY_ERASURE].freeze
     end
 
-    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating. `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
+    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating.
+    # `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
     module SessionsBatchDeleteResponse202Status
       PENDING = "PENDING"
       PROCESSING = "PROCESSING"
@@ -21,7 +25,14 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
-    # What happened to the session's face biometric data. `deleted`: the face embedding was deleted with the session (default). `retained_with_user`: the session is deleted and one image-free biometric template stays anchored to the User; see `biometric_template_uuid`. `none`: the session had no face embedding (for example a document-only KYC session without a liveness selfie; KYB sessions are never selected by this endpoint). `ineligible_no_vendor_user`: retention was requested but the session has no linked User, so the embedding was deleted with the session. `failed_retryable` (batch endpoint only): the group this session was deleted with could not be deleted (a storage service, a biometric store, or a monitoring provider was unavailable); this session is still in place, repeat the request for it.
+    # What happened to the session's face biometric data. `deleted`: the face embedding was deleted with the session
+    # (default). `retained_with_user`: the session is deleted and one image-free biometric template stays anchored to
+    # the User; see `biometric_template_uuid`. `none`: the session had no face embedding (for example a document-only
+    # KYC session without a liveness selfie; KYB sessions are never selected by this endpoint).
+    # `ineligible_no_vendor_user`: retention was requested but the session has no linked User, so the embedding was
+    # deleted with the session. `failed_retryable` (batch endpoint only): the group this session was deleted with
+    # could not be deleted (a storage service, a biometric store, or a monitoring provider was unavailable); this
+    # session is still in place, repeat the request for it.
     module SessionsBatchDeleteResponseResultsFaceRetentionOutcome
       RETAINED_WITH_USER = "retained_with_user"
       DELETED = "deleted"
@@ -42,7 +53,10 @@ module Didit
       VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
     end
 
-    # Determines which device should handle the redirect to the provided callback URL. Use `initiator` to redirect only the device that started the flow, `completer` for the device that finishes it, or `both` to allow either device to trigger the callback. If you ever notice the callback not triggering reliably, we recommend setting this value to `both`.
+    # Determines which device should handle the redirect to the provided callback URL. Use `initiator` to redirect
+    # only the device that started the flow, `completer` for the device that finishes it, or `both` to allow either
+    # device to trigger the callback. If you ever notice the callback not triggering reliably, we recommend setting
+    # this value to `both`.
     module SessionsCreateParamsCallbackMethod
       INITIATOR = "initiator"
       COMPLETER = "completer"
@@ -51,7 +65,11 @@ module Didit
       VALUES = [INITIATOR, COMPLETER, BOTH].freeze
     end
 
-    # Language code (ISO 639-1) for email notifications. Controls the language of all email communications (e.g., "en", "es", "fr"). There is no stored default - when omitted, the verification invite email simply falls back to English (`en`) at send time. The enum below is a snapshot; the live source of truth for accepted values is the [supported languages](/integration/supported-languages) doc - always consult it before relying on a specific code.
+    # Language code (ISO 639-1) for email notifications. Controls the language of all email communications (e.g.,
+    # "en", "es", "fr"). There is no stored default - when omitted, the verification invite email simply falls back to
+    # English (`en`) at send time. The enum below is a snapshot; the live source of truth for accepted values is the
+    # [supported languages](/integration/supported-languages) doc - always consult it before relying on a specific
+    # code.
     module SessionsCreateParamsContactDetailsEmailLang
       EN = "en"
       AR = "ar"
@@ -132,7 +150,9 @@ module Didit
       VALUES = [M, F].freeze
     end
 
-    # Language code (ISO 639-1) for the verification process interface. Controls the language displayed to the end user during verification. If not provided, the browser's language will be automatically detected and used. Check all the supported languages [here](/integration/supported-languages).
+    # Language code (ISO 639-1) for the verification process interface. Controls the language displayed to the end
+    # user during verification. If not provided, the browser's language will be automatically detected and used. Check
+    # all the supported languages [here](/integration/supported-languages).
     module SessionsCreateParamsLanguage
       EN = "en"
       AR = "ar"
@@ -192,7 +212,9 @@ module Didit
       VALUES = [EN, AR, BG, BN, BS, CA, CNR, CS, DA, DE, EL, ES, ET, FA, FI, FR, HE, HI, HR, HU, HY, ID, IT, JA, KA, KK, KO, KY, LT, LV, MK, MN, MS, NL, NO, PL, PT_BR, PT, RO, RU, SK, SL, SO, SQ, SR, SV, TH, TR, UK, UZ, VI, ZH_CN, ZH_TW, ZH].freeze
     end
 
-    # Current status of the session. Newly created sessions return `Not Started`. If a non-finished session already existed for the same `vendor_data` on the workflow's latest published version, the returned status reflects that existing session.
+    # Current status of the session. Newly created sessions return `Not Started`. If a non-finished session already
+    # existed for the same `vendor_data` on the workflow's latest published version, the returned status reflects that
+    # existing session.
     module SessionsCreateResponseStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -208,7 +230,10 @@ module Didit
       VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
     end
 
-    # The class of instruction you are giving. `operational_session_delete` deletes the session and retains a template only when the policy or `retain_face_embeddings` says so. `privacy_erasure` purges every retained biometric template anchored to the session's User before deleting the session, cannot be overridden by the application policy, and cannot be combined with `retain_face_embeddings: true` (`400`).
+    # The class of instruction you are giving. `operational_session_delete` deletes the session and retains a template
+    # only when the policy or `retain_face_embeddings` says so. `privacy_erasure` purges every retained biometric
+    # template anchored to the session's User before deleting the session, cannot be overridden by the application
+    # policy, and cannot be combined with `retain_face_embeddings: true` (`400`).
     module SessionsDeleteParamsDeletionInstruction
       OPERATIONAL_SESSION_DELETE = "operational_session_delete"
       PRIVACY_ERASURE = "privacy_erasure"
@@ -216,7 +241,12 @@ module Didit
       VALUES = [OPERATIONAL_SESSION_DELETE, PRIVACY_ERASURE].freeze
     end
 
-    # What happened to the session's face biometric data. `deleted`: the face embedding was deleted with the session (default). `retained_with_user`: the session is deleted and one image-free biometric template stays anchored to the User; see `biometric_template_uuid`. `none`: the session had no face embedding (for example a KYB session, or a KYC session without a liveness selfie). `ineligible_no_vendor_user`: retention was requested but the session has no linked User, so the embedding was deleted with the session. A biometric-store failure is never reported through this field on this endpoint: it returns `503` and the session is not deleted.
+    # What happened to the session's face biometric data. `deleted`: the face embedding was deleted with the session
+    # (default). `retained_with_user`: the session is deleted and one image-free biometric template stays anchored to
+    # the User; see `biometric_template_uuid`. `none`: the session had no face embedding (for example a KYB session,
+    # or a KYC session without a liveness selfie). `ineligible_no_vendor_user`: retention was requested but the
+    # session has no linked User, so the embedding was deleted with the session. A biometric-store failure is never
+    # reported through this field on this endpoint: it returns `503` and the session is not deleted.
     module SessionsDeleteResponseFaceRetentionOutcome
       RETAINED_WITH_USER = "retained_with_user"
       DELETED = "deleted"
@@ -226,7 +256,8 @@ module Didit
       VALUES = [RETAINED_WITH_USER, DELETED, NONE, INELIGIBLE_NO_VENDOR_USER].freeze
     end
 
-    # What to import: historical User Verification sessions, historical Business Verification sessions, workflow custom status rules, or historical transaction monitoring records.
+    # What to import: historical User Verification sessions, historical Business Verification sessions, workflow
+    # custom status rules, or historical transaction monitoring records.
     module SessionsImportsCreateParamsImportType
       USER_VERIFICATION = "user_verification"
       BUSINESS_VERIFICATION = "business_verification"
@@ -280,7 +311,10 @@ module Didit
       VALUES = [USER, BUSINESS, ALL].freeze
     end
 
-    # Human-readable type of the verified ID document. `null` before document verification completes, and also `null` after completion when the verified code has no display mapping (`SSC`, `WP`, `VISA`, `PSC`, `BC`, `OTHER`). Note: the `document_type` query parameter filters by short codes (`P`, `ID`, `DL`, `RP`, ...), not by these display values.
+    # Human-readable type of the verified ID document. `null` before document verification completes, and also `null`
+    # after completion when the verified code has no display mapping (`SSC`, `WP`, `VISA`, `PSC`, `BC`, `OTHER`).
+    # Note: the `document_type` query parameter filters by short codes (`P`, `ID`, `DL`, `RP`, ...), not by these
+    # display values.
     module SessionsListResponseResultsDocumentType
       PASSPORT = "Passport"
       IDENTITY_CARD = "Identity Card"
@@ -321,14 +355,16 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # Row discriminator. Always `"user"` for KYC rows; Business Verification (KYB) rows have `"business"` and a different shape.
+    # Row discriminator. Always `"user"` for KYC rows; Business Verification (KYB) rows have `"business"` and a
+    # different shape.
     module SessionsListResponseResultsSessionKind
       USER = "user"
 
       VALUES = [USER].freeze
     end
 
-    # Overall session status. See the [Verification Statuses](/integration/verification-statuses) page for the lifecycle.
+    # Overall session status. See the [Verification Statuses](/integration/verification-statuses) page for the
+    # lifecycle.
     module SessionsListResponseResultsStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -344,7 +380,9 @@ module Didit
       VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
     end
 
-    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`, and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
+    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side
+    # to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`,
+    # and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
     module SessionsPreviewResubmissionParamsNodesToResubmitFeature
       OCR = "OCR"
       OCR_BACK = "OCR_BACK"
@@ -374,7 +412,9 @@ module Didit
       VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
     end
 
-    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`, and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
+    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side
+    # to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`,
+    # and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
     module SessionsPreviewResubmissionResponseNodesToResubmitFeature
       OCR = "OCR"
       OCR_BACK = "OCR_BACK"
@@ -468,7 +508,8 @@ module Didit
       VALUES = [ACCUSATION, ARREST, BRIBERY, CRIMINAL, FRAUD, ILLEGAL_FUNDRAISING, NON_CONVICTION_TERROR, PROCLAIMED_OFFENDER, REGULATORY_ENFORCEMENT, TERRORISM, TERRORISM_RELATED, TERRORISM_RELATED_LISTING].freeze
     end
 
-    # Feature-level status of this AML screening. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this AML screening. Independent of the top-level session `status` - a session can reach
+    # its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseAmlScreeningsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -479,7 +520,9 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Within an AML screening this is typically `AML`, but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Within
+    # an AML screening this is typically `AML`, but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseAmlScreeningsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -509,7 +552,8 @@ module Didit
       VALUES = [NO_MATCH, PARTIAL_MATCH, FULL_MATCH].freeze
     end
 
-    # Feature-level status of this database validation. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this database validation. Independent of the top-level session `status` - a session can
+    # reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseDatabaseValidationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -520,7 +564,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # How the result was corroborated: `one_by_one` (single-service outcome), `two_by_two` (two or more distinct services independently full-matched the identification number), or `not_enabled` (persisted when no service produced a usable match). The value is never `null`. Dedicated biometric 2x2 validation modes are currently available for `ECU` and `PER`.
+    # How the result was corroborated: `one_by_one` (single-service outcome), `two_by_two` (two or more distinct
+    # services independently full-matched the identification number), or `not_enabled` (persisted when no service
+    # produced a usable match). The value is never `null`. Dedicated biometric 2x2 validation modes are currently
+    # available for `ECU` and `PER`.
     module SessionsRetrieveDecisionResponseDatabaseValidationsValidationType
       ONE_BY_ONE = "one_by_one"
       TWO_BY_TWO = "two_by_two"
@@ -529,7 +576,10 @@ module Didit
       VALUES = [ONE_BY_ONE, TWO_BY_TWO, NOT_ENABLED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseDatabaseValidationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -612,7 +662,9 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # Where this match came from. `session` means another verification session in your application matched on this value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the management API lists overview at `/management-api/lists/overview` for how to manage those lists.
+    # Where this match came from. `session` means another verification session in your application matched on this
+    # value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the
+    # management API lists overview at `/management-api/lists/overview` for how to manage those lists.
     module SessionsRetrieveDecisionResponseEmailVerificationsMatchesSource
       SESSION = "session"
       LIST_ENTRY = "list_entry"
@@ -620,7 +672,8 @@ module Didit
       VALUES = [SESSION, LIST_ENTRY].freeze
     end
 
-    # Feature-level status of this email verification step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this email verification step. Independent of the top-level session `status` - a session
+    # can reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseEmailVerificationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -631,7 +684,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseEmailVerificationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -652,7 +708,8 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Whether the session was created by a live application (`live`) or a sandbox application (`sandbox`). Sandbox sessions are free, fully simulated, and never bill credits.
+    # Whether the session was created by a live application (`live`) or a sandbox application (`sandbox`). Sandbox
+    # sessions are free, fully simulated, and never bill credits.
     module SessionsRetrieveDecisionResponseEnvironment
       LIVE = "live"
       SANDBOX = "sandbox"
@@ -681,7 +738,8 @@ module Didit
       VALUES = [M, F].freeze
     end
 
-    # Feature-level status of this face-match step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this face-match step. Independent of the top-level session `status` - a session can
+    # reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseFaceMatchesStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -692,7 +750,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseFaceMatchesWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -713,7 +774,9 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Assurance tier derived from `verification_method`: `documentary` for a document that was captured and checked, `data_match` for details that matched a record held by the source queried, `cryptographic` for attributes an identity provider authenticated and signed.
+    # Assurance tier derived from `verification_method`: `documentary` for a document that was captured and checked,
+    # `data_match` for details that matched a record held by the source queried, `cryptographic` for attributes an
+    # identity provider authenticated and signed.
     module SessionsRetrieveDecisionResponseIdVerificationsAssurance
       DOCUMENTARY = "documentary"
       DATA_MATCH = "data_match"
@@ -722,7 +785,8 @@ module Didit
       VALUES = [DOCUMENTARY, DATA_MATCH, CRYPTOGRAPHIC].freeze
     end
 
-    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
+    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is
+    # acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
     module SessionsRetrieveDecisionResponseIdVerificationsBackImageQualityScoreBrightnessIssue
       OK = "ok"
       TOO_DARK = "too_dark"
@@ -731,7 +795,8 @@ module Didit
       VALUES = [OK, TOO_DARK, TOO_BRIGHT].freeze
     end
 
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied, or historical evaluation evidence is unavailable. Later workflow edits do not change it.
+    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
+    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
     module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPortraitReplaceBucket
       APPROVE = "approve"
       REVIEW = "review"
@@ -740,7 +805,8 @@ module Didit
       VALUES = [APPROVE, REVIEW, DECLINE].freeze
     end
 
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied, or historical evaluation evidence is unavailable. Later workflow edits do not change it.
+    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
+    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
     module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPrintedCopyBucket
       APPROVE = "approve"
       REVIEW = "review"
@@ -749,7 +815,8 @@ module Didit
       VALUES = [APPROVE, REVIEW, DECLINE].freeze
     end
 
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied, or historical evaluation evidence is unavailable. Later workflow edits do not change it.
+    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
+    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
     module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessScreenReplayBucket
       APPROVE = "approve"
       REVIEW = "review"
@@ -758,7 +825,9 @@ module Didit
       VALUES = [APPROVE, REVIEW, DECLINE].freeze
     end
 
-    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or `retained_template` (an image-free biometric template stored on a User, listed under `/v3/biometric-templates/`).
+    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or
+    # `retained_template` (an image-free biometric template stored on a User, listed under
+    # `/v3/biometric-templates/`).
     module SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatchesSource
       SESSION = "session"
       IMPORTED = "imported"
@@ -776,7 +845,8 @@ module Didit
       VALUES = [ID_LOOKUP, WALLET].freeze
     end
 
-    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
+    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is
+    # acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
     module SessionsRetrieveDecisionResponseIdVerificationsFrontImageQualityScoreBrightnessIssue
       OK = "ok"
       TOO_DARK = "too_dark"
@@ -796,7 +866,8 @@ module Didit
       VALUES = [IDENTIFICATION_NUMBER, FULL_NAME, DATE_OF_BIRTH, ADDRESS, PROVIDER].freeze
     end
 
-    # Per-field comparison result. `error` appears only on a `provider` row and means that source did not answer; treat it as evidence about the query, never as a field mismatch.
+    # Per-field comparison result. `error` appears only on a `provider` row and means that source did not answer;
+    # treat it as evidence about the query, never as a field mismatch.
     module SessionsRetrieveDecisionResponseIdVerificationsIdLookupComparisonResult
       MATCH = "match"
       PARTIAL = "partial"
@@ -806,7 +877,8 @@ module Didit
       VALUES = [MATCH, PARTIAL, NO_MATCH, ERROR].freeze
     end
 
-    # What the register answered. Only `match`, `partial_match` and `no_match` count against the attempt budget and bill.
+    # What the register answered. Only `match`, `partial_match` and `no_match` count against the attempt budget and
+    # bill.
     module SessionsRetrieveDecisionResponseIdVerificationsIdLookupOutcome
       MATCH = "match"
       PARTIAL_MATCH = "partial_match"
@@ -817,7 +889,8 @@ module Didit
       VALUES = [MATCH, PARTIAL_MATCH, NO_MATCH, PROVIDER_ERROR, FORMAT_REJECTED].freeze
     end
 
-    # Feature-level status of this ID verification step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this ID verification step. Independent of the top-level session `status` - a session can
+    # reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseIdVerificationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -828,7 +901,11 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
     end
 
-    # Which ID Verification method produced this report. `document` - the user photographed a physical ID (the default, and the value on every session created before the other methods existed). `id_lookup` - the user typed their national ID number and it was checked against a government register or another authoritative source for that country (`id_lookup.source` names which). `wallet` - the user signed in with a government or bank digital identity.
+    # Which ID Verification method produced this report. `document` - the user photographed a physical ID (the
+    # default, and the value on every session created before the other methods existed). `id_lookup` - the user typed
+    # their national ID number and it was checked against a government register or another authoritative source for
+    # that country (`id_lookup.source` names which). `wallet` - the user signed in with a government or bank digital
+    # identity.
     module SessionsRetrieveDecisionResponseIdVerificationsVerificationMethod
       DOCUMENT = "document"
       ID_LOOKUP = "id_lookup"
@@ -837,7 +914,8 @@ module Didit
       VALUES = [DOCUMENT, ID_LOOKUP, WALLET].freeze
     end
 
-    # The level of assurance the wallet asserted. A sign-in that asserts less than the level requested fails instead of downgrading.
+    # The level of assurance the wallet asserted. A sign-in that asserts less than the level requested fails instead
+    # of downgrading.
     module SessionsRetrieveDecisionResponseIdVerificationsWalletVerificationLevelOfAssurance
       LOW = "low"
       SUBSTANTIAL = "substantial"
@@ -846,7 +924,9 @@ module Didit
       VALUES = [LOW, SUBSTANTIAL, HIGH].freeze
     end
 
-    # The feature that generated this warning (e.g., `ID_VERIFICATION`, `NFC`, `LIVENESS`). The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module, but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning (e.g., `ID_VERIFICATION`, `NFC`, `LIVENESS`). The value identifies the
+    # feature block the warning belongs to. Each module's warnings array typically uses the value matching its module,
+    # but the enum above is authoritative across all feature warnings on the decision payload.
     module SessionsRetrieveDecisionResponseIdVerificationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -867,7 +947,9 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Evidence class of the match: `deterministic` (exact stored or hardware-rooted identifier that cannot collide between physical devices), `probabilistic` (fuzzy fingerprint evidence), or `co_occurrence` (shared network only, no device-identity claim).
+    # Evidence class of the match: `deterministic` (exact stored or hardware-rooted identifier that cannot collide
+    # between physical devices), `probabilistic` (fuzzy fingerprint evidence), or `co_occurrence` (shared network
+    # only, no device-identity claim).
     module SessionsRetrieveDecisionResponseIpAnalysesMatchesMatchMode
       DETERMINISTIC = "deterministic"
       PROBABILISTIC = "probabilistic"
@@ -876,7 +958,10 @@ module Didit
       VALUES = [DETERMINISTIC, PROBABILISTIC, CO_OCCURRENCE].freeze
     end
 
-    # How this match was reached: `ip_address` (shared IP address - network co-location, not a device-identity claim), `persistent_id` (exact stored persistent device identifier), `legacy_fp` (legacy `didit-fp-*` device-fingerprint hash), or `recovered_high` (high-confidence fuzzy fingerprint-recovery hit). Lower-confidence recovery candidates surface as risk warnings only, never in this array.
+    # How this match was reached: `ip_address` (shared IP address - network co-location, not a device-identity claim),
+    # `persistent_id` (exact stored persistent device identifier), `legacy_fp` (legacy `didit-fp-*` device-fingerprint
+    # hash), or `recovered_high` (high-confidence fuzzy fingerprint-recovery hit). Lower-confidence recovery
+    # candidates surface as risk warnings only, never in this array.
     module SessionsRetrieveDecisionResponseIpAnalysesMatchesMatchSource
       IP_ADDRESS = "ip_address"
       PERSISTENT_ID = "persistent_id"
@@ -901,7 +986,8 @@ module Didit
       VALUES = [SESSION].freeze
     end
 
-    # Feature-level status of this Device & IP Analysis entry. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this Device & IP Analysis entry. Independent of the top-level session `status` - a
+    # session can reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseIpAnalysesStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -912,7 +998,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseIpAnalysesWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -984,7 +1073,8 @@ module Didit
       VALUES = [MATCH, CLEAR].freeze
     end
 
-    # Raw lifecycle status of the child KYC session spawned for this beneficial owner. This is the full session status enum (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
+    # Raw lifecycle status of the child KYC session spawned for this beneficial owner. This is the full session status
+    # enum (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
     module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1054,7 +1144,8 @@ module Didit
       VALUES = [MATCH, CLEAR].freeze
     end
 
-    # Raw lifecycle status of the child KYC session spawned for this officer. This is the full session status enum (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
+    # Raw lifecycle status of the child KYC session spawned for this officer. This is the full session status enum
+    # (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
     module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1167,7 +1258,8 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
     end
 
-    # Always `USER` here - this bucket only contains parties entered or confirmed by the end user in the Key People flow (registry-discovered people appear under `registry`).
+    # Always `USER` here - this bucket only contains parties entered or confirmed by the end user in the Key People
+    # flow (registry-discovered people appear under `registry`).
     module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesSource
       USER = "USER"
 
@@ -1185,7 +1277,9 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or `retained_template` (an image-free biometric template stored on a User, listed under `/v3/biometric-templates/`).
+    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or
+    # `retained_template` (an image-free biometric template stored on a User, listed under
+    # `/v3/biometric-templates/`).
     module SessionsRetrieveDecisionResponseLivenessChecksMatchesSource
       SESSION = "session"
       IMPORTED = "imported"
@@ -1195,7 +1289,8 @@ module Didit
       VALUES = [SESSION, IMPORTED, LIST_ENTRY, RETAINED_TEMPLATE].freeze
     end
 
-    # Feature-level status of this liveness step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this liveness step. Independent of the top-level session `status` - a session can reach
+    # its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseLivenessChecksStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -1206,7 +1301,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseLivenessChecksWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -1227,7 +1325,14 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Why NFC chip verification did not run, populated whenever the workflow includes an NFC step. `null` while NFC is pending or when the chip was actually read. Values: `USER_SKIPPED` - the user chose to skip on an NFC-capable device (allowed by `allow_nfc_skip`); `DOCUMENT_WITHOUT_CHIP` - the document has no readable NFC chip (not an ICAO 9303 electronic document); `CHIP_CERTIFICATE_UNAVAILABLE` - the issuing country's signing certificate (CSCA) covering the document's issue period is unavailable, so the chip signature cannot be verified; `DEVICE_WITHOUT_NFC` - the device reported no NFC reader; `INTEGRATION_WITHOUT_NFC_ACCESS` - the verification ran without a native SDK (e.g. in a web browser), which has no access to the phone's NFC reader; `MRZ_KEY_UNAVAILABLE` - the chip access key could not be derived from the document's MRZ.
+    # Why NFC chip verification did not run, populated whenever the workflow includes an NFC step. `null` while NFC is
+    # pending or when the chip was actually read. Values: `USER_SKIPPED` - the user chose to skip on an NFC-capable
+    # device (allowed by `allow_nfc_skip`); `DOCUMENT_WITHOUT_CHIP` - the document has no readable NFC chip (not an
+    # ICAO 9303 electronic document); `CHIP_CERTIFICATE_UNAVAILABLE` - the issuing country's signing certificate
+    # (CSCA) covering the document's issue period is unavailable, so the chip signature cannot be verified;
+    # `DEVICE_WITHOUT_NFC` - the device reported no NFC reader; `INTEGRATION_WITHOUT_NFC_ACCESS` - the verification
+    # ran without a native SDK (e.g. in a web browser), which has no access to the phone's NFC reader;
+    # `MRZ_KEY_UNAVAILABLE` - the chip access key could not be derived from the document's MRZ.
     module SessionsRetrieveDecisionResponseNfcSkipReason
       USER_SKIPPED = "USER_SKIPPED"
       DOCUMENT_WITHOUT_CHIP = "DOCUMENT_WITHOUT_CHIP"
@@ -1239,7 +1344,8 @@ module Didit
       VALUES = [USER_SKIPPED, DOCUMENT_WITHOUT_CHIP, CHIP_CERTIFICATE_UNAVAILABLE, DEVICE_WITHOUT_NFC, INTEGRATION_WITHOUT_NFC_ACCESS, MRZ_KEY_UNAVAILABLE].freeze
     end
 
-    # Why this NFC step was skipped. Only set when `is_nfc_skipped` is `true`. Same taxonomy as the session-level `nfc_skip_reason`, which additionally covers the cases where NFC never produced a report at all.
+    # Why this NFC step was skipped. Only set when `is_nfc_skipped` is `true`. Same taxonomy as the session-level
+    # `nfc_skip_reason`, which additionally covers the cases where NFC never produced a report at all.
     module SessionsRetrieveDecisionResponseNfcVerificationsSkipReason
       USER_SKIPPED = "USER_SKIPPED"
       DOCUMENT_WITHOUT_CHIP = "DOCUMENT_WITHOUT_CHIP"
@@ -1251,7 +1357,8 @@ module Didit
       VALUES = [USER_SKIPPED, DOCUMENT_WITHOUT_CHIP, CHIP_CERTIFICATE_UNAVAILABLE, DEVICE_WITHOUT_NFC, INTEGRATION_WITHOUT_NFC_ACCESS, MRZ_KEY_UNAVAILABLE].freeze
     end
 
-    # Feature-level status of this NFC step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this NFC step. Independent of the top-level session `status` - a session can reach its
+    # overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponseNfcVerificationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -1262,7 +1369,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponseNfcVerificationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -1283,7 +1393,9 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Where this match came from. `session` means another verification session in your application matched on this value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the management API lists overview at `/management-api/lists/overview` for how to manage those lists.
+    # Where this match came from. `session` means another verification session in your application matched on this
+    # value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the
+    # management API lists overview at `/management-api/lists/overview` for how to manage those lists.
     module SessionsRetrieveDecisionResponsePhoneVerificationsMatchesSource
       SESSION = "session"
       LIST_ENTRY = "list_entry"
@@ -1291,7 +1403,8 @@ module Didit
       VALUES = [SESSION, LIST_ENTRY].freeze
     end
 
-    # Feature-level status of this phone verification step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this phone verification step. Independent of the top-level session `status` - a session
+    # can reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponsePhoneVerificationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -1302,7 +1415,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponsePhoneVerificationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -1323,7 +1439,8 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
-    # Feature-level status of this Proof of Address step. Independent of the top-level session `status` - a session can reach its overall decision while an individual feature stays `In Review`.
+    # Feature-level status of this Proof of Address step. Independent of the top-level session `status` - a session
+    # can reach its overall decision while an individual feature stays `In Review`.
     module SessionsRetrieveDecisionResponsePoaVerificationsStatus
       NOT_FINISHED = "Not Finished"
       APPROVED = "Approved"
@@ -1334,7 +1451,10 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each module's warnings array typically uses the value matching its module (e.g. `PHONE` inside `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the decision payload.
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
     module SessionsRetrieveDecisionResponsePoaVerificationsWarningsFeature
       ID_VERIFICATION = "ID_VERIFICATION"
       NFC = "NFC"
@@ -1390,7 +1510,8 @@ module Didit
       VALUES = [LOW, MEDIUM, HIGH].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module SessionsRetrieveDecisionResponseRegistryChecksCompanyVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -1406,7 +1527,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module SessionsRetrieveDecisionResponseRegistryChecksCompanyVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -1418,7 +1544,13 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
-    # Discriminator indicating whether this is a User Verification (KYC) or Business Verification (KYB) session. When `user`, the KYC feature arrays (`id_verifications`, `nfc_verifications`, `liveness_checks`, `face_matches`, `poa_verifications`, `document_ai_documents`, `database_validations`, ...) apply and the business arrays are absent. When `business`, the payload instead carries `registry_checks`, `document_verifications`, `key_people_checks` plus the shared arrays (`aml_screenings`, `phone_verifications`, `email_verifications`, `ip_analyses`, `questionnaire_responses`). **Omitted when `include=events` is passed** - the events shape only exists for user sessions, so the discriminator is dropped from that variant.
+    # Discriminator indicating whether this is a User Verification (KYC) or Business Verification (KYB) session. When
+    # `user`, the KYC feature arrays (`id_verifications`, `nfc_verifications`, `liveness_checks`, `face_matches`,
+    # `poa_verifications`, `document_ai_documents`, `database_validations`, ...) apply and the business arrays are
+    # absent. When `business`, the payload instead carries `registry_checks`, `document_verifications`,
+    # `key_people_checks` plus the shared arrays (`aml_screenings`, `phone_verifications`, `email_verifications`,
+    # `ip_analyses`, `questionnaire_responses`). **Omitted when `include=events` is passed** - the events shape only
+    # exists for user sessions, so the discriminator is dropped from that variant.
     module SessionsRetrieveDecisionResponseSessionKind
       USER = "user"
       BUSINESS = "business"
@@ -1426,7 +1558,9 @@ module Didit
       VALUES = [USER, BUSINESS].freeze
     end
 
-    # Overall lifecycle status of the session - the rolled-up workflow result. Terminal values are `Approved`, `Declined`, `In Review`, `Expired`, `Kyc Expired`, and `Abandoned`; `Not Started`, `In Progress`, `Awaiting User`, and `Resubmitted` indicate the session is still moving through the workflow.
+    # Overall lifecycle status of the session - the rolled-up workflow result. Terminal values are `Approved`,
+    # `Declined`, `In Review`, `Expired`, `Kyc Expired`, and `Abandoned`; `Not Started`, `In Progress`, `Awaiting
+    # User`, and `Resubmitted` indicate the session is still moving through the workflow.
     module SessionsRetrieveDecisionResponseStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1442,7 +1576,8 @@ module Didit
       VALUES = [NOT_STARTED, IN_PROGRESS, AWAITING_USER, IN_REVIEW, APPROVED, DECLINED, RESUBMITTED, EXPIRED, KYC_EXPIRED, ABANDONED].freeze
     end
 
-    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating. `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
+    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating.
+    # `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
     module SessionsRetrieveDeletionJobResponseStatus
       PENDING = "PENDING"
       PROCESSING = "PROCESSING"
@@ -1452,7 +1587,9 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
-    # Optional status label to record on the entry. Accepts any session status value, case-sensitive (`"approved"` is rejected with `400`). Recording a status here does **not** change the session's actual status - use the update-status endpoint for that.
+    # Optional status label to record on the entry. Accepts any session status value, case-sensitive (`"approved"` is
+    # rejected with `400`). Recording a status here does **not** change the session's actual status - use the
+    # update-status endpoint for that.
     module SessionsReviewsCreateParamsNewStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1502,7 +1639,10 @@ module Didit
       VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
     end
 
-    # Document type code. Accepts the short codes listed in the enum, plus six long-form aliases normalized server-side before validation: `Passport` → `P`, `Identity Card` → `ID`, `Driver's License` → `DL`, `Residence Permit` → `RP`, `Health Insurance Card` → `HIC`, `Tax Card` → `TC`. Any other value (including `PASSPORT` in caps) returns `400`.
+    # Document type code. Accepts the short codes listed in the enum, plus six long-form aliases normalized
+    # server-side before validation: `Passport` → `P`, `Identity Card` → `ID`, `Driver's License` → `DL`, `Residence
+    # Permit` → `RP`, `Health Insurance Card` → `HIC`, `Tax Card` → `TC`. Any other value (including `PASSPORT` in
+    # caps) returns `400`.
     module SessionsUpdateDataParamsDocumentType
       P = "P"
       DL = "DL"
@@ -1520,7 +1660,8 @@ module Didit
       VALUES = [P, DL, ID, RP, SSC, HIC, WP, TC, VISA, PSC, BC, OTHER].freeze
     end
 
-    # Sex as printed on the document: `M` (male), `F` (female), or `U` (unknown). Any other value - including `X` - returns `400`.
+    # Sex as printed on the document: `M` (male), `F` (female), or `U` (unknown). Any other value - including `X` -
+    # returns `400`.
     module SessionsUpdateDataParamsGender
       M = "M"
       F = "F"
@@ -1540,7 +1681,10 @@ module Didit
       VALUES = [SINGLE, MARRIED, DIVORCED, WIDOWED, UNKNOWN].freeze
     end
 
-    # Document type code. Accepts the short codes listed in the enum, plus six long-form aliases normalized server-side before validation: `Passport` → `P`, `Identity Card` → `ID`, `Driver's License` → `DL`, `Residence Permit` → `RP`, `Health Insurance Card` → `HIC`, `Tax Card` → `TC`. Any other value (including `PASSPORT` in caps) returns `400`.
+    # Document type code. Accepts the short codes listed in the enum, plus six long-form aliases normalized
+    # server-side before validation: `Passport` → `P`, `Identity Card` → `ID`, `Driver's License` → `DL`, `Residence
+    # Permit` → `RP`, `Health Insurance Card` → `HIC`, `Tax Card` → `TC`. Any other value (including `PASSPORT` in
+    # caps) returns `400`.
     module SessionsUpdateDataResponseDocumentType
       P = "P"
       DL = "DL"
@@ -1558,7 +1702,8 @@ module Didit
       VALUES = [P, DL, ID, RP, SSC, HIC, WP, TC, VISA, PSC, BC, OTHER].freeze
     end
 
-    # Sex as printed on the document: `M` (male), `F` (female), or `U` (unknown). Any other value - including `X` - returns `400`.
+    # Sex as printed on the document: `M` (male), `F` (female), or `U` (unknown). Any other value - including `X` -
+    # returns `400`.
     module SessionsUpdateDataResponseGender
       M = "M"
       F = "F"
@@ -1587,7 +1732,8 @@ module Didit
       VALUES = [APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # Registry-reported company status. Lowercase, some values contain spaces (e.g. `struck off`, `no longer authorised`). Any other value returns `400`.
+    # Registry-reported company status. Lowercase, some values contain spaces (e.g. `struck off`, `no longer
+    # authorised`). Any other value returns `400`.
     module SessionsUpdateKybCompanyDataParamsRegistryStatus
       ACTIVE = "active"
       DISSOLVED = "dissolved"
@@ -1613,7 +1759,8 @@ module Didit
       VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
     end
 
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check ran.
+    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
+    # ran.
     module SessionsUpdateKybCompanyDataResponseVatValidationSource
       EU_VIES = "eu_vies"
       PL_VAT_WHITE_LIST = "pl_vat_white_list"
@@ -1629,7 +1776,12 @@ module Didit
       VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
     end
 
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` / `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia, Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`: decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`: the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox session.
+    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
+    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
+    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
+    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
+    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
+    # session.
     module SessionsUpdateKybCompanyDataResponseVatValidationStatus
       VALID = "valid"
       INVALID = "invalid"
@@ -1671,7 +1823,8 @@ module Didit
       VALUES = [UTILITY_BILL, BANK_STATEMENT, GOVERNMENT_ISSUED_DOCUMENT, OTHER_POA_DOCUMENT, UNKNOWN].freeze
     end
 
-    # Target status. `Approved` and `Declined` record a final manual decision (each can also overturn the other). `Resubmitted` clears the selected steps and sends the session back to the user. Any other value returns `400`.
+    # Target status. `Approved` and `Declined` record a final manual decision (each can also overturn the other).
+    # `Resubmitted` clears the selected steps and sends the session back to the user. Any other value returns `400`.
     module SessionsUpdateStatusParamsNewStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -1680,7 +1833,9 @@ module Didit
       VALUES = [APPROVED, DECLINED, RESUBMITTED].freeze
     end
 
-    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`, and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
+    # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side
+    # to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`,
+    # and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
     module SessionsUpdateStatusParamsNodesToResubmitFeature
       OCR = "OCR"
       OCR_BACK = "OCR_BACK"
@@ -1714,7 +1869,8 @@ module Didit
       field :results, "results", [:array, "SessionsBatchDeleteResponseResults"]
     end
 
-    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it deleted.
+    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it
+    # deleted.
     class SessionsBatchDeleteResponse202 < Didit::Model
       field :job_id, "job_id", :string
       field :status, "status", :string
@@ -1810,7 +1966,8 @@ module Didit
       field :registration_number, "registration_number", :string
     end
 
-    # Compact per-feature extras. Only features that produced data appear as keys; `null` when no feature produced extras. Fields excluded by the workflow's response-attributes configuration are omitted.
+    # Compact per-feature extras. Only features that produced data appear as keys; `null` when no feature produced
+    # extras. Fields excluded by the workflow's response-attributes configuration are omitted.
     class SessionsListResponseResultsAdditionalDetails < Didit::Model
       field :aml, "aml", "SessionsListResponseResultsAdditionalDetailsAml"
       field :database_validation, "database_validation", "SessionsListResponseResultsAdditionalDetailsDatabaseValidation"
@@ -1880,7 +2037,8 @@ module Didit
       field :name_on_document, "name_on_document", :string
     end
 
-    # Email associated with the session: the verified email when email verification ran, otherwise the contact email provided at session creation. `null` when neither exists.
+    # Email associated with the session: the verified email when email verification ran, otherwise the contact email
+    # provided at session creation. `null` when neither exists.
     class SessionsListResponseResultsEmailAddress < Didit::Model
       field :email, "email", :string
       field :is_verified, "is_verified", :boolean
@@ -1891,7 +2049,8 @@ module Didit
       field :status, "status", :string
     end
 
-    # Phone associated with the session: the verified phone when phone verification ran, otherwise the contact phone provided at session creation. `null` when neither exists.
+    # Phone associated with the session: the verified phone when phone verification ran, otherwise the contact phone
+    # provided at session creation. `null` when neither exists.
     class SessionsListResponseResultsPhoneNumber < Didit::Model
       field :number, "number", :string
       field :is_verified, "is_verified", :boolean
@@ -2170,7 +2329,8 @@ module Didit
       field :node_id, "node_id", :string
     end
 
-    # Contact details supplied when the session was created (used for notification emails, prefilled phone/email verification, and communication language). `null` when neither an email nor a phone number was provided.
+    # Contact details supplied when the session was created (used for notification emails, prefilled phone/email
+    # verification, and communication language). `null` when neither an email nor a phone number was provided.
     class SessionsRetrieveDecisionResponseContactDetails < Didit::Model
       field :email, "email", :string
       field :email_lang, "email_lang", :string
@@ -2190,12 +2350,14 @@ module Didit
       field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseDatabaseValidationsWarnings"]
     end
 
-    # The upstream service's error object spread as-is - its keys vary by service (commonly a message/code and any provider-specific details) - plus `service_id` identifying the service that errored.
+    # The upstream service's error object spread as-is - its keys vary by service (commonly a message/code and any
+    # provider-specific details) - plus `service_id` identifying the service that errored.
     class SessionsRetrieveDecisionResponseDatabaseValidationsErrors < Didit::Model
       field :service_id, "service_id", :string
     end
 
-    # The input data used for validation. Fields vary by country - see the Database Validation docs (`/core-technology/database-validation/overview`) for country-specific formats.
+    # The input data used for validation. Fields vary by country - see the Database Validation docs
+    # (`/core-technology/database-validation/overview`) for country-specific formats.
     class SessionsRetrieveDecisionResponseDatabaseValidationsScreenedData < Didit::Model
       field :last_name, "last_name", :string
       field :first_name, "first_name", :string
@@ -2304,7 +2466,9 @@ module Didit
       field :is_confirmed, "is_confirmed", :boolean
     end
 
-    # Metadata extracted from the uploaded corporate document. When metadata extraction succeeded, all 16 keys are always present (individual values are `null` when not applicable to the file type); the whole object is `null` when nothing could be extracted. For PDFs, `overlay_manipulation` carries forensic overlay-text analysis.
+    # Metadata extracted from the uploaded corporate document. When metadata extraction succeeded, all 16 keys are
+    # always present (individual values are `null` when not applicable to the file type); the whole object is `null`
+    # when nothing could be extracted. For PDFs, `overlay_manipulation` carries forensic overlay-text analysis.
     class SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadata < Didit::Model
       field :file_size, "file_size", :integer
       field :content_type, "content_type", :string
@@ -2324,7 +2488,8 @@ module Didit
       field :overlay_manipulation, "overlay_manipulation", "SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulation"
     end
 
-    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was found or the document was not a PDF.
+    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was
+    # found or the document was not a PDF.
     class SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulation < Didit::Model
       field :detected, "detected", :boolean
       field :analyzed, "analyzed", :boolean
@@ -2375,7 +2540,9 @@ module Didit
       field :fee, "fee", :float
     end
 
-    # Event-specific payload. Send events carry `status`, `reason`; code-check events carry `code_tried`, `status`; final status events carry `reason` - or `null` when there is no reason to report (e.g. `EMAIL_VERIFICATION_APPROVED`).
+    # Event-specific payload. Send events carry `status`, `reason`; code-check events carry `code_tried`, `status`;
+    # final status events carry `reason` - or `null` when there is no reason to report (e.g.
+    # `EMAIL_VERIFICATION_APPROVED`).
     class SessionsRetrieveDecisionResponseEmailVerificationsLifecycleDetails < Didit::Model
       field :status, "status", :string
       field :reason, "reason", :string
@@ -2404,7 +2571,10 @@ module Didit
       field :node_id, "node_id", :string
     end
 
-    # Expected details supplied at session creation - used for cross-validation against extracted data (KYC) or to pre-fill the company registry search (KYB). Echoes back exactly the keys that were provided; `null` when none were supplied. KYC sessions carry the person fields; Business (KYB) sessions carry `company_name`, `registry_country` and `registration_number`.
+    # Expected details supplied at session creation - used for cross-validation against extracted data (KYC) or to
+    # pre-fill the company registry search (KYB). Echoes back exactly the keys that were provided; `null` when none
+    # were supplied. KYC sessions carry the person fields; Business (KYB) sessions carry `company_name`,
+    # `registry_country` and `registration_number`.
     class SessionsRetrieveDecisionResponseExpectedDetails < Didit::Model
       field :first_name, "first_name", :string
       field :last_name, "last_name", :string
@@ -2444,7 +2614,9 @@ module Didit
       field :node_id, "node_id", :string
     end
 
-    # One ID verification report - the full report for a single ID Verification step. `verification_method` says which of the three methods produced it (document capture, non-doc lookup or wallet sign-in) and the method-specific evidence block is populated accordingly.
+    # One ID verification report - the full report for a single ID Verification step. `verification_method` says which
+    # of the three methods produced it (document capture, non-doc lookup or wallet sign-in) and the method-specific
+    # evidence block is populated accordingly.
     class SessionsRetrieveDecisionResponseIdVerifications < Didit::Model
       field :node_id, "node_id", :string
       field :verification_method, "verification_method", :string
@@ -2506,7 +2678,8 @@ module Didit
       field :overall_score, "overall_score", :float
     end
 
-    # Document-liveness scores per fraud type, reported whether or not a warning fired, so an approved document can still be audited. `null` when the check did not run.
+    # Document-liveness scores per fraud type, reported whether or not a warning fired, so an approved document can
+    # still be audited. `null` when the check did not run.
     class SessionsRetrieveDecisionResponseIdVerificationsDocumentLiveness < Didit::Model
       field :portrait_replace, "portrait_replace", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPortraitReplace"
       field :printed_copy, "printed_copy", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPrintedCopy"
@@ -2557,14 +2730,28 @@ module Didit
       field :source, "source", :string
     end
 
-    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and `list_entry` matches.
+    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and
+    # `list_entry` matches.
     class SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatchesUserDetails < Didit::Model
       field :full_name, "full_name", :string
       field :document_type, "document_type", :string
       field :document_number, "document_number", :string
     end
 
-    # Additional document fields. Includes document-specific attributes (e.g. `dl_categories`, `blood_group`, `sponsor`, `employer`, `dl_class_code_b_from`, `dl_class_code_b_to`). Driver license class validity dates are returned as `dl_class_code_<class>_from` and `dl_class_code_<class>_to`, and per-class restriction/information codes (e.g. column 12 of UK licences) as `dl_class_code_<class>_notes`. When the document carries names, address, or place of birth in multiple scripts, this object also includes alternate-script versions of those fields. The workflow setting `preferred_characters` (`latin` or `non_latin`) controls which script populates the top-level fields (`first_name`, `last_name`, `full_name`, `address`, `place_of_birth`); the opposite script lands here as `first_name_non_latin` / `last_name_non_latin` / `full_name_non_latin` / `middle_name_non_latin` / `address_non_latin` / `place_of_birth_non_latin` (when `preferred_characters` is `latin`) or with a `_latin` suffix (when `preferred_characters` is `non_latin`). Keys appear only when the OCR actually extracts a real alternate-script value - a field whose alternate value is in the same script as the preferred set (for example, a Cyrillic-labelled field whose OCR value came back in Latin homoglyphs) is skipped. When `preferred_characters` is `latin` but the document only carries non-Latin text, Didit transliterates the extracted values and exposes `first_name_latin` / `last_name_latin` / etc. as a fallback.
+    # Additional document fields. Includes document-specific attributes (e.g. `dl_categories`, `blood_group`,
+    # `sponsor`, `employer`, `dl_class_code_b_from`, `dl_class_code_b_to`). Driver license class validity dates are
+    # returned as `dl_class_code_<class>_from` and `dl_class_code_<class>_to`, and per-class restriction/information
+    # codes (e.g. column 12 of UK licences) as `dl_class_code_<class>_notes`. When the document carries names,
+    # address, or place of birth in multiple scripts, this object also includes alternate-script versions of those
+    # fields. The workflow setting `preferred_characters` (`latin` or `non_latin`) controls which script populates the
+    # top-level fields (`first_name`, `last_name`, `full_name`, `address`, `place_of_birth`); the opposite script
+    # lands here as `first_name_non_latin` / `last_name_non_latin` / `full_name_non_latin` / `middle_name_non_latin` /
+    # `address_non_latin` / `place_of_birth_non_latin` (when `preferred_characters` is `latin`) or with a `_latin`
+    # suffix (when `preferred_characters` is `non_latin`). Keys appear only when the OCR actually extracts a real
+    # alternate-script value - a field whose alternate value is in the same script as the preferred set (for example,
+    # a Cyrillic-labelled field whose OCR value came back in Latin homoglyphs) is skipped. When `preferred_characters`
+    # is `latin` but the document only carries non-Latin text, Didit transliterates the extracted values and exposes
+    # `first_name_latin` / `last_name_latin` / etc. as a fallback.
     class SessionsRetrieveDecisionResponseIdVerificationsExtraFields < Didit::Model
       field :dl_categories, "dl_categories", [:array, :string]
       field :blood_group, "blood_group", :string
@@ -2582,7 +2769,8 @@ module Didit
       field :place_of_birth_latin, "place_of_birth_latin", :string
     end
 
-    # Why a non-document method ended the ID step. Set on the declined report when a lookup or a wallet sign-in failed and the country's fallback switch was `decline`. `null` otherwise.
+    # Why a non-document method ended the ID step. Set on the declined report when a lookup or a wallet sign-in failed
+    # and the country's fallback switch was `decline`. `null` otherwise.
     class SessionsRetrieveDecisionResponseIdVerificationsFallbackFrom < Didit::Model
       field :method_, "method", :string
       field :reason, "reason", :string
@@ -2788,7 +2976,8 @@ module Didit
       field :matches, "matches", [:array, "SessionsRetrieveDecisionResponseIpAnalysesMatches"]
     end
 
-    # Location extracted from the ID document address plus distances (km) to the IP geolocation and the POA document address. `location` is `null` when no document address could be geocoded.
+    # Location extracted from the ID document address plus distances (km) to the IP geolocation and the POA document
+    # address. `location` is `null` when no document address could be geocoded.
     class SessionsRetrieveDecisionResponseIpAnalysesIdDocument < Didit::Model
       field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesIdDocumentLocation"
       field :distance_from_ip, "distance_from_ip", :float
@@ -2801,7 +2990,8 @@ module Didit
       field :longitude, "longitude", :float
     end
 
-    # IP geolocation of this entry plus great-circle distances (km) to the ID document address and the POA document address. Distances are `null` when either side has no resolvable location.
+    # IP geolocation of this entry plus great-circle distances (km) to the ID document address and the POA document
+    # address. Distances are `null` when either side has no resolvable location.
     class SessionsRetrieveDecisionResponseIpAnalysesIp < Didit::Model
       field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesIpLocation"
       field :distance_from_id_document, "distance_from_id_document", :float
@@ -2856,7 +3046,8 @@ module Didit
       field :is_data_center, "is_data_center", :boolean
     end
 
-    # Location extracted from the Proof of Address document plus distances (km) to the IP geolocation and the ID document address. `location` is `null` when the session has no POA step or the address could not be geocoded.
+    # Location extracted from the Proof of Address document plus distances (km) to the IP geolocation and the ID
+    # document address. `location` is `null` when the session has no POA step or the address could not be geocoded.
     class SessionsRetrieveDecisionResponseIpAnalysesPoaDocument < Didit::Model
       field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesPoaDocumentLocation"
       field :distance_from_ip, "distance_from_ip", :float
@@ -2879,7 +3070,8 @@ module Didit
       field :node_id, "node_id", :string
     end
 
-    # Aggregate check over the company's officers + UBOs. Uses the `registry` / `submitted` shape. Present only when session_kind = business.
+    # Aggregate check over the company's officers + UBOs. Uses the `registry` / `submitted` shape. Present only when
+    # session_kind = business.
     class SessionsRetrieveDecisionResponseKeyPeopleChecks < Didit::Model
       field :status, "status", :string
       field :node_id, "node_id", :string
@@ -3081,7 +3273,8 @@ module Didit
       field :source, "source", :string
     end
 
-    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and `list_entry` matches.
+    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and
+    # `list_entry` matches.
     class SessionsRetrieveDecisionResponseLivenessChecksMatchesUserDetails < Didit::Model
       field :full_name, "full_name", :string
       field :document_type, "document_type", :string
@@ -3180,7 +3373,9 @@ module Didit
       field :fee, "fee", :float
     end
 
-    # Event-specific payload. Send events carry `status`, `reason`, `channel`, `actual_channel`; delivery events carry `channel`, `status`; code-check events carry `code_tried`, `status`; final status events carry `reason` - or `null` when there is no reason to report (e.g. `PHONE_VERIFICATION_APPROVED`).
+    # Event-specific payload. Send events carry `status`, `reason`, `channel`, `actual_channel`; delivery events carry
+    # `channel`, `status`; code-check events carry `code_tried`, `status`; final status events carry `reason` - or
+    # `null` when there is no reason to report (e.g. `PHONE_VERIFICATION_APPROVED`).
     class SessionsRetrieveDecisionResponsePhoneVerificationsLifecycleDetails < Didit::Model
       field :status, "status", :string
       field :reason, "reason", :string
@@ -3238,7 +3433,8 @@ module Didit
       field :detected_codes, "detected_codes", [:array, "DocumentAIDetectedCode"]
     end
 
-    # File-forensics metadata extracted from the uploaded POA document. Always contains the keys below (values are `null` when not applicable, e.g. EXIF dates for PDFs). `null` when no metadata could be extracted.
+    # File-forensics metadata extracted from the uploaded POA document. Always contains the keys below (values are
+    # `null` when not applicable, e.g. EXIF dates for PDFs). `null` when no metadata could be extracted.
     class SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadata < Didit::Model
       field :file_size, "file_size", :integer
       field :content_type, "content_type", :string
@@ -3258,7 +3454,8 @@ module Didit
       field :has_different_creation_mod_date, "has_different_creation_mod_date", :boolean
     end
 
-    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was found or the document was not a PDF.
+    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was
+    # found or the document was not a PDF.
     class SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadataOverlayManipulation < Didit::Model
       field :detected, "detected", :boolean
       field :analyzed, "analyzed", :boolean
@@ -3365,7 +3562,8 @@ module Didit
       field :requires_text_input, "requires_text_input", :boolean
     end
 
-    # One company registry check - the full company-registry payload enriched with ownership structure and warnings. Present only when `session_kind = business`.
+    # One company registry check - the full company-registry payload enriched with ownership structure and warnings.
+    # Present only when `session_kind = business`.
     class SessionsRetrieveDecisionResponseRegistryChecks < Didit::Model
       field :status, "status", :string
       field :node_id, "node_id", :string
@@ -3502,7 +3700,8 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
-    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it deleted.
+    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it
+    # deleted.
     class SessionsRetrieveDeletionJobResponse < Didit::Model
       field :job_id, "job_id", :string
       field :status, "status", :string
@@ -3565,7 +3764,8 @@ module Didit
       field :parsed_address, "parsed_address", "SessionsUpdateDataResponseParsedAddress"
     end
 
-    # Current structured address (with internal bookkeeping keys stripped), or `null` when none exists. Includes the recomputed `formatted_address` alongside the seven editable keys.
+    # Current structured address (with internal bookkeeping keys stripped), or `null` when none exists. Includes the
+    # recomputed `formatted_address` alongside the seven editable keys.
     class SessionsUpdateDataResponseParsedAddress < Didit::Model
       field :address_type, "address_type", :string
       field :city, "city", :string
@@ -3584,7 +3784,8 @@ module Didit
       field :new_status, "new_status", :string
     end
 
-    # Full KYB company record - the same shape as the `company` object inside `registry_checks[]` on the business session decision.
+    # Full KYB company record - the same shape as the `company` object inside `registry_checks[]` on the business
+    # session decision.
     class SessionsUpdateKybCompanyDataResponse < Didit::Model
       field :uuid, "uuid", :string
       field :node_id, "node_id", :string
@@ -3633,7 +3834,8 @@ module Didit
       field :is_editable, "is_editable", :boolean
     end
 
-    # Key People party record - the same shape as an entry of `key_people_checks[].submitted.parties[]` on the business session decision.
+    # Key People party record - the same shape as an entry of `key_people_checks[].submitted.parties[]` on the
+    # business session decision.
     class SessionsUpdateKybPartyResponse < Didit::Model
       field :uuid, "uuid", :string
       field :entity_type, "entity_type", :string
@@ -3659,7 +3861,9 @@ module Didit
       field :poa_formatted_address, "poa_formatted_address", :string
     end
 
-    # Current structured address, or `null` when none exists. Includes the recomputed `formatted_address` alongside the seven editable keys. Returned as stored - after a server-side geocode it can contain bookkeeping keys (e.g. `raw_results`) alongside the editable keys.
+    # Current structured address, or `null` when none exists. Includes the recomputed `formatted_address` alongside
+    # the seven editable keys. Returned as stored - after a server-side geocode it can contain bookkeeping keys (e.g.
+    # `raw_results`) alongside the editable keys.
     class SessionsUpdatePoaDataResponsePoaParsedAddress < Didit::Model
       field :address_type, "address_type", :string
       field :city, "city", :string

@@ -7,7 +7,8 @@ module Didit
     class Businesses < Didit::Resource
       # Batch delete businesses
       #
-      # **Permanently delete** businesses - this cannot be undone. For blocking prefer [Update Business Status](#patch-/v3/businesses/-vendor_data-/update-status/) with `BLOCKED`.
+      # **Permanently delete** businesses - this cannot be undone. For blocking prefer [Update Business
+      # Status](#patch-/v3/businesses/-vendor_data-/update-status/) with `BLOCKED`.
       #
       # +POST /v3/businesses/delete/+
       #
@@ -32,7 +33,9 @@ module Didit
 
       # Create business
       #
-      # Pre-create a [business](/entities/businesses) *without* a KYB session. All fields are optional, but you should always send `vendor_data` - without it the record cannot be linked to sessions or transactions. When provided, `vendor_data` must be unique among non-deleted businesses (exact match; conflicts return 400). Not idempotent.
+      # Pre-create a [business](/entities/businesses) *without* a KYB session. All fields are optional, but you should
+      # always send `vendor_data` - without it the record cannot be linked to sessions or transactions. When provided,
+      # `vendor_data` must be unique among non-deleted businesses (exact match; conflicts return 400). Not idempotent.
       #
       # +POST /v3/businesses/create/+
       #
@@ -45,7 +48,16 @@ module Didit
       # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. Defaults to `{}`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
-      def create(vendor_data: OMIT, display_name: OMIT, legal_name: OMIT, registration_number: OMIT, country_code: OMIT, status: OMIT, metadata: OMIT, request_options: nil)
+      def create(
+        vendor_data: OMIT,
+        display_name: OMIT,
+        legal_name: OMIT,
+        registration_number: OMIT,
+        country_code: OMIT,
+        status: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/businesses/create/",
@@ -65,7 +77,9 @@ module Didit
 
       # List businesses
       #
-      # List [businesses](/entities/businesses) Didit assembles from KYB sessions sharing the same `vendor_data` (free-form string, NOT a UUID), plus businesses created via the API. Paginated, ordered by `last_session_at` desc. This endpoint does not support filtering or search parameters - fetch pages and filter client-side.
+      # List [businesses](/entities/businesses) Didit assembles from KYB sessions sharing the same `vendor_data`
+      # (free-form string, NOT a UUID), plus businesses created via the API. Paginated, ordered by `last_session_at`
+      # desc. This endpoint does not support filtering or search parameters - fetch pages and filter client-side.
       #
       # +GET /v3/businesses/+
       #
@@ -108,7 +122,8 @@ module Didit
 
       # Get business
       #
-      # Fetch one [business](/entities/businesses) by `vendor_data` (exact match). Adds `metadata` and `updated_at` to the list view. Deleted businesses return 404.
+      # Fetch one [business](/entities/businesses) by `vendor_data` (exact match). Adds `metadata` and `updated_at` to
+      # the list view. Deleted businesses return 404.
       #
       # +GET /v3/businesses/{vendor_data}/+
       #
@@ -127,7 +142,8 @@ module Didit
 
       # Get AML ongoing monitoring job
       #
-      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is PENDING or PROCESSING.
+      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is
+      # PENDING or PROCESSING.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/vendor-businesses/toggle-ongoing-monitoring/{job_id}/+
       #
@@ -147,7 +163,8 @@ module Didit
 
       # Get AML ongoing monitoring job
       #
-      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is PENDING or PROCESSING.
+      # Progress and per-outcome counters of a monitoring toggle job. Poll every couple of seconds while status is
+      # PENDING or PROCESSING.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/businesses/toggle-ongoing-monitoring/{job_id}/+
       #
@@ -167,9 +184,18 @@ module Didit
 
       # Enable or disable AML ongoing monitoring for businesses
       #
-      # Turns AML ongoing monitoring on or off for the selected businesses, with the same semantics as the Business Console. Exactly one monitored AML screening is kept per business, so a profile that verified several times is monitored and billed once; disabling turns monitoring off across all of the profile's screenings. Businesses without any AML screening are screened first (billed as a regular AML screening) when they have the legal or display name needed; otherwise they are reported as `skipped_no_identity_data`.
+      # Turns AML ongoing monitoring on or off for the selected businesses, with the same semantics as the Business
+      # Console. Exactly one monitored AML screening is kept per business, so a profile that verified several times is
+      # monitored and billed once; disabling turns monitoring off across all of the profile's screenings. Businesses
+      # without any AML screening are screened first (billed as a regular AML screening) when they have the legal or
+      # display name needed; otherwise they are reported as `skipped_no_identity_data`.
       #
-      # Set `estimate_only: true` to preview counts and costs without writing anything. Selections of 20 profiles or fewer resolve inline and return `200` with the completed job; larger selections return `202` and run in the background - poll [Get AML monitoring job](#get-/v3/aml-monitoring/jobs/-job_id-/) with the returned `job_id`. Enabling is refused with `403` when the organization balance does not cover the estimate. Identifiers that match nothing are listed in `unmatched` and never fail the request: a selection that matches nothing completes as an empty job (`total` 0), the same convention as the batch delete endpoints.
+      # Set `estimate_only: true` to preview counts and costs without writing anything. Selections of 20 profiles or
+      # fewer resolve inline and return `200` with the completed job; larger selections return `202` and run in the
+      # background - poll [Get AML monitoring job](#get-/v3/aml-monitoring/jobs/-job_id-/) with the returned `job_id`.
+      # Enabling is refused with `403` when the organization balance does not cover the estimate. Identifiers that
+      # match nothing are listed in `unmatched` and never fail the request: a selection that matches nothing completes
+      # as an empty job (`total` 0), the same convention as the batch delete endpoints.
       #
       # +POST /v3/businesses/aml-monitoring/+
       #
@@ -179,7 +205,13 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Didit internal ids of the businesses to toggle - the `didit_internal_id` returned by the create, get and list endpoints.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesSetAmlMonitoringResponse, Didit::Types::BusinessesSetAmlMonitoringResponse202]
-      def set_aml_monitoring(is_enabled:, estimate_only: OMIT, vendor_data_list: OMIT, didit_internal_id_list: OMIT, request_options: nil)
+      def set_aml_monitoring(
+        is_enabled:,
+        estimate_only: OMIT,
+        vendor_data_list: OMIT,
+        didit_internal_id_list: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/businesses/aml-monitoring/",
@@ -196,7 +228,9 @@ module Didit
 
       # Toggle AML ongoing monitoring for businesses
       #
-      # Business-level equivalent of the user toggle: one monitored AML screening per business, with businesses lacking any AML screening screened first (company entity). Same estimate_only, inline fast-path and async job contract.
+      # Business-level equivalent of the user toggle: one monitored AML screening per business, with businesses
+      # lacking any AML screening screened first (company entity). Same estimate_only, inline fast-path and async job
+      # contract.
       #
       # +PATCH /v3/organization/{organization_id}/application/{application_id}/vendor-businesses/toggle-ongoing-monitoring/+
       #
@@ -211,7 +245,18 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Entities to toggle. Required unless update_all is true.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesSetOngoingMonitoringResponse, Didit::Types::BusinessesSetOngoingMonitoringResponse202]
-      def set_ongoing_monitoring(is_enabled:, estimate_only: OMIT, update_all: OMIT, filter_search: OMIT, filter_status: OMIT, filter_country: OMIT, filter_date_from: OMIT, filter_date_to: OMIT, didit_internal_id_list: OMIT, request_options: nil)
+      def set_ongoing_monitoring(
+        is_enabled:,
+        estimate_only: OMIT,
+        update_all: OMIT,
+        filter_search: OMIT,
+        filter_status: OMIT,
+        filter_country: OMIT,
+        filter_date_from: OMIT,
+        filter_date_to: OMIT,
+        didit_internal_id_list: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/vendor-businesses/toggle-ongoing-monitoring/",
@@ -234,7 +279,10 @@ module Didit
 
       # Toggle AML ongoing monitoring for business sessions
       #
-      # Session-level toggle for KYB verifications, addressed by session number. Sessions without an AML screening get one created and attached to the session itself. Same estimate_only, inline fast-path and async job contract as the user-level endpoints. Replaces the legacy synchronous behavior that skipped sessions without an AML screening.
+      # Session-level toggle for KYB verifications, addressed by session number. Sessions without an AML screening get
+      # one created and attached to the session itself. Same estimate_only, inline fast-path and async job contract as
+      # the user-level endpoints. Replaces the legacy synchronous behavior that skipped sessions without an AML
+      # screening.
       #
       # +PATCH /v3/organization/{organization_id}/application/{application_id}/businesses/toggle-ongoing-monitoring/+
       #
@@ -251,7 +299,20 @@ module Didit
       # @param filter_workflow_id [String]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesSetSessionOngoingMonitoringResponse, Didit::Types::BusinessesSetSessionOngoingMonitoringResponse202]
-      def set_session_ongoing_monitoring(is_enabled:, estimate_only: OMIT, update_all: OMIT, filter_search: OMIT, filter_status: OMIT, filter_country: OMIT, filter_date_from: OMIT, filter_date_to: OMIT, session_numbers: OMIT, toggle_all: OMIT, filter_workflow_id: OMIT, request_options: nil)
+      def set_session_ongoing_monitoring(
+        is_enabled:,
+        estimate_only: OMIT,
+        update_all: OMIT,
+        filter_search: OMIT,
+        filter_status: OMIT,
+        filter_country: OMIT,
+        filter_date_from: OMIT,
+        filter_date_to: OMIT,
+        session_numbers: OMIT,
+        toggle_all: OMIT,
+        filter_workflow_id: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/businesses/toggle-ongoing-monitoring/",
@@ -276,7 +337,9 @@ module Didit
 
       # Update business
       #
-      # Partial update of a business: `display_name`, `legal_name`, `registration_number`, `country_code`, `status`, `metadata`. `metadata` fully replaces. Setting `status` to `BLOCKED` adds the `vendor_data` to the system blocklist; moving away from `BLOCKED` removes that entry.
+      # Partial update of a business: `display_name`, `legal_name`, `registration_number`, `country_code`, `status`,
+      # `metadata`. `metadata` fully replaces. Setting `status` to `BLOCKED` adds the `vendor_data` to the system
+      # blocklist; moving away from `BLOCKED` removes that entry.
       #
       # +PATCH /v3/businesses/{vendor_data}/+
       #
@@ -289,7 +352,16 @@ module Didit
       # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. **Fully replaces** the existing metadata on update - merge client-side if you only want to add keys.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
-      def update(vendor_data, display_name: OMIT, legal_name: OMIT, registration_number: OMIT, country_code: OMIT, status: OMIT, metadata: OMIT, request_options: nil)
+      def update(
+        vendor_data,
+        display_name: OMIT,
+        legal_name: OMIT,
+        registration_number: OMIT,
+        country_code: OMIT,
+        status: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/businesses/{vendor_data}/",
@@ -309,7 +381,8 @@ module Didit
 
       # Update business status
       #
-      # Flip only the lifecycle `status` of a business - VendorBusinessStatusChoices (`ACTIVE`/`FLAGGED`/`BLOCKED`, NOT session statuses). `BLOCKED` adds `vendor_data` to the system blocklist.
+      # Flip only the lifecycle `status` of a business - VendorBusinessStatusChoices (`ACTIVE`/`FLAGGED`/`BLOCKED`,
+      # NOT session statuses). `BLOCKED` adds `vendor_data` to the system blocklist.
       #
       # +PATCH /v3/businesses/{vendor_data}/update-status/+
       #

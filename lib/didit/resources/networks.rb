@@ -12,7 +12,10 @@ module Didit
 
       # Download a network evidence report
       #
-      # Download a PDF of the current organization network, its observed account connections, signal references and review status. Requires read:networks. Global intelligence and private analyst notes are not included. Each account and signal list is capped at 500 entries and the report states when it is incomplete. The request does not change network status. Errors are returned as JSON.
+      # Download a PDF of the current organization network, its observed account connections, signal references and
+      # review status. Requires read:networks. Global intelligence and private analyst notes are not included. Each
+      # account and signal list is capped at 500 entries and the report states when it is incomplete. The request does
+      # not change network status. Errors are returned as JSON.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/report/+
       #
@@ -33,7 +36,9 @@ module Didit
 
       # List networks
       #
-      # List fraud networks detected within this application's organization, newest activity first by default. By default dismissed networks are excluded; pass status to include them. Sandbox applications never have networks - clustering excludes sandbox data entirely.
+      # List fraud networks detected within this application's organization, newest activity first by default. By
+      # default dismissed networks are excluded; pass status to include them. Sandbox applications never have networks
+      # - clustering excludes sandbox data entirely.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/+
       #
@@ -51,7 +56,21 @@ module Didit
       # @param offset [Integer] Zero-based offset of the first record.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::NetworkListItem>]
-      def list(status: OMIT, signal_type: OMIT, pattern_type: OMIT, risk_band: OMIT, min_size: OMIT, max_size: OMIT, date_from: OMIT, date_to: OMIT, q: OMIT, ordering: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+      def list(
+        status: OMIT,
+        signal_type: OMIT,
+        pattern_type: OMIT,
+        risk_band: OMIT,
+        min_size: OMIT,
+        max_size: OMIT,
+        date_from: OMIT,
+        date_to: OMIT,
+        q: OMIT,
+        ordering: OMIT,
+        limit: OMIT,
+        offset: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/networks/",
@@ -97,7 +116,8 @@ module Didit
 
       # List network signals
       #
-      # List the signals (shared device, IP, face, document number, phone, email, or address values) that link this network's members.
+      # List the signals (shared device, IP, face, document number, phone, email, or address values) that link this
+      # network's members.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/signals/+
       #
@@ -137,7 +157,9 @@ module Didit
 
       # Get network graph
       #
-      # Retrieve the network as a graph of subject nodes (vendor users, vendor businesses, transaction parties) and signal nodes (the shared device/IP/face/document/phone/email/address values linking them), with edges representing memberships.
+      # Retrieve the network as a graph of subject nodes (vendor users, vendor businesses, transaction parties) and
+      # signal nodes (the shared device/IP/face/document/phone/email/address values linking them), with edges
+      # representing memberships.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/graph/+
       #
@@ -165,7 +187,8 @@ module Didit
 
       # Get network map
       #
-      # Geographic points where this network's members' addresses/locations converge, sourced from the sessions, business sessions, and transactions backing its memberships.
+      # Geographic points where this network's members' addresses/locations converge, sourced from the sessions,
+      # business sessions, and transactions backing its memberships.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/map/+
       #
@@ -207,7 +230,10 @@ module Didit
       class Notes < Didit::Resource
         # Add a private network note
         #
-        # Requires a console user with write:networks. The author is assigned from the authenticated user. Supply a new random UUID client_reference for each note; retry the same body and reference after an uncertain response to avoid duplicates. Reusing a reference for another body, author or network returns 409. Notes follow the surviving investigation when networks merge.
+        # Requires a console user with write:networks. The author is assigned from the authenticated user. Supply a
+        # new random UUID client_reference for each note; retry the same body and reference after an uncertain
+        # response to avoid duplicates. Reusing a reference for another body, author or network returns 409. Notes
+        # follow the surviving investigation when networks merge.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/notes/+
         #
@@ -233,7 +259,8 @@ module Didit
 
         # Delete your network note
         #
-        # Requires write:networks and the authenticated author of the note. Deletion is irreversible. Connected account and verification data are unaffected.
+        # Requires write:networks and the authenticated author of the note. Deletion is irreversible. Connected
+        # account and verification data are unaffected.
         #
         # +DELETE /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/notes/{note_uuid}/+
         #
@@ -253,7 +280,8 @@ module Didit
 
         # List private network notes
         #
-        # Console users with read:networks can read notes on a network visible to the application. Notes stay within the organization and are not contributed to shared intelligence. Newest notes appear first.
+        # Console users with read:networks can read notes on a network visible to the application. Notes stay within
+        # the organization and are not contributed to shared intelligence. Newest notes appear first.
         #
         # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/notes/+
         #

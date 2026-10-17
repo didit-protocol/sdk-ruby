@@ -16,7 +16,11 @@ module Didit
       class Destinations < Didit::Resource
         # Create webhook destination
         #
-        # Create a webhook destination. The response includes the auto-generated `secret_shared_key` HMAC signing secret (also readable later via `GET /v3/webhook/destinations/{destination_uuid}/`). Always send `subscribed_events` with at least one event (no wildcards): an explicit empty list is rejected with 400, and omitting the field creates a destination subscribed to nothing, which never receives a webhook. The `(application, url)` pair must be unique among non-deleted destinations.
+        # Create a webhook destination. The response includes the auto-generated `secret_shared_key` HMAC signing
+        # secret (also readable later via `GET /v3/webhook/destinations/{destination_uuid}/`). Always send
+        # `subscribed_events` with at least one event (no wildcards): an explicit empty list is rejected with 400, and
+        # omitting the field creates a destination subscribed to nothing, which never receives a webhook. The
+        # `(application, url)` pair must be unique among non-deleted destinations.
         #
         # +POST /v3/webhook/destinations/+
         #
@@ -45,7 +49,9 @@ module Didit
 
         # Delete webhook destination
         #
-        # Delete a webhook destination. Future events stop being pushed to its URL. Past delivery records are not affected and stay queryable from the Business Console, so deleting a destination is not a way to remove your delivery history. Calling again returns 404.
+        # Delete a webhook destination. Future events stop being pushed to its URL. Past delivery records are not
+        # affected and stay queryable from the Business Console, so deleting a destination is not a way to remove your
+        # delivery history. Calling again returns 404.
         #
         # +DELETE /v3/webhook/destinations/{destination_uuid}/+
         #
@@ -63,7 +69,9 @@ module Didit
 
         # List webhook destinations
         #
-        # List all webhook destinations (unpaginated array, oldest first). Each row includes URL, subscribed events, and delivery health metrics. The signing secret is NOT included in the list - fetch a single destination (`GET /v3/webhook/destinations/{destination_uuid}/`) to read `secret_shared_key`.
+        # List all webhook destinations (unpaginated array, oldest first). Each row includes URL, subscribed events,
+        # and delivery health metrics. The signing secret is NOT included in the list - fetch a single destination
+        # (`GET /v3/webhook/destinations/{destination_uuid}/`) to read `secret_shared_key`.
         #
         # +GET /v3/webhook/destinations/+
         #
@@ -80,7 +88,9 @@ module Didit
 
         # Get webhook destination
         #
-        # Retrieve one webhook destination with its `secret_shared_key` signing secret and delivery health summary. API-key callers always receive the secret in full; Console users without `read:webhooks` see an empty string.
+        # Retrieve one webhook destination with its `secret_shared_key` signing secret and delivery health summary.
+        # API-key callers always receive the secret in full; Console users without `read:webhooks` see an empty
+        # string.
         #
         # +GET /v3/webhook/destinations/{destination_uuid}/+
         #
@@ -99,7 +109,8 @@ module Didit
 
         # Update webhook destination
         #
-        # Update a webhook destination. **`subscribed_events` is REPLACED wholesale, not merged** - fetch first, append, resend. Secret is not rotated.
+        # Update a webhook destination. **`subscribed_events` is REPLACED wholesale, not merged** - fetch first,
+        # append, resend. Secret is not rotated.
         #
         # +PATCH /v3/webhook/destinations/{destination_uuid}/+
         #
@@ -111,7 +122,15 @@ module Didit
         # @param subscribed_events [Array<String>] Event filter for this webhook destination. Didit delivers only webhooks whose event type exactly matches one of these values - there is no wildcard subscription. When sent, the list must contain at l...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhooksDestinationsUpdateResponse]
-        def update(destination_uuid, label: OMIT, url: OMIT, enabled: OMIT, webhook_version: OMIT, subscribed_events: OMIT, request_options: nil)
+        def update(
+          destination_uuid,
+          label: OMIT,
+          url: OMIT,
+          enabled: OMIT,
+          webhook_version: OMIT,
+          subscribed_events: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/webhook/destinations/{destination_uuid}/",

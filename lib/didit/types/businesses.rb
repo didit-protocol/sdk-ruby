@@ -138,7 +138,8 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
-    # Business lifecycle status. Setting `BLOCKED` automatically adds the `vendor_data` to the system blocklist; flipping away from `BLOCKED` removes that blocklist entry.
+    # Business lifecycle status. Setting `BLOCKED` automatically adds the `vendor_data` to the system blocklist;
+    # flipping away from `BLOCKED` removes that blocklist entry.
     module BusinessesUpdateParamsStatus
       ACTIVE = "ACTIVE"
       FLAGGED = "FLAGGED"
@@ -195,7 +196,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesRetrieveOngoingMonitoringJobResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -232,7 +234,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesRetrieveSessionOngoingMonitoringJobResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -299,7 +302,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently skipped.
+    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
+    # skipped.
     class BusinessesSetAmlMonitoringResponse202Outcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -331,7 +335,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently skipped.
+    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
+    # skipped.
     class BusinessesSetAmlMonitoringResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -394,7 +399,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesSetOngoingMonitoringResponse202Outcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -420,7 +426,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesSetOngoingMonitoringResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -477,7 +484,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesSetSessionOngoingMonitoringResponse202Outcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer
@@ -503,7 +511,8 @@ module Didit
       field :balance_sufficient, "balance_sufficient", :boolean
     end
 
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one counter.
+    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
+    # counter.
     class BusinessesSetSessionOngoingMonitoringResponseOutcomes < Didit::Model
       field :enabled, "enabled", :integer
       field :screened_and_enabled, "screened_and_enabled", :integer

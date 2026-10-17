@@ -7,21 +7,47 @@ module Didit
     class AgeEstimation < Didit::Resource
       # Age Estimation (face age + passive liveness)
       #
-      # Estimate a person's age from a single face photo and run a passive liveness check in the same call - returns the model-predicted `age_estimation` (in years), a liveness `score` (0-100), and an `Approved`/`Declined` `status`. The age is **model-predicted from the face, not verified against a document** - use it for age gates and low-friction checks, not as legal proof of age.
+      # Estimate a person's age from a single face photo and run a passive liveness check in the same call - returns
+      # the model-predicted `age_estimation` (in years), a liveness `score` (0-100), and an `Approved`/`Declined`
+      # `status`. The age is **model-predicted from the face, not verified against a document** - use it for age gates
+      # and low-friction checks, not as legal proof of age.
       #
-      # **How it works.** The image is analyzed for faces (set `rotate_image=true` if captures may be sideways or upside down); each detected face gets an estimated age, and the largest face in the frame drives `age_estimation`. In parallel, a passive liveness model scores whether the photo shows a live person (no user challenge required) and detects presentation attacks (photos of photos, screens, masks). Submit one clear, front-facing, well-lit face per image for best results.
+      # **How it works.** The image is analyzed for faces (set `rotate_image=true` if captures may be sideways or
+      # upside down); each detected face gets an estimated age, and the largest face in the frame drives
+      # `age_estimation`. In parallel, a passive liveness model scores whether the photo shows a live person (no user
+      # challenge required) and detects presentation attacks (photos of photos, screens, masks). Submit one clear,
+      # front-facing, well-lit face per image for best results.
       #
-      # **Decision logic.** Any warning declines: `status` is `Approved` only when the `warnings` array is empty. A liveness `score` at or below `face_liveness_score_decline_threshold` (default `30`) adds `LOW_LIVENESS_SCORE`; a detected attack adds `LIVENESS_FACE_ATTACK`; no face found by the liveness model adds `NO_FACE_DETECTED`; no estimable face age adds `AGE_NOT_DETECTED` (`age_estimation` is `null`); an estimated age below `age_estimation_decline_threshold` (default `18`) adds `AGE_BELOW_MINIMUM`. Borderline ages near your threshold deserve a fallback to document-based verification - the model's error grows for faces close to the limit.
+      # **Decision logic.** Any warning declines: `status` is `Approved` only when the `warnings` array is empty. A
+      # liveness `score` at or below `face_liveness_score_decline_threshold` (default `30`) adds `LOW_LIVENESS_SCORE`;
+      # a detected attack adds `LIVENESS_FACE_ATTACK`; no face found by the liveness model adds `NO_FACE_DETECTED`; no
+      # estimable face age adds `AGE_NOT_DETECTED` (`age_estimation` is `null`); an estimated age below
+      # `age_estimation_decline_threshold` (default `18`) adds `AGE_BELOW_MINIMUM`. Borderline ages near your
+      # threshold deserve a fallback to document-based verification - the model's error grows for faces close to the
+      # limit.
       #
-      # **Billing.** Each `200` response consumes one Age Estimation API credit (standalone APIs have no free tier). When the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits error before any image processing.
+      # **Billing.** Each `200` response consumes one Age Estimation API credit (standalone APIs have no free tier).
+      # When the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits
+      # error before any image processing.
       #
-      # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an API-type session: it appears in the Business Console, the returned `request_id` is a real session id you can pass to `GET /v3/session/{sessionId}/decision/` (the result is exposed there in `liveness_checks[]`, with `features: ["AGE_ESTIMATION"]`), the face crop and reference image are stored, the face embedding is added to your application's face index (used by face search and duplicate detection), and a `status.updated` webhook is emitted. When `false`, nothing is stored and `request_id` is a one-off correlation UUID that cannot be looked up later.
+      # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an
+      # API-type session: it appears in the Business Console, the returned `request_id` is a real session id you can
+      # pass to `GET /v3/session/{sessionId}/decision/` (the result is exposed there in `liveness_checks[]`, with
+      # `features: ["AGE_ESTIMATION"]`), the face crop and reference image are stored, the face embedding is added to
+      # your application's face index (used by face search and duplicate detection), and a `status.updated` webhook is
+      # emitted. When `false`, nothing is stored and `request_id` is a one-off correlation UUID that cannot be looked
+      # up later.
       #
-      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still returns `400`), the endpoint returns a static `Approved` mock payload (`age_estimation: 30`, no warnings), no session is persisted, and no credits are consumed.
+      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still
+      # returns `400`), the endpoint returns a static `Approved` mock payload (`age_estimation: 30`, no warnings), no
+      # session is persisted, and no credits are consumed.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
       # +POST /v3/age-estimation/+
       #
@@ -34,7 +60,16 @@ module Didit
       # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"age...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AgeEstimationEstimateResponse]
-      def estimate(user_image:, face_liveness_score_decline_threshold: OMIT, age_estimation_decline_threshold: OMIT, rotate_image: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def estimate(
+        user_image:,
+        face_liveness_score_decline_threshold: OMIT,
+        age_estimation_decline_threshold: OMIT,
+        rotate_image: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/age-estimation/",

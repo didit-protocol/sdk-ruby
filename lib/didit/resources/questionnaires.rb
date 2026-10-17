@@ -7,7 +7,8 @@ module Didit
     class Questionnaires < Didit::Resource
       # Create questionnaire
       #
-      # Create a simple linear questionnaire. Send `form_elements` in display order; branching and repeatable groups require the Console. Defaults to `published` v1.
+      # Create a simple linear questionnaire. Send `form_elements` in display order; branching and repeatable groups
+      # require the Console. Defaults to `published` v1.
       #
       # +POST /v3/questionnaires/+
       #
@@ -20,7 +21,16 @@ module Didit
       # @param status [String] Omit this field to create a published questionnaire ready for workflows.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::QuestionnaireDetail]
-      def create(title:, languages:, form_elements:, description: OMIT, default_language: OMIT, is_active: OMIT, status: OMIT, request_options: nil)
+      def create(
+        title:,
+        languages:,
+        form_elements:,
+        description: OMIT,
+        default_language: OMIT,
+        is_active: OMIT,
+        status: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/questionnaires/",
@@ -40,7 +50,9 @@ module Didit
 
       # Delete questionnaire
       #
-      # Permanently delete one questionnaire version (no undo). Stored questionnaire responses linked to this version are deleted with it, and sessions referencing it lose the link; other versions in the same group are not deleted. Workflows that referenced it keep running but the questionnaire step can no longer load it.
+      # Permanently delete one questionnaire version (no undo). Stored questionnaire responses linked to this version
+      # are deleted with it, and sessions referencing it lose the link; other versions in the same group are not
+      # deleted. Workflows that referenced it keep running but the questionnaire step can no longer load it.
       #
       # +DELETE /v3/questionnaires/{questionnaire_uuid}/+
       #
@@ -58,7 +70,9 @@ module Didit
 
       # List questionnaires
       #
-      # List your questionnaires, newest first, in a limit/offset pagination envelope (`{count, next, previous, results}`, default page size 50). Each row is one version; `questionnaire_group_id` is the stable group ID resolved to the latest `published` version.
+      # List your questionnaires, newest first, in a limit/offset pagination envelope (`{count, next, previous,
+      # results}`, default page size 50). Each row is one version; `questionnaire_group_id` is the stable group ID
+      # resolved to the latest `published` version.
       #
       # +GET /v3/questionnaires/+
       #
@@ -81,7 +95,8 @@ module Didit
 
       # Get questionnaire
       #
-      # Fetch full questionnaire detail for one version by `questionnaire_uuid`: title, `languages`, canonical `graph`, derived `sections`, and version metadata.
+      # Fetch full questionnaire detail for one version by `questionnaire_uuid`: title, `languages`, canonical
+      # `graph`, derived `sections`, and version metadata.
       #
       # +GET /v3/questionnaires/{questionnaire_uuid}/+
       #
@@ -100,7 +115,13 @@ module Didit
 
       # Update questionnaire
       #
-      # Update a questionnaire. Versioning depends on the `status` field you send and the current state of the version: (1) no `status` on a **published** version → the published version is updated in place (same `questionnaire_id`, same `version`); (2) no `status` on a **draft** → the draft is updated and immediately published; (3) `status: "published"` on a **published** version → a NEW published version is created under the same `questionnaire_group_id` (new `questionnaire_id`, `version` + 1) and returned, and any existing draft in the group is deleted; (4) `status: "draft"` keeps a draft as a draft (autosave) but is rejected with 400 on a published version (`"Cannot revert a published version to draft."`).
+      # Update a questionnaire. Versioning depends on the `status` field you send and the current state of the
+      # version: (1) no `status` on a **published** version → the published version is updated in place (same
+      # `questionnaire_id`, same `version`); (2) no `status` on a **draft** → the draft is updated and immediately
+      # published; (3) `status: "published"` on a **published** version → a NEW published version is created under the
+      # same `questionnaire_group_id` (new `questionnaire_id`, `version` + 1) and returned, and any existing draft in
+      # the group is deleted; (4) `status: "draft"` keeps a draft as a draft (autosave) but is rejected with 400 on a
+      # published version (`"Cannot revert a published version to draft."`).
       #
       # +PATCH /v3/questionnaires/{questionnaire_uuid}/+
       #
@@ -114,7 +135,17 @@ module Didit
       # @param form_elements [Array<Hash>] If provided, this replaces the full linear question list.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::QuestionnaireDetail]
-      def update(questionnaire_uuid, title: OMIT, description: OMIT, languages: OMIT, default_language: OMIT, is_active: OMIT, status: OMIT, form_elements: OMIT, request_options: nil)
+      def update(
+        questionnaire_uuid,
+        title: OMIT,
+        description: OMIT,
+        languages: OMIT,
+        default_language: OMIT,
+        is_active: OMIT,
+        status: OMIT,
+        form_elements: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/questionnaires/{questionnaire_uuid}/",

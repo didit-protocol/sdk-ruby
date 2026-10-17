@@ -17,7 +17,9 @@ module Didit
 
       # Programmatic Login
       #
-      # Authenticate any verified email/password Didit account and receive an RS256 JWT pair (default lifetime 86400s). Console-created email/password accounts can use this endpoint; OAuth-only console accounts must set a password first.
+      # Authenticate any verified email/password Didit account and receive an RS256 JWT pair (default lifetime
+      # 86400s). Console-created email/password accounts can use this endpoint; OAuth-only console accounts must set a
+      # password first.
       #
       # +POST /programmatic/login/+
       #
@@ -42,7 +44,8 @@ module Didit
 
       # Register Account
       #
-      # Step 1 of programmatic onboarding. Creates a pending account and emails a 6-char code (10 min TTL). Rate limit: 5/IP/hour.
+      # Step 1 of programmatic onboarding. Creates a pending account and emails a 6-char code (10 min TTL). Rate
+      # limit: 5/IP/hour.
       #
       # +POST /programmatic/register/+
       #
@@ -67,9 +70,12 @@ module Didit
 
       # Resend the email verification code
       #
-      # Resend the 6-character verification code for an unverified programmatic account. Requires the account's email and password so only the owner can trigger a new code (no console Basic Auth). A fresh code replaces the previous one and is valid for 10 minutes.
+      # Resend the 6-character verification code for an unverified programmatic account. Requires the account's email
+      # and password so only the owner can trigger a new code (no console Basic Auth). A fresh code replaces the
+      # previous one and is valid for 10 minutes.
       #
-      # Rate limits: a per-email cooldown of 60 seconds between resends (HTTP 429 with `Retry-After`), and the same 5-per-IP-per-hour budget as registration.
+      # Rate limits: a per-email cooldown of 60 seconds between resends (HTTP 429 with `Retry-After`), and the same
+      # 5-per-IP-per-hour budget as registration.
       #
       # +POST /programmatic/resend-otp/+
       #
@@ -94,7 +100,8 @@ module Didit
 
       # Verify Email and Issue Credentials
       #
-      # Step 2 of onboarding. Exchanges the 6-char code for a verified account, a default org+app, and a JWT pair. Persist the returned `api_key`.
+      # Step 2 of onboarding. Exchanges the 6-char code for a verified account, a default org+app, and a JWT pair.
+      # Persist the returned `api_key`.
       #
       # +POST /programmatic/verify-email/+
       #
@@ -121,7 +128,8 @@ module Didit
       class Applications < Didit::Resource
         # Create Application
         #
-        # Create an application inside an organization. The response includes `api_key`; persist it now (recoverable via GET). Requires owner/admin JWT.
+        # Create an application inside an organization. The response includes `api_key`; persist it now (recoverable
+        # via GET). Requires owner/admin JWT.
         #
         # +POST /organizations/me/{org_id}/applications/+
         #
@@ -134,7 +142,16 @@ module Didit
         # @param description [String] Internal description for the application (not shown to end users).
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
-        def create(org_id, name: OMIT, website_url: OMIT, redirect_uris: OMIT, terms_url: OMIT, privacy_url: OMIT, description: OMIT, request_options: nil)
+        def create(
+          org_id,
+          name: OMIT,
+          website_url: OMIT,
+          redirect_uris: OMIT,
+          terms_url: OMIT,
+          privacy_url: OMIT,
+          description: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/organizations/me/{org_id}/applications/",
@@ -156,7 +173,9 @@ module Didit
 
         # List the organization's applications
         #
-        # List every application in the organization. Use this to discover `app_id` values when recovering credentials from a new machine - follow with `GET /organizations/me/{org_id}/applications/{app_id}/` for the API key. Requires an owner or admin Bearer token.
+        # List every application in the organization. Use this to discover `app_id` values when recovering credentials
+        # from a new machine - follow with `GET /organizations/me/{org_id}/applications/{app_id}/` for the API key.
+        # Requires an owner or admin Bearer token.
         #
         # +GET /organizations/me/{org_id}/applications/+
         #
@@ -177,7 +196,8 @@ module Didit
 
         # Get Application Credentials
         #
-        # Read one application's full record including `client_id` and `api_key`. Use this to recover a lost `api_key`.
+        # Read one application's full record including `client_id` and `api_key`. Use this to recover a lost
+        # `api_key`.
         #
         # +GET /organizations/me/{org_id}/applications/{app_id}/+
         #
@@ -199,7 +219,8 @@ module Didit
 
         # Update Application
         #
-        # Update application metadata (name, URLs, redirect URIs). `api_key` and `client_id` are never rotated. Requires owner/admin JWT.
+        # Update application metadata (name, URLs, redirect URIs). `api_key` and `client_id` are never rotated.
+        # Requires owner/admin JWT.
         #
         # +PATCH /organizations/me/{org_id}/applications/{app_id}/+
         #
@@ -213,7 +234,17 @@ module Didit
         # @param description [String] Internal description for the application.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
-        def update(org_id, app_id, name: OMIT, website_url: OMIT, redirect_uris: OMIT, terms_url: OMIT, privacy_url: OMIT, description: OMIT, request_options: nil)
+        def update(
+          org_id,
+          app_id,
+          name: OMIT,
+          website_url: OMIT,
+          redirect_uris: OMIT,
+          terms_url: OMIT,
+          privacy_url: OMIT,
+          description: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/organizations/me/{org_id}/applications/{app_id}/",
@@ -238,7 +269,8 @@ module Didit
       class Organizations < Didit::Resource
         # List My Organizations
         #
-        # List organizations the authenticated user belongs to. Each entry's `uuid` is the `org_id` used on the application endpoints.
+        # List organizations the authenticated user belongs to. Each entry's `uuid` is the `org_id` used on the
+        # application endpoints.
         #
         # +GET /organizations/me/+
         #

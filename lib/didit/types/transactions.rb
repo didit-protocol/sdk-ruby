@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # Category of the transaction. CamelCase aliases (`travelRule`, `userPlatformEvent`, `gamblingBet`, …) are also accepted; the stored/echoed value is camelCase for multi-word categories.
+    # Category of the transaction. CamelCase aliases (`travelRule`, `userPlatformEvent`, `gamblingBet`, …) are also
+    # accepted; the stored/echoed value is camelCase for multi-word categories.
     module TransactionsCreateParamsTransactionCategory
       FINANCE = "finance"
       KYC = "kyc"
@@ -18,7 +19,8 @@ module Didit
       VALUES = [FINANCE, KYC, TRAVEL_RULE, USER_EVENT, AUDIT_TRAIL_EVENT, GAMBLING_BET, GAMBLING_LIMIT_CHANGE, GAMBLING_BONUS_CHANGE, TRAVEL_RULE_].freeze
     end
 
-    # Direction of the transaction relative to the subject. Case-insensitive; `in`/`out` are accepted as aliases. Echoed back uppercase (`INBOUND`/`OUTBOUND`).
+    # Direction of the transaction relative to the subject. Case-insensitive; `in`/`out` are accepted as aliases.
+    # Echoed back uppercase (`INBOUND`/`OUTBOUND`).
     module TransactionsCreateParamsTransactionDetailsDirection
       INBOUND = "inbound"
       OUTBOUND = "outbound"
@@ -36,7 +38,8 @@ module Didit
       VALUES = [INBOUND, OUTBOUND].freeze
     end
 
-    # Categorical risk severity set by rules/providers (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). `null` until something sets it.
+    # Categorical risk severity set by rules/providers (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). `null` until
+    # something sets it.
     module TransactionsListResponseResultsSeverity
       UNKNOWN = "UNKNOWN"
       LOW = "LOW"
@@ -81,7 +84,8 @@ module Didit
       VALUES = [ALL, ANY].freeze
     end
 
-    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended starting mode. DISABLED is skipped.
+    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended
+    # starting mode. DISABLED is skipped.
     module TransactionsRulesCreateParamsMode
       ACTIVE = "ACTIVE"
       DISABLED = "DISABLED"
@@ -115,7 +119,8 @@ module Didit
       VALUES = [ALL, ANY].freeze
     end
 
-    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended starting mode. DISABLED is skipped.
+    # ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended
+    # starting mode. DISABLED is skipped.
     module TransactionsRulesUpdateParamsMode
       ACTIVE = "ACTIVE"
       DISABLED = "DISABLED"
@@ -124,7 +129,8 @@ module Didit
       VALUES = [ACTIVE, DISABLED, TEST].freeze
     end
 
-    # "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound transfer stuck in COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA.
+    # "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound transfer stuck in
+    # COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA.
     module TransactionsTravelRuleUpdateTransferParamsAction
       CANCEL = "cancel"
       RESEND = "resend"

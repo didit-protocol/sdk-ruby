@@ -7,9 +7,15 @@ module Didit
     class FraudChecks < Didit::Resource
       # Run a Fraud Check
       #
-      # Submit one or more typed identifiers and receive normalization, fresh enrichment, authoritative validation where the country and identifier type are covered, independent risk dimensions and a recommendation in one response.
+      # Submit one or more typed identifiers and receive normalization, fresh enrichment, authoritative validation
+      # where the country and identifier type are covered, independent risk dimensions and a recommendation in one
+      # response.
       #
-      # These profiles support identifier checks. Selfie-based identity binding (`biometric_identity`) requires profile version `2026-09-14.2` and a Brazilian CPF; it runs only with the user's consent and when your organization is entitled to it. Earlier versions report it as `not_available_in_profile_version`. Modules that cannot run are reported as skipped with a deterministic reason; a source that could not answer is never reported as an identity mismatch.
+      # These profiles support identifier checks. Selfie-based identity binding (`biometric_identity`) requires
+      # profile version `2026-09-14.2` and a Brazilian CPF; it runs only with the user's consent and when your
+      # organization is entitled to it. Earlier versions report it as `not_available_in_profile_version`. Modules that
+      # cannot run are reported as skipped with a deterministic reason; a source that could not answer is never
+      # reported as an identity mismatch.
       #
       # +POST /v3/fraud/checks/+
       #
@@ -23,7 +29,17 @@ module Didit
       # @param metadata [Object]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FraudCheckResponse]
-      def create(subject:, client_reference: OMIT, profile: OMIT, profile_version: OMIT, context: OMIT, checks: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def create(
+        subject:,
+        client_reference: OMIT,
+        profile: OMIT,
+        profile_version: OMIT,
+        context: OMIT,
+        checks: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/fraud/checks/",
@@ -58,7 +74,17 @@ module Didit
       # @param metadata [Object]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FraudCheckPlan]
-      def plan(subject:, client_reference: OMIT, profile: OMIT, profile_version: OMIT, context: OMIT, checks: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def plan(
+        subject:,
+        client_reference: OMIT,
+        profile: OMIT,
+        profile_version: OMIT,
+        context: OMIT,
+        checks: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/fraud/checks/plan/",

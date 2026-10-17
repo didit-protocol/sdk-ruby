@@ -19,7 +19,9 @@ module Didit
       VALUES = [PERSON, COMPANY].freeze
     end
 
-    # `False Positive` - `match_score` below `aml_match_score_threshold`, excluded from risk assessment. `Unreviewed` - possible match awaiting review. `Confirmed Match` / `Inconclusive` - set manually by a reviewer (via the Business Console) on saved sessions; that review capability is not part of this spec.
+    # `False Positive` - `match_score` below `aml_match_score_threshold`, excluded from risk assessment. `Unreviewed`
+    # - possible match awaiting review. `Confirmed Match` / `Inconclusive` - set manually by a reviewer (via the
+    # Business Console) on saved sessions; that review capability is not part of this spec.
     module AmlScreenResponseAmlHitsReviewStatus
       FALSE_POSITIVE = "False Positive"
       UNREVIEWED = "Unreviewed"
@@ -38,7 +40,8 @@ module Didit
       VALUES = [MATCH, NEUTRAL, HARD_MISMATCH].freeze
     end
 
-    # `Declined` when `score` > `aml_score_review_threshold`; `In Review` when `score` > `aml_score_approve_threshold`; `Approved` otherwise (including when no score is available).
+    # `Declined` when `score` > `aml_score_review_threshold`; `In Review` when `score` >
+    # `aml_score_approve_threshold`; `Approved` otherwise (including when no score is available).
     module AmlScreenResponseAmlStatus
       APPROVED = "Approved"
       IN_REVIEW = "In Review"
@@ -65,7 +68,10 @@ module Didit
       field :warnings, "warnings", [:array, "AmlScreenResponseAmlWarnings"]
     end
 
-    # One screening hit. `match_score` (0-100) measures identity confidence - hits below `aml_match_score_threshold` are tagged `review_status: "False Positive"` and excluded from the risk assessment; hits at or above it are `"Unreviewed"` possible matches. `risk_score` (0-100) measures how risky the matched entity is and drives the top-level `aml.score`.
+    # One screening hit. `match_score` (0-100) measures identity confidence - hits below `aml_match_score_threshold`
+    # are tagged `review_status: "False Positive"` and excluded from the risk assessment; hits at or above it are
+    # `"Unreviewed"` possible matches. `risk_score` (0-100) measures how risky the matched entity is and drives the
+    # top-level `aml.score`.
     class AmlScreenResponseAmlHits < Didit::Model
       field :id, "id", :string
       field :url, "url", :string
@@ -129,7 +135,10 @@ module Didit
       field :other_sources, "other_sources", [:array, :string]
     end
 
-    # How `match_score` was computed. Name, date of birth, and country each contribute `<component>_score` × `<component>_weight_normalized` points; weights are re-normalized when a component is missing from the screened data. The document number is not weighted - it acts as a 'golden key': `MATCH` overrides the score to 100, `NEUTRAL` leaves it unchanged, `HARD_MISMATCH` applies a penalty.
+    # How `match_score` was computed. Name, date of birth, and country each contribute `<component>_score` ×
+    # `<component>_weight_normalized` points; weights are re-normalized when a component is missing from the screened
+    # data. The document number is not weighted - it acts as a 'golden key': `MATCH` overrides the score to 100,
+    # `NEUTRAL` leaves it unchanged, `HARD_MISMATCH` applies a penalty.
     class AmlScreenResponseAmlHitsScoreBreakdown < Didit::Model
       field :name_score, "name_score", :integer
       field :name_weight, "name_weight", :integer
@@ -148,7 +157,8 @@ module Didit
       field :total_score, "total_score", :integer
     end
 
-    # Echo of what was screened: `full_name`, `date_of_birth`, `nationality`, `document_number` (absent fields are `null`).
+    # Echo of what was screened: `full_name`, `date_of_birth`, `nationality`, `document_number` (absent fields are
+    # `null`).
     class AmlScreenResponseAmlScreenedData < Didit::Model
       field :full_name, "full_name", :string
       field :date_of_birth, "date_of_birth", :string

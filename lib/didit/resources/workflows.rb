@@ -7,7 +7,10 @@ module Didit
     class Workflows < Didit::Resource
       # Create workflow
       #
-      # Create a simple workflow. Send `features` in execution order (ordering rules apply); defaults to `published` v1. The body accepts ONLY the fields listed in `SimpleWorkflowRequest` - any other key (including `workflow_type`) is rejected with a 400. Not idempotent - each call creates a new workflow. Maximum 50 workflows per application.
+      # Create a simple workflow. Send `features` in execution order (ordering rules apply); defaults to `published`
+      # v1. The body accepts ONLY the fields listed in `SimpleWorkflowRequest` - any other key (including
+      # `workflow_type`) is rejected with a 400. Not idempotent - each call creates a new workflow. Maximum 50
+      # workflows per application.
       #
       # +POST /v3/workflows/+
       #
@@ -24,7 +27,20 @@ module Didit
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600), maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Hash]
-      def create(features:, workflow_label: OMIT, is_default: OMIT, status: OMIT, is_white_label_enabled: OMIT, is_desktop_allowed: OMIT, max_retry_attempts: OMIT, retry_window_days: OMIT, face_liveness_max_attempts: OMIT, face_match_max_attempts: OMIT, session_expiration_time: OMIT, request_options: nil)
+      def create(
+        features:,
+        workflow_label: OMIT,
+        is_default: OMIT,
+        status: OMIT,
+        is_white_label_enabled: OMIT,
+        is_desktop_allowed: OMIT,
+        max_retry_attempts: OMIT,
+        retry_window_days: OMIT,
+        face_liveness_max_attempts: OMIT,
+        face_match_max_attempts: OMIT,
+        session_expiration_time: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/workflows/",
@@ -48,7 +64,8 @@ module Didit
 
       # Delete workflow
       #
-      # Permanently delete one workflow version (no undo). Existing sessions keep their verification results but their workflow reference is cleared; other versions in the same `workflow_id` group are not deleted.
+      # Permanently delete one workflow version (no undo). Existing sessions keep their verification results but their
+      # workflow reference is cleared; other versions in the same `workflow_id` group are not deleted.
       #
       # +DELETE /v3/workflows/{settings_uuid}/+
       #
@@ -66,7 +83,9 @@ module Didit
 
       # List workflows
       #
-      # List your workflows, newest first, in a limit/offset pagination envelope (`{count, next, previous, results}`, default page size 50). Each row is one version; `workflow_id` is the stable group ID and new sessions use the latest `published` version.
+      # List your workflows, newest first, in a limit/offset pagination envelope (`{count, next, previous, results}`,
+      # default page size 50). Each row is one version; `workflow_id` is the stable group ID and new sessions use the
+      # latest `published` version.
       #
       # +GET /v3/workflows/+
       #
@@ -89,7 +108,8 @@ module Didit
 
       # Get workflow
       #
-      # Fetch full configuration for one workflow version by `settings_uuid`: feature toggles, thresholds, allowed documents, graph, retry policy, callbacks, and pricing.
+      # Fetch full configuration for one workflow version by `settings_uuid`: feature toggles, thresholds, allowed
+      # documents, graph, retry policy, callbacks, and pricing.
       #
       # +GET /v3/workflows/{settings_uuid}/+
       #
@@ -108,7 +128,14 @@ module Didit
 
       # Update workflow
       #
-      # Update a workflow. Versioning depends on the `status` field you send and the current state of the version: (1) no `status` on a **published** version → the published version is updated in place (same `uuid`, same `version`); (2) no `status` on a **draft** → the draft is updated and immediately published; (3) `status: "published"` on a **published** version → a NEW published version is created under the same `workflow_id` (new `uuid`, `version` + 1) and returned, and any existing draft in the group is deleted; (4) `status: "draft"` keeps a draft as a draft (autosave) but is rejected with 400 on a published version (`"Cannot revert a published version to draft."`). The body accepts the same strict field whitelist as create - unknown keys are rejected with 400.
+      # Update a workflow. Versioning depends on the `status` field you send and the current state of the version: (1)
+      # no `status` on a **published** version → the published version is updated in place (same `uuid`, same
+      # `version`); (2) no `status` on a **draft** → the draft is updated and immediately published; (3) `status:
+      # "published"` on a **published** version → a NEW published version is created under the same `workflow_id` (new
+      # `uuid`, `version` + 1) and returned, and any existing draft in the group is deleted; (4) `status: "draft"`
+      # keeps a draft as a draft (autosave) but is rejected with 400 on a published version (`"Cannot revert a
+      # published version to draft."`). The body accepts the same strict field whitelist as create - unknown keys are
+      # rejected with 400.
       #
       # +PATCH /v3/workflows/{settings_uuid}/+
       #
@@ -126,7 +153,21 @@ module Didit
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600), maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Hash]
-      def update(settings_uuid, workflow_label: OMIT, is_default: OMIT, status: OMIT, features: OMIT, is_white_label_enabled: OMIT, is_desktop_allowed: OMIT, max_retry_attempts: OMIT, retry_window_days: OMIT, face_liveness_max_attempts: OMIT, face_match_max_attempts: OMIT, session_expiration_time: OMIT, request_options: nil)
+      def update(
+        settings_uuid,
+        workflow_label: OMIT,
+        is_default: OMIT,
+        status: OMIT,
+        features: OMIT,
+        is_white_label_enabled: OMIT,
+        is_desktop_allowed: OMIT,
+        max_retry_attempts: OMIT,
+        retry_window_days: OMIT,
+        face_liveness_max_attempts: OMIT,
+        face_match_max_attempts: OMIT,
+        session_expiration_time: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/workflows/{settings_uuid}/",

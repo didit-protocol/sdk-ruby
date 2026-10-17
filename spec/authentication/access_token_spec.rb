@@ -32,8 +32,8 @@ module AuthenticationHelper
       claims = auth.verify_access_token(key.sign(access_claims(act: act, amr: [], verified: {})))
 
       expect(claims.act).to be_a(Didit::Authentication::ActorClaim)
-      expect([claims.act.sub, claims.act.agent,
-              claims.act.scopes]).to eq(["agent-0001", "Synthetic Agent", ["payouts:read"]])
+      actor = claims.act
+      expect([actor.sub, actor.agent, actor.scopes]).to eq(["agent-0001", "Synthetic Agent", ["payouts:read"]])
       expect(claims.verified.level).to be_nil
     end
 
@@ -117,13 +117,10 @@ module AuthenticationHelper
       it "rejects HS256 signed with the public key (key confusion)" do
         header = { "alg" => "HS256", "typ" => "at+jwt", "kid" => key.kid }
         signing_input = "#{segment(header)}.#{segment(access_claims)}"
-        mac = OpenSSL::HMAC.digest("SHA256", JSON.generate(key.jwk), signing_input)
-        expect(reason_of { auth.verify_access_token("#{signing_input}.#{b64url(mac)}") }).to eq(:unsupported_algorithm)
-
-        pem_mac = OpenSSL::HMAC.digest("SHA256", key.private_key.public_to_pem, signing_input)
-        expect(reason_of do
-          auth.verify_access_token("#{signing_input}.#{b64url(pem_mac)}")
-        end).to eq(:unsupported_algorithm)
+        [JSON.generate(key.jwk), key.private_key.public_to_pem].each do |secret|
+          token = "#{signing_input}.#{b64url(OpenSSL::HMAC.digest("SHA256", secret, signing_input))}"
+          expect(reason_of { auth.verify_access_token(token) }).to eq(:unsupported_algorithm)
+        end
       end
 
       it "rejects real RS256 and PS256 tokens" do
@@ -138,12 +135,12 @@ module AuthenticationHelper
 
       it "rejects a real ES384 token" do
         p384 = OpenSSL::PKey::EC.generate("secp384r1")
-        signing_input = "#{segment({ "alg" => "ES384", "typ" => "at+jwt",
-                                     "kid" => key.kid })}.#{segment(access_claims)}"
-        raw = OpenSSL::ASN1.decode(p384.sign("SHA384", signing_input)).value.map { |n| n.value.to_s(2).rjust(48, "\x00") }
-        expect(reason_of do
-          auth.verify_access_token("#{signing_input}.#{b64url(raw.join)}")
-        end).to eq(:unsupported_algorithm)
+        header = segment({ "alg" => "ES384", "typ" => "at+jwt", "kid" => key.kid })
+        signing_input = "#{header}.#{segment(access_claims)}"
+        integers = OpenSSL::ASN1.decode(p384.sign("SHA384", signing_input)).value
+        signature = integers.map { |n| n.value.to_s(2).rjust(48, "\x00".b) }.join
+        expect(reason_of { auth.verify_access_token("#{signing_input}.#{b64url(signature)}") })
+          .to eq(:unsupported_algorithm)
       end
     end
 
@@ -222,8 +219,8 @@ module AuthenticationHelper
       end
 
       it "allows sixty seconds of clock skew" do
-        [{ exp: NOW - 59 }, { exp: NOW + 1.5 }, { nbf: NOW + 59 }, { iat: NOW + 59 },
-         { nbf: NOW - 10 }].each do |overrides|
+        skews = [{ exp: NOW - 59 }, { exp: NOW + 1.5 }, { nbf: NOW + 59 }, { iat: NOW + 59 }, { nbf: NOW - 10 }]
+        skews.each do |overrides|
           expect(auth.verify_access_token(key.sign(access_claims(**overrides))).sub).to eq(IDENTITY_ID)
         end
       end

@@ -7,11 +7,20 @@ module Didit
     class BiometricTemplates < Didit::Resource
       # Bulk purge retained biometric templates
       #
-      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys (`x-api-key`) only; Business Console user tokens are rejected with `403`.
+      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User
+      # when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a
+      # finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User
+      # deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys
+      # (`x-api-key`) only; Business Console user tokens are rejected with `403`.
       #
-      # Purges many templates in one call, by explicit id list or with `delete_all: true` optionally narrowed by the same filters as the list endpoint. Templates are purged one by one and each result reports `purged` or `already_purged`. If a biometric store is unavailable the call returns `503` at the first failing template: templates purged earlier in the request stay purged, the failing one moves to `purge_failed` (already excluded from matching), and repeating the request finishes the job.
+      # Purges many templates in one call, by explicit id list or with `delete_all: true` optionally narrowed by the
+      # same filters as the list endpoint. Templates are purged one by one and each result reports `purged` or
+      # `already_purged`. If a biometric store is unavailable the call returns `503` at the first failing template:
+      # templates purged earlier in the request stay purged, the failing one moves to `purge_failed` (already excluded
+      # from matching), and repeating the request finishes the job.
       #
-      # **`delete_all: true` without filters purges every biometric template in the application and cannot be undone.** Run the count endpoint with the same filters first.
+      # **`delete_all: true` without filters purges every biometric template in the application and cannot be
+      # undone.** Run the count endpoint with the same filters first.
       #
       # +POST /v3/biometric-templates/delete/+
       #
@@ -25,7 +34,17 @@ module Didit
       # @param retained_to [Time, String] Only with `delete_all`. Must not be earlier than `retained_from`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesBatchDeleteResponse]
-      def batch_delete(template_uuids: OMIT, delete_all: OMIT, vendor_data: OMIT, vendor_user_uuid: OMIT, status: OMIT, source_type: OMIT, retained_from: OMIT, retained_to: OMIT, request_options: nil)
+      def batch_delete(
+        template_uuids: OMIT,
+        delete_all: OMIT,
+        vendor_data: OMIT,
+        vendor_user_uuid: OMIT,
+        status: OMIT,
+        source_type: OMIT,
+        retained_from: OMIT,
+        retained_to: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/biometric-templates/delete/",
@@ -46,9 +65,14 @@ module Didit
 
       # Count retained biometric templates
       #
-      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys (`x-api-key`) only; Business Console user tokens are rejected with `403`.
+      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User
+      # when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a
+      # finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User
+      # deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys
+      # (`x-api-key`) only; Business Console user tokens are rejected with `403`.
       #
-      # Returns the number of templates matching the same filters as the list endpoint. Use it to check what a filtered bulk purge with `delete_all: true` would touch.
+      # Returns the number of templates matching the same filters as the list endpoint. Use it to check what a
+      # filtered bulk purge with `delete_all: true` would touch.
       #
       # +GET /v3/biometric-templates/count/+
       #
@@ -60,7 +84,15 @@ module Didit
       # @param retained_to [Time, String] Templates retained at or before this time. Must not be earlier than `retained_from` (`400`).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesCountResponse]
-      def count(vendor_data: OMIT, vendor_user_uuid: OMIT, status: OMIT, source_type: OMIT, retained_from: OMIT, retained_to: OMIT, request_options: nil)
+      def count(
+        vendor_data: OMIT,
+        vendor_user_uuid: OMIT,
+        status: OMIT,
+        source_type: OMIT,
+        retained_from: OMIT,
+        retained_to: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/biometric-templates/count/",
@@ -79,13 +111,22 @@ module Didit
 
       # Purge a retained biometric template
       #
-      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys (`x-api-key`) only; Business Console user tokens are rejected with `403`.
+      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User
+      # when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a
+      # finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User
+      # deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys
+      # (`x-api-key`) only; Business Console user tokens are rejected with `403`.
       #
-      # Purges one template: it is removed from every kind of matching and the stored template is deleted. Irreversible and recorded on the audit trail with the acting principal.
+      # Purges one template: it is removed from every kind of matching and the stored template is deleted.
+      # Irreversible and recorded on the audit trail with the acting principal.
       #
-      # **Retry semantics:** Didit deletes the stored template first and only then marks the template purged. If a biometric store is unavailable the call returns `503`, the template moves to `status: purge_failed` and is already excluded from matching; repeat the same call to finish. Repeating a purge of an already purged template returns `already_purged`.
+      # **Retry semantics:** Didit deletes the stored template first and only then marks the template purged. If a
+      # biometric store is unavailable the call returns `503`, the template moves to `status: purge_failed` and is
+      # already excluded from matching; repeat the same call to finish. Repeating a purge of an already purged
+      # template returns `already_purged`.
       #
-      # Templates are also purged by `POST /v3/users/delete/` for the owning User, by any deletion of that User's sessions with `deletion_instruction: privacy_erasure`, and automatically at `expires_at`.
+      # Templates are also purged by `POST /v3/users/delete/` for the owning User, by any deletion of that User's
+      # sessions with `deletion_instruction: privacy_erasure`, and automatically at `expires_at`.
       #
       # +DELETE /v3/biometric-templates/{template_uuid}/+
       #
@@ -104,7 +145,11 @@ module Didit
 
       # List retained biometric templates
       #
-      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys (`x-api-key`) only; Business Console user tokens are rejected with `403`.
+      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User
+      # when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a
+      # finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User
+      # deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys
+      # (`x-api-key`) only; Business Console user tokens are rejected with `403`.
       #
       # Returns a paginated list of the templates the application currently holds. Purged templates are not listed.
       #
@@ -121,7 +166,18 @@ module Didit
       # @param offset [Integer] Pagination offset.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::BiometricTemplatesListResponseResults>]
-      def list(vendor_data: OMIT, vendor_user_uuid: OMIT, status: OMIT, source_type: OMIT, retained_from: OMIT, retained_to: OMIT, ordering: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+      def list(
+        vendor_data: OMIT,
+        vendor_user_uuid: OMIT,
+        status: OMIT,
+        source_type: OMIT,
+        retained_from: OMIT,
+        retained_to: OMIT,
+        ordering: OMIT,
+        limit: OMIT,
+        offset: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/biometric-templates/",
@@ -143,9 +199,14 @@ module Didit
 
       # Get a retained biometric template
       #
-      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys (`x-api-key`) only; Business Console user tokens are rejected with `403`.
+      # An opted-in application keeps one separately managed, image-free face biometric template anchored to the User
+      # when a session is deleted (see `DELETE /v3/session/{sessionId}/delete/`). Templates are biometric data with a
+      # finite `expires_at`; they never contain images, session data, or identity fields, and they are purged on User
+      # deletion, privacy erasure, expiry, or an explicit purge. These endpoints accept application API keys
+      # (`x-api-key`) only; Business Console user tokens are rejected with `403`.
       #
-      # Returns one template. The response never includes an image, a vector, the deleted session's id, or identity data.
+      # Returns one template. The response never includes an image, a vector, the deleted session's id, or identity
+      # data.
       #
       # +GET /v3/biometric-templates/{template_uuid}/+
       #

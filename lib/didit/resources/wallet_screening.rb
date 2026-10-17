@@ -7,7 +7,11 @@ module Didit
     class WalletScreening < Didit::Resource
       # Screen a wallet address
       #
-      # Run on-demand AML screening for a single crypto wallet/address without creating a transaction. Resolves your application's configured blockchain analytics provider, screens the address synchronously, and returns the normalised risk result. LIGHTNING is available only with an Elliptic or Chainalysis BYOK connection added through Marketplace. Nothing is written to the transactions table. One AML monitoring usage is billed per successful screening (sandbox applications are not billed).
+      # Run on-demand AML screening for a single crypto wallet/address without creating a transaction. Resolves your
+      # application's configured blockchain analytics provider, screens the address synchronously, and returns the
+      # normalised risk result. LIGHTNING is available only with an Elliptic or Chainalysis BYOK connection added
+      # through Marketplace. Nothing is written to the transactions table. One AML monitoring usage is billed per
+      # successful screening (sandbox applications are not billed).
       #
       # +POST /v3/wallet-screening/+
       #
@@ -32,7 +36,11 @@ module Didit
 
       # Render a wallet-screening result as a PDF
       #
-      # Stateless companion to `POST /v3/wallet-screening/`: repost the exact JSON body that endpoint returned - including the `report_signature` it added - and get back a Didit-branded PDF of the same result. No provider is called and nothing is billed or persisted; this only re-renders a result Didit already produced. The signature ties the PDF to an unmodified result: editing `risk_score`, `severity`, `sanctions_hit`, or any other signed field before reposting fails with `400`.
+      # Stateless companion to `POST /v3/wallet-screening/`: repost the exact JSON body that endpoint returned -
+      # including the `report_signature` it added - and get back a Didit-branded PDF of the same result. No provider
+      # is called and nothing is billed or persisted; this only re-renders a result Didit already produced. The
+      # signature ties the PDF to an unmodified result: editing `risk_score`, `severity`, `sanctions_hit`, or any
+      # other signed field before reposting fails with `400`.
       #
       # +POST /v3/wallet-screening/pdf/+
       #
@@ -66,7 +74,38 @@ module Didit
       # @param raw_response [Hash] The provider's own payload. Its shape is provider-specific and can change without notice: read the normalised fields instead of parsing it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
-      def screen_pdf(provider:, screening_type:, risk_score:, severity:, status:, summary:, wallet_address:, blockchain:, source_of_funds:, destination_of_funds:, counterparty_connections:, sanctions_hit:, dominant_risk_category:, report_signature:, transaction_hash: OMIT, block_timestamp: OMIT, total_value_usd: OMIT, fee_usd: OMIT, sender_rows: OMIT, receiver_rows: OMIT, transaction_flows: OMIT, transaction_flows_status: OMIT, transaction_flows_error: OMIT, network_nodes: OMIT, network_edges: OMIT, pep_counterparty: OMIT, risk_factors: OMIT, raw_response: OMIT, request_options: nil, &block)
+      def screen_pdf(
+        provider:,
+        screening_type:,
+        risk_score:,
+        severity:,
+        status:,
+        summary:,
+        wallet_address:,
+        blockchain:,
+        source_of_funds:,
+        destination_of_funds:,
+        counterparty_connections:,
+        sanctions_hit:,
+        dominant_risk_category:,
+        report_signature:,
+        transaction_hash: OMIT,
+        block_timestamp: OMIT,
+        total_value_usd: OMIT,
+        fee_usd: OMIT,
+        sender_rows: OMIT,
+        receiver_rows: OMIT,
+        transaction_flows: OMIT,
+        transaction_flows_status: OMIT,
+        transaction_flows_error: OMIT,
+        network_nodes: OMIT,
+        network_edges: OMIT,
+        pep_counterparty: OMIT,
+        risk_factors: OMIT,
+        raw_response: OMIT,
+        request_options: nil,
+        &block
+      )
         @client.request(
           :post,
           "/v3/wallet-screening/pdf/",

@@ -3,7 +3,8 @@
 
 module Didit
   module Types
-    # Type of document being validated: `P` passport, `DL` driver license, `ID` national ID, `RP` residence permit (plus `SSC`, `HIC`, `WP`, `TC`, `VISA`, `PSC`, `BC`, `OTHER`). Required by some services (e.g. ESP).
+    # Type of document being validated: `P` passport, `DL` driver license, `ID` national ID, `RP` residence permit
+    # (plus `SSC`, `HIC`, `WP`, `TC`, `VISA`, `PSC`, `BC`, `OTHER`). Required by some services (e.g. ESP).
     module DatabaseValidationValidateParamsDocumentType
       P = "P"
       DL = "DL"
@@ -38,7 +39,8 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # What a `partial_match` does to `database_validation.status`. Defaults to `NO_ACTION` (status stays `Approved`, with a warning).
+    # What a `partial_match` does to `database_validation.status`. Defaults to `NO_ACTION` (status stays `Approved`,
+    # with a warning).
     module DatabaseValidationValidateParamsPartialMatchAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -46,7 +48,9 @@ module Didit
       VALUES = [DECLINE, NO_ACTION].freeze
     end
 
-    # Overall result aggregated across services with field-level comparisons: any `full_match` → `full_match`; else any `partial_match` → `partial_match`; else `no_match`. Outcome-only services, such as biometric criminal screening, can return `null`; inspect each item in `validations` for its `outcome_code`.
+    # Overall result aggregated across services with field-level comparisons: any `full_match` → `full_match`; else
+    # any `partial_match` → `partial_match`; else `no_match`. Outcome-only services, such as biometric criminal
+    # screening, can return `null`; inspect each item in `validations` for its `outcome_code`.
     module DatabaseValidationValidateResponseDatabaseValidationMatchType
       FULL_MATCH = "full_match"
       PARTIAL_MATCH = "partial_match"
@@ -55,7 +59,11 @@ module Didit
       VALUES = [FULL_MATCH, PARTIAL_MATCH, NO_MATCH].freeze
     end
 
-    # `Declined` when the overall `match_type` triggers a `DECLINE` action (`no_match_action` defaults to `DECLINE`, `partial_match_action` to `NO_ACTION`); `In Review` when no service produced a usable comparison, for example when the only selected service came back `REGISTRY_UNAVAILABLE` or `INCONCLUSIVE`; `Approved` otherwise. A request that selected several services can be `Approved` on one service's match while another was unavailable, so check `errors` and the per-service `outcome_code`s too.
+    # `Declined` when the overall `match_type` triggers a `DECLINE` action (`no_match_action` defaults to `DECLINE`,
+    # `partial_match_action` to `NO_ACTION`); `In Review` when no service produced a usable comparison, for example
+    # when the only selected service came back `REGISTRY_UNAVAILABLE` or `INCONCLUSIVE`; `Approved` otherwise. A
+    # request that selected several services can be `Approved` on one service's match while another was unavailable,
+    # so check `errors` and the per-service `outcome_code`s too.
     module DatabaseValidationValidateResponseDatabaseValidationStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -64,7 +72,9 @@ module Didit
       VALUES = [APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
-    # Derived from the results: `two_by_two` when ≥2 distinct services produced a full match (on the identification number, on full name + date of birth together, or on the address without contradictions); `one_by_one` otherwise. (The request field of the same name is deprecated and ignored.)
+    # Derived from the results: `two_by_two` when ≥2 distinct services produced a full match (on the identification
+    # number, on full name + date of birth together, or on the address without contradictions); `one_by_one`
+    # otherwise. (The request field of the same name is deprecated and ignored.)
     module DatabaseValidationValidateResponseDatabaseValidationValidationType
       ONE_BY_ONE = "one_by_one"
       TWO_BY_TWO = "two_by_two"
@@ -72,7 +82,14 @@ module Didit
       VALUES = [ONE_BY_ONE, TWO_BY_TWO].freeze
     end
 
-    # Vendor-neutral outcome of the registry lookup. `MATCH`/`PARTIAL_MATCH`/`NO_MATCH` describe the comparison; `DOCUMENT_NOT_FOUND` means the identifier is not in the registry; `INCONCLUSIVE` means the registry could not confirm either way (routed to review - NOT a no-match); `BIOMETRIC_NO_MATCH` is a definitive face mismatch while `BIOMETRIC_IMAGE_UNUSABLE` is a technical image problem (retake the selfie); `DECEASED`/`MINOR_BLOCKED` are registry-policy outcomes; `DOCUMENT_SUPERSEDED` means the identity matched but the edition of the document presented is not the one on file (a newer edition has been issued); `INVALID_DOCUMENT_FORMAT`/`INVALID_INPUT` mean the registry itself rejected the data it was sent; `REGISTRY_UNAVAILABLE`/`REGISTRY_ERROR` indicate upstream failures.
+    # Vendor-neutral outcome of the registry lookup. `MATCH`/`PARTIAL_MATCH`/`NO_MATCH` describe the comparison;
+    # `DOCUMENT_NOT_FOUND` means the identifier is not in the registry; `INCONCLUSIVE` means the registry could not
+    # confirm either way (routed to review - NOT a no-match); `BIOMETRIC_NO_MATCH` is a definitive face mismatch while
+    # `BIOMETRIC_IMAGE_UNUSABLE` is a technical image problem (retake the selfie); `DECEASED`/`MINOR_BLOCKED` are
+    # registry-policy outcomes; `DOCUMENT_SUPERSEDED` means the identity matched but the edition of the document
+    # presented is not the one on file (a newer edition has been issued); `INVALID_DOCUMENT_FORMAT`/`INVALID_INPUT`
+    # mean the registry itself rejected the data it was sent; `REGISTRY_UNAVAILABLE`/`REGISTRY_ERROR` indicate
+    # upstream failures.
     module DatabaseValidationValidateResponseDatabaseValidationValidationsVariant1OutcomeCode
       MATCH = "MATCH"
       PARTIAL_MATCH = "PARTIAL_MATCH"

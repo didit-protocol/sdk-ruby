@@ -1,24 +1,53 @@
 # frozen_string_literal: true
 
 module DiditCodegen
-  # Comment text helpers shared by the renderers.
-  module Text
-    module_function
+# Comment text helpers shared by the renderers.
+module Text
+  WIDTH = 118
 
-    # Comment lines for +text+ at +indent+, without em dashes (upstream copy uses them).
-    def comment(text, indent)
-      return [] if text.nil? || text.strip.empty?
+  module_function
 
-      text.gsub("—", "-").gsub("–", "-").strip.lines.map do |line|
-        line = line.rstrip
-        line.empty? ? "#{indent}#" : "#{indent}# #{line}"
-      end
-    end
+  # Comment lines for +text+ at +indent+, wrapped at 118 columns, without em or en dashes
+  # (upstream descriptions use them).
+  def comment(text, indent)
+    return [] if text.nil? || text.strip.empty?
 
-    def ruby_string(value)
-      value.inspect
+    fenced = false
+    text.gsub("—", "-").gsub("–", "-").strip.lines.flat_map do |line|
+      line = line.rstrip
+      fenced = !fenced if line.lstrip.start_with?("```")
+      next ["#{indent}#"] if line.empty?
+      next ["#{indent}# #{line}"] if fenced || line.lstrip.start_with?("|", "```")
+
+      wrap(line, WIDTH - indent.length - 2).map { |part| "#{indent}# #{part}" }
     end
   end
+
+  # Splits +line+ at spaces so each part fits +width+; list items keep a hanging indent.
+  def wrap(line, width)
+    return [line] if line.length <= width
+
+    hang = " " * (line[/\A\s*(?:[-*]|\d+\.)\s+/] || line[/\A\s*/]).length
+    parts = []
+    current = +""
+    line.split(" ").each do |word|
+      prefix = parts.empty? ? line[/\A\s*/] : hang
+      candidate = current.empty? ? "#{prefix}#{word}" : "#{current} #{word}"
+      if candidate.length > width && !current.empty?
+        parts << current
+        current = +"#{hang}#{word}"
+      else
+        current = candidate
+      end
+    end
+    parts << current unless current.empty?
+    parts
+  end
+
+  def ruby_string(value)
+    value.inspect
+  end
+end
 
   # Writes the Ruby side of the generated layer: lib/didit/types* and lib/didit/resources*.
   class RubyRenderer
@@ -185,12 +214,23 @@ module DiditCodegen
 
     def method_source(meth, indent)
       lines = method_doc(meth, indent)
-      lines << "#{indent}def #{meth.name}(#{parameters(meth).join(', ')})"
+      lines.concat(signature(meth, indent))
       lines << "#{indent}  @client.deprecated(#{"#{meth.resource}.#{meth.name}".inspect}, #{deprecation(meth).inspect})" if meth.deprecated?
       lines.concat(call_lines(meth, "#{indent}  "))
       lines << "#{indent}end"
       lines.join("\n")
     end
+
+# The def line, one parameter per line when it would pass 120 columns.
+def signature(meth, indent)
+  params = parameters(meth)
+  line = "#{indent}def #{meth.name}(#{params.join(', ')})"
+  return [line] if line.length <= 120
+
+  ["#{indent}def #{meth.name}(", *params.each_with_index.map do |p, i|
+    "#{indent}  #{p}#{i == params.size - 1 ? '' : ','}"
+  end, "#{indent})"]
+end
 
     def deprecation(meth)
       meth.op.deprecation_note || "The API marks this operation as deprecated."

@@ -45,7 +45,11 @@ module Didit
         @teams ||= Teams.new(@client)
       end
 
-      # Apply one explicit action to the case subject. Supply a unique client_reference to obtain an action receipt and make retries idempotent. Reusing that reference with a different payload returns 409. With a reference, inspect receipt.status even when HTTP status is 200: FAILED means no action was applied. Repeating a failed request does not execute it again unless retry is true. Omitting client_reference preserves the legacy response.
+      # Apply one explicit action to the case subject. Supply a unique client_reference to obtain an action receipt
+      # and make retries idempotent. Reusing that reference with a different payload returns 409. With a reference,
+      # inspect receipt.status even when HTTP status is 200: FAILED means no action was applied. Repeating a failed
+      # request does not execute it again unless retry is true. Omitting client_reference preserves the legacy
+      # response.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/entity-actions/+
       #
@@ -58,7 +62,16 @@ module Didit
       # @param note [String, nil]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseActionCaseEntityActionResult]
-      def apply_entity_action(case_uuid, action:, client_reference: OMIT, retry: OMIT, status: OMIT, tags: OMIT, note: OMIT, request_options: nil)
+      def apply_entity_action(
+        case_uuid,
+        action:,
+        client_reference: OMIT,
+        retry: OMIT,
+        status: OMIT,
+        tags: OMIT,
+        note: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/entity-actions/",
@@ -79,7 +92,8 @@ module Didit
 
       # Approve staged resolution (4-eyes)
       #
-      # Apply a resolution staged by resolve on a maker blueprint. The caller must be a different user than the one who submitted it, otherwise 403.
+      # Apply a resolution staged by resolve on a maker blueprint. The caller must be a different user than the one
+      # who submitted it, otherwise 403.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/approve/+
       #
@@ -99,7 +113,8 @@ module Didit
 
       # Assign or unassign case
       #
-      # Assign the case to a user, or unassign it by sending assignee_user_id: null. assignee_email/assignee_name auto-provision a User row when the assignee does not exist yet.
+      # Assign the case to a user, or unassign it by sending assignee_user_id: null. assignee_email/assignee_name
+      # auto-provision a User row when the assignee does not exist yet.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/assign/+
       #
@@ -127,7 +142,8 @@ module Didit
 
       # Bulk assign cases
       #
-      # Assign (or unassign, with assignee_user_id: null) several cases at once. All cases must share the same blueprint; mismatches are reported per case without aborting the batch.
+      # Assign (or unassign, with assignee_user_id: null) several cases at once. All cases must share the same
+      # blueprint; mismatches are reported per case without aborting the batch.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/bulk/assign/+
       #
@@ -155,7 +171,9 @@ module Didit
 
       # Bulk update case status
       #
-      # Apply the same status transition to several cases in one call: OPEN reopens, AWAITING_USER requests info, RESOLVED resolves (resolution required). Each case is evaluated independently; gate failures (incomplete checklist, missing required note) are reported per case without aborting the batch.
+      # Apply the same status transition to several cases in one call: OPEN reopens, AWAITING_USER requests info,
+      # RESOLVED resolves (resolution required). Each case is evaluated independently; gate failures (incomplete
+      # checklist, missing required note) are reported per case without aborting the batch.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/bulk/status/+
       #
@@ -183,7 +201,8 @@ module Didit
 
       # Create case
       #
-      # Create a case anchored to exactly one subject (a user or a business), directly or by deriving the subject from an attached session/transaction link. Source is always `MANUAL` for API-created cases.
+      # Create a case anchored to exactly one subject (a user or a business), directly or by deriving the subject from
+      # an attached session/transaction link. Source is always `MANUAL` for API-created cases.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/+
       #
@@ -200,7 +219,20 @@ module Didit
       # @param source_context [Hash]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def create(title:, blueprint: OMIT, priority: OMIT, due_at: OMIT, tags: OMIT, subject: OMIT, links: OMIT, assigned_to: OMIT, review_duplicates: OMIT, separate_incident_reason: OMIT, source_context: OMIT, request_options: nil)
+      def create(
+        title:,
+        blueprint: OMIT,
+        priority: OMIT,
+        due_at: OMIT,
+        tags: OMIT,
+        subject: OMIT,
+        links: OMIT,
+        assigned_to: OMIT,
+        review_duplicates: OMIT,
+        separate_incident_reason: OMIT,
+        source_context: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/",
@@ -244,7 +276,8 @@ module Didit
 
       # Escalate case
       #
-      # Move the case to its blueprint's configured escalation_blueprint. Requires the current blueprint to have escalation_enabled and an escalation_blueprint set, otherwise 400.
+      # Move the case to its blueprint's configured escalation_blueprint. Requires the current blueprint to have
+      # escalation_enabled and an escalation_blueprint set, otherwise 400.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/escalate/+
       #
@@ -262,7 +295,8 @@ module Didit
         )
       end
 
-      # Review existing cases for a subject or owned source record before manual case creation. Both open and resolved investigations are returned. Each page contains at most 20 cases; use next_offset to request another page.
+      # Review existing cases for a subject or owned source record before manual case creation. Both open and resolved
+      # investigations are returned. Each page contains at most 20 cases; use next_offset to request another page.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/duplicates/+
       #
@@ -288,7 +322,8 @@ module Didit
 
       # List cases
       #
-      # List cases for the application, newest first. Supports filtering, search, and sorting; see query parameters. Paginated with `limit`/`offset`.
+      # List cases for the application, newest first. Supports filtering, search, and sorting; see query parameters.
+      # Paginated with `limit`/`offset`.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/cases/+
       #
@@ -309,7 +344,24 @@ module Didit
       # @param ordering [String] Sort order. due_at sorts nulls last.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::CaseListItem>]
-      def list(limit: OMIT, offset: OMIT, status_in: OMIT, priority: OMIT, source_in: OMIT, blueprint: OMIT, assigned_to: OMIT, unassigned: OMIT, tag: OMIT, search: OMIT, date_from: OMIT, date_to: OMIT, due_before: OMIT, overdue: OMIT, ordering: OMIT, request_options: nil)
+      def list(
+        limit: OMIT,
+        offset: OMIT,
+        status_in: OMIT,
+        priority: OMIT,
+        source_in: OMIT,
+        blueprint: OMIT,
+        assigned_to: OMIT,
+        unassigned: OMIT,
+        tag: OMIT,
+        search: OMIT,
+        date_from: OMIT,
+        date_to: OMIT,
+        due_before: OMIT,
+        overdue: OMIT,
+        ordering: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/cases/",
@@ -336,7 +388,8 @@ module Didit
         )
       end
 
-      # List subject-action receipts, newest first, with at most 20 results per page. Use next_offset for the next page. Input note text is not exposed in the history.
+      # List subject-action receipts, newest first, with at most 20 results per page. Use next_offset for the next
+      # page. Input note text is not exposed in the history.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/action-receipts/+
       #
@@ -380,7 +433,8 @@ module Didit
 
       # List case events
       #
-      # Read-only audit timeline of the case (created, status changes, assignment, resolution, escalation, transfers, tag/priority/due-date changes, entity actions, and more).
+      # Read-only audit timeline of the case (created, status changes, assignment, resolution, escalation, transfers,
+      # tag/priority/due-date changes, entity actions, and more).
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/events/+
       #
@@ -424,7 +478,8 @@ module Didit
 
       # Print case (PDF)
       #
-      # Render the full case (summary, subject, checklist state, notes, attached sessions/transactions, events, FIU report list) as a PDF and return a presigned download URL.
+      # Render the full case (summary, subject, checklist state, notes, attached sessions/transactions, events, FIU
+      # report list) as a PDF and return a presigned download URL.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/print/+
       #
@@ -444,7 +499,8 @@ module Didit
 
       # Reject staged resolution (4-eyes)
       #
-      # Reject a resolution staged by resolve and return the case to its maker blueprint. The caller must be a different user than the one who submitted it, otherwise 403.
+      # Reject a resolution staged by resolve and return the case to its maker blueprint. The caller must be a
+      # different user than the one who submitted it, otherwise 403.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reject-approval/+
       #
@@ -468,7 +524,8 @@ module Didit
 
       # Reopen case
       #
-      # Move an awaiting-user or resolved case back to open, clearing resolution, resolution_notes, resolved_at, and resolved_by_email.
+      # Move an awaiting-user or resolved case back to open, clearing resolution, resolution_notes, resolved_at, and
+      # resolved_by_email.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reopen/+
       #
@@ -488,7 +545,8 @@ module Didit
 
       # Request info (awaiting user)
       #
-      # Move an open case to awaiting_user while more information is collected from the verified user. Fails with 400 if a resolution is currently pending 4-eyes approval.
+      # Move an open case to awaiting_user while more information is collected from the verified user. Fails with 400
+      # if a resolution is currently pending 4-eyes approval.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/request-info/+
       #
@@ -508,7 +566,11 @@ module Didit
 
       # Resolve case
       #
-      # Resolve the case as false_positive or valid_threat. Blocked with 400 if the blueprint's checklist is not optional and items remain incomplete, or if the blueprint requires a resolution note and none is given. When the case's blueprint has a four_eyes_checker_blueprint configured, the resolution is staged (case.pending_resolution) and the case moves to the checker blueprint instead of resolving immediately; a different user must call approve or reject-approval.
+      # Resolve the case as false_positive or valid_threat. Blocked with 400 if the blueprint's checklist is not
+      # optional and items remain incomplete, or if the blueprint requires a resolution note and none is given. When
+      # the case's blueprint has a four_eyes_checker_blueprint configured, the resolution is staged
+      # (case.pending_resolution) and the case moves to the checker blueprint instead of resolving immediately; a
+      # different user must call approve or reject-approval.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/resolve/+
       #
@@ -554,7 +616,11 @@ module Didit
 
       # Case analytics
       #
-      # Aggregate case analytics for the date range (defaults to the last 30 days; max 731 days). Charts, tables, totals, assignment events, and current queue counts use the same application-scoped filters. Filters use current case values. Dates apply to each metric event, so older cases assigned or resolved during the period remain included. Queue depth is independent of the date range. Invalid filters return 400; an unknown blueprint or assignee returns an empty result.
+      # Aggregate case analytics for the date range (defaults to the last 30 days; max 731 days). Charts, tables,
+      # totals, assignment events, and current queue counts use the same application-scoped filters. Filters use
+      # current case values. Dates apply to each metric event, so older cases assigned or resolved during the period
+      # remain included. Queue depth is independent of the date range. Invalid filters return 400; an unknown
+      # blueprint or assignee returns an empty result.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/cases/statistics/+
       #
@@ -567,7 +633,16 @@ module Didit
       # @param status [String] Filter by current case status.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CasesRetrieveStatisticsResponse]
-      def retrieve_statistics(date_from: OMIT, date_to: OMIT, blueprint: OMIT, assigned_to: OMIT, priority: OMIT, source: OMIT, status: OMIT, request_options: nil)
+      def retrieve_statistics(
+        date_from: OMIT,
+        date_to: OMIT,
+        blueprint: OMIT,
+        assigned_to: OMIT,
+        priority: OMIT,
+        source: OMIT,
+        status: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/cases/statistics/",
@@ -586,7 +661,8 @@ module Didit
         )
       end
 
-      # Retry only this failed subject action using its saved inputs. Current write permission is checked. Applied actions return their receipt without executing again. Case closure is independent.
+      # Retry only this failed subject action using its saved inputs. Current write permission is checked. Applied
+      # actions return their receipt without executing again. Case closure is independent.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/action-receipts/{receipt_uuid}/retry/+
       #
@@ -607,7 +683,8 @@ module Didit
 
       # Transfer case
       #
-      # Move the case to a different, active blueprint of the same application. Requires the current blueprint to have transfer_enabled, otherwise 400.
+      # Move the case to a different, active blueprint of the same application. Requires the current blueprint to have
+      # transfer_enabled, otherwise 400.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/transfer/+
       #
@@ -631,7 +708,8 @@ module Didit
 
       # Update case
       #
-      # Update the case's title, priority, due date, or tags. Logs PRIORITY_CHANGED/DUE_DATE_CHANGED/TAG_ADDED/TAG_REMOVED events as applicable.
+      # Update the case's title, priority, due date, or tags. Logs
+      # PRIORITY_CHANGED/DUE_DATE_CHANGED/TAG_ADDED/TAG_REMOVED events as applicable.
       #
       # +PATCH /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/+
       #
@@ -663,7 +741,9 @@ module Didit
       class Blueprints < Didit::Resource
         # Create blueprint
         #
-        # Create a case blueprint: general settings (assignment, escalation, transfer, 4-eyes pairing) plus content_config, the six sections that drive the case page. Set publish=false to create an unpublished draft; Publish creates its first live version. Discarding a never-published draft deletes it.
+        # Create a case blueprint: general settings (assignment, escalation, transfer, 4-eyes pairing) plus
+        # content_config, the six sections that drive the case page. Set publish=false to create an unpublished draft;
+        # Publish creates its first live version. Discarding a never-published draft deletes it.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/+
         #
@@ -683,7 +763,23 @@ module Didit
         # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0 until the draft is explicitly published. Omitting this field preserves immediate creation for existing integrations...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
-        def create(name:, assignee_pool:, description: OMIT, assignment_method: OMIT, max_active_cases: OMIT, escalation_enabled: OMIT, escalation_blueprint: OMIT, transfer_enabled: OMIT, four_eyes_checker_blueprint: OMIT, require_resolution_note: OMIT, content_config: OMIT, is_active: OMIT, default_deadline_hours: OMIT, publish: OMIT, request_options: nil)
+        def create(
+          name:,
+          assignee_pool:,
+          description: OMIT,
+          assignment_method: OMIT,
+          max_active_cases: OMIT,
+          escalation_enabled: OMIT,
+          escalation_blueprint: OMIT,
+          transfer_enabled: OMIT,
+          four_eyes_checker_blueprint: OMIT,
+          require_resolution_note: OMIT,
+          content_config: OMIT,
+          is_active: OMIT,
+          default_deadline_hours: OMIT,
+          publish: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/",
@@ -711,7 +807,10 @@ module Didit
 
         # Delete blueprint
         #
-        # Delete a blueprint. Deletion always succeeds and does not touch the blueprint's cases: existing cases keep their blueprint reference and its settings continue to apply to them. A deleted blueprint no longer appears in blueprint lists and can no longer be chosen as a transfer target; if a maker blueprint is deleted while a resolution is pending 4-eyes approval, a rejected resolution leaves the case on the checker blueprint.
+        # Delete a blueprint. Deletion always succeeds and does not touch the blueprint's cases: existing cases keep
+        # their blueprint reference and its settings continue to apply to them. A deleted blueprint no longer appears
+        # in blueprint lists and can no longer be chosen as a transfer target; if a maker blueprint is deleted while a
+        # resolution is pending 4-eyes approval, a rejected resolution leaves the case on the checker blueprint.
         #
         # +DELETE /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/+
         #
@@ -751,7 +850,8 @@ module Didit
 
         # Install blueprint presets
         #
-        # Copy one or more presets into the application as editable blueprints. Idempotent per preset_key; omit preset_keys to install every preset not yet installed.
+        # Copy one or more presets into the application as editable blueprints. Idempotent per preset_key; omit
+        # preset_keys to install every preset not yet installed.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/presets/install/+
         #
@@ -821,7 +921,8 @@ module Didit
 
         # List blueprint presets
         #
-        # List the four built-in presets (Screening hit, AML investigation, Suspicious activity, KYC review) with their content_config and whether each is already installed on this application.
+        # List the four built-in presets (Screening hit, AML investigation, Suspicious activity, KYC review) with
+        # their content_config and whether each is already installed on this application.
         #
         # +GET /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/presets/+
         #
@@ -861,7 +962,8 @@ module Didit
 
         # Get blueprint
         #
-        # Retrieve a blueprint, including its connected creation sources (AML config, transaction rules, workflow nodes) and which blueprints escalate to it.
+        # Retrieve a blueprint, including its connected creation sources (AML config, transaction rules, workflow
+        # nodes) and which blueprints escalate to it.
         #
         # +GET /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/+
         #
@@ -942,7 +1044,24 @@ module Didit
         # @param expected_version [Integer] The version opened by the editor. A stale version returns 409 without changing the review policy.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
-        def update(blueprint_uuid, name: OMIT, description: OMIT, assignee_pool: OMIT, assignment_method: OMIT, max_active_cases: OMIT, escalation_enabled: OMIT, escalation_blueprint: OMIT, transfer_enabled: OMIT, four_eyes_checker_blueprint: OMIT, require_resolution_note: OMIT, content_config: OMIT, is_active: OMIT, default_deadline_hours: OMIT, expected_version: OMIT, request_options: nil)
+        def update(
+          blueprint_uuid,
+          name: OMIT,
+          description: OMIT,
+          assignee_pool: OMIT,
+          assignment_method: OMIT,
+          max_active_cases: OMIT,
+          escalation_enabled: OMIT,
+          escalation_blueprint: OMIT,
+          transfer_enabled: OMIT,
+          four_eyes_checker_blueprint: OMIT,
+          require_resolution_note: OMIT,
+          content_config: OMIT,
+          is_active: OMIT,
+          default_deadline_hours: OMIT,
+          expected_version: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/",
@@ -974,7 +1093,8 @@ module Didit
       class Checklist < Didit::Resource
         # List case checklist
         #
-        # List the case's checklist items, copied from the blueprint's content_config.checklist.items at creation, ordered.
+        # List the case's checklist items, copied from the blueprint's content_config.checklist.items at creation,
+        # ordered.
         #
         # +GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/checklist/+
         #
@@ -994,7 +1114,8 @@ module Didit
 
         # Toggle checklist item
         #
-        # Mark a checklist item complete or incomplete. Resolution is blocked while any item is incomplete, unless the blueprint marks the checklist optional.
+        # Mark a checklist item complete or incomplete. Resolution is blocked while any item is incomplete, unless the
+        # blueprint marks the checklist optional.
         #
         # +PATCH /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/checklist/{item_uuid}/+
         #
@@ -1022,7 +1143,8 @@ module Didit
       class Links < Didit::Resource
         # Add case link
         #
-        # Attach a session, business session, or transaction to the case. Rejected with 400 if the entity belongs to a different subject than the case.
+        # Attach a session, business session, or transaction to the case. Rejected with 400 if the entity belongs to a
+        # different subject than the case.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/links/+
         #
@@ -1089,7 +1211,9 @@ module Didit
 
       # The +cases.notes+ resource.
       class Notes < Didit::Resource
-        # Add a case-scoped note. An optional client_reference makes an unchanged retry return the same note without duplicate activity or notifications. reply_to must identify a live note in this case. The response includes a bounded parent excerpt without copying that excerpt into the saved reply.
+        # Add a case-scoped note. An optional client_reference makes an unchanged retry return the same note without
+        # duplicate activity or notifications. reply_to must identify a live note in this case. The response includes
+        # a bounded parent excerpt without copying that excerpt into the saved reply.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/+
         #
@@ -1103,7 +1227,17 @@ module Didit
         # @param tags [Array<String>]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseCollaborationCaseNote]
-        def create(case_uuid, comment:, reply_to: OMIT, client_reference: OMIT, mentioned_emails: OMIT, is_internal: OMIT, attachments: OMIT, tags: OMIT, request_options: nil)
+        def create(
+          case_uuid,
+          comment:,
+          reply_to: OMIT,
+          client_reference: OMIT,
+          mentioned_emails: OMIT,
+          is_internal: OMIT,
+          attachments: OMIT,
+          tags: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/",
@@ -1125,7 +1259,8 @@ module Didit
 
         # Upload note attachment
         #
-        # Upload a file (JPEG, PNG, WebP, PDF, plain text, or CSV; max 5 MB) to attach to a note. Returns the s3_key to pass in the note's attachments array.
+        # Upload a file (JPEG, PNG, WebP, PDF, plain text, or CSV; max 5 MB) to attach to a note. Returns the s3_key
+        # to pass in the note's attachments array.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/presign/+
         #
@@ -1213,7 +1348,8 @@ module Didit
           )
         end
 
-        # Pin or unpin an existing note. Pinned notes appear first. Pin changes are recorded in case activity and do not change evidence or source decisions.
+        # Pin or unpin an existing note. Pinned notes appear first. Pin changes are recorded in case activity and do
+        # not change evidence or source decisions.
         #
         # +PATCH /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/{note_uuid}/+
         #
@@ -1241,7 +1377,8 @@ module Didit
       class RegulatoryReports < Didit::Resource
         # Create report from case
         #
-        # Create a draft FIU report for the case: DRAFT status, auto-populated from the optional template plus the case's subject, linked transactions, and narrative. Validate then finalize to produce the goAML XML and PDF.
+        # Create a draft FIU report for the case: DRAFT status, auto-populated from the optional template plus the
+        # case's subject, linked transactions, and narrative. Validate then finalize to produce the goAML XML and PDF.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/regulatory-reports/+
         #
@@ -1267,7 +1404,29 @@ module Didit
         # @param included_fields [Array<String>]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::RegulatoryReportDetail]
-        def create(case_uuid, report_type: OMIT, jurisdiction: OMIT, template: OMIT, transactions: OMIT, rentity_id: OMIT, rentity_branch: OMIT, submission_code: OMIT, entity_reference: OMIT, fiu_ref_number: OMIT, currency_code_local: OMIT, submission_date: OMIT, reporting_person: OMIT, location: OMIT, reason: OMIT, action: OMIT, activity: OMIT, narrative: OMIT, report_indicators: OMIT, included_fields: OMIT, request_options: nil)
+        def create(
+          case_uuid,
+          report_type: OMIT,
+          jurisdiction: OMIT,
+          template: OMIT,
+          transactions: OMIT,
+          rentity_id: OMIT,
+          rentity_branch: OMIT,
+          submission_code: OMIT,
+          entity_reference: OMIT,
+          fiu_ref_number: OMIT,
+          currency_code_local: OMIT,
+          submission_date: OMIT,
+          reporting_person: OMIT,
+          location: OMIT,
+          reason: OMIT,
+          action: OMIT,
+          activity: OMIT,
+          narrative: OMIT,
+          report_indicators: OMIT,
+          included_fields: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/regulatory-reports/",
@@ -1345,7 +1504,10 @@ module Didit
           )
         end
 
-        # Confirm the exact signed preview within 15 minutes. Only fixed templates and an OTP-verified contact belonging to the case subject are accepted. The request ID makes retries idempotent. Delivery is queued; SENT, SIMULATED and UNKNOWN are distinct outcomes. An actionable request sets the case to Awaiting user. A review update leaves its status unchanged.
+        # Confirm the exact signed preview within 15 minutes. Only fixed templates and an OTP-verified contact
+        # belonging to the case subject are accepted. The request ID makes retries idempotent. Delivery is queued;
+        # SENT, SIMULATED and UNKNOWN are distinct outcomes. An actionable request sets the case to Awaiting user. A
+        # review update leaves its status unchanged.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/+
         #
@@ -1358,7 +1520,16 @@ module Didit
         # @param language [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequest]
-        def create(case_uuid, contact_id:, purpose:, request_id:, expires_at:, preview_token:, language: OMIT, request_options: nil)
+        def create(
+          case_uuid,
+          contact_id:,
+          purpose:,
+          request_id:,
+          expires_at:,
+          preview_token:,
+          language: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/",
@@ -1401,7 +1572,9 @@ module Didit
           )
         end
 
-        # Render the production email without sending or changing the case. Returns the exact recipient, sender, subject, body and a signed preview_token. Send the same contact_id, purpose, language, request_id, expires_at and preview_token to confirm within 15 minutes.
+        # Render the production email without sending or changing the case. Returns the exact recipient, sender,
+        # subject, body and a signed preview_token. Send the same contact_id, purpose, language, request_id,
+        # expires_at and preview_token to confirm within 15 minutes.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/preview/+
         #
@@ -1466,7 +1639,8 @@ module Didit
       class RoutingRules < Didit::Resource
         # Create routing rule
         #
-        # Requires `write:cases` for the requested application. Set publish=false to create an unpublished draft; Publish creates its first live version. Discarding a never-published draft deletes it.
+        # Requires `write:cases` for the requested application. Set publish=false to create an unpublished draft;
+        # Publish creates its first live version. Discarding a never-published draft deletes it.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/+
         #
@@ -1481,7 +1655,18 @@ module Didit
         # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0 until the draft is explicitly published. Omitting this field preserves immediate creation for existing integrations...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
-        def create(name:, conditions:, blueprint:, description: OMIT, priority: OMIT, required_skills: OMIT, team: OMIT, is_active: OMIT, publish: OMIT, request_options: nil)
+        def create(
+          name:,
+          conditions:,
+          blueprint:,
+          description: OMIT,
+          priority: OMIT,
+          required_skills: OMIT,
+          team: OMIT,
+          is_active: OMIT,
+          publish: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/",
@@ -1573,7 +1758,9 @@ module Didit
 
         # Test case routing
         #
-        # Requires `read:cases` for the requested application. Evaluates current rules or a supplied draft against current reviewer access, availability, skills and capacity. It does not save the draft or reserve reviewer capacity.
+        # Requires `read:cases` for the requested application. Evaluates current rules or a supplied draft against
+        # current reviewer access, availability, skills and capacity. It does not save the draft or reserve reviewer
+        # capacity.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/preview/+
         #
@@ -1701,7 +1888,19 @@ module Didit
         # @param expected_version [Integer] Version opened by the editor. When supplied, stale writes return 409 without changing the rule.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
-        def update(record_uuid, name: OMIT, description: OMIT, priority: OMIT, conditions: OMIT, required_skills: OMIT, blueprint: OMIT, team: OMIT, is_active: OMIT, expected_version: OMIT, request_options: nil)
+        def update(
+          record_uuid,
+          name: OMIT,
+          description: OMIT,
+          priority: OMIT,
+          conditions: OMIT,
+          required_skills: OMIT,
+          blueprint: OMIT,
+          team: OMIT,
+          is_active: OMIT,
+          expected_version: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/{record_uuid}/",

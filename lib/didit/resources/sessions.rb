@@ -17,35 +17,69 @@ module Didit
 
       # Bulk delete KYC sessions by session_number
       #
-      # Bulk delete User Verification (KYC) sessions by their numeric `session_number`, or every KYC session in your application with `delete_all: true`.
+      # Bulk delete User Verification (KYC) sessions by their numeric `session_number`, or every KYC session in your
+      # application with `delete_all: true`.
       #
-      # `session_number` is the human-friendly incrementing counter shown in the Console session list and returned as `session_number` by the create-session and decision endpoints; it is **not** the `session_id` UUID. To delete a session by UUID, or to delete a Business Verification (KYB) session, which this endpoint never touches, use `DELETE /v3/session/{sessionId}/delete/` instead.
+      # `session_number` is the human-friendly incrementing counter shown in the Console session list and returned as
+      # `session_number` by the create-session and decision endpoints; it is **not** the `session_id` UUID. To delete
+      # a session by UUID, or to delete a Business Verification (KYB) session, which this endpoint never touches, use
+      # `DELETE /v3/session/{sessionId}/delete/` instead.
       #
-      # **Up to 20 sessions are deleted in the request, more run as a job.** The number of matching sessions decides, whether they are selected by `session_numbers` or with `delete_all`:
-      # - Up to 20 matching sessions: they are deleted before the response, which is `200` with one entry per session in `results[]`.
-      # - More than 20: the response is `202` with a deletion job, and the sessions are deleted in the background. Poll `GET /v3/sessions/delete/{job_id}/` until `status` is `COMPLETED` or `FAILED`. A job reports counts per outcome, never which sessions it deleted. A `delete_all` job deletes only the sessions created before the request; sessions started while it runs are not deleted.
+      # **Up to 20 sessions are deleted in the request, more run as a job.** The number of matching sessions decides,
+      # whether they are selected by `session_numbers` or with `delete_all`:
+      # - Up to 20 matching sessions: they are deleted before the response, which is `200` with one entry per session
+      #   in `results[]`.
+      # - More than 20: the response is `202` with a deletion job, and the sessions are deleted in the background.
+      #   Poll `GET /v3/sessions/delete/{job_id}/` until `status` is `COMPLETED` or `FAILED`. A job reports counts per
+      #   outcome, never which sessions it deleted. A `delete_all` job deletes only the sessions created before the
+      #   request; sessions started while it runs are not deleted.
       #
-      # Each deleted session gets exactly the same treatment as the single-session delete endpoint: the session, every verification attempt it holds, its decision and extracted data, its related feature records (ID verification, face, liveness, face match, and so on) and all of its stored files are deleted, it disappears from every read endpoint, and previously issued media URLs stop resolving. Webhook deliveries still queued for a deleted session, and their retries, are dropped; webhooks already delivered are not affected. Blocklist entries are **not** removed, credits already consumed are **not** refunded, and the parent User entities are **not** deleted (use `POST /v3/users/delete/` for those); no webhook is emitted for the deletion. Deletion is permanent and irreversible.
+      # Each deleted session gets exactly the same treatment as the single-session delete endpoint: the session, every
+      # verification attempt it holds, its decision and extracted data, its related feature records (ID verification,
+      # face, liveness, face match, and so on) and all of its stored files are deleted, it disappears from every read
+      # endpoint, and previously issued media URLs stop resolving. Webhook deliveries still queued for a deleted
+      # session, and their retries, are dropped; webhooks already delivered are not affected. Blocklist entries are
+      # **not** removed, credits already consumed are **not** refunded, and the parent User entities are **not**
+      # deleted (use `POST /v3/users/delete/` for those); no webhook is emitted for the deletion. Deletion is
+      # permanent and irreversible.
       #
       # **Selection semantics:**
-      # - Entries in `session_numbers` that do not match a live KYC session in your application (unknown numbers, already-deleted sessions, or sessions owned by another application) are **silently skipped**: they do not appear in `results` and are not counted in a job's `total`.
-      # - Validation failures (a non-numeric entry, an empty list, neither `session_numbers` nor `delete_all` provided, or a template retention the application cannot honour) reject the **whole request** with `400` and delete nothing.
-      # - Sessions are deleted in groups. If a group cannot be deleted (for example because a storage service is unavailable), every session in that group is reported as `face_retention_outcome: failed_retryable` and stays in place; the other groups are unaffected. Repeat the request for those sessions. A job retries such a group by itself.
+      # - Entries in `session_numbers` that do not match a live KYC session in your application (unknown numbers,
+      #   already-deleted sessions, or sessions owned by another application) are **silently skipped**: they do not
+      #   appear in `results` and are not counted in a job's `total`.
+      # - Validation failures (a non-numeric entry, an empty list, neither `session_numbers` nor `delete_all`
+      #   provided, or a template retention the application cannot honour) reject the **whole request** with `400` and
+      #   delete nothing.
+      # - Sessions are deleted in groups. If a group cannot be deleted (for example because a storage service is
+      #   unavailable), every session in that group is reported as `face_retention_outcome: failed_retryable` and
+      #   stays in place; the other groups are unaffected. Repeat the request for those sessions. A job retries such a
+      #   group by itself.
       # - There is no documented cap on the list length; the shared write rate limit (below) is the practical bound.
       #
-      # **Face biometric data:** the optional `retain_face_embeddings`, `face_retention_days`, `face_retention_deadline`, `deletion_instruction`, and `instruction_id` fields have the same meaning as on `DELETE /v3/session/{sessionId}/delete/` and apply to every matched session. Each result reports its own `face_retention_outcome`.
+      # **Face biometric data:** the optional `retain_face_embeddings`, `face_retention_days`,
+      # `face_retention_deadline`, `deletion_instruction`, and `instruction_id` fields have the same meaning as on
+      # `DELETE /v3/session/{sessionId}/delete/` and apply to every matched session. Each result reports its own
+      # `face_retention_outcome`.
       #
-      # **Response:** `200 OK` with `results[]` for up to 20 matching sessions, or `202 Accepted` with a deletion job for more. Every result confirms deletion except `face_retention_outcome: failed_retryable`, which reports a session that was NOT deleted and should be retried. Earlier versions of this endpoint returned `204 No Content`; update clients that assert on `204`.
+      # **Response:** `200 OK` with `results[]` for up to 20 matching sessions, or `202 Accepted` with a deletion job
+      # for more. Every result confirms deletion except `face_retention_outcome: failed_retryable`, which reports a
+      # session that was NOT deleted and should be retried. Earlier versions of this endpoint returned `204 No
+      # Content`; update clients that assert on `204`.
       #
-      # **Idempotency:** repeating the same request deletes nothing more: numbers that no longer match a session are skipped.
+      # **Idempotency:** repeating the same request deletes nothing more: numbers that no longer match a session are
+      # skipped.
       #
-      # **`delete_all: true` (destructive):** deletes **every** remaining KYC session in the application; `session_numbers` is ignored when set. There is no confirmation step and no undo.
+      # **`delete_all: true` (destructive):** deletes **every** remaining KYC session in the application;
+      # `session_numbers` is ignored when set. There is no confirmation step and no undo.
       #
-      # **Authentication:** API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`); this API never returns `401`.
+      # **Authentication:** API key in the `x-api-key` header. Missing or invalid credentials return `403`
+      # (`{"detail": "You do not have permission to perform this action."}`); this API never returns `401`.
       #
-      # **Rate limit:** shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit:** shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
-      # This endpoint accepts API keys only. Business Console user Bearer tokens are rejected with `403` (unlike the single-session delete, which accepts both).
+      # This endpoint accepts API keys only. Business Console user Bearer tokens are rejected with `403` (unlike the
+      # single-session delete, which accepts both).
       #
       # +POST /v3/sessions/delete/+
       #
@@ -58,7 +92,16 @@ module Didit
       # @param instruction_id [String] Your durable reference for this deletion instruction (for example an erasure-ticket id). Recorded on the audit trail and on any retained template. Generated by Didit when omitted.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsBatchDeleteResponse, Didit::Types::SessionsBatchDeleteResponse202]
-      def batch_delete(session_numbers: OMIT, delete_all: OMIT, retain_face_embeddings: OMIT, face_retention_days: OMIT, face_retention_deadline: OMIT, deletion_instruction: OMIT, instruction_id: OMIT, request_options: nil)
+      def batch_delete(
+        session_numbers: OMIT,
+        delete_all: OMIT,
+        retain_face_embeddings: OMIT,
+        face_retention_days: OMIT,
+        face_retention_deadline: OMIT,
+        deletion_instruction: OMIT,
+        instruction_id: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/sessions/delete/",
@@ -78,11 +121,16 @@ module Didit
 
       # Bulk update AML hit review statuses
       #
-      # Update the review status of **multiple AML hits** in one call. Provide `hit_updates`, a list of `{ hit_id, review_status }` pairs. `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or `Inconclusive`.
+      # Update the review status of **multiple AML hits** in one call. Provide `hit_updates`, a list of `{ hit_id,
+      # review_status }` pairs. `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or
+      # `Inconclusive`.
       #
-      # The update is all-or-nothing: if any `hit_id` is not found in the AML check, the request returns `404` and no hit is changed. A successful call fires a single `data.updated` webhook and records one activity entry covering all changes. For graph workflows with multiple AML checks, pass `node_id` to target a specific check.
+      # The update is all-or-nothing: if any `hit_id` is not found in the AML check, the request returns `404` and no
+      # hit is changed. A successful call fires a single `data.updated` webhook and records one activity entry
+      # covering all changes. For graph workflows with multiple AML checks, pass `node_id` to target a specific check.
       #
-      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the `write:sessions` privilege.
+      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the
+      # `write:sessions` privilege.
       #
       # +PATCH /v3/session/{sessionId}/bulk-update-aml-hit-status/+
       #
@@ -111,13 +159,27 @@ module Didit
 
       # Create a verification session
       #
-      # Create a User Verification (KYC) or Business Verification (KYB) session and receive a hosted verification `url` plus a `session_token` to redirect or embed for your end user. The `workflow_id` selects which verification steps run and whether the session is KYC or KYB.
+      # Create a User Verification (KYC) or Business Verification (KYB) session and receive a hosted verification
+      # `url` plus a `session_token` to redirect or embed for your end user. The `workflow_id` selects which
+      # verification steps run and whether the session is KYC or KYB.
       #
-      # Call this from your backend (never the browser - the API key is a secret) whenever a user or business needs to be verified: at signup, before a sensitive action, or when re-verification is required. Prerequisites: a published workflow (created in the Console [Workflows](https://docs.didit.me/console/workflows) page) and an application API key with available credits. Sandbox applications bypass the credit check.
+      # Call this from your backend (never the browser - the API key is a secret) whenever a user or business needs to
+      # be verified: at signup, before a sensitive action, or when re-verification is required. Prerequisites: a
+      # published workflow (created in the Console [Workflows](https://docs.didit.me/console/workflows) page) and an
+      # application API key with available credits. Sandbox applications bypass the credit check.
       #
-      # **Idempotency:** when `vendor_data` is provided and an unfinished session (`Not Started`, `In Progress`, `Resubmitted`, or `Awaiting User`) with the same `vendor_data` already exists on the workflow's **current latest published version** (and that session already has a hosted verification URL), the existing session is returned (still `201`) instead of creating a duplicate - with its `callback` and `metadata` updated to the newly provided values. An unfinished session created on an older version of the workflow (one that has since been republished) is **not** reused; a new session pinned to the latest published version is created instead. Sessions in `Approved`, `Declined`, `In Review`, `Expired`, `Abandoned`, or `Kyc Expired` are never reused.
+      # **Idempotency:** when `vendor_data` is provided and an unfinished session (`Not Started`, `In Progress`,
+      # `Resubmitted`, or `Awaiting User`) with the same `vendor_data` already exists on the workflow's **current
+      # latest published version** (and that session already has a hosted verification URL), the existing session is
+      # returned (still `201`) instead of creating a duplicate - with its `callback` and `metadata` updated to the
+      # newly provided values. An unfinished session created on an older version of the workflow (one that has since
+      # been republished) is **not** reused; a new session pinned to the latest published version is created instead.
+      # Sessions in `Approved`, `Declined`, `In Review`, `Expired`, `Abandoned`, or `Kyc Expired` are never reused.
       #
-      # **Side effects:** the hosted verification URL is generated and stored; if `contact_details.send_notification_emails` is `true` and an email is provided, a verification invite email is sent. The session expires after the workflow's configured session expiration time. For KYB workflows, `contact_details.phone` and `expected_details` are ignored.
+      # **Side effects:** the hosted verification URL is generated and stored; if
+      # `contact_details.send_notification_emails` is `true` and an email is provided, a verification invite email is
+      # sent. The session expires after the workflow's configured session expiration time. For KYB workflows,
+      # `contact_details.phone` and `expected_details` are ignored.
       #
       # +POST /v3/session/+
       #
@@ -133,7 +195,19 @@ module Didit
       # @param sandbox_scenario [String] Sandbox-only scenario slug. Only accepted when the API key belongs to a sandbox-mode application; rejected on live applications. When set, the create flow expands the scenario's bundled magic values...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsCreateResponse]
-      def create(workflow_id:, vendor_data: OMIT, callback: OMIT, callback_method: OMIT, metadata: OMIT, language: OMIT, contact_details: OMIT, expected_details: OMIT, portrait_image: OMIT, sandbox_scenario: OMIT, request_options: nil)
+      def create(
+        workflow_id:,
+        vendor_data: OMIT,
+        callback: OMIT,
+        callback_method: OMIT,
+        metadata: OMIT,
+        language: OMIT,
+        contact_details: OMIT,
+        expected_details: OMIT,
+        portrait_image: OMIT,
+        sandbox_scenario: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/session/",
@@ -156,32 +230,71 @@ module Didit
 
       # Delete a verification session (KYC or KYB)
       #
-      # Delete a single verification session, User Verification (KYC) or Business Verification (KYB), by its `session_id`. The id is resolved against KYC sessions first, then KYB sessions, so both kinds are deleted through this one URL.
+      # Delete a single verification session, User Verification (KYC) or Business Verification (KYB), by its
+      # `session_id`. The id is resolved against KYC sessions first, then KYB sessions, so both kinds are deleted
+      # through this one URL.
       #
       # **What is deleted:**
-      # - The session and every verification attempt it holds, including results that a resubmission replaced: the decision, extracted data, all related feature records (ID verification, face, liveness, face match, AML, registry checks, IP analysis, and so on), its reviews and its activity log.
-      # - All stored files owned by the session: document front/back photos (full, cropped, and privacy-blurred variants), document-capture videos, portrait crops, NFC chip portrait and signature images, face reference images, liveness videos, face-match source/target images, Proof of Address documents, and any extra uploaded files (KYC); uploaded company documents and extra files (KYB). Previously issued media URLs (`https://<media-host>/...`) stop resolving.
-      # - The session's face data. Its face embedding is deleted too, unless you choose to keep an image-free template (see **Face biometric data**).
-      # - Webhook deliveries still queued for the session, and their retries. Webhooks already delivered are not affected.
-      # - For a Business Verification (KYB) session: the verifications it created for its key people (KYC) and its corporate owners (KYB), recursively, reported as `deleted_child_verifications`. A verification it only links to, such as an existing approved KYC it reused, is not deleted.
+      # - The session and every verification attempt it holds, including results that a resubmission replaced: the
+      #   decision, extracted data, all related feature records (ID verification, face, liveness, face match, AML,
+      #   registry checks, IP analysis, and so on), its reviews and its activity log.
+      # - All stored files owned by the session: document front/back photos (full, cropped, and privacy-blurred
+      #   variants), document-capture videos, portrait crops, NFC chip portrait and signature images, face reference
+      #   images, liveness videos, face-match source/target images, Proof of Address documents, and any extra uploaded
+      #   files (KYC); uploaded company documents and extra files (KYB). Previously issued media URLs
+      #   (`https://<media-host>/...`) stop resolving.
+      # - The session's face data. Its face embedding is deleted too, unless you choose to keep an image-free template
+      #   (see **Face biometric data**).
+      # - Webhook deliveries still queued for the session, and their retries. Webhooks already delivered are not
+      #   affected.
+      # - For a Business Verification (KYB) session: the verifications it created for its key people (KYC) and its
+      #   corporate owners (KYB), recursively, reported as `deleted_child_verifications`. A verification it only links
+      #   to, such as an existing approved KYC it reused, is not deleted.
       #
-      # The session disappears from every read endpoint immediately: `GET /v3/session/{sessionId}/decision/` returns `404` and `GET /v3/sessions/` stops listing it. Ongoing AML monitoring and KYB registry monitoring started by the deleted verifications stop.
+      # The session disappears from every read endpoint immediately: `GET /v3/session/{sessionId}/decision/` returns
+      # `404` and `GET /v3/sessions/` stops listing it. Ongoing AML monitoring and KYB registry monitoring started by
+      # the deleted verifications stop.
       #
-      # **What is not affected:** blocklist entries created from this session (face or document) are **not** removed; manage those with the blocklist endpoints. Share tokens issued for the session are not revoked, but there is nothing left for them to import: an import with one returns `400` with `{"share_token": ["Original session does not exist."]}`. Credits already consumed are **not** refunded. The parent User or Business entity is **not** deleted; use `POST /v3/users/delete/` or `POST /v3/businesses/delete/` for those. If the User's profile portrait came from this session, the portrait is removed with it.
+      # **What is not affected:** blocklist entries created from this session (face or document) are **not** removed;
+      # manage those with the blocklist endpoints. Share tokens issued for the session are not revoked, but there is
+      # nothing left for them to import: an import with one returns `400` with `{"share_token": ["Original session
+      # does not exist."]}`. Credits already consumed are **not** refunded. The parent User or Business entity is
+      # **not** deleted; use `POST /v3/users/delete/` or `POST /v3/businesses/delete/` for those. If the User's
+      # profile portrait came from this session, the portrait is removed with it.
       #
-      # **Face biometric data:** by default the session's face embedding is deleted with the session (`face_retention_outcome: deleted`). An application that opted in to biometric-template retention (`face_retention_policy: retain_until_user_deleted` on `PATCH /v3/webhook/`), or a request with `retain_face_embeddings: true`, keeps one separately managed, image-free face biometric template anchored to the session's User (`retained_with_user`) so that duplicate detection, Face Search, and biometric authentication keep working. The template never contains the face image, media, identity fields, the decision, or the deleted session's id; it is biometric data deleted at `biometric_template_expires_at`, or earlier on User deletion, privacy erasure, or an explicit purge through `/v3/biometric-templates/`. A session without a linked User cannot retain a template (`ineligible_no_vendor_user`). Send `deletion_instruction: privacy_erasure` for data-subject requests: it purges every retained template for that User and never retains a new one.
+      # **Face biometric data:** by default the session's face embedding is deleted with the session
+      # (`face_retention_outcome: deleted`). An application that opted in to biometric-template retention
+      # (`face_retention_policy: retain_until_user_deleted` on `PATCH /v3/webhook/`), or a request with
+      # `retain_face_embeddings: true`, keeps one separately managed, image-free face biometric template anchored to
+      # the session's User (`retained_with_user`) so that duplicate detection, Face Search, and biometric
+      # authentication keep working. The template never contains the face image, media, identity fields, the decision,
+      # or the deleted session's id; it is biometric data deleted at `biometric_template_expires_at`, or earlier on
+      # User deletion, privacy erasure, or an explicit purge through `/v3/biometric-templates/`. A session without a
+      # linked User cannot retain a template (`ineligible_no_vendor_user`). Send `deletion_instruction:
+      # privacy_erasure` for data-subject requests: it purges every retained template for that User and never retains
+      # a new one.
       #
-      # **Irreversible:** deletion is permanent and there is no restore endpoint. Export anything you need (for example a decision PDF) before you call it.
+      # **Irreversible:** deletion is permanent and there is no restore endpoint. Export anything you need (for
+      # example a decision PDF) before you call it.
       #
       # **Side effects:** no webhook is emitted for deletions.
       #
-      # **Response:** `200 OK` once the deletion has completed, with a JSON body reporting the `face_retention_outcome`, the retained template's expiry and, for a KYB session, `deleted_child_verifications`. Earlier versions of this endpoint returned `204 No Content`; update clients that assert on `204`. Keep your `instruction_id` in your own erasure log.
+      # **Response:** `200 OK` once the deletion has completed, with a JSON body reporting the
+      # `face_retention_outcome`, the retained template's expiry and, for a KYB session,
+      # `deleted_child_verifications`. Earlier versions of this endpoint returned `204 No Content`; update clients
+      # that assert on `204`. Keep your `instruction_id` in your own erasure log.
       #
-      # **Idempotency:** not idempotent at the HTTP level: the first call returns `200`; repeating it returns `404` because the session no longer resolves. After a `503` the session is still in place; repeat the same request to finish deleting it.
+      # **Idempotency:** not idempotent at the HTTP level: the first call returns `200`; repeating it returns `404`
+      # because the session no longer resolves. After a `503` the session is still in place; repeat the same request
+      # to finish deleting it.
       #
-      # **Authentication:** send your application's API key in the `x-api-key` header; the session must belong to that application. Console user access tokens (`Authorization: Bearer ...`) may also call this endpoint when they carry the `delete:sessions` permission. Authentication and permission failures both return `403`; this API never returns `401`.
+      # **Authentication:** send your application's API key in the `x-api-key` header; the session must belong to that
+      # application. Console user access tokens (`Authorization: Bearer ...`) may also call this endpoint when they
+      # carry the `delete:sessions` permission. Authentication and permission failures both return `403`; this API
+      # never returns `401`.
       #
-      # **Rate limit:** shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit:** shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
       # To bulk-delete KYC sessions by their numeric `session_number`, use `POST /v3/sessions/delete/` instead.
       #
@@ -195,7 +308,15 @@ module Didit
       # @param instruction_id [String] Your durable reference for this deletion instruction (for example an erasure-ticket id). Recorded on the audit trail and on any retained template. Generated by Didit when omitted.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsDeleteResponse]
-      def delete(session_id, retain_face_embeddings: OMIT, face_retention_days: OMIT, face_retention_deadline: OMIT, deletion_instruction: OMIT, instruction_id: OMIT, request_options: nil)
+      def delete(
+        session_id,
+        retain_face_embeddings: OMIT,
+        face_retention_days: OMIT,
+        face_retention_deadline: OMIT,
+        deletion_instruction: OMIT,
+        instruction_id: OMIT,
+        request_options: nil
+      )
         @client.request(
           :delete,
           "/v3/session/{sessionId}/delete/",
@@ -214,29 +335,47 @@ module Didit
 
       # Download a PDF report for a verification session
       #
-      # Render and download a compliance-ready PDF report for a finished verification session. The same path serves both User Verification (KYC) and Business Verification (KYB) sessions - the server resolves the `sessionId` against both session types and picks the matching report template.
+      # Render and download a compliance-ready PDF report for a finished verification session. The same path serves
+      # both User Verification (KYC) and Business Verification (KYB) sessions - the server resolves the `sessionId`
+      # against both session types and picks the matching report template.
       #
       # **Eligible statuses.** The session must already carry a final or reviewable status:
       #
       # - KYC sessions: `Approved`, `Declined`, `In Review`, or `Kyc Expired`.
       # - KYB sessions: `Approved`, `Declined`, or `In Review`.
       #
-      # Any other status (`Not Started`, `In Progress`, `Expired`, `Abandoned`, …) returns `403` with an explanatory `detail` string - see the `403` response below.
+      # Any other status (`Not Started`, `In Progress`, `Expired`, `Abandoned`, …) returns `403` with an explanatory
+      # `detail` string - see the `403` response below.
       #
       # **What the report contains.** The PDF mirrors the console session view at the moment of the request:
       #
-      # - **KYC** - rolled-up session status, the warnings list, and one section per executed feature: ID Verification (document images plus extracted fields), NFC, Liveness, Face Match, Email Verification, Phone Verification, Proof of Address, Questionnaire answers, Database Validation, AML Screening, and IP Analysis - followed by session tags, console review activity (comments and status changes), and the session event timeline.
-      # - **KYB** - registry checks (company data), AML screenings, business document verifications, key-people checks, questionnaire responses, phone/email verifications, IP analyses, and the session event timeline, followed by tags and review activity.
+      # - **KYC** - rolled-up session status, the warnings list, and one section per executed feature: ID Verification
+      #   (document images plus extracted fields), NFC, Liveness, Face Match, Email Verification, Phone Verification,
+      #   Proof of Address, Questionnaire answers, Database Validation, AML Screening, and IP Analysis - followed by
+      #   session tags, console review activity (comments and status changes), and the session event timeline.
+      # - **KYB** - registry checks (company data), AML screenings, business document verifications, key-people
+      #   checks, questionnaire responses, phone/email verifications, IP analyses, and the session event timeline,
+      #   followed by tags and review activity.
       #
-      # **Branding.** If your application has white-label customization, the report is rendered with your logo and links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English - there is no language parameter.
+      # **Branding.** If your application has white-label customization, the report is rendered with your logo and
+      # links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English - there
+      # is no language parameter.
       #
-      # **No caching.** Every call re-renders the PDF from the current session data, so a report generated after a manual review reflects the reviewer’s decision. Two calls for the same session can produce byte-different files - archive the downloaded file if you need an immutable copy.
+      # **No caching.** Every call re-renders the PDF from the current session data, so a report generated after a
+      # manual review reflects the reviewer’s decision. Two calls for the same session can produce byte-different
+      # files - archive the downloaded file if you need an immutable copy.
       #
-      # **Latency.** Rendering downloads every stored image (document sides, selfies, extra files) before composing the PDF, so media-heavy sessions can take several seconds. Use a generous client read timeout (60 s recommended) and stream the body to disk.
+      # **Latency.** Rendering downloads every stored image (document sides, selfies, extra files) before composing
+      # the PDF, so media-heavy sessions can take several seconds. Use a generous client read timeout (60 s
+      # recommended) and stream the body to disk.
       #
-      # **Trailing slash.** The canonical route ends with a trailing slash (`…/generate-pdf/`). A request without it is served directly with the same response - there is no `301` redirect, so no client has to follow redirects and `curl` does not need `-L`. Use the slashed URL as in the samples.
+      # **Trailing slash.** The canonical route ends with a trailing slash (`…/generate-pdf/`). A request without it
+      # is served directly with the same response - there is no `301` redirect, so no client has to follow redirects
+      # and `curl` does not need `-L`. Use the slashed URL as in the samples.
       #
-      # If you need the underlying data as JSON instead of a rendered report, use `GET /v3/session/{sessionId}/decision/`. For every reportable session of one user in a single document, use `GET /v3/users/{vendor_data}/generate-pdf/`.
+      # If you need the underlying data as JSON instead of a rendered report, use `GET
+      # /v3/session/{sessionId}/decision/`. For every reportable session of one user in a single document, use `GET
+      # /v3/users/{vendor_data}/generate-pdf/`.
       #
       # +GET /v3/session/{sessionId}/generate-pdf/+
       #
@@ -256,7 +395,8 @@ module Didit
 
       # Redeem a share token to clone a verification session into your application
       #
-      # Redeem a share token to clone a KYC or KYB session into the calling application with a fresh `session_id`. Not idempotent - a token redeems once per receiver.
+      # Redeem a share token to clone a KYC or KYB session into the calling application with a fresh `session_id`. Not
+      # idempotent - a token redeems once per receiver.
       #
       # +POST /v3/session/import-shared/+
       #
@@ -283,26 +423,51 @@ module Didit
 
       # List verification sessions (KYC and/or KYB) with filters and pagination
       #
-      # Returns a paginated list of verification sessions for the application identified by your API key, newest first (descending `session_number`).
+      # Returns a paginated list of verification sessions for the application identified by your API key, newest first
+      # (descending `session_number`).
       #
-      # **Canonical URL:** the route is `/v3/sessions/` (trailing slash). Requests to `/v3/sessions` without the slash receive a `301` redirect to the slashed URL with the query string preserved; most HTTP clients follow it transparently on GET.
+      # **Canonical URL:** the route is `/v3/sessions/` (trailing slash). Requests to `/v3/sessions` without the slash
+      # receive a `301` redirect to the slashed URL with the query string preserved; most HTTP clients follow it
+      # transparently on GET.
       #
-      # **When to use this endpoint vs webhooks.** Use this endpoint for dashboards, back-office search, reconciliation, and batch exports. Do not poll it to track the progress of individual verifications - configure [webhooks](/integration/webhooks) instead, which push `status.updated` events the moment a session changes. For one session's full result, call `GET /v3/session/{sessionId}/decision/`.
+      # **When to use this endpoint vs webhooks.** Use this endpoint for dashboards, back-office search,
+      # reconciliation, and batch exports. Do not poll it to track the progress of individual verifications -
+      # configure [webhooks](/integration/webhooks) instead, which push `status.updated` events the moment a session
+      # changes. For one session's full result, call `GET /v3/session/{sessionId}/decision/`.
       #
       # **KYC and KYB sessions.** `session_kind` selects which kinds are listed:
       # - `user` (default) - User Verification (KYC) sessions only. Backward-compatible behavior.
-      # - `business` - Business Verification (KYB) sessions only. Rows have a different, smaller shape (see the response schema).
-      # - `all` - both kinds in one response: the KYC page and the KYB page for the same `limit`/`offset` are concatenated in `results` (KYC rows first), so a page can contain up to `2 x limit` rows. `count` is the sum of both kinds and `next`/`previous` reflect the KYC-side pagination. For strict pagination of mixed data, call `user` and `business` separately.
+      # - `business` - Business Verification (KYB) sessions only. Rows have a different, smaller shape (see the
+      #   response schema).
+      # - `all` - both kinds in one response: the KYC page and the KYB page for the same `limit`/`offset` are
+      #   concatenated in `results` (KYC rows first), so a page can contain up to `2 x limit` rows. `count` is the sum
+      #   of both kinds and `next`/`previous` reflect the KYC-side pagination. For strict pagination of mixed data,
+      #   call `user` and `business` separately.
       #
       # Every row carries a `session_kind` discriminator (`"user"` or `"business"`).
       #
-      # **Pagination.** Standard limit/offset: `limit` (default 50) and `offset` (default 0), with `next`/`previous` ready-made page URLs. For KYC rows `count` is exact. For KYB rows `count` is computed with a bounded scan and is capped at 100 - when there are more than 100 matches it stays at 100, so iterate using `next` (or by checking whether a full page came back) rather than computing total pages from `count`.
+      # **Pagination.** Standard limit/offset: `limit` (default 50) and `offset` (default 0), with `next`/`previous`
+      # ready-made page URLs. For KYC rows `count` is exact. For KYB rows `count` is computed with a bounded scan and
+      # is capped at 100 - when there are more than 100 matches it stays at 100, so iterate using `next` (or by
+      # checking whether a full page came back) rather than computing total pages from `count`.
       #
-      # **Filter semantics.** All filters combine with AND and apply to KYC rows. When `session_kind` is `business` or `all`, the KYB side honors the shared parameters `vendor_data`, `status`, `workflow_id`, `country` (registry-company country code), `date_from`, `date_to`, `search` (company name, registration number - type registration numbers without separators, e.g. `DPC001` not `DPC-001` - vendor_data, session number, or session UUID), `warning`, and `organization_name`; the remaining KYC-only filters are ignored for KYB rows. Comma-separated parameters (`status`, `country`, `document_type`, `region`, `workflow_id`, `document_name`, `warning`, `organization_name`, `session_type`) match any of the listed values (OR within the parameter). `vendor_data` is an exact match - use `search` for partial matching. Unknown values in list filters simply return no rows (no error); malformed typed values (`date_from`, `date_to`, `didit_internal_id`, `api_service`, `session_kind`) return `400` with a per-field error object.
+      # **Filter semantics.** All filters combine with AND and apply to KYC rows. When `session_kind` is `business` or
+      # `all`, the KYB side honors the shared parameters `vendor_data`, `status`, `workflow_id`, `country`
+      # (registry-company country code), `date_from`, `date_to`, `search` (company name, registration number - type
+      # registration numbers without separators, e.g. `DPC001` not `DPC-001` - vendor_data, session number, or session
+      # UUID), `warning`, and `organization_name`; the remaining KYC-only filters are ignored for KYB rows.
+      # Comma-separated parameters (`status`, `country`, `document_type`, `region`, `workflow_id`, `document_name`,
+      # `warning`, `organization_name`, `session_type`) match any of the listed values (OR within the parameter).
+      # `vendor_data` is an exact match - use `search` for partial matching. Unknown values in list filters simply
+      # return no rows (no error); malformed typed values (`date_from`, `date_to`, `didit_internal_id`, `api_service`,
+      # `session_kind`) return `400` with a per-field error object.
       #
-      # **Search.** `search` adapts to the input: a full UUID looks up `session_id`; digits (with optional `+ - . space`) match session-number prefix, document/personal numbers, phone-number prefix, or `vendor_data`; values containing `@` match email prefixes; any other text matches names (accent-insensitive) and `vendor_data`.
+      # **Search.** `search` adapts to the input: a full UUID looks up `session_id`; digits (with optional `+ - .
+      # space`) match session-number prefix, document/personal numbers, phone-number prefix, or `vendor_data`; values
+      # containing `@` match email prefixes; any other text matches names (accent-insensitive) and `vendor_data`.
       #
-      # No fixed per-endpoint rate limit is enforced, but keep list polling infrequent and rely on webhooks for real-time updates.
+      # No fixed per-endpoint rate limit is enforced, but keep list polling infrequent and rely on webhooks for
+      # real-time updates.
       #
       # +GET /v3/sessions/+
       #
@@ -330,7 +495,31 @@ module Didit
       # @param organization_name [String] Comma-separated organization names. Console-oriented; with an API key (already scoped to one application) it only matches your own organization's name.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::SessionsListResponseResults>]
-      def list(session_kind: OMIT, limit: OMIT, offset: OMIT, status: OMIT, vendor_data: OMIT, search: OMIT, workflow_id: OMIT, date_from: OMIT, date_to: OMIT, country: OMIT, document_type: OMIT, document_name: OMIT, region: OMIT, didit_internal_id: OMIT, session_type: OMIT, api_service: OMIT, screened_full_name: OMIT, warning: OMIT, status_initialized_as_in_review: OMIT, is_kyc_to_be_reviewed: OMIT, euuid: OMIT, organization_name: OMIT, request_options: nil)
+      def list(
+        session_kind: OMIT,
+        limit: OMIT,
+        offset: OMIT,
+        status: OMIT,
+        vendor_data: OMIT,
+        search: OMIT,
+        workflow_id: OMIT,
+        date_from: OMIT,
+        date_to: OMIT,
+        country: OMIT,
+        document_type: OMIT,
+        document_name: OMIT,
+        region: OMIT,
+        didit_internal_id: OMIT,
+        session_type: OMIT,
+        api_service: OMIT,
+        screened_full_name: OMIT,
+        warning: OMIT,
+        status_initialized_as_in_review: OMIT,
+        is_kyc_to_be_reviewed: OMIT,
+        euuid: OMIT,
+        organization_name: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/sessions/",
@@ -365,7 +554,8 @@ module Didit
 
       # List networks for a session
       #
-      # List the networks the session's vendor user belongs to. Resolves through the session's vendor_data-linked user.
+      # List the networks the session's vendor user belongs to. Resolves through the session's vendor_data-linked
+      # user.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/sessions/{session_id}/networks/+
       #
@@ -385,11 +575,24 @@ module Didit
 
       # Preview a resubmission email
       #
-      # Render the email that would accompany a KYC or KYB resubmission without changing the session, resetting checks, extending its expiry, running checks or sending mail. Requires write:sessions and an application-scoped session in Approved, Declined, In Review, Kyc Expired or Abandoned status. The server validates the selected workflow steps and renders its fixed translated template with the applicable verified white-label sender and branding. The request cannot set a subject, message body or action URL.
+      # Render the email that would accompany a KYC or KYB resubmission without changing the session, resetting
+      # checks, extending its expiry, running checks or sending mail. Requires write:sessions and an
+      # application-scoped session in Approved, Declined, In Review, Kyc Expired or Abandoned status. The server
+      # validates the selected workflow steps and renders its fixed translated template with the applicable verified
+      # white-label sender and branding. The request cannot set a subject, message body or action URL.
       #
-      # The response includes the recipient, sender, subject, HTML, resolved steps and a signed preview_token. requires_user_action describes whether the selected steps include an interactive check. Email delivery remains conditional: if automatic checks finalize the verification during the subsequent resubmission, no action-request email is sent.
+      # The response includes the recipient, sender, subject, HTML, resolved steps and a signed preview_token.
+      # requires_user_action describes whether the selected steps include an interactive check. Email delivery remains
+      # conditional: if automatic checks finalize the verification during the subsequent resubmission, no
+      # action-request email is sent.
       #
-      # This preview does not reserve session state or authorize delivery. After reviewing it, call Update Session Status with new_status=Resubmitted, the same selection, recipient and language, and email_preview_token set to the returned preview_token. The receipt expires after 15 minutes. When a receipt is supplied, changed inputs, message content, sender or session state return 409 before any mutation or send. Existing integrations may omit the receipt. Regenerate the preview after a conflict. Treat the response as sensitive verification content; responses use Cache-Control: no-store. Render HTML in a sandboxed frame, never directly in your application DOM.
+      # This preview does not reserve session state or authorize delivery. After reviewing it, call Update Session
+      # Status with new_status=Resubmitted, the same selection, recipient and language, and email_preview_token set to
+      # the returned preview_token. The receipt expires after 15 minutes. When a receipt is supplied, changed inputs,
+      # message content, sender or session state return 409 before any mutation or send. Existing integrations may
+      # omit the receipt. Regenerate the preview after a conflict. Treat the response as sensitive verification
+      # content; responses use Cache-Control: no-store. Render HTML in a sandboxed frame, never directly in your
+      # application DOM.
       #
       # +POST /v3/session/{sessionId}/resubmission-preview/+
       #
@@ -399,7 +602,13 @@ module Didit
       # @param email_language [String] Language for the notification email. Accepts any string at schema level; unsupported codes silently fall back to English (`en`).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsPreviewResubmissionResponse]
-      def preview_resubmission(session_id, email_address:, nodes_to_resubmit: OMIT, email_language: OMIT, request_options: nil)
+      def preview_resubmission(
+        session_id,
+        email_address:,
+        nodes_to_resubmit: OMIT,
+        email_language: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/session/{sessionId}/resubmission-preview/",
@@ -416,17 +625,39 @@ module Didit
 
       # Retrieve the full decision for a verification session
       #
-      # Retrieve the complete decision report for a verification session - the rolled-up session `status` plus one report per verification feature the workflow executed. This is the canonical read endpoint for both User Verification (KYC) and Business Verification (KYB) sessions: the same path serves both, and the top-level `session_kind` discriminator tells you which shape you received (`"user"` or `"business"`).
+      # Retrieve the complete decision report for a verification session - the rolled-up session `status` plus one
+      # report per verification feature the workflow executed. This is the canonical read endpoint for both User
+      # Verification (KYC) and Business Verification (KYB) sessions: the same path serves both, and the top-level
+      # `session_kind` discriminator tells you which shape you received (`"user"` or `"business"`).
       #
-      # **Every feature report is a plural array.** V3 workflows are graphs that can run the same feature more than once, so each block (`id_verifications`, `nfc_verifications`, `liveness_checks`, `face_matches`, `poa_verifications`, `document_ai_documents`, `phone_verifications`, `email_verifications`, `aml_screenings`, `ip_analyses`, `database_validations`, `questionnaire_responses`) is a JSON array whose items each carry a `node_id` identifying the workflow graph node that produced them. Read NFC as `response.nfc_verifications[0]` - never as a singular `nfc` field. A block is `null` until the workflow has run that feature at least once; features the workflow does not include never appear with data.
+      # **Every feature report is a plural array.** V3 workflows are graphs that can run the same feature more than
+      # once, so each block (`id_verifications`, `nfc_verifications`, `liveness_checks`, `face_matches`,
+      # `poa_verifications`, `document_ai_documents`, `phone_verifications`, `email_verifications`, `aml_screenings`,
+      # `ip_analyses`, `database_validations`, `questionnaire_responses`) is a JSON array whose items each carry a
+      # `node_id` identifying the workflow graph node that produced them. Read NFC as `response.nfc_verifications[0]`
+      # - never as a singular `nfc` field. A block is `null` until the workflow has run that feature at least once;
+      # features the workflow does not include never appear with data.
       #
-      # **When to call.** The recommended pattern is event-driven: wait for the `status.updated` webhook that fires when the session reaches a decision (`Approved`, `Declined`, `In Review`), then call this endpoint once to fetch the full report. Polling also works - the endpoint can be called at any point in the session lifecycle and returns the data produced so far - but webhook-then-fetch is cheaper and faster. Media URLs in the response (document images, videos, PDFs) are short-lived presigned links: fetch them promptly or re-request the decision to get fresh ones, and do not persist them as long-term references.
+      # **When to call.** The recommended pattern is event-driven: wait for the `status.updated` webhook that fires
+      # when the session reaches a decision (`Approved`, `Declined`, `In Review`), then call this endpoint once to
+      # fetch the full report. Polling also works - the endpoint can be called at any point in the session lifecycle
+      # and returns the data produced so far - but webhook-then-fetch is cheaper and faster. Media URLs in the
+      # response (document images, videos, PDFs) are short-lived presigned links: fetch them promptly or re-request
+      # the decision to get fresh ones, and do not persist them as long-term references.
       #
-      # **Statuses.** The top-level `status` is the session lifecycle status (`Not Started`, `In Progress`, `Awaiting User`, `In Review`, `Approved`, `Declined`, `Resubmitted`, `Expired`, `Kyc Expired`, `Abandoned`). Each feature item additionally carries its own feature-level `status` (`Not Finished`, `Approved`, `Declined`, `In Review`, ...). A session can be `Approved` overall while an individual feature is `In Review`, depending on the workflow's decision rules.
+      # **Statuses.** The top-level `status` is the session lifecycle status (`Not Started`, `In Progress`, `Awaiting
+      # User`, `In Review`, `Approved`, `Declined`, `Resubmitted`, `Expired`, `Kyc Expired`, `Abandoned`). Each
+      # feature item additionally carries its own feature-level `status` (`Not Finished`, `Approved`, `Declined`, `In
+      # Review`, ...). A session can be `Approved` overall while an individual feature is `In Review`, depending on
+      # the workflow's decision rules.
       #
-      # **Authentication and visibility.** Authenticate with the application API key in the `x-api-key` header (a console user Bearer token with the `read:sessions` permission also works). Only sessions owned by the authenticated application are visible. If your workflow restricts response attributes, non-allowed fields inside feature items are returned as `null` while `status`, `warnings`, and `node_id` are always preserved.
+      # **Authentication and visibility.** Authenticate with the application API key in the `x-api-key` header (a
+      # console user Bearer token with the `read:sessions` permission also works). Only sessions owned by the
+      # authenticated application are visible. If your workflow restricts response attributes, non-allowed fields
+      # inside feature items are returned as `null` while `status`, `warnings`, and `node_id` are always preserved.
       #
-      # **Rate limits.** GET requests are limited to 600 per minute per API key. Exceeding the limit returns `429` with `Retry-After` and `X-RateLimit-*` headers.
+      # **Rate limits.** GET requests are limited to 600 per minute per API key. Exceeding the limit returns `429`
+      # with `Retry-After` and `X-RateLimit-*` headers.
       #
       # +GET /v3/session/{sessionId}/decision/+
       #
@@ -449,11 +680,17 @@ module Didit
 
       # Get a bulk session deletion job
       #
-      # Progress of a bulk session deletion that `POST /v3/sessions/delete/` answered with `202` (more than 20 matching sessions, selected by `session_numbers` or with `delete_all`). Poll every few seconds while `status` is `PENDING` or `PROCESSING`; stop when it is `COMPLETED` or `FAILED`.
+      # Progress of a bulk session deletion that `POST /v3/sessions/delete/` answered with `202` (more than 20
+      # matching sessions, selected by `session_numbers` or with `delete_all`). Poll every few seconds while `status`
+      # is `PENDING` or `PROCESSING`; stop when it is `COMPLETED` or `FAILED`.
       #
-      # The job reports how many sessions ended in each outcome and how many it has processed, never which sessions it deleted. A `FAILED` job carries the reason in `error`; the sessions it had not reached are still in place, so repeat the deletion request to delete them.
+      # The job reports how many sessions ended in each outcome and how many it has processed, never which sessions it
+      # deleted. A `FAILED` job carries the reason in `error`; the sessions it had not reached are still in place, so
+      # repeat the deletion request to delete them.
       #
-      # **Authentication:** API key in the `x-api-key` header. A job is only visible to the application that created it; any other `job_id` returns `404`. Missing or invalid credentials return `403`; this API never returns `401`.
+      # **Authentication:** API key in the `x-api-key` header. A job is only visible to the application that created
+      # it; any other `job_id` returns `404`. Missing or invalid credentials return `403`; this API never returns
+      # `401`.
       #
       # +GET /v3/sessions/delete/{job_id}/+
       #
@@ -472,7 +709,8 @@ module Didit
 
       # Mint a share token for a finished verification session
       #
-      # Mint a short-lived JWT that lets a specific Didit application import this finished session. Pair with `POST /v3/session/import-shared/`.
+      # Mint a short-lived JWT that lets a specific Didit application import this finished session. Pair with `POST
+      # /v3/session/import-shared/`.
       #
       # +POST /v3/session/{sessionId}/share/+
       #
@@ -497,13 +735,20 @@ module Didit
 
       # Update an AML hit review status
       #
-      # Set the review status of a **single AML hit** (a potential sanction / PEP / watchlist / adverse-media match) returned by AML screening, without changing the overall session decision. Identify the hit by its `hit_id` (the `id` of an entry in the AML check's `hits` array - see the session decision).
+      # Set the review status of a **single AML hit** (a potential sanction / PEP / watchlist / adverse-media match)
+      # returned by AML screening, without changing the overall session decision. Identify the hit by its `hit_id`
+      # (the `id` of an entry in the AML check's `hits` array - see the session decision).
       #
-      # `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or `Inconclusive`. Reviewer decisions are preserved across ongoing-monitoring updates, so a hit you mark `False Positive` stays that way when the provider re-screens.
+      # `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or `Inconclusive`. Reviewer
+      # decisions are preserved across ongoing-monitoring updates, so a hit you mark `False Positive` stays that way
+      # when the provider re-screens.
       #
-      # A successful call fires a `data.updated` webhook and appends an activity entry (with actor attribution) to the session's review trail. For graph workflows with multiple AML checks, pass `node_id` to target a specific check.
+      # A successful call fires a `data.updated` webhook and appends an activity entry (with actor attribution) to the
+      # session's review trail. For graph workflows with multiple AML checks, pass `node_id` to target a specific
+      # check.
       #
-      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the `write:sessions` privilege.
+      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the
+      # `write:sessions` privilege.
       #
       # +PATCH /v3/session/{sessionId}/update-aml-hit-status/+
       #
@@ -514,7 +759,14 @@ module Didit
       # @param node_id_query [String] Workflow graph node ID. Required only when the session has multiple AML checks (one per node); omit it for single-AML sessions.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Object]
-      def update_aml_hit_status(session_id, hit_id:, review_status:, node_id: OMIT, node_id_query: OMIT, request_options: nil)
+      def update_aml_hit_status(
+        session_id,
+        hit_id:,
+        review_status:,
+        node_id: OMIT,
+        node_id_query: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/update-aml-hit-status/",
@@ -534,15 +786,38 @@ module Didit
 
       # Update KYC data extracted from the ID document on a verification session
       #
-      # Correct the identity fields that were extracted (OCR / NFC) from the user's ID document - misread names, dates, document numbers, and so on - after the verification has finished. Typical callers are a compliance analyst working from your own back office, or an automated reconciliation job. Every field in the body is optional: only the keys you send are written, everything else is left untouched (`PATCH` semantics).
+      # Correct the identity fields that were extracted (OCR / NFC) from the user's ID document - misread names,
+      # dates, document numbers, and so on - after the verification has finished. Typical callers are a compliance
+      # analyst working from your own back office, or an automated reconciliation job. Every field in the body is
+      # optional: only the keys you send are written, everything else is left untouched (`PATCH` semantics).
       #
-      # The session must belong to your application and be in `Approved`, `Declined`, `In Review`, or `Kyc Expired` status. Sessions in any other state (e.g. still `In Progress`) return `404` with `"No Session matches the given query."` - distinct from the `"Not found."` returned for an unknown or deleted `sessionId`. The session must also carry an ID-verification (KYC) record: sessions whose workflow never ran an ID-verification step return `404` (`"The session does not have a KYC."`). For graph workflows with multiple ID-verification steps, target a specific step with `node_id` (query parameter or body field); when omitted, the most recent KYC record is patched.
+      # The session must belong to your application and be in `Approved`, `Declined`, `In Review`, or `Kyc Expired`
+      # status. Sessions in any other state (e.g. still `In Progress`) return `404` with `"No Session matches the
+      # given query."` - distinct from the `"Not found."` returned for an unknown or deleted `sessionId`. The session
+      # must also carry an ID-verification (KYC) record: sessions whose workflow never ran an ID-verification step
+      # return `404` (`"The session does not have a KYC."`). For graph workflows with multiple ID-verification steps,
+      # target a specific step with `node_id` (query parameter or body field); when omitted, the most recent KYC
+      # record is patched.
       #
-      # Two derived fields are recomputed on every call: `full_name` (from `first_name` + `last_name`) and `issuing_state_name` (from `issuing_state`). If the free-text `address` changes, the server may also re-geocode it and refresh `parsed_address` (skipped for sandbox sessions). `extra_fields` and `parsed_address` are merged key-by-key rather than replaced - see the per-field descriptions for the `null`-to-delete semantics.
+      # Two derived fields are recomputed on every call: `full_name` (from `first_name` + `last_name`) and
+      # `issuing_state_name` (from `issuing_state`). If the free-text `address` changes, the server may also
+      # re-geocode it and refresh `parsed_address` (skipped for sandbox sessions). `extra_fields` and `parsed_address`
+      # are merged key-by-key rather than replaced - see the per-field descriptions for the `null`-to-delete
+      # semantics.
       #
-      # Submitting at least one valid field fires the `data.updated` [webhook](/integration/webhooks) (trigger `manual_review`) - even when the submitted values equal the stored ones. When values actually change, a `KYC_DATA_UPDATED` activity entry recording the changed fields with previous and new values is appended to the session's `reviews`, visible in [Get Decision](#get-/v3/session/-sessionId-/decision/) and the console activity timeline. The session's status and decision are **not** re-evaluated - use [Update Status](#patch-/v3/session/-sessionId-/update-status/) to change the outcome. An empty JSON body (`{}`) is accepted and simply returns the current KYC data without firing the webhook.
+      # Submitting at least one valid field fires the `data.updated` [webhook](/integration/webhooks) (trigger
+      # `manual_review`) - even when the submitted values equal the stored ones. When values actually change, a
+      # `KYC_DATA_UPDATED` activity entry recording the changed fields with previous and new values is appended to the
+      # session's `reviews`, visible in [Get Decision](#get-/v3/session/-sessionId-/decision/) and the console
+      # activity timeline. The session's status and decision are **not** re-evaluated - use [Update
+      # Status](#patch-/v3/session/-sessionId-/update-status/) to change the outcome. An empty JSON body (`{}`) is
+      # accepted and simply returns the current KYC data without firing the webhook.
       #
-      # Accepts an API key or a console user token; either way the credential needs the `write:sessions` permission. Authentication and permission failures both return `403` - this API never responds `401`. Note that the session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing credentials. This endpoint has a dedicated rate limit of 10 requests per minute per API key (invalid requests count too); the shared write budget of 300 requests per minute also applies.
+      # Accepts an API key or a console user token; either way the credential needs the `write:sessions` permission.
+      # Authentication and permission failures both return `403` - this API never responds `401`. Note that the
+      # session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing
+      # credentials. This endpoint has a dedicated rate limit of 10 requests per minute per API key (invalid requests
+      # count too); the shared write budget of 300 requests per minute also applies.
       #
       # +PATCH /v3/session/{sessionId}/update-data/+
       #
@@ -567,7 +842,28 @@ module Didit
       # @param node_id [String] Workflow graph node whose KYC record to patch, for graph workflows with multiple ID-verification steps (also accepted as a `node_id` body field). When omitted, the most recent KYC record on the sessi...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateDataResponse]
-      def update_data(session_id, document_type: OMIT, document_subtype: OMIT, document_number: OMIT, personal_number: OMIT, date_of_birth: OMIT, date_of_issue: OMIT, expiration_date: OMIT, issuing_state: OMIT, first_name: OMIT, last_name: OMIT, gender: OMIT, address: OMIT, place_of_birth: OMIT, nationality: OMIT, marital_status: OMIT, extra_fields: OMIT, parsed_address: OMIT, node_id: OMIT, request_options: nil)
+      def update_data(
+        session_id,
+        document_type: OMIT,
+        document_subtype: OMIT,
+        document_number: OMIT,
+        personal_number: OMIT,
+        date_of_birth: OMIT,
+        date_of_issue: OMIT,
+        expiration_date: OMIT,
+        issuing_state: OMIT,
+        first_name: OMIT,
+        last_name: OMIT,
+        gender: OMIT,
+        address: OMIT,
+        place_of_birth: OMIT,
+        nationality: OMIT,
+        marital_status: OMIT,
+        extra_fields: OMIT,
+        parsed_address: OMIT,
+        node_id: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/update-data/",
@@ -601,13 +897,21 @@ module Didit
 
       # Update an individual feature (step) status
       #
-      # Set the status of a single verification feature (step) within a session **without changing the overall session decision**. Target the feature by its workflow graph `nodeId` (use `default` for non-graph workflows where the step has no node).
+      # Set the status of a single verification feature (step) within a session **without changing the overall session
+      # decision**. Target the feature by its workflow graph `nodeId` (use `default` for non-graph workflows where the
+      # step has no node).
       #
-      # Works for both User Verification (KYC) and Business Verification (KYB) sessions and every step type - ID/OCR, Liveness, Face Match, NFC, AML, Proof of Address, Phone, Email, Database Validation, Questionnaire, and the KYB registry / documents / key-people checks.
+      # Works for both User Verification (KYC) and Business Verification (KYB) sessions and every step type - ID/OCR,
+      # Liveness, Face Match, NFC, AML, Proof of Address, Phone, Email, Database Validation, Questionnaire, and the
+      # KYB registry / documents / key-people checks.
       #
-      # `new_status` must be one of `Approved`, `Declined`, or `In Review`, and must differ from the feature's current status. A successful call fires a `data.updated` webhook and appends an activity entry (with actor attribution) to the session's review trail. This endpoint is **not** available for standalone API sessions (`session_type = API`).
+      # `new_status` must be one of `Approved`, `Declined`, or `In Review`, and must differ from the feature's current
+      # status. A successful call fires a `data.updated` webhook and appends an activity entry (with actor
+      # attribution) to the session's review trail. This endpoint is **not** available for standalone API sessions
+      # (`session_type = API`).
       #
-      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the `write:sessions` privilege.
+      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the
+      # `write:sessions` privilege.
       #
       # +PATCH /v3/session/{sessionId}/features/{nodeId}/update-status/+
       #
@@ -633,15 +937,36 @@ module Didit
 
       # Update registry-extracted company data on a Business Verification (KYB) session
       #
-      # Correct the registry-extracted company data on a Business Verification (KYB) session - company name, registration number, addresses, status, contact details - identified by `companyUuid`. Typical callers are a compliance analyst fixing a registry misread, or your back office syncing corrected company data. Every field in the body is optional (`PATCH` semantics); an empty JSON body (`{}`) is a no-op that simply echoes the current company record.
+      # Correct the registry-extracted company data on a Business Verification (KYB) session - company name,
+      # registration number, addresses, status, contact details - identified by `companyUuid`. Typical callers are a
+      # compliance analyst fixing a registry misread, or your back office syncing corrected company data. Every field
+      # in the body is optional (`PATCH` semantics); an empty JSON body (`{}`) is a no-op that simply echoes the
+      # current company record.
       #
-      # Edits are written in two places at once: fields with a canonical company column (name, registration number, country, incorporation date, tax number, type, statuses, capital fields (`registered_capital`, `registered_capital_amount`, `registered_capital_currency`), alternative names, nature of business, website, email, phone, LEI, location, and `legal_address` → `registered_address`) update that column, and **every** submitted key is also merged into the `registry_data` snapshot (dates as ISO strings) so the "extracted from registry" view reflects the correction. Fields without a column - `region`, `registration_date`, `dissolution_date`, `control_scheme` - land in `registry_data` only. `user_provided_data` (what the end user confirmed in the hosted flow) is never touched, and `last_console_edit_at` is stamped on every non-empty PATCH.
+      # Edits are written in two places at once: fields with a canonical company column (name, registration number,
+      # country, incorporation date, tax number, type, statuses, capital fields (`registered_capital`,
+      # `registered_capital_amount`, `registered_capital_currency`), alternative names, nature of business, website,
+      # email, phone, LEI, location, and `legal_address` → `registered_address`) update that column, and **every**
+      # submitted key is also merged into the `registry_data` snapshot (dates as ISO strings) so the "extracted from
+      # registry" view reflects the correction. Fields without a column - `region`, `registration_date`,
+      # `dissolution_date`, `control_scheme` - land in `registry_data` only. `user_provided_data` (what the end user
+      # confirmed in the hosted flow) is never touched, and `last_console_edit_at` is stamped on every non-empty
+      # PATCH.
       #
-      # Unlike the KYC/POA update endpoints, there is **no session-status gate**: the company can be edited at any point in the business session's lifecycle. The company must belong to the session in the path (`404` with `"KYB company does not belong to the given session."` otherwise) and to your application. Every non-empty PATCH fires the `data.updated` [webhook](/integration/webhooks) on the business session (trigger `console_registry_edit`) - even when the submitted values equal the stored ones. The session's status and decision are **not** re-evaluated, and no review/audit entry is recorded.
+      # Unlike the KYC/POA update endpoints, there is **no session-status gate**: the company can be edited at any
+      # point in the business session's lifecycle. The company must belong to the session in the path (`404` with
+      # `"KYB company does not belong to the given session."` otherwise) and to your application. Every non-empty
+      # PATCH fires the `data.updated` [webhook](/integration/webhooks) on the business session (trigger
+      # `console_registry_edit`) - even when the submitted values equal the stored ones. The session's status and
+      # decision are **not** re-evaluated, and no review/audit entry is recorded.
       #
-      # Accepts an API key or a console user token; either way the credential needs the `write:businesses` permission. Authentication and permission failures both return `403` - this API never responds `401`. Note that the session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing credentials. The shared write budget of 300 requests per minute per API key applies.
+      # Accepts an API key or a console user token; either way the credential needs the `write:businesses` permission.
+      # Authentication and permission failures both return `403` - this API never responds `401`. Note that the
+      # session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing
+      # credentials. The shared write budget of 300 requests per minute per API key applies.
       #
-      # For User Verification sessions, the KYC counterpart is `PATCH /v3/session/{sessionId}/update-data/`; to change the session decision itself use `PATCH /v3/session/{sessionId}/update-status/`.
+      # For User Verification sessions, the KYC counterpart is `PATCH /v3/session/{sessionId}/update-data/`; to change
+      # the session decision itself use `PATCH /v3/session/{sessionId}/update-status/`.
       #
       # +PATCH /v3/session/{sessionId}/kyb/{companyUuid}/update-data/+
       #
@@ -673,7 +998,35 @@ module Didit
       # @param control_scheme [String] Control / governance scheme when the registry exposes it. Stored in the registry snapshot only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateKybCompanyDataResponse]
-      def update_kyb_company_data(session_id, company_uuid, company_name: OMIT, registration_number: OMIT, country_code: OMIT, region: OMIT, incorporation_date: OMIT, registration_date: OMIT, dissolution_date: OMIT, tax_number: OMIT, legal_address: OMIT, company_type: OMIT, registry_status: OMIT, verification_status: OMIT, alternative_names: OMIT, nature_of_business: OMIT, registered_capital: OMIT, registered_capital_amount: OMIT, registered_capital_currency: OMIT, website: OMIT, email: OMIT, phone: OMIT, legal_entity_identifier: OMIT, location_of_registration: OMIT, vat_number: OMIT, control_scheme: OMIT, request_options: nil)
+      def update_kyb_company_data(
+        session_id,
+        company_uuid,
+        company_name: OMIT,
+        registration_number: OMIT,
+        country_code: OMIT,
+        region: OMIT,
+        incorporation_date: OMIT,
+        registration_date: OMIT,
+        dissolution_date: OMIT,
+        tax_number: OMIT,
+        legal_address: OMIT,
+        company_type: OMIT,
+        registry_status: OMIT,
+        verification_status: OMIT,
+        alternative_names: OMIT,
+        nature_of_business: OMIT,
+        registered_capital: OMIT,
+        registered_capital_amount: OMIT,
+        registered_capital_currency: OMIT,
+        website: OMIT,
+        email: OMIT,
+        phone: OMIT,
+        legal_entity_identifier: OMIT,
+        location_of_registration: OMIT,
+        vat_number: OMIT,
+        control_scheme: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/kyb/{companyUuid}/update-data/",
@@ -711,13 +1064,24 @@ module Didit
 
       # Skip (or re-require) a Key People party on a Business Verification (KYB) session
       #
-      # Exempt a Key People party from verification, or put it back in scope. This is the operator escape hatch for a party that can never finish its own check - most often because the individual KYC session handed to a UBO or director was deleted, which freezes that child's status and leaves the KYB parked in `Awaiting User` with nothing left that could move it.
+      # Exempt a Key People party from verification, or put it back in scope. This is the operator escape hatch for a
+      # party that can never finish its own check - most often because the individual KYC session handed to a UBO or
+      # director was deleted, which freezes that child's status and leaves the KYB parked in `Awaiting User` with
+      # nothing left that could move it.
       #
-      # Setting `is_skipped: true` drops the party out of the Key People aggregation and immediately recomputes the `KYBKeyPeopleCheck` and the parent session status, so the business session can settle and then be approved or declined. Sending `is_skipped: false` puts the party back in scope and the check goes back to waiting on it.
+      # Setting `is_skipped: true` drops the party out of the Key People aggregation and immediately recomputes the
+      # `KYBKeyPeopleCheck` and the parent session status, so the business session can settle and then be approved or
+      # declined. Sending `is_skipped: false` puts the party back in scope and the check goes back to waiting on it.
       #
-      # Unlike the applicant-facing skip in the hosted Key People screen, this endpoint is **not** gated by the role's `allow_skip` setting - that flag limits what the applicant may decide, not what your analyst may override. `requires_verification` is deliberately left untouched, so an overridden party reads as `requires_verification: true` **and** `is_skipped: true` and the record still shows what the rules asked for.
+      # Unlike the applicant-facing skip in the hosted Key People screen, this endpoint is **not** gated by the role's
+      # `allow_skip` setting - that flag limits what the applicant may decide, not what your analyst may override.
+      # `requires_verification` is deliberately left untouched, so an overridden party reads as
+      # `requires_verification: true` **and** `is_skipped: true` and the record still shows what the rules asked for.
       #
-      # The party must belong to the session in the path (`404` with `"Party does not belong to the given session."` otherwise) and to your application. A PATCH that actually changes the flag fires the `data.updated` [webhook](/integration/webhooks) on the business session with trigger `console_key_people_skip`; a PATCH that sets the flag to its current value is a no-op that echoes the party back.
+      # The party must belong to the session in the path (`404` with `"Party does not belong to the given session."`
+      # otherwise) and to your application. A PATCH that actually changes the flag fires the `data.updated`
+      # [webhook](/integration/webhooks) on the business session with trigger `console_key_people_skip`; a PATCH that
+      # sets the flag to its current value is a no-op that echoes the party back.
       #
       # Accepts an API key or a console user token; either way the credential needs the `write:businesses` permission.
       #
@@ -743,17 +1107,40 @@ module Didit
 
       # Update Proof of Address data extracted from the POA document on a verification session
       #
-      # Correct the fields extracted from the user's Proof of Address document - utility bill, bank statement, or other address evidence - after the verification has finished: issuer, dates, the printed name, the address itself, and banking details. Every field in the body is optional: only the keys you send are written, everything else is left untouched (`PATCH` semantics).
+      # Correct the fields extracted from the user's Proof of Address document - utility bill, bank statement, or
+      # other address evidence - after the verification has finished: issuer, dates, the printed name, the address
+      # itself, and banking details. Every field in the body is optional: only the keys you send are written,
+      # everything else is left untouched (`PATCH` semantics).
       #
-      # The session must belong to your application and be in `Approved`, `Declined`, `In Review`, or `Kyc Expired` status. Sessions in any other state (e.g. still `In Progress`) return `404` with `"No Session matches the given query."` - distinct from the `"Not found."` returned for an unknown or deleted `sessionId`. The session must also carry a POA record: sessions whose workflow never ran a Proof of Address step return `404` (`"The session does not have a POA."`). For graph workflows with multiple POA steps, target a specific step with `node_id` (query parameter or body field); when omitted, the most recent POA record is patched.
+      # The session must belong to your application and be in `Approved`, `Declined`, `In Review`, or `Kyc Expired`
+      # status. Sessions in any other state (e.g. still `In Progress`) return `404` with `"No Session matches the
+      # given query."` - distinct from the `"Not found."` returned for an unknown or deleted `sessionId`. The session
+      # must also carry a POA record: sessions whose workflow never ran a Proof of Address step return `404` (`"The
+      # session does not have a POA."`). For graph workflows with multiple POA steps, target a specific step with
+      # `node_id` (query parameter or body field); when omitted, the most recent POA record is patched.
       #
-      # `extra_fields` is merged key-by-key: nine known keys (`bank_iban`, `additional_names`, …) write through to dedicated POA columns, any other key is kept as a custom extra, and `null` / `""` deletes a key. `poa_parsed_address` accepts only the seven documented keys and recomputes `formatted_address` / `poa_formatted_address` after every edit. If the free-text `poa_address` changes, the server may also re-geocode it and refresh the structured address (skipped for sandbox sessions).
+      # `extra_fields` is merged key-by-key: nine known keys (`bank_iban`, `additional_names`, …) write through to
+      # dedicated POA columns, any other key is kept as a custom extra, and `null` / `""` deletes a key.
+      # `poa_parsed_address` accepts only the seven documented keys and recomputes `formatted_address` /
+      # `poa_formatted_address` after every edit. If the free-text `poa_address` changes, the server may also
+      # re-geocode it and refresh the structured address (skipped for sandbox sessions).
       #
-      # Unlike the KYC variant of this endpoint, the `data.updated` [webhook](/integration/webhooks) (trigger `manual_review`) fires only when at least one stored value **actually changed** - re-sending identical values is a silent no-op. When values change, a `POA_DATA_UPDATED` activity entry recording the changed fields with previous and new values is appended to the session's `reviews`, visible in [Get Decision](#get-/v3/session/-sessionId-/decision/) and the console activity timeline. The session's status and decision are **not** re-evaluated - use [Update Status](#patch-/v3/session/-sessionId-/update-status/) to change the outcome.
+      # Unlike the KYC variant of this endpoint, the `data.updated` [webhook](/integration/webhooks) (trigger
+      # `manual_review`) fires only when at least one stored value **actually changed** - re-sending identical values
+      # is a silent no-op. When values change, a `POA_DATA_UPDATED` activity entry recording the changed fields with
+      # previous and new values is appended to the session's `reviews`, visible in [Get
+      # Decision](#get-/v3/session/-sessionId-/decision/) and the console activity timeline. The session's status and
+      # decision are **not** re-evaluated - use [Update Status](#patch-/v3/session/-sessionId-/update-status/) to
+      # change the outcome.
       #
-      # Accepts an API key or a console user token; either way the credential needs the `write:sessions` permission. Authentication and permission failures both return `403` - this API never responds `401`. Note that the session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing credentials. This endpoint has a dedicated rate limit of 10 requests per minute per API key (invalid requests count too); the shared write budget of 300 requests per minute also applies.
+      # Accepts an API key or a console user token; either way the credential needs the `write:sessions` permission.
+      # Authentication and permission failures both return `403` - this API never responds `401`. Note that the
+      # session lookup runs before credential checks, so an unknown `sessionId` returns `404` even with missing
+      # credentials. This endpoint has a dedicated rate limit of 10 requests per minute per API key (invalid requests
+      # count too); the shared write budget of 300 requests per minute also applies.
       #
-      # An empty JSON body `{}` is a no-op: it returns `200` echoing the current POA record without firing the webhook (`has_changes` stays false).
+      # An empty JSON body `{}` is a no-op: it returns `200` echoing the current POA record without firing the webhook
+      # (`has_changes` stays false).
       #
       # +PATCH /v3/session/{sessionId}/update-poa-data/+
       #
@@ -770,7 +1157,20 @@ module Didit
       # @param node_id [String] Workflow graph node whose POA record to patch, for graph workflows with multiple Proof of Address steps (also accepted as a `node_id` body field). When omitted, the most recent POA record on the sess...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdatePoaDataResponse]
-      def update_poa_data(session_id, issuing_state: OMIT, document_type: OMIT, document_language: OMIT, issuer: OMIT, issue_date: OMIT, poa_address: OMIT, name_on_document: OMIT, extra_fields: OMIT, poa_parsed_address: OMIT, node_id: OMIT, request_options: nil)
+      def update_poa_data(
+        session_id,
+        issuing_state: OMIT,
+        document_type: OMIT,
+        document_language: OMIT,
+        issuer: OMIT,
+        issue_date: OMIT,
+        poa_address: OMIT,
+        name_on_document: OMIT,
+        extra_fields: OMIT,
+        poa_parsed_address: OMIT,
+        node_id: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/update-poa-data/",
@@ -796,15 +1196,42 @@ module Didit
 
       # Approve, decline, or request resubmission for a verification session
       #
-      # Manually override the final decision of a KYC or KYB verification session. Set `new_status` to `Approved` or `Declined` to record a manual decision, or to `Resubmitted` to clear specific verification steps and let the user redo them through the same verification URL. The endpoint accepts both user (KYC) and business (KYB) session IDs.
+      # Manually override the final decision of a KYC or KYB verification session. Set `new_status` to `Approved` or
+      # `Declined` to record a manual decision, or to `Resubmitted` to clear specific verification steps and let the
+      # user redo them through the same verification URL. The endpoint accepts both user (KYC) and business (KYB)
+      # session IDs.
       #
-      # Call it once a session has reached a reviewable state: the current status must be `Approved`, `Declined`, `In Review`, `Kyc Expired`, `Abandoned`, or `Resubmitted`. Sessions that are still `Not Started`, `In Progress`, or `Awaiting User`, or that ended as `Expired`, return `400`. The new status must differ from the current one, and your API key's organization needs the `write:sessions` permission. The eligible-state check runs before body validation, so an ineligible session returns the `Wrong Current Status` error even when the payload is also invalid.
+      # Call it once a session has reached a reviewable state: the current status must be `Approved`, `Declined`, `In
+      # Review`, `Kyc Expired`, `Abandoned`, or `Resubmitted`. Sessions that are still `Not Started`, `In Progress`,
+      # or `Awaiting User`, or that ended as `Expired`, return `400`. The new status must differ from the current one,
+      # and your API key's organization needs the `write:sessions` permission. The eligible-state check runs before
+      # body validation, so an ineligible session returns the `Wrong Current Status` error even when the payload is
+      # also invalid.
       #
-      # For `Resubmitted`, pass `nodes_to_resubmit` to choose which workflow steps the user must redo, or omit it to auto-select existing feature attempts in a resubmittable state (`Declined`, `In Review`, `Not Finished`, `Expired`). Never-attempted features are not auto-selected - list them explicitly in `nodes_to_resubmit`, or the request returns `400` when no recorded attempt needs resubmission. Captured data for the selected steps is deleted, the steps are reordered to match the workflow graph, the session's expiration window restarts, and the original verification URL becomes usable again. Backend-only steps (`AML`, `DATABASE_VALIDATION`, `IP_ANALYSIS`) at the head of the list run immediately without user interaction; if every resubmitted step is backend-only, the session re-finalizes within the same request. `KYB_REGISTRY` and `KYB_KEY_PEOPLE` cannot be resubmitted directly - resubmit the relevant child KYC sessions instead and the parent business session recomputes automatically.
+      # For `Resubmitted`, pass `nodes_to_resubmit` to choose which workflow steps the user must redo, or omit it to
+      # auto-select existing feature attempts in a resubmittable state (`Declined`, `In Review`, `Not Finished`,
+      # `Expired`). Never-attempted features are not auto-selected - list them explicitly in `nodes_to_resubmit`, or
+      # the request returns `400` when no recorded attempt needs resubmission. Captured data for the selected steps is
+      # deleted, the steps are reordered to match the workflow graph, the session's expiration window restarts, and
+      # the original verification URL becomes usable again. Backend-only steps (`AML`, `DATABASE_VALIDATION`,
+      # `IP_ANALYSIS`) at the head of the list run immediately without user interaction; if every resubmitted step is
+      # backend-only, the session re-finalizes within the same request. `KYB_REGISTRY` and `KYB_KEY_PEOPLE` cannot be
+      # resubmitted directly - resubmit the relevant child KYC sessions instead and the parent business session
+      # recomputes automatically.
       #
-      # Every successful call fires the `status.updated` [webhook](/integration/webhooks) once the change commits and appends an activity entry - with actor attribution and your `comment` - to the session's `reviews`, visible in [Get Decision](#get-/v3/session/-sessionId-/decision/) and in the console activity timeline. The user-profile aggregates linked to the session's `vendor_data` update as well. Declining disables ongoing AML monitoring for the session; re-approving re-enables it (from `Resubmitted`, `Declined`, or `Kyc Expired`) when the workflow has monitoring turned on. Approving or declining a child KYC that belongs to a KYB key-people check recomputes the parent business session's status. Set `send_email: true` (with `email_address`) to notify the user: a status notice for `Approved`/`Declined`, or a resubmission email containing the verification link and per-step reasons for `Resubmitted`.
+      # Every successful call fires the `status.updated` [webhook](/integration/webhooks) once the change commits and
+      # appends an activity entry - with actor attribution and your `comment` - to the session's `reviews`, visible in
+      # [Get Decision](#get-/v3/session/-sessionId-/decision/) and in the console activity timeline. The user-profile
+      # aggregates linked to the session's `vendor_data` update as well. Declining disables ongoing AML monitoring for
+      # the session; re-approving re-enables it (from `Resubmitted`, `Declined`, or `Kyc Expired`) when the workflow
+      # has monitoring turned on. Approving or declining a child KYC that belongs to a KYB key-people check recomputes
+      # the parent business session's status. Set `send_email: true` (with `email_address`) to notify the user: a
+      # status notice for `Approved`/`Declined`, or a resubmission email containing the verification link and per-step
+      # reasons for `Resubmitted`.
       #
-      # The operation is intentionally not repeatable with the same value: re-sending the current status returns `400` (`The new status is the same as the current status.`), so accidental double-submissions are harmless. Authentication and permission failures both return `403` - this API never responds `401`.
+      # The operation is intentionally not repeatable with the same value: re-sending the current status returns `400`
+      # (`The new status is the same as the current status.`), so accidental double-submissions are harmless.
+      # Authentication and permission failures both return `403` - this API never responds `401`.
       #
       # +PATCH /v3/session/{sessionId}/update-status/+
       #
@@ -818,7 +1245,17 @@ module Didit
       # @param email_preview_token [String] Optional signed receipt from Preview Resubmission Email. When supplied with send_email=true and new_status=Resubmitted, the recipient, language, checks, current session state, sender and message must...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateStatusResponse]
-      def update_status(session_id, new_status:, comment: OMIT, nodes_to_resubmit: OMIT, send_email: OMIT, email_address: OMIT, email_language: OMIT, email_preview_token: OMIT, request_options: nil)
+      def update_status(
+        session_id,
+        new_status:,
+        comment: OMIT,
+        nodes_to_resubmit: OMIT,
+        send_email: OMIT,
+        email_address: OMIT,
+        email_language: OMIT,
+        email_preview_token: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/update-status/",
@@ -841,7 +1278,11 @@ module Didit
       class Imports < Didit::Resource
         # Create a verification import job
         #
-        # Create an asynchronous import job for historical User Verification sessions, Business Verification sessions, transaction monitoring records, or workflow custom status rules. Use this to migrate from providers such as Sumsub, MetaMap, Veriff, Onfido, Persona, Trulioo, Jumio, Incode, iDenfy, or any other provider after transforming the export into Didit's canonical CSV/NDJSON format. Imports are disabled by default and must be enabled per organization by Didit.
+        # Create an asynchronous import job for historical User Verification sessions, Business Verification sessions,
+        # transaction monitoring records, or workflow custom status rules. Use this to migrate from providers such as
+        # Sumsub, MetaMap, Veriff, Onfido, Persona, Trulioo, Jumio, Incode, iDenfy, or any other provider after
+        # transforming the export into Didit's canonical CSV/NDJSON format. Imports are disabled by default and must
+        # be enabled per organization by Didit.
         #
         # +POST /v3/session/imports/+
         #
@@ -852,7 +1293,14 @@ module Didit
         # @param file [Pathname, IO, String, Didit::FilePart] Canonical CSV or NDJSON file. Use NDJSON for large imports. Maximum upload size 25 MB (use `source_file_url` for bigger files). Mutually exclusive with `source_file_url`.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
-        def create(import_type: OMIT, workflow_id: OMIT, source_format: OMIT, source_file_url: OMIT, file: OMIT, request_options: nil)
+        def create(
+          import_type: OMIT,
+          workflow_id: OMIT,
+          source_format: OMIT,
+          source_file_url: OMIT,
+          file: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/session/imports/",
@@ -872,7 +1320,8 @@ module Didit
 
         # List verification import row errors
         #
-        # List row-level errors for a verification import job, ordered by `row_number`. Use this endpoint to produce a corrected retry file containing only failed rows.
+        # List row-level errors for a verification import job, ordered by `row_number`. Use this endpoint to produce a
+        # corrected retry file containing only failed rows.
         #
         # +GET /v3/session/imports/{importId}/errors/+
         #
@@ -897,7 +1346,8 @@ module Didit
 
         # Retrieve a verification import job
         #
-        # Retrieve import progress counters and terminal status for one job. Poll until `status` is `COMPLETED` or `FAILED`; `failed_count` > 0 means some rows were rejected - list them via the errors endpoint.
+        # Retrieve import progress counters and terminal status for one job. Poll until `status` is `COMPLETED` or
+        # `FAILED`; `failed_count` > 0 means some rows were rejected - list them via the errors endpoint.
         #
         # +GET /v3/session/imports/{importId}/+
         #
@@ -916,7 +1366,8 @@ module Didit
 
         # Download verification import template
         #
-        # Download the canonical CSV header for verification imports. The column set is determined by `import_type`. The first column of session templates is the idempotency key `external_id`.
+        # Download the canonical CSV header for verification imports. The column set is determined by `import_type`.
+        # The first column of session templates is the idempotency key `external_id`.
         #
         # +GET /v3/session/imports/template/+
         #
@@ -941,11 +1392,20 @@ module Didit
       class Reviews < Didit::Resource
         # Add a review note to a session's audit trail
         #
-        # Append a note to a User Verification (KYC) session's review / activity feed. **This endpoint only records an entry - it never changes the session.** The session's `status` is left untouched, no status-transition validation runs, and no webhook fires. To actually approve, decline, or re-open a session (which also writes a fully-attributed `STATUS_UPDATED` entry to this feed), use `PATCH /v3/session/{session_id}/update-status/` instead.
+        # Append a note to a User Verification (KYC) session's review / activity feed. **This endpoint only records an
+        # entry - it never changes the session.** The session's `status` is left untouched, no status-transition
+        # validation runs, and no webhook fires. To actually approve, decline, or re-open a session (which also writes
+        # a fully-attributed `STATUS_UPDATED` entry to this feed), use `PATCH /v3/session/{session_id}/update-status/`
+        # instead.
         #
-        # Both body fields are optional and an empty JSON object is accepted. `new_status` is stored purely as a label on the entry and accepts any of the ten session status values (case-sensitive). `@email` mentions inside `comment` are stored as plain text only - they trigger no notifications on this endpoint, and the entry's `mentioned_emails` stays empty.
+        # Both body fields are optional and an empty JSON object is accepted. `new_status` is stored purely as a label
+        # on the entry and accepts any of the ten session status values (case-sensitive). `@email` mentions inside
+        # `comment` are stored as plain text only - they trigger no notifications on this endpoint, and the entry's
+        # `mentioned_emails` stays empty.
         #
-        # Note on attribution: entries created here carry no actor information. In the feed they show `actor_display: "Unknown"`, `actor_type: "CONSOLE_USER"`, and `activity_type: "STATUS_UPDATED"` (storage defaults), and the `201` body's `user` field is `"Unknown"`.
+        # Note on attribution: entries created here carry no actor information. In the feed they show `actor_display:
+        # "Unknown"`, `actor_type: "CONSOLE_USER"`, and `activity_type: "STATUS_UPDATED"` (storage defaults), and the
+        # `201` body's `user` field is `"Unknown"`.
         #
         # +POST /v3/sessions/{session_id}/reviews/+
         #
@@ -970,11 +1430,17 @@ module Didit
 
         # List session reviews and activity log
         #
-        # Return the audit trail / activity feed for a User Verification (KYC) session, newest first, in a paginated envelope (`count` / `next` / `previous` / `results`, 50 entries per page by default).
+        # Return the audit trail / activity feed for a User Verification (KYC) session, newest first, in a paginated
+        # envelope (`count` / `next` / `previous` / `results`, 50 entries per page by default).
         #
-        # Feed entries are written by every actor that touches the session: manual decisions made through `PATCH /v3/session/{session_id}/update-status/` (which records `previous_status` → `new_status`), Console reviewer activity (comments with `@email` mentions, KYC/POA data edits, file uploads/removals, tag changes, detail-page views), AML ongoing-monitoring matches, and notes appended via `POST` on this same path. Reading this feed is the API-side equivalent of the **Activity** panel in the Didit Console session view.
+        # Feed entries are written by every actor that touches the session: manual decisions made through `PATCH
+        # /v3/session/{session_id}/update-status/` (which records `previous_status` → `new_status`), Console reviewer
+        # activity (comments with `@email` mentions, KYC/POA data edits, file uploads/removals, tag changes,
+        # detail-page views), AML ongoing-monitoring matches, and notes appended via `POST` on this same path. Reading
+        # this feed is the API-side equivalent of the **Activity** panel in the Didit Console session view.
         #
-        # Only User Verification (KYC) sessions are addressable here; Business Verification (KYB) session IDs return `404`.
+        # Only User Verification (KYC) sessions are addressable here; Business Verification (KYB) session IDs return
+        # `404`.
         #
         # +GET /v3/sessions/{session_id}/reviews/+
         #

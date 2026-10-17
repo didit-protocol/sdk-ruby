@@ -7,27 +7,47 @@ module Didit
     class PassiveLiveness < Didit::Resource
       # Passive Liveness
       #
-      # Detect presentation attacks - printed photos, screen replays, masks, deepfakes - from a single face image. No video, motion, or user interaction required.
+      # Detect presentation attacks - printed photos, screen replays, masks, deepfakes - from a single face image. No
+      # video, motion, or user interaction required.
       #
-      # **How it works.** The image is analyzed by a biometric model; the largest detected face is evaluated and a liveness `score` (0-100) is computed. `status` is `Declined` when any `error`-severity warning fires:
+      # **How it works.** The image is analyzed by a biometric model; the largest detected face is evaluated and a
+      # liveness `score` (0-100) is computed. `status` is `Declined` when any `error`-severity warning fires:
       # - `NO_FACE_DETECTED` - the liveness model found no face,
       # - `LOW_LIVENESS_SCORE` - score at or below `face_liveness_score_decline_threshold` (default `30`),
       # - `LIVENESS_FACE_ATTACK` - the model detected a presentation attack,
       # - `FACE_IN_BLOCKLIST` / `POSSIBLE_FACE_IN_BLOCKLIST` - the face matches an entry on your face blocklist.
       #
-      # `MULTIPLE_FACES_DETECTED` is a `warning`-severity signal (does not decline), and `DUPLICATED_FACE` / `POSSIBLE_DUPLICATED_FACE` are `information`-severity signals that the same face already appeared in another approved session (they never decline). `face_quality` and `face_luminance` (0-100, nullable) describe capture quality.
+      # `MULTIPLE_FACES_DETECTED` is a `warning`-severity signal (does not decline), and `DUPLICATED_FACE` /
+      # `POSSIBLE_DUPLICATED_FACE` are `information`-severity signals that the same face already appeared in another
+      # approved session (they never decline). `face_quality` and `face_luminance` (0-100, nullable) describe capture
+      # quality.
       #
-      # **Blocklist and duplicate screening.** Runs on **every** call - with or without `save_api_request` - by matching the detected face against your application's face search index. Prior faces with the same `vendor_data` are excluded from the entire index search - so re-running liveness for the same user does not trigger `DUPLICATED_FACE`, and a blocklisted face originating from a session with the caller's own `vendor_data` is also NOT flagged (`FACE_IN_BLOCKLIST` screening is bypassed for same-`vendor_data` faces).
+      # **Blocklist and duplicate screening.** Runs on **every** call - with or without `save_api_request` - by
+      # matching the detected face against your application's face search index. Prior faces with the same
+      # `vendor_data` are excluded from the entire index search - so re-running liveness for the same user does not
+      # trigger `DUPLICATED_FACE`, and a blocklisted face originating from a session with the caller's own
+      # `vendor_data` is also NOT flagged (`FACE_IN_BLOCKLIST` screening is bypassed for same-`vendor_data` faces).
       #
-      # **Billing.** Each `200` response consumes one Passive Liveness API credit (standalone APIs have no free tier). Insufficient balance returns `403` before any image processing.
+      # **Billing.** Each `200` response consumes one Passive Liveness API credit (standalone APIs have no free tier).
+      # Insufficient balance returns `403` before any image processing.
       #
-      # **Session persistence and face enrollment (`save_api_request`, default `true`).** When `true`, the call is persisted as an API-type session (Business Console, `GET /v3/session/{sessionId}/decision/` via the returned `request_id`, `status.updated` webhook), the reference image and face crop are stored, and the detected face is **enrolled into your face search index** so later Face Search calls and duplicate checks can match it. When `false`, the call is one-shot: nothing is stored and the face is not enrolled (blocklist/duplicate screening still runs).
+      # **Session persistence and face enrollment (`save_api_request`, default `true`).** When `true`, the call is
+      # persisted as an API-type session (Business Console, `GET /v3/session/{sessionId}/decision/` via the returned
+      # `request_id`, `status.updated` webhook), the reference image and face crop are stored, and the detected face
+      # is **enrolled into your face search index** so later Face Search calls and duplicate checks can match it. When
+      # `false`, the call is one-shot: nothing is stored and the face is not enrolled (blocklist/duplicate screening
+      # still runs).
       #
-      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still returns `400`), the endpoint returns a static `Approved` mock payload, no session is persisted, and no credits are consumed.
+      # **Sandbox.** Sandbox API keys skip all processing and billing: after request validation (malformed input still
+      # returns `400`), the endpoint returns a static `Approved` mock payload, no session is persisted, and no credits
+      # are consumed.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
+      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
+      # `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints; exceeding it returns `429`.
+      # **Rate limit.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints;
+      # exceeding it returns `429`.
       #
       # +POST /v3/passive-liveness/+
       #
@@ -39,7 +59,15 @@ module Didit
       # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PassiveLivenessCheckResponse]
-      def check(user_image:, face_liveness_score_decline_threshold: OMIT, rotate_image: OMIT, save_api_request: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)
+      def check(
+        user_image:,
+        face_liveness_score_decline_threshold: OMIT,
+        rotate_image: OMIT,
+        save_api_request: OMIT,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/passive-liveness/",
