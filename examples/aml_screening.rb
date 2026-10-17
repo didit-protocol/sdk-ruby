@@ -20,5 +20,5 @@ result = didit.aml.screen(
 aml = result.aml
 puts "Status: #{aml&.status}, score #{aml&.score.inspect}, #{aml&.total_hits.to_i} hits"
 Array(aml&.hits).first(5).each do |hit|
-  puts "- #{hit.caption} (match #{hit.match_score.inspect}, datasets: #{Array(hit.datasets).join(', ')})"
+  puts "- #{hit.caption} (match #{hit.match_score.inspect}, datasets: #{Array(hit.datasets).join(", ")})"
 end

@@ -17,7 +17,7 @@ screening = didit.wallet_screening.screen(wallet_address: wallet, blockchain: ch
 puts "Wallet risk: #{screening.severity} (score #{screening.risk_score.inspect}): #{screening.summary}"
 
 vasps = didit.travel_rule.list_vasps(search: "exchange", limit: 5)
-puts "VASPs (#{vasps.total_count}): #{vasps.map(&:name).join(', ')}"
+puts "VASPs (#{vasps.total_count}): #{vasps.map(&:name).join(", ")}"
 
 widget = didit.travel_rule.create_widget_session(wallet_address: wallet, chain: chain, vendor_data: "user-42")
 puts "Ownership widget: #{widget.url} (expires #{widget.expires_at})"

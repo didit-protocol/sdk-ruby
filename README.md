@@ -143,7 +143,7 @@ POST and PATCH are retried only on 429 and when the connection failed before the
 ```ruby
 page = didit.sessions.list(limit: 50)
 page.total_count          # the API's count across pages
-page.each { |s| ... }     # this page
+page.each { |s| puts s.status } # this page
 page.next_page            # the next Didit::Page, or nil
 
 didit.sessions.list(limit: 50).auto_paging_each { |s| puts s.session_id } # every page, fetched as needed

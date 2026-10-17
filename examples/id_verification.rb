@@ -21,4 +21,4 @@ verification = result.id_verification
 puts "Status: #{verification&.status}"
 puts "Name: #{verification&.first_name} #{verification&.last_name}"
 puts "Document: #{verification&.document_type} #{verification&.document_number}"
-puts "Warnings: #{Array(verification&.warnings).map { |w| w[:risk] }.join(', ')}"
+puts "Warnings: #{Array(verification&.warnings).map { |w| w[:risk] }.join(", ")}"

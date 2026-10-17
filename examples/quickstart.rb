@@ -41,7 +41,7 @@ headers = {
 }
 event = didit.webhooks.verify(body, headers, secret)
 puts "Webhook #{event.webhook_type} for #{event.session_id} verified by #{event.verified_by} " \
-     "(#{event.class.name.split('::').last})"
+     "(#{event.class.name.split("::").last})"
 
 begin
   didit.webhooks.verify(body.sub("Approved", "Declined"), headers, secret)
