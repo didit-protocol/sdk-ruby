@@ -76,7 +76,9 @@ module DiditCodegen
 
     def path_value(arg)
       example = arg.example
-      return example.to_s if arg.has_example && example.to_s.match?(SAFE_SEGMENT) && example.to_s.length <= 80
+      text = example.to_s
+      safe = text.match?(SAFE_SEGMENT) && text.length <= 80 && !Samples.secret?(arg.wire) && !text.match?(Samples::TOKEN_SHAPED)
+      return text if arg.has_example && safe
 
       schema = arg.schema.is_a?(Hash) ? arg.schema : {}
       return Samples::UUID if schema["format"] == "uuid"
@@ -89,7 +91,7 @@ module DiditCodegen
       meth.query_args.each_with_object({}) do |arg, out|
         next unless arg.required || arg.has_example
 
-        value = scalar_example(arg) || Samples.synthesize(arg_document(meth), arg.schema, name: arg.wire)
+        value = Samples.scrub(scalar_example(arg), arg.wire) || Samples.synthesize(arg_document(meth), arg.schema, name: arg.wire)
         value = [value].flatten.compact.first(2) if arg.schema.is_a?(Hash) && arg.schema["type"] == "array"
         out[arg] = value
       end

@@ -134,7 +134,7 @@ RSpec.describe Didit::Resources::Transactions do
   it "transactions.create_sdk_token sends POST /v3/transactions/sdk-token/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
-        "sdk_token": "q7Zt...urlsafe",
+        "sdk_token": "redacted-sdk_token",
         "expires_at": "2026-07-07T12:15:00Z"
       }
     JSON

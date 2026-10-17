@@ -29,7 +29,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -119,7 +119,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -171,7 +171,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -223,7 +223,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -289,7 +289,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -355,7 +355,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -421,7 +421,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -487,7 +487,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -553,7 +553,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -619,7 +619,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -685,7 +685,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -751,7 +751,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -817,7 +817,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -883,7 +883,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -949,7 +949,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1015,7 +1015,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1081,7 +1081,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1147,7 +1147,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1213,7 +1213,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1279,7 +1279,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1345,7 +1345,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1412,7 +1412,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1480,7 +1480,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1546,7 +1546,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1612,7 +1612,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1679,7 +1679,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1745,7 +1745,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {
@@ -1811,7 +1811,7 @@ RSpec.describe Didit::Resources::IdWallets do
           "level_of_assurance": null,
           "verified_at": null,
           "signature_valid": null,
-          "credential_type": "person_identification"
+          "credential_type": "redacted-credential_type"
         },
         "vendor_data": "your-customer-reference",
         "metadata": {

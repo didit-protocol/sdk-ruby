@@ -272,7 +272,7 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.import_shared(
-      share_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      share_token: "redacted-share_token",
       trust_review: false,
       workflow_id: "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
       vendor_data: "user-1"
@@ -286,7 +286,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "share_token" => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "share_token" => "redacted-share_token",
       "trust_review" => false,
       "workflow_id" => "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
       "vendor_data" => "user-1"
@@ -992,7 +992,7 @@ RSpec.describe Didit::Resources::Sessions do
               "provider_name": "MitID",
               "issuing_authority": "Danish Agency for Digital Government",
               "issuing_country": "DNK",
-              "credential_type": "person_identification",
+              "credential_type": "redacted-credential_type",
               "level_of_assurance": "substantial",
               "verified_at": "2026-09-04T09:12:44Z",
               "signature_valid": true,
@@ -2405,7 +2405,7 @@ RSpec.describe Didit::Resources::Sessions do
   it "sessions.share sends POST /v3/session/{sessionId}/share/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
-        "share_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiMjBiYjNjM2ItNjE0Ni00MzlmLTg0YTQtYmQzMGQwMGFjNmEyIiwiZnJvbV9hcHBsaWNhdGlvbl9pZCI6ImRiZDIwZTM0LTQyZTktNGYyYy1iYTkxLWNmMDc2MjAxNmY2NCIsImZvcl9hcHBsaWNhdGlvbl9pZCI6ImE1ZjNiY2EyLTQ2ZTItNDExZS05MGVmLWE1ODA5MDBhNTdlZSIsImlhdCI6MTc1MzYzMDY2NiwiZXhwIjoxNzUzNjM0MjY2fQ.JJ9pNE_hqZsOtbR0XYZIWw4JzidjdEl279iUrsIkhGE",
+        "share_token": "redacted-share_token",
         "for_application_id": "a5f3bca2-46e2-411e-90ef-a580900a57ee",
         "session_kind": "user"
       }
