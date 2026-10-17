@@ -6,6 +6,9 @@ gemspec
 
 gem "rake", "~> 13.2"
 
+# CI sets JWT_VERSION (job jwt-2) to test Authentication with jwt 2.x; the gemspec allows ">= 2.7, < 4".
+gem "jwt", ENV["JWT_VERSION"] if ENV["JWT_VERSION"]
+
 group :test do
   gem "rack", "~> 3.1"
   gem "rspec", "~> 3.13"
