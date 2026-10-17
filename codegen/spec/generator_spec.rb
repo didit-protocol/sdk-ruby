@@ -6,7 +6,7 @@ RSpec.describe DiditCodegen::Generator do
   end
 
   let(:scoped) { "/v3/organization/{organization_id}/application/{application_id}" }
-  let(:thing_id) { thing_id }
+  let(:thing_id) { { "in" => "path", "name" => "thingId", "required" => true, "schema" => { "type" => "string" } } }
   let(:address_ref) { { "$ref" => "#/components/schemas/Address" } }
   let(:email) { { "type" => "object", "properties" => { "email" => { "type" => "string" } } } }
 
