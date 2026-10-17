@@ -86,8 +86,9 @@ The first release pull request proposes 0.1.0 (`initial-version` in `release-ple
 4. Tag ruleset for `v*` (Settings > Rules > Rulesets): restrict creation, update and deletion, with only the identity that creates the release tags on the bypass list (the role, team or GitHub App behind `RELEASE_PLEASE_TOKEN`). If that identity cannot be added to the bypass list (for example the default `GITHUB_TOKEN`), restrict update and deletion only.
 5. Settings > Actions > General: "Allow GitHub Actions to create and approve pull requests", so release-please and the spec sync can open their pull requests.
 6. Optional repository secret `RELEASE_PLEASE_TOKEN`: a fine-grained token with contents, issues and pull requests read and write on this repository only (for a GitHub App, mint its token in the workflow with `actions/create-github-app-token` and pass that instead). Without it the release pull request gets no CI run, because pull requests opened with the default `GITHUB_TOKEN` start no workflows.
-7. Only after Alex approves the first release (not before 2026-11-01): make the repository public, set the repository variable `RELEASES_ENABLED` to `true`, and merge the release pull request that release-please then opens.
-8. Check a release with `gh attestation verify didit-sdk-X.Y.Z.gem --repo didit-protocol/sdk-ruby`.
+7. Settings > Collaborators and teams: give `@didit-protocol/backend`, the code owners in `.github/CODEOWNERS`, write access; GitHub ignores code owners without it.
+8. Only after Alex approves the first release (not before 2026-11-01): make the repository public, set the repository variable `RELEASES_ENABLED` to `true`, and merge the release pull request that release-please then opens.
+9. Check a release with `gh attestation verify didit-sdk-X.Y.Z.gem --repo didit-protocol/sdk-ruby`.
 
 ## Keep the SDKs in sync
 
