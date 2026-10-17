@@ -189,7 +189,7 @@ module Didit
         put.call("X-Didit-Client", Util.client_header)
         config.default_headers.each { |name, value| put.call(name.to_s, value) }
         credential = credential_header(config, auth)
-        put.call(*credential) if credential
+        put.call(credential[0], credential[1]) if credential
         put.call("Content-Type", content_type) if content_type
         op_headers.each { |name, value| put.call(name, value) unless value.equal?(OMIT) }
         extra_headers.each { |name, value| put.call(name.to_s, value) }
@@ -219,7 +219,8 @@ module Didit
             failure = attempt.failure
             raise connection_error(prepared, failure), cause: failure if failure
 
-            return Result.new(response: attempt.response, retries_taken: retries, elapsed: attempt.elapsed)
+            response = attempt.response or raise Transport::Failure.new(IOError.new("no response"), sent: true)
+            return Result.new(response: response, retries_taken: retries, elapsed: attempt.elapsed)
           end
           retries += 1
           Util.pause(delay)
@@ -258,6 +259,8 @@ module Didit
           return delay
         end
         response = attempt.response
+        return nil unless response
+
         Log.response(config, prepared, response, attempt.elapsed)
         return nil if left <= 0 || !retry_status?(prepared.http_method, response.status)
 
