@@ -97,14 +97,17 @@ module DiditCodegen
         out
       end
 
-      # One object schema from +parts+: every property, and the required fields of all
-      # parts (:union, allOf) or of every part (:intersection, oneOf/anyOf).
-      def merged_object(rest, parts, required)
+      # One object schema from +parts+. :union (allOf): every property, a later part wins,
+      # and the required fields of all parts. :intersection (oneOf/anyOf): every property,
+      # the first variant wins, and the fields every variant requires.
+      def merged_object(rest, parts, mode)
         parts = parts.select { |p| p.is_a?(Hash) }
         props = {}
-        parts.each { |p| hash(p["properties"]).each { |name, prop| props[name] ||= prop } }
+        parts.each do |part|
+          hash(part["properties"]).each { |name, prop| props[name] = prop if mode == :union || !props.key?(name) }
+        end
         lists = parts.map { |p| Array(p["required"]) }
-        names = required == :union ? lists.flatten.uniq : (lists.reduce(:&) || [])
+        names = mode == :union ? lists.flatten.uniq : (lists.reduce(:&) || [])
         rest.merge("type" => "object", "properties" => props, "required" => names)
       end
     end
