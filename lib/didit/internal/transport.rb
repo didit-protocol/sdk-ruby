@@ -93,8 +93,10 @@ module Didit
       private
 
       def perform(http, request, &block)
+        # @type var result: Response?
         result = nil
         http.request(request) do |res|
+          # @type var headers: Hash[String, String]
           headers = {}
           res.each_header { |name, value| headers[name.downcase] = value }
           status = res.code.to_i
@@ -110,9 +112,15 @@ module Didit
 
       def build(http_method, uri, headers, body)
         klass = METHODS.fetch(http_method)
-        request = klass.new(uri.request_uri, headers)
+        request = klass.new(target(uri), headers)
         request.body = body if body
         request
+      end
+
+      # The request target: path ("/" when empty) and query.
+      def target(uri)
+        path = uri.path.to_s.empty? ? "/" : uri.path.to_s
+        uri.query ? "#{path}?#{uri.query}" : path
       end
 
       def checkout(uri, timeout)
@@ -137,13 +145,13 @@ module Didit
 
       def checkin(uri, http)
         keep = @mutex.synchronize do
-          next false unless @pid == Process.pid
-
           list = (@idle[pool_key(uri)] ||= [])
-          next false if list.size >= MAX_IDLE
-
-          list.push(http)
-          true
+          if @pid == Process.pid && list.size < MAX_IDLE
+            list.push(http)
+            true
+          else
+            false
+          end
         end
         discard(http) unless keep
       end
@@ -163,7 +171,8 @@ module Didit
       end
 
       def new_session(uri)
-        http = @http_client ? @http_client.call(uri) : Net::HTTP.new(uri.host, uri.port)
+        factory = @http_client
+        http = factory ? factory.call(uri) : Net::HTTP.new(uri.host.to_s, uri.port)
         unless http.is_a?(Net::HTTP)
           raise ConfigurationError, "http_client must return a Net::HTTP instance, got #{http.class}."
         end
