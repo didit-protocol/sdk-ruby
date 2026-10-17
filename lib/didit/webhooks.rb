@@ -44,8 +44,8 @@ module Didit
       # @param now [Integer, Float, nil] the current unix time, for tests
       # @return [Event]
       # @raise [Didit::WebhookVerificationError] when the delivery fails verification; +reason+ says why
-      # @raise [Didit::ConfigurationError] for a missing or empty secret, a negative tolerance or
-      #   headers that cannot be read
+      # @raise [Didit::ConfigurationError] for a missing or empty secret, a negative tolerance,
+      #   an +allow_simple+ other than true or false, or headers that cannot be read
       def verify(raw_body, headers, secret, tolerance: DEFAULT_TOLERANCE, allow_simple: false, now: nil)
         Verifier.new(secret, headers, tolerance: tolerance, now: now).verify(raw_body, allow_simple: allow_simple)
       end

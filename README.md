@@ -172,13 +172,13 @@ event = Didit::Webhooks.verify(raw_body, headers, secret)            # or didit.
 event = Didit::Webhooks.verify(raw_body, headers, [new_secret, old_secret]) # during a rotation
 ```
 
-- Pass the raw request body (`request.raw_post` in Rails, `request.body.read` in Sinatra and Rack). Headers can be a Hash in any case, a Rack env or Rails `request.headers`.
+- Pass the raw request body (`request.raw_post` in Rails; in Sinatra and Rack, `request.body.rewind` then `request.body.read`, because something may have read it already). Headers can be a Hash in any case, a Rack env or Rails `request.headers`.
 - A delivery is accepted when `X-Signature` matches the body, `X-Signature-V2` matches its canonical JSON, or a `-Previous` variant matches (secret rotation). Timestamps older or newer than `tolerance:` (300 s) are rejected.
 - `verify_parsed(payload, headers, secret)` is for frameworks that only give you the parsed JSON; it can check `X-Signature-V2` only.
 - The deprecated `X-Signature-Simple` counts only with `allow_simple: true`; then `event.body_authenticated?` is false and you should re-fetch the record from the API.
 - Failures raise `Didit::WebhookVerificationError` with `reason`: `:missing_signature`, `:invalid_signature`, `:missing_timestamp`, `:timestamp_mismatch`, `:timestamp_out_of_tolerance` or `:invalid_payload`.
 - Events are typed: `StatusUpdatedEvent`, `DataUpdatedEvent`, `UserStatusUpdatedEvent`, `UserDataUpdatedEvent`, `BusinessStatusUpdatedEvent`, `BusinessDataUpdatedEvent`, `ActivityCreatedEvent`, `TransactionCreatedEvent`, `TransactionStatusUpdatedEvent`, `TravelRuleStatusUpdatedEvent`, `WorkflowComplianceChangedEvent`, `KybRegistrySearchResolvedEvent`, and `UnknownEvent` for anything else. Session events carry the typed `decision`.
-- `kyb.registry_search.resolved` callbacks arrive unsigned, so `verify` raises `:missing_signature` for them. `Didit::Webhooks.parse_event(JSON.parse(body))` reads one without verifying it; treat it as untrusted and re-fetch the data from the API.
+- `kyb.registry_search.resolved` callbacks arrive unsigned, so `verify` rejects them (with `:missing_signature`, or a timestamp reason when their timestamp fails the checks that come first). `Didit::Webhooks.parse_event(JSON.parse(body))` reads one without verifying it; treat it as untrusted and re-fetch the data from the API.
 
 See [`examples/webhooks/`](examples/webhooks/) for Rails, Sinatra and Rack receivers. In a Rails controller that inherits from `ActionController::Base`, skip CSRF protection for the webhook action.
 
@@ -218,7 +218,7 @@ tokens = auth.refresh(tokens.refresh_token)               # serialise refreshes 
 
 auth.get_session(access_token)                            # instant revocation check
 auth.revoke_session(access_token)
-step_up = auth.create_step_up(access_token, action: "withdraw", amount: "250.00", currency: "EUR", return_to: url)
+step_up = auth.create_step_up(access_token, action: "payout", amount: "250.00", currency: "EUR", return_to: url)
 auth.retrieve_step_up(access_token, step_up.id).approved? # act only on status "approved"
 ```
 

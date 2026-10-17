@@ -13,9 +13,10 @@
 require "didit"
 require "json"
 
-# One instance per process: it caches the issuer's discovery document and keys.
+# One instance per process: it caches the issuer's discovery document and keys. The client id
+# is required here: it is the audience every access token must name.
 def didit_authentication
-  client_id = ENV.fetch("DIDIT_APPLICATION_ID", nil)
+  client_id = ENV.fetch("DIDIT_APPLICATION_ID")
   publishable_key = ENV.fetch("DIDIT_PUBLISHABLE_KEY", nil)
   if publishable_key
     Didit::Authentication.from_publishable_key(publishable_key, client_id: client_id)

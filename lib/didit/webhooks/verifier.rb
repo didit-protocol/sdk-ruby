@@ -47,6 +47,11 @@ module Didit
 
       # @return [Event]
       def verify(raw_body, allow_simple:)
+        # Only true turns the envelope-only signature on: "false" from an environment variable must not.
+        unless [true, false].include?(allow_simple)
+          raise ConfigurationError, "allow_simple must be true or false, got #{allow_simple.inspect}."
+        end
+
         raw = body_bytes(raw_body)
         @raw = raw
         @payload = normalize(parse_json(raw))
