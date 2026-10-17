@@ -87,13 +87,13 @@ jobs:
           remote_sha="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH" || true)"
           pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base "$BASE" --state open \
             --json number --jq '.[0].number // empty')"
-          mode=rebuild
+          mode="rebuild"
           if [ -n "$remote_sha" ] && [ -n "$pr" ]; then
             # Authors and committers of the branch commits that the default branch lacks.
             others="$(git log --format='%ae%n%ce' "origin/$BASE..$remote_sha" \
               | grep -v -x -F -e "$BOT_EMAIL" -e '' | sort -u || true)"
             if [ -n "$others" ]; then
-              mode=continue
+              mode="continue"
               git switch --quiet --force-create "$BRANCH" "$remote_sha"
               echo "Pull request #$pr has commits by others; this run syncs on top of $BRANCH." \
                 >> "$GITHUB_STEP_SUMMARY"
