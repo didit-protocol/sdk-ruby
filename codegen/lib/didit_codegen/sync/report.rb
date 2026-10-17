@@ -63,8 +63,8 @@ module DiditCodegen
 
       def commit_message
         counts = OPERATION_LISTS.map { |list, label, _| "#{send(list).size} #{label.downcase}" }.join(", ")
-        out = +"#{title}\n\n"
-        out << "Synced #{changed_files.map { |f| "openapi/#{f}" }.join(' and ')} from the published API contract " \
+        out = "#{title}\n\n"
+        out << "Synced #{changed_files.map { |f| "openapi/#{f}" }.join(" and ")} from the published API contract " \
                "and regenerated the SDK (docs/DESIGN.md section 3.1).\nOperations: #{counts}.\n"
         out << "The generator failed; see Action needed in the pull request.\n" if action_needed
         return out unless breaking?
@@ -104,7 +104,7 @@ module DiditCodegen
 
       def table
         rows = @files.map do |file, url, old_sha, new_sha|
-          "| `openapi/#{file}` | #{url} | `#{old_sha}` | #{old_sha == new_sha ? 'unchanged' : "`#{new_sha}`"} |"
+          "| `openapi/#{file}` | #{url} | `#{old_sha}` | #{old_sha == new_sha ? "unchanged" : "`#{new_sha}`"} |"
         end
         ["| File | URL | Old SHA-256 | New SHA-256 |", "|---|---|---|---|", *rows].join("\n")
       end

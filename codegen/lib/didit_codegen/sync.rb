@@ -51,6 +51,7 @@ module DiditCodegen
       unless version.is_a?(String) && version.start_with?("3.")
         raise InputError, "#{label}: the download is not an OpenAPI 3 document (openapi: #{version.inspect})."
       end
+
       paths = doc["paths"]
       raise InputError, "#{label}: the download has no paths." unless paths.is_a?(Hash) && !paths.empty?
 

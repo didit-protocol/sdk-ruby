@@ -173,7 +173,9 @@ RSpec.describe "spec sync" do
 
   # Writes the fixture repository; overlay.json gets the seeded one-space layout.
   def repo(overlay: base_overlay, deprecated: nil, version: "0.1.0", **docs)
-    write_repo(root, verification: docs.fetch(:verification) { verification }, account: docs.fetch(:account) { account },
+    write_repo(root, verification: docs.fetch(:verification) { verification }, account: docs.fetch(:account) do
+      account
+    end,
                      deprecated: deprecated, version: version)
     overlay_file = { "description" => "test overlay", "version" => 1, "operations" => overlay.sort.to_h }
     File.write(openapi("overlay.json"), JSON.pretty_generate(overlay_file, indent: " "))
@@ -288,7 +290,7 @@ RSpec.describe "spec sync" do
       expect(summary.lines[1]).to eq("\n")
       expect(summary).to include("| `openapi/verification.json` | https://docs.didit.me/openapi-25.json | " \
                                  "`#{Digest::SHA256.hexdigest(JSON.pretty_generate(verification))}` | " \
-                                 "`#{sha('verification.json')}` |")
+                                 "`#{sha("verification.json")}` |")
       expect(summary).to match(%r{\| `openapi/account\.json` \| https://docs\.didit\.me/openapi-auth\.json \| `\h{64}` \| unchanged \|})
       expect(section("Breaking changes")).to include("None detected.")
       changed = section("Operations")
@@ -296,7 +298,8 @@ RSpec.describe "spec sync" do
                                  "`currency`: added")
       expect(changed).to include("response 201 `expires_at`: field added")
       expect(changed).to include("response 201 `status`: enum value `Declined` added")
-      expect(section("Schemas")).to include("`Extra` added (verification.json)", "`Session` changed (verification.json)")
+      expect(section("Schemas")).to include("`Extra` added (verification.json)",
+                                            "`Session` changed (verification.json)")
       expect(commit_message).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
       expect(commit_message).not_to include("BREAKING CHANGE")
       expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
@@ -339,8 +342,8 @@ RSpec.describe "spec sync" do
       expect(read_json("overlay.json")["operations"]).not_to have_key("POST /v3/billing/top-up/")
       expect(section("SDK naming")).to include(
         "`POST /v3/billing/top-up/`: overlay entry deleted, upstream `x-didit-sdk` differs and wins: " \
-        "`#{JSON.generate(naming('billing', 'top_up'))}` -> " \
-        "`#{JSON.generate(naming('billing', 'top_up', 'auth' => 'account_token'))}`",
+        "`#{JSON.generate(naming("billing", "top_up"))}` -> " \
+        "`#{JSON.generate(naming("billing", "top_up", "auth" => "account_token"))}`",
         "auth changed from `api_key` to `account_token`"
       )
       expect(section("Breaking changes")).to include("`billing.top_up` (`POST /v3/billing/top-up/`): now " \
@@ -674,7 +677,7 @@ RSpec.describe "spec sync" do
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
       report.action_needed = ["x" * 70_000, {}]
       %i[breaking added removed renamed moved changed schemas naming].each do |list|
-        100.times { |i| report.send(list) << "`item #{i}` #{'y' * 300}" }
+        100.times { |i| report.send(list) << "`item #{i}` #{"y" * 300}" }
       end
       text = report.summary
       expect(text.length).to be <= 60_000

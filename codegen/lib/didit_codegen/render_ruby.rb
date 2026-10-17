@@ -13,7 +13,7 @@ module DiditCodegen
       return [] if text.nil? || text.strip.empty?
 
       fenced = false
-      text.tr("—", "-").tr("–", "-").strip.lines.flat_map do |line|
+      text.tr("\u2014", "-").tr("\u2013", "-").strip.lines.flat_map do |line|
         line = line.rstrip
         fenced = !fenced if line.lstrip.start_with?("```")
         next ["#{indent}#"] if line.empty?
@@ -345,7 +345,7 @@ module DiditCodegen
     end
 
     def param_doc(arg, indent)
-      text = arg.description ? " #{arg.description.gsub(/\s+/, " ").tr("—", "-").tr("–", "-")}" : ""
+      text = arg.description ? " #{arg.description.gsub(/\s+/, " ").tr("\u2014", "-").tr("\u2013", "-")}" : ""
       text = "#{text[0, 400].rstrip}..." if text.length > 400
       first, *rest = Text.wrap("@param #{arg.name} [#{yard(arg.type, request: true)}]#{text}",
                                Text::WIDTH - indent.length - 2)

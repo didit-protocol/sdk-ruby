@@ -14,7 +14,7 @@ module DiditCodegen
           if naming.nil?
             @report.added << "`#{key}`: **no SDK naming**; add an entry to `openapi/overlay.json` (see Action needed)"
           elsif JsonText.ident(naming).nil?
-            @report.added << "`#{key}`: not exposed by the server SDKs (auth `#{naming['auth']}`)"
+            @report.added << "`#{key}`: not exposed by the server SDKs (auth `#{naming["auth"]}`)"
           end
         end
         (@old_ops.keys - @new_ops.keys).sort.each do |key|
@@ -45,7 +45,7 @@ module DiditCodegen
 
       def describe_change(key, old_ref, new_ref, docs_only:)
         name = JsonText.ident(new_naming(key))
-        label = "`#{key}`#{name ? " (`#{name}`)" : ' (not exposed by the server SDKs)'}"
+        label = "`#{key}`#{name ? " (`#{name}`)" : " (not exposed by the server SDKs)"}"
         notes = Details.new(old_ref.doc, new_ref.doc).operation(old_ref, new_ref)
         if notes.empty?
           what = docs_only ? "documentation only" : "details changed (formats, limits, error responses or similar)"
@@ -53,7 +53,7 @@ module DiditCodegen
           return
         end
         breaking = name ? notes.select(&:last) : []
-        @report.changed << nested("#{label}#{breaking.empty? ? '' : ' **breaking**'}", notes, exposed: !name.nil?)
+        @report.changed << nested("#{label}#{" **breaking**" unless breaking.empty?}", notes, exposed: !name.nil?)
         breaking.each { |text, _| @report.breaking << "`#{name}` (`#{key}`): #{text}" }
       end
 
@@ -83,7 +83,7 @@ module DiditCodegen
             next if old_schemas[n] == new_schemas[n]
 
             docs_only = Sync.strip_docs(old_schemas[n]) == Sync.strip_docs(new_schemas[n])
-            @report.schemas << "`#{n}` changed (#{file})#{docs_only ? ', documentation only' : ''}"
+            @report.schemas << "`#{n}` changed (#{file})#{", documentation only" if docs_only}"
           end
         end
       end

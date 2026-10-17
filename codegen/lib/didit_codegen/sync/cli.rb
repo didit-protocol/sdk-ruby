@@ -50,7 +50,9 @@ module DiditCodegen
           o.on("--from-dir DIR", "read verification.json and account.json from DIR instead of downloading") do |v|
             options[:from_dir] = v
           end
-          o.on("--summary FILE", "write the pull request title and body (Markdown) to FILE") { |v| options[:summary] = v }
+          o.on("--summary FILE", "write the pull request title and body (Markdown) to FILE") do |v|
+            options[:summary] = v
+          end
           o.on("--commit-message FILE", "write the commit message to FILE") { |v| options[:commit_message] = v }
           o.on("--date YYYY-MM-DD", "the sync date (default: today, UTC)") { |v| options[:date] = check_date(v) }
           o.on("--root DIR", "the repository to sync (default: the one containing this script)") do |v|
@@ -62,7 +64,7 @@ module DiditCodegen
           end
         end
         rest = parser.parse(argv)
-        raise OptionParser::InvalidArgument, "unexpected arguments: #{rest.join(' ')}" unless rest.empty?
+        raise OptionParser::InvalidArgument, "unexpected arguments: #{rest.join(" ")}" unless rest.empty?
 
         options
       end

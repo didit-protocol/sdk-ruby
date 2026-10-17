@@ -98,7 +98,7 @@ module DiditCodegen
         notes = Details.new(@old_ops[old_key].doc, @new_ops[new_key].doc).operation(@old_ops[old_key],
                                                                                     @new_ops[new_key])
         breaking = notes.select(&:last)
-        head = "`#{name}`#{breaking.empty? ? '' : ' **breaking**'}: moved from `#{old_key}` to `#{new_key}`"
+        head = "`#{name}`#{" **breaking**" unless breaking.empty?}: moved from `#{old_key}` to `#{new_key}`"
         @report.moved << (notes.empty? ? "#{head}; same parameters, request body and response" : nested(head, notes))
         breaking.each do |text, _|
           @report.breaking << "`#{name}` moved from `#{old_key}` to `#{new_key}`: #{text}"
@@ -129,9 +129,9 @@ module DiditCodegen
                              "again (see Action needed)"
           @report.breaking << "`#{name}` (`#{key}`) has no SDK naming any more"
         elsif after["server"] != true
-          @report.removed << "`#{key}` (`#{name}`): no longer a server operation (auth `#{after['auth']}`); the " \
+          @report.removed << "`#{key}` (`#{name}`): no longer a server operation (auth `#{after["auth"]}`); the " \
                              "method is removed now, without a deprecation period"
-          @report.breaking << "`#{name}` (`#{key}`) is removed: the operation now needs `#{after['auth']}`, and " \
+          @report.breaking << "`#{name}` (`#{key}`) is removed: the operation now needs `#{after["auth"]}`, and " \
                               "server SDKs never expose such operations (docs/DESIGN.md section 4)"
         else
           renamed(name, key, JsonText.ident(after))
@@ -178,11 +178,11 @@ module DiditCodegen
 
       def deprecation_note(entry)
         if entry["replacement"]
-          "Renamed to #{entry['replacement']} on #{entry['since']}; this deprecated alias is kept through version " \
-            "#{entry['remove_in']}."
+          "Renamed to #{entry["replacement"]} on #{entry["since"]}; this deprecated alias is kept through version " \
+            "#{entry["remove_in"]}."
         else
-          "Removed from the API contract on #{entry['since']}; this deprecated method is kept through version " \
-            "#{entry['remove_in']}."
+          "Removed from the API contract on #{entry["since"]}; this deprecated method is kept through version " \
+            "#{entry["remove_in"]}."
         end
       end
 
@@ -200,7 +200,7 @@ module DiditCodegen
       # "head" with one sub-bullet per note, breaking notes first, at most 20.
       def nested(head, notes, exposed: true)
         ordered = notes.partition(&:last).flatten(1)
-        lines = ordered.first(20).map { |text, breaking| "  - #{text}#{breaking && exposed ? ' (breaking)' : ''}" }
+        lines = ordered.first(20).map { |text, breaking| "  - #{text}#{" (breaking)" if breaking && exposed}" }
         lines << "  - ... and #{ordered.size - 20} more differences" if ordered.size > 20
         "#{head}\n#{lines.join("\n")}"
       end
