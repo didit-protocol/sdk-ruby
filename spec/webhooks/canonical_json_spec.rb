@@ -28,8 +28,8 @@ RSpec.describe "Didit::Webhooks.canonical_json" do # rubocop:disable RSpec/Descr
     "writes subnormals" => [[5e-324, 2.2250738585072014e-308], "[5e-324,2.2250738585072014e-308]"],
     "writes true, false and null" => [[true, false, nil], "[true,false,null]"],
     "escapes only what Python escapes" => [
-      { "s" => "q\"\\\n\r\t\b\f\u0000\u0007\u001f/\u007f  " },
-      '{"s":"q\\"\\\\\\n\\r\\t\\b\\f\\u0000\\u0007\\u001f/' + "\u007f  " + '"}'
+      { "s" => "q\"\\\n\r\t\b\f\u0000\u0007\u001f/\u007f\u2028\u2029" },
+      ['{"s":"q\\"\\\\\\n\\r\\t\\b\\f\\u0000\\u0007\\u001f/', "\u007f\u2028\u2029", '"}'].join
     ],
     "keeps non-ASCII as UTF-8" => [{ "s" => "José 山田 😀" }, "{\"s\":\"José 山田 😀\"}"],
     "sorts keys by code point, not UTF-16 unit" => [
@@ -62,7 +62,7 @@ RSpec.describe "Didit::Webhooks.canonical_json" do # rubocop:disable RSpec/Descr
       ["NaN", [Float::NAN]],
       ["Infinity", { "x" => Float::INFINITY }],
       ["-Infinity", [-Float::INFINITY]],
-      ["a lone surrogate", ["a\xED\xA0\x80b".dup.force_encoding(Encoding::UTF_8)]],
+      ["a lone surrogate", [(+"a\xED\xA0\x80b").force_encoding(Encoding::UTF_8)]],
       ["invalid UTF-8", ["\xFF".b]],
       ["a Symbol value", [:approved]],
       ["a Time", [Time.at(0)]],
@@ -77,7 +77,7 @@ RSpec.describe "Didit::Webhooks.canonical_json" do # rubocop:disable RSpec/Descr
 
     it "raises ArgumentError past #{Didit::Webhooks::CanonicalJson::MAX_NESTING} levels of nesting" do
       ok = (1...Didit::Webhooks::CanonicalJson::MAX_NESTING).reduce([]) { |inner, _| [inner] }
-      expect(canonical(ok)).to eq("[" * 100 + "]" * 100)
+      expect(canonical(ok)).to eq(("[" * 100) + ("]" * 100))
       expect { canonical([ok]) }.to raise_error(ArgumentError, /nesting/)
       looped = []
       looped << looped

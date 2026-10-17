@@ -39,7 +39,7 @@ RSpec.describe "Didit::Webhooks.canonical_json against Python" do
 
   # Characters that stress escaping and key order: controls, quotes, DEL, line separators,
   # the private use area, U+FFFF, astral characters and plain text.
-  chars = [*"\u0000".."\u001f", "\"", "\\", "/", "\u007f", "\u0080", "é", "ß", " ", " ", "\u{e000}",
+  chars = [*"\u0000".."\u001f", "\"", "\\", "/", "\u007f", "\u0080", "é", "ß", "\u2028", "\u2029", "\u{e000}",
            "\u{fb00}", "\u{fffd}", "\u{ffff}", "😀", "\u{10000}", "\u{10ffff}", "山", "a", "b", "Z", " ", "0"]
 
   let(:rng) { Random.new(RSpec.configuration.seed) }
