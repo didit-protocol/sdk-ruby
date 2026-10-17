@@ -18,7 +18,7 @@ module Didit
       ACCESS_TYPES = %w[at+jwt application/at+jwt].freeze
       ID_TYPES = %w[jwt application/jwt].freeze
       ZERO = ("\x00" * 32).b.freeze
-      JSON_OPTIONS = { allow_nan: false, max_nesting: 64, create_additions: false }.merge(
+      JSON_OPTIONS = { allow_nan: false, max_nesting: 64 }.merge(
         # json 2.13 and newer can refuse duplicate member names; older versions keep the last one.
         Gem::Version.new(JSON::VERSION) >= Gem::Version.new("2.13.0") ? { allow_duplicate_key: false } : {}
       ).freeze
@@ -135,7 +135,7 @@ module Didit
         text = raw.force_encoding(Encoding::UTF_8)
         fail!(:malformed, "The token #{part} is not UTF-8.") unless text.valid_encoding?
 
-        value = JSON.parse(text, JSON_OPTIONS)
+        value = JSON.parse(text, **JSON_OPTIONS)
         fail!(:malformed, "The token #{part} is not a JSON object.") unless value.is_a?(Hash)
 
         value

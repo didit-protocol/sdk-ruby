@@ -8,6 +8,8 @@ module Didit
     class Event < Didit::Model
       # Unique id of the event; retries carry the same id, so use it to drop duplicates.
       field :event_id, "event_id", :string
+      # Read by #webhook_type, which falls back to +event_type+.
+      fields[:webhook_type] = ["webhook_type", :string].freeze
       # Unix seconds when the delivery was signed (X-Timestamp repeats it).
       field :timestamp, "timestamp", :integer
       # Unix seconds when the event happened, as sent.
@@ -16,14 +18,12 @@ module Didit
       field :application_id, "application_id", :string
       # +"live"+ or +"sandbox"+.
       field :environment, "environment", :string
-      # Read by {#webhook_type}, which also falls back to +event_type+.
-      fields[:webhook_type] = ["webhook_type", :string].freeze
 
       # Builds the event class that matches the payload's +webhook_type+ (or +event_type+).
       #
       # @api private
       def self.build(payload, verified_by = nil)
-        data = payload.each_key.all?(String) ? payload : payload.transform_keys(&:to_s)
+        data = payload.transform_keys(&:to_s) # a copy: the model freezes what it wraps
         type = data["webhook_type"]
         type = data["event_type"] unless type.is_a?(String)
         klass = type.is_a?(String) ? EVENT_CLASSES.fetch(type, UnknownEvent) : UnknownEvent

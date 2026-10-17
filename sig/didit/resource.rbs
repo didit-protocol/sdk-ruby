@@ -1,0 +1,8 @@
+module Didit
+  class Resource
+    @client: Didit::Client
+
+    def initialize: (Didit::Client client) -> void
+    def inspect: () -> String
+  end
+end

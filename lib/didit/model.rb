@@ -14,7 +14,7 @@ module Didit
   #
   # Field types are written as +:string+, +:integer+, +:float+, +:boolean+,
   # +:datetime+, +:date+, +:any+, a model class (or its name under +Didit::Types+),
-  # +[:array, type]+ or +[:map, type]+.
+  # +[:array, type]+, +[:map, type]+ or +[:union, [type, ...]]+ (the first type that fits the value).
   class Model
     class << self
       # The typed fields of this class and its ancestors: reader name => [JSON name, type].
@@ -55,12 +55,28 @@ module Didit
 
       def coerce_container(value, type)
         kind, inner = type
-        if kind == :array && value.is_a?(Array)
+        if kind == :union
+          member = inner.find { |m| fits?(value, m) }
+          member ? coerce(value, member) : value
+        elsif kind == :array && value.is_a?(Array)
           value.map { |item| coerce(item, inner) }
         elsif kind == :map && value.is_a?(Hash)
           value.transform_values { |item| coerce(item, inner) }
         else
           value
+        end
+      end
+
+      # Whether +value+ has the JSON shape of +type+ (for unions).
+      def fits?(value, type)
+        case value
+        when Hash then type.is_a?(String) || type.is_a?(Class) || (type.is_a?(Array) && type.first == :map)
+        when Array then type.is_a?(Array) && type.first == :array
+        when String then %i[string datetime date].include?(type)
+        when Integer then %i[integer float].include?(type)
+        when Float then type == :float
+        when true, false then type == :boolean
+        else false
         end
       end
 

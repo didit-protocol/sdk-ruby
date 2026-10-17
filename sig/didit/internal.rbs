@@ -1,0 +1,183 @@
+module Didit
+  module Internal
+    # Builds the Net::HTTP for an origin (the +http_client:+ option).
+    type http_client = ^(URI::Generic uri) -> Net::HTTP
+
+    module Util
+      REQUEST_ID_HEADERS: Array[String]
+      REDACTED: String
+
+      def self.user_agent: () -> String
+      def self.client_header: () -> String
+      def self.request_id: (Hash[String, String] headers) -> String?
+      def self.redact: [T] (T value, Array[String?] secrets) -> T
+      def self.redact_value: (untyped value, Array[String] secrets) -> untyped
+      def self.origin: (URI::Generic | String uri) -> String
+      def self.display_url: (URI::Generic | String uri) -> String
+      def self.pause: (Numeric seconds) -> void
+      def self.debug_from_env?: () -> bool
+    end
+
+    module Errors
+      STATUS_ERRORS: Hash[Integer, singleton(APIStatusError)]
+      DETAIL_KEYS: Array[String]
+
+      def self.status_error: (status: Integer, headers: Hash[String, String], raw_body: String?, ?redact: Array[String?]) -> APIStatusError
+      def self.parse_body: (String? raw_body) -> untyped
+      def self.message_for: (Integer status, untyped body) -> String
+      def self.detail_of: (untyped body) -> String?
+      def self.hash_detail: (Hash[String, untyped] body) -> String?
+      def self.present?: (untyped value) -> bool
+    end
+
+    class Config
+      DEFAULT_BASE_URL: String
+      DEFAULT_ACCOUNT_BASE_URL: String
+      DEFAULT_TIMEOUT: Float
+      DEFAULT_MAX_RETRIES: Integer
+      FIELDS: Array[Symbol]
+
+      attr_reader api_key: String?
+      attr_reader account_token: String?
+      attr_reader organization_id: String?
+      attr_reader application_id: String?
+      attr_reader base_url: String
+      attr_reader account_base_url: String
+      attr_reader timeout: Float
+      attr_reader max_retries: Integer
+      attr_reader default_headers: Hash[String, String?]
+      attr_reader logger: untyped
+      attr_reader http_client: http_client?
+
+      def initialize: (**untyped options) -> void
+      def merge: (Hash[Symbol, untyped] changes) -> Config
+      def self.check_url: (Symbol name, untyped url) -> String
+      def self.check_timeout: (untyped value) -> Float
+      def self.check_max_retries: (untyped value) -> Integer
+
+      private
+
+      def present: (untyped value) -> String?
+      def check_headers: (untyped headers) -> Hash[String, String?]
+      def check_http_client: (untyped value) -> http_client?
+    end
+
+    module Log
+      def self.response: (Config config, Request::Prepared prepared, Transport::Response response, Float elapsed) -> void
+      def self.retry: (Config config, Request::Prepared prepared, String reason, Numeric delay, Integer retries_left) -> void
+      def self.enabled?: (Config config) -> bool
+      def self.write: (Config config, String message) -> void
+    end
+
+    module Multipart
+      def self.encode: (Hash[String, untyped] fields, Array[String] file_fields) -> [String, String]
+      def self.text: (untyped value) -> String
+      def self.field_part: (String body, String boundary, String name, String value) -> void
+      def self.file_part: (String body, String boundary, String name, FilePart part) -> void
+      def self.quote: (untyped value) -> String
+    end
+
+    module Request
+      class Prepared < Struct[untyped]
+        attr_accessor http_method: Symbol
+        attr_accessor uri: URI::Generic
+        attr_accessor headers: Hash[String, String]
+        attr_accessor body: String?
+        attr_accessor timeout: Float
+        attr_accessor max_retries: Integer
+        attr_accessor origin: String
+        attr_accessor redact: Array[String]
+
+        def self.new: (http_method: Symbol, uri: URI::Generic, headers: Hash[String, String], body: String?,
+                       timeout: Float, max_retries: Integer, origin: String, redact: Array[String]) -> Prepared
+      end
+
+      class Result < Struct[untyped]
+        attr_accessor response: Transport::Response
+        attr_accessor retries_taken: Integer
+        attr_accessor elapsed: Float
+
+        def self.new: (response: Transport::Response, retries_taken: Integer, elapsed: Float) -> Result
+      end
+
+      type options = { timeout: Float, max_retries: Integer, extra_headers: Hash[untyped, untyped],
+                       extra_query: Hash[untyped, untyped], extra_body: Hash[untyped, untyped] }
+
+      IDEMPOTENT: Array[Symbol]
+      INITIAL_RETRY_DELAY: Float
+      MAX_RETRY_DELAY: Float
+      MAX_RETRY_AFTER: Float
+      OPTION_KEYS: Array[Symbol]
+      UNRESERVED: Regexp
+
+      def self.options: (Config config, untyped raw) -> options
+      def self.prepare: (Config config, Symbol http_method, String path, options opts, ?path_params: Hash[String, untyped],
+                         ?query: Hash[String, untyped]?, ?body: untyped, ?encoding: Symbol, ?file_fields: Array[String],
+                         ?headers: Hash[String, untyped], ?auth: Symbol, ?api: Symbol, ?scope: Symbol?,
+                         ?accept: String) -> Prepared
+      def self.check_credentials: (Config config, Symbol auth) -> void
+      def self.encode_path: (String path, Hash[String, untyped] params) -> String
+      def self.path_segment: (String name, untyped value) -> String
+      def self.merge: (untyped values, untyped extra) -> Hash[String, untyped]
+      def self.encode_query: (Hash[String, untyped] values) -> String
+      def self.query_value: (untyped value) -> String
+      def self.encode_body: (untyped body, untyped extra_body, Symbol encoding, Array[String] file_fields) -> [String?, String?]
+      def self.json_value: (untyped value) -> untyped
+      def self.build_headers: (Config config, Symbol auth, String accept, String? content_type,
+                               Hash[String, untyped] op_headers, Hash[untyped, untyped] extra_headers) -> Hash[String, String]
+      def self.perform: (Config config, Transport transport, Prepared prepared) ?{ (String chunk) -> void } -> Result
+      def self.retry_status?: (Symbol http_method, Integer status) -> bool
+      def self.retry_failure?: (Symbol http_method, Transport::Failure failure) -> bool
+      def self.backoff: (Integer retries_taken) -> Float
+      def self.retry_after: (String? value, ?now: Time) -> Float?
+      def self.connection_error: (Prepared prepared, Transport::Failure failure) -> APIConnectionError
+    end
+
+    class Transport
+      class Response < Struct[untyped]
+        attr_accessor status: Integer
+        attr_accessor headers: Hash[String, String]
+        attr_accessor body: String?
+
+        def self.new: (status: Integer, headers: Hash[String, String], body: String?) -> Response
+      end
+
+      class Failure < StandardError
+        attr_reader error: Exception
+        attr_reader sent: bool
+
+        def initialize: (Exception error, sent: bool) -> void
+        def timeout?: () -> bool
+      end
+
+      NOT_SENT_ERRORS: Array[singleton(Exception)]
+      TRANSPORT_ERRORS: Array[singleton(Exception)]
+      TIMEOUT_ERRORS: Array[singleton(Exception)]
+      MAX_IDLE: Integer
+      METHODS: Hash[Symbol, singleton(Net::HTTPRequest)]
+
+      @mutex: Thread::Mutex
+      @idle: Hash[String, Array[Net::HTTP]]
+      @pid: Integer
+
+      attr_reader http_client: http_client?
+
+      def initialize: (?http_client: http_client?) -> void
+      def execute: (Symbol http_method, URI::Generic uri, Hash[String, String] headers, String? body, Float timeout) ?{ (String chunk) -> void } -> Response
+      def close: () -> nil
+
+      private
+
+      def perform: (Net::HTTP http, Net::HTTPRequest request) ?{ (String chunk) -> void } -> Response
+      def build: (Symbol http_method, URI::Generic uri, Hash[String, String] headers, String? body) -> Net::HTTPRequest
+      def checkout: (URI::Generic uri, Float timeout) -> Net::HTTP
+      def start: (Net::HTTP http) -> void
+      def checkin: (URI::Generic uri, Net::HTTP http) -> void
+      def discard: (Net::HTTP http) -> void
+      def reset_after_fork: () -> void
+      def new_session: (URI::Generic uri) -> Net::HTTP
+      def configure: (Net::HTTP http, Float timeout) -> void
+      def pool_key: (URI::Generic uri) -> String
+    end
+  end
+end

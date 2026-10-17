@@ -1,0 +1,41 @@
+module Didit
+  class Model
+    @data: Hash[String, untyped]
+    @cache: Hash[Symbol, untyped]
+    self.@fields: Hash[Symbol, [String, Didit::type_spec]]?
+
+    def self.fields: () -> Hash[Symbol, [String, Didit::type_spec]]
+    def self.field: (Symbol name, String wire, ?Didit::type_spec type) -> void
+    def self.from_json: (untyped value) -> untyped
+    def self.coerce: (untyped value, Didit::type_spec? type) -> untyped
+    def self.symbolize: (untyped value) -> untyped
+
+    private
+
+    def self.coerce_container: (untyped value, Array[untyped] type) -> untyped
+    def self.fits?: (untyped value, untyped type) -> bool
+    def self.coerce_model: (untyped value, untyped type) -> untyped
+    def self.parse_time: (untyped value) -> untyped
+    def self.parse_date: (untyped value) -> untyped
+
+    public
+
+    def initialize: (?Hash[String | Symbol, untyped] data) -> void
+    def []: (String | Symbol key) -> untyped
+    def key?: (String | Symbol key) -> bool
+    def to_h: () -> Hash[Symbol, untyped]
+    def to_json: (*untyped args) -> String
+    def deconstruct_keys: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
+    def ==: (untyped other) -> bool
+    def eql?: (untyped other) -> bool
+    def hash: () -> Integer
+    def inspect: () -> String
+    def to_s: () -> String
+
+    def raw_data: () -> Hash[String, untyped]
+
+    private
+
+    def read_field: (Symbol name) -> untyped
+  end
+end
