@@ -639,6 +639,21 @@ RSpec.describe DiditCodegen::Sync do
       expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
     end
 
+    it "reports a generator crash the same way: documents written, Action needed, exit 2" do
+      repo
+      components = schemas
+      # A boolean schema, which the generator does not handle: it raises NoMethodError.
+      components["BillingBalance"]["properties"]["flag"] = true
+      changed = verification(verification_paths, components)
+      upstream(verification: changed)
+      expect(sync).to eq(2)
+      expect(File.binread(openapi("verification.json"))).to eq(JSON.generate(changed))
+      expect(File.read(openapi("SOURCE.json"), encoding: "UTF-8")).to include(fetched_at)
+      expect(err.string).to include("the generator failed", "The generator crashed: NoMethodError")
+      expect(section("Action needed")).to include("The generator crashed: NoMethodError")
+      expect(github_output.first).to eq("changed=true")
+    end
+
     it "suggests the old naming for an operation that lost it upstream" do
       repo(overlay: base_overlay.except("POST /v3/session/"))
       named = verification
