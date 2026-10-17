@@ -30,7 +30,8 @@ module Didit
       # allow_duplicate_key for that (without it json 2.13+ warns and json 3 raises); older
       # versions do not know the option and keep the last value anyway.
       DUPLICATE_KEY_OPTION = (JSON::VERSION.split(".").map(&:to_i) <=> [2, 13]).to_i >= 0
-      PARSE_OPTIONS = (DUPLICATE_KEY_OPTION ? { allow_nan: false, allow_duplicate_key: true } : { allow_nan: false }).freeze
+      PARSE_OPTIONS = (DUPLICATE_KEY_OPTION ? { allow_nan: false, allow_duplicate_key: true } : { allow_nan: false })
+                      .freeze
 
       # @raise [Didit::ConfigurationError] for a missing or empty secret, a bad tolerance or clock,
       #   or headers that cannot be read
