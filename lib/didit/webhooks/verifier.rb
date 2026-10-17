@@ -24,7 +24,8 @@ module Didit
       MAX_TIMESTAMP = 10**15
       # X-Timestamp: an optional sign and digits (leading zeros allowed), at most 32 characters.
       TIMESTAMP_HEADER = /\A[+-]?[0-9]{1,31}\z/
-      # Strict JSON (no NaN); a repeated key keeps its last value, like Python (json 2.13+ warns otherwise).
+      # Strict JSON (no NaN); a repeated key keeps its last value, like Python
+      # (without the option json 2.13+ warns and json 3 raises).
       PARSE_OPTIONS = { allow_nan: false, allow_duplicate_key: true }.freeze
 
       # @raise [Didit::ConfigurationError] for a missing or empty secret, a bad tolerance or clock,
