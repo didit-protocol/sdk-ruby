@@ -51,7 +51,6 @@ jobs:
     timeout-minutes: 30
     env:
       BRANCH: chore/spec-sync
-      BASE: ${{ github.event.repository.default_branch }}
       BOT_NAME: github-actions[bot]
       BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -70,7 +69,6 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
           # Every branch, so that origin/chore/spec-sync is known as it was when this run started.
           fetch-depth: 0
@@ -81,6 +79,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # The sync always starts from the default branch, also when it is dispatched from
+          # another branch (a scheduled run's event payload has no repository object, so ask).
+          BASE="$(gh api "repos/$GITHUB_REPOSITORY" --jq '.default_branch')"
+          echo "BASE=$BASE" >> "$GITHUB_ENV"
+          git switch --quiet --force-create "$BASE" "origin/$BASE"
           remote_sha="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH" || true)"
           pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base "$BASE" --state open \
             --json number --jq '.[0].number // empty')"
@@ -232,9 +235,17 @@ jobs:
           fi
           if [ "$MODE" = continue ]; then
             # The description still lists the changes since the default branch; this sync's
-            # own changes go into a comment.
+            # own changes go into a comment. A breaking footer is added to the description
+            # when it has none, so that a squash merge still carries it.
             gh pr edit "$PR" --title "$title"
             gh pr comment "$PR" --body-file "$BODY"
+            if [ -n "$footer" ]; then
+              current="$(gh pr view "$PR" --json body --jq '.body')"
+              if ! printf '%s\n' "$current" | grep -q '^BREAKING CHANGE:'; then
+                printf '%s\n\n%s\n' "$current" "$footer" > "$BODY"
+                gh pr edit "$PR" --body-file "$BODY"
+              fi
+            fi
           else
             gh pr edit "$PR" --title "$title" --body-file "$BODY"
           fi
