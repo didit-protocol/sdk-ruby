@@ -6,6 +6,7 @@ require_relative "authentication_helper"
 module AuthenticationHelper
   RSpec.describe Didit::Authentication, "requests" do
     include AuthenticationHelper
+
     include_context "with a stubbed issuer"
 
     let(:session_response) do
@@ -85,7 +86,8 @@ module AuthenticationHelper
         issuer.reply(:post, "/oauth/token/", 200, TOKEN_RESPONSE)
 
         expect(auth.refresh(REFRESH_TOKEN).refresh_token).to eq("synthetic-refresh-token-0002")
-        expect(form_of(issuer.last("/oauth/token/"))).to eq("grant_type" => "refresh_token", "refresh_token" => REFRESH_TOKEN)
+        expect(form_of(issuer.last("/oauth/token/")))
+          .to eq("grant_type" => "refresh_token", "refresh_token" => REFRESH_TOKEN)
       end
 
       it "needs a refresh token" do
@@ -163,7 +165,8 @@ module AuthenticationHelper
                                                     return_to: "https://app.example.com/payouts")
 
         expect(step_up).to be_a(Didit::Authentication::StepUp)
-        expect([step_up.required, step_up.id, step_up.status, step_up.approved?]).to eq([true, STEP_UP_ID, "pending", false])
+        expect([step_up.required, step_up.id, step_up.status, step_up.approved?])
+          .to eq([true, STEP_UP_ID, "pending", false])
         expect(step_up.verification_url).to eq("#{ISSUER}/verify/?verification=synthetic-proof")
         expect([step_up.expires_in, step_up.amount, step_up.rule, step_up.verification_method])
           .to eq([1800, "1500.00", "payout", "selfie"])

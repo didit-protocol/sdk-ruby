@@ -5,6 +5,7 @@ require_relative "authentication_helper"
 module AuthenticationHelper
   RSpec.describe Didit::Authentication, "discovery and keys" do
     include AuthenticationHelper
+
     include_context "with a stubbed issuer"
 
     def fresh_token(signing_key = key)
@@ -140,7 +141,7 @@ module AuthenticationHelper
         issuer.discovery["issuer"] = "https://login.example.com"
         2.times do
           expect { auth.verify_access_token(fresh_token) }
-            .to raise_error(Didit::ConfigurationError, /names the issuer "https:\/\/login\.example\.com"/)
+            .to raise_error(Didit::ConfigurationError, %r{names the issuer "https://login\.example\.com"})
         end
         expect(issuer.count(DISCOVERY)).to eq(2)
         expect(issuer.count(JWKS)).to eq(0)
@@ -171,7 +172,11 @@ module AuthenticationHelper
         ["jwks_uri", "/.well-known/jwks.json"] => /no valid jwks_uri/
       }.each do |(name, value), message|
         it "refuses #{name} #{value.inspect} without sending anything there" do
-          value.nil? ? issuer.discovery.delete(name) : issuer.discovery[name] = value
+          if value.nil?
+            issuer.discovery.delete(name)
+          else
+            issuer.discovery[name] = value
+          end
           issuer.reply(:post, "/token/", 200, TOKEN_RESPONSE)
 
           expect { auth.refresh(REFRESH_TOKEN) }.to raise_error(Didit::APIResponseValidationError, message)

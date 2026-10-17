@@ -5,6 +5,7 @@ require_relative "authentication_helper"
 module AuthenticationHelper
   RSpec.describe Didit::Authentication, "errors" do
     include AuthenticationHelper
+
     include_context "with a stubbed issuer"
 
     {

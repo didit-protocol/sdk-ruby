@@ -16,15 +16,16 @@ module AuthenticationHelper
       end
 
       it "lets only a test key name a loopback http issuer" do
-        %w[http://acme.auth.localhost:8000 http://localhost:8000 http://127.0.0.1:8000 http://[::1]:8000].each do |local|
+        locals = %w[http://acme.auth.localhost:8000 http://localhost:8000 http://127.0.0.1:8000 http://[::1]:8000]
+        locals.each do |local|
           expect(described_class.from_publishable_key(pk("pk_test_", local)).issuer).to eq(local)
           expect { described_class.from_publishable_key(pk("pk_live_", local)) }.to raise_error(Didit::ConfigurationError)
         end
       end
 
       it "passes the options on" do
-        auth = described_class.from_publishable_key(pk("pk_live_", ISSUER), client_id: APPLICATION_ID, leeway: 5,
-                                                                             timeout: 3)
+        key = pk("pk_live_", ISSUER)
+        auth = described_class.from_publishable_key(key, client_id: APPLICATION_ID, leeway: 5, timeout: 3)
         expect([auth.issuer, auth.client_id, auth.leeway, auth.timeout]).to eq([ISSUER, APPLICATION_ID, 5.0, 3])
       end
 
@@ -88,7 +89,8 @@ module AuthenticationHelper
         [0, -1, "10", nil, Float::INFINITY].each do |timeout|
           expect { described_class.new(ISSUER, timeout: timeout) }.to raise_error(Didit::ConfigurationError, /timeout/)
         end
-        expect { described_class.new(ISSUER, http_client: Object.new) }.to raise_error(Didit::ConfigurationError, /http_client/)
+        expect { described_class.new(ISSUER, http_client: Object.new) }
+          .to raise_error(Didit::ConfigurationError, /http_client/)
         expect { described_class.new(ISSUER, clock: 5) }.to raise_error(Didit::ConfigurationError, /clock/)
       end
     end

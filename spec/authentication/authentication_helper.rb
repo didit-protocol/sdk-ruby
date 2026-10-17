@@ -187,9 +187,9 @@ module AuthenticationHelper
       return metadata({ "keys" => keys.map(&:jwk) }) if method == "GET" && path == JWKS && !@routes.key?([method, path])
 
       handler = @routes[[method, path]]
-      return { status: 404, body: '{"detail": "Not found."}', headers: { "Content-Type" => "application/json" } } unless handler
+      return handler.call(request) if handler
 
-      handler.call(request)
+      { status: 404, body: '{"detail": "Not found."}', headers: { "Content-Type" => "application/json" } }
     end
 
     def metadata(body)

@@ -5,6 +5,7 @@ require_relative "authentication_helper"
 module AuthenticationHelper
   RSpec.describe Didit::Authentication, "#verify_id_token" do
     include AuthenticationHelper
+
     include_context "with a stubbed issuer"
 
     let(:token) { key.sign(id_claims, typ: "JWT") }
