@@ -41,12 +41,12 @@ module ApiHelpers
 
   # Records the URL of every request as the SDK built it.
   def record_urls(recorder)
-    # rubocop:disable RSpec/AnyInstance
-    allow_any_instance_of(Didit::Internal::Transport).to receive(:execute).and_wrap_original do |original, *args, &block|
+    transport = Didit::Internal::Transport
+    # rubocop:disable-next-line RSpec/AnyInstance
+    allow_any_instance_of(transport).to receive(:execute).and_wrap_original do |original, *args, &block|
       recorder.urls << args[1].to_s
       original.call(*args, &block)
     end
-    # rubocop:enable RSpec/AnyInstance
   end
 
   # Asserts exactly one request was sent, with this method, URL (without query), query pairs in order,

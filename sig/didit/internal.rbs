@@ -126,6 +126,7 @@ module Didit
       def self?.json_value: (untyped value) -> untyped
       def self?.build_headers: (Config config, Symbol auth, accept: String, content_type: String?,
                                 op_headers: Hash[String, untyped], extra_headers: Hash[untyped, untyped]) -> Hash[String, String]
+      def self?.merge_headers: (Array[[untyped, untyped]] pairs) -> Hash[String, String]
       def self?.credential_header: (Config config, Symbol auth) -> [String, String]?
       class Attempt < Struct[untyped]
         attr_accessor response: Transport::Response?

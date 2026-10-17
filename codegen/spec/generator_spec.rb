@@ -211,7 +211,8 @@ RSpec.describe DiditCodegen::Generator do
     it "writes matching RBS signatures" do
       rbs = files.fetch("sig/didit/resources/things.rbs")
       expect(rbs).to include("def create: (name: String, ?retry: bool, " \
-                             "?contact: Didit::Types::things_create_params_contact, ?when: Time | String, ?idempotency_key: String, ?request_options: Didit::request_options?) " \
+                             "?contact: Didit::Types::things_create_params_contact, ?when: Time | String, " \
+                             "?idempotency_key: String, ?request_options: Didit::request_options?) " \
                              "-> Didit::Types::ThingsCreateResponse")
       expect(rbs).to include("def list: (?limit: Integer, ?offset: Integer, ?status_in: String, " \
                              "?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::Address]")

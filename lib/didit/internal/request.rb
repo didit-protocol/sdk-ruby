@@ -178,20 +178,27 @@ module Didit
       end
 
       def build_headers(config, auth, accept:, content_type:, op_headers:, extra_headers:)
+        # @type var pairs: Array[[untyped, untyped]]
+        pairs = [["Accept", accept], ["User-Agent", Util.user_agent], ["X-Didit-Client", Util.client_header]]
+        pairs.concat(config.default_headers.to_a)
+        credential = credential_header(config, auth)
+        pairs << credential if credential
+        pairs << ["Content-Type", content_type] if content_type
+        pairs.concat(op_headers.reject { |_, value| value.equal?(OMIT) }.to_a)
+        pairs.concat(extra_headers.to_a)
+        merge_headers(pairs)
+      end
+
+      # Header names are case-insensitive: a later value replaces an earlier one whatever its
+      # case, so no header is sent twice; nil removes the header.
+      def merge_headers(pairs)
         # @type var headers: Hash[String, String]
         headers = {}
-        put = lambda do |name, value|
-          headers.delete_if { |k, _| k.casecmp?(name) }
+        pairs.each do |name, value|
+          name = name.to_s
+          headers.delete_if { |key, _| key.casecmp?(name) }
           headers[name] = value.to_s unless value.nil?
         end
-        { "Accept" => accept, "User-Agent" => Util.user_agent, "X-Didit-Client" => Util.client_header }
-          .each { |name, value| put.call(name, value) }
-        config.default_headers.each { |name, value| put.call(name.to_s, value) }
-        credential = credential_header(config, auth)
-        put.call(credential[0], credential[1]) if credential
-        put.call("Content-Type", content_type) if content_type
-        op_headers.each { |name, value| put.call(name, value) unless value.equal?(OMIT) }
-        extra_headers.each { |name, value| put.call(name.to_s, value) }
         headers
       end
 
