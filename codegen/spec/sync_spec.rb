@@ -681,6 +681,31 @@ RSpec.describe DiditCodegen::Sync do
       expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): documentation only")
       expect(section("Schemas")).to include("`Session` changed (verification.json), documentation only")
     end
+
+    # "title", "description" and "example" are documentation keywords of a schema, but inside
+    # "properties" they are field names; a change to such a field is a real change.
+    it "compares properties named title like any other field" do
+      repo
+      changed = verification
+      changed["components"]["schemas"]["Session"]["properties"]["title"] = { "type" => "integer" }
+      changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`): response 201 " \
+                                                     "`title`: type changed from string to integer")
+      expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
+                                            "`SessionRequest` changed (verification.json)\n")
+      expect(section("Operations")).not_to include("documentation only")
+    end
+
+    it "compares a format change of a property named title as a real change" do
+      repo
+      changed = verification
+      changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): details changed")
+    end
   end
 
   describe "the summary limits" do
