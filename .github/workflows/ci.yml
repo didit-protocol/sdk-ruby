@@ -178,7 +178,7 @@ jobs:
             echo "::error::The gem contains files from spec/, codegen/ or openapi/ (see didit-sdk.gemspec)."
             exit 1
           fi
-          if grep -vE '^(---|- (lib/.+\.rb|sig/.+\.rbs|README\.md|LICENSE|CHANGELOG\.md))$' "$RUNNER_TEMP/files.yml"; then
+          if grep -vE '^(---|- (lib/.+\.rb|sig/.+\.rbs|README\.md|LICENSE|CHANGELOG\.md))?$' "$RUNNER_TEMP/files.yml"; then
             echo "::error::The gem contains files outside lib/, sig/, README.md, LICENSE and CHANGELOG.md."
             exit 1
           fi
