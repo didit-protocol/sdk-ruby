@@ -255,7 +255,7 @@ Choices this SDK makes where [docs/DESIGN.md](docs/DESIGN.md) leaves the languag
 - **Uploads.** Files are read into memory before sending, so a retry can resend them. Content types come from a fixed table of file extensions, not the host's MIME database.
 - **Deprecations.** Methods for operations removed from the API stay for one minor version and warn once through Ruby's `:deprecated` warning category (shown with `Warning[:deprecated] = true` or `ruby -W:deprecated`).
 - **Webhooks.** The canonical JSON is serialised by the SDK itself, because Ruby prints floats differently from Python (`1.0e-05` instead of `1e-05`). `event.verified_by` names the header that matched. `verify` and `verify_parsed` take a `now:` keyword for tests.
-- **Authentication.** The `jwt` gem checks the ES256 signature; the SDK checks everything else. `verify_id_token(token, nonce: nil)` requires a token without a nonce (the refresh case). A step-up's `method` field reads as `verification_method`. `clock:` (unix seconds) is for tests.
+- **Authentication.** The `jwt` gem checks the ES256 signature; the SDK checks everything else. `verify_id_token(token, nonce: nil)` requires a token without a nonce (the refresh case). A step-up's `method` field reads as `verification_method`. `clock:` (unix seconds) is for tests. The issuer is configured without a trailing slash; if its discovery document names it with one, tokens must carry that exact `iss`. A discovery document that names another issuer raises `ConfigurationError` and is fetched again only after a minute. Publishable keys are read with or without `=` padding.
 
 ## Development
 
