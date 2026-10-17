@@ -429,6 +429,28 @@ RSpec.describe DiditCodegen::Sync do
       expect(generated("lib/didit/resources/sessions.rb")).to include("def retrieve_decision(session_id")
     end
 
+    it "freezes a recursive schema without looping, and compares it" do
+      tree = { "type" => "object", "properties" => { "name" => { "type" => "string" },
+                                                     "children" => { "type" => "array", "items" => ref("Node") } } }
+      paths = verification_paths.merge(
+        "/v3/tree/" => { "get" => op("Get the tree", responses: ok(ref("Node")), naming: naming("tree", "retrieve")) },
+        "/v3/forest/" => { "get" => op("Get the forest", responses: ok(ref("Node")),
+                                                         naming: naming("forest", "retrieve")) }
+      )
+      repo(verification: verification(paths, schemas.merge("Node" => tree)))
+      changed = verification(paths.except("/v3/tree/"),
+                             schemas.merge("Node" => tree.merge("required" => ["name"])))
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      frozen = read_json("deprecated-operations.json").dig("methods", "tree.retrieve", "operation", "responses",
+                                                             "200", "content", "application/json", "schema")
+      expect(frozen.dig("properties", "children", "items")).to eq(
+        "description" => "Recursive #/components/schemas/Node, not expanded."
+      )
+      expect(section("Operations")).to include("`GET /v3/forest/` (`forest.retrieve`)")
+      expect(generated("lib/didit/resources/tree.rb")).to include("def retrieve(")
+    end
+
     it "treats an operation whose name reappears on another path as moved" do
       repo
       changed = verification
@@ -594,6 +616,8 @@ RSpec.describe DiditCodegen::Sync do
       changed = verification
       changed["paths"]["/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/"] =
         { "get" => op("List case notes", responses: ok({ "type" => "object" })) }
+      changed["paths"]["/v3/session/{sessionId}/signatures/{nodeId}/"] =
+        { "get" => op("Get a signature", responses: ok({ "type" => "object" })) }
       upstream(verification: changed)
       expect(sync).to eq(2)
       expect(File.binread(openapi("verification.json"))).to eq(JSON.generate(changed))
@@ -604,8 +628,12 @@ RSpec.describe DiditCodegen::Sync do
       key = "GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/"
       expect(action).to include("#{key} (operationId list_case_notes)", "```json")
       suggestion = JSON.parse(action[/```json\n(.*?)```/m, 1])
-      expect(suggestion).to eq(key => { "auth" => "api_key", "method" => "list", "resource" => "cases.notes",
-                                        "scope" => "application", "server" => true })
+      # A guess from the path; "/v3/session/" operations are named "sessions" already.
+      expect(suggestion).to eq(
+        key => { "auth" => "api_key", "method" => "list", "resource" => "cases.notes", "scope" => "application",
+                 "server" => true },
+        "GET /v3/session/{sessionId}/signatures/{nodeId}/" => naming("sessions.signatures", "retrieve")
+      )
       expect(section("Operations")).to include("`#{key}`: **no SDK naming**")
       expect(summary).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
       expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
