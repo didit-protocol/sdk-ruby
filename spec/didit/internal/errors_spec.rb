@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Didit errors" do
+RSpec.describe Didit::Internal::Errors do
   include ApiHelpers
 
   def call_with(status:, body:, content_type: "application/json", headers: {})

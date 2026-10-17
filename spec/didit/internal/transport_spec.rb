@@ -46,7 +46,7 @@ RSpec.describe Didit::Internal::Transport do
     session = client_for(server).sessions.create(workflow_id: "wf-1", vendor_data: "user-42")
     expect(session.session_id).to eq("s-9")
     request = server.received.first
-    expect(request.method).to eq("POST")
+    expect(request.verb).to eq("POST")
     expect(request.target).to eq("/v3/session/")
     expect(request.headers["x-api-key"]).to eq("local-key")
     expect(request.headers["content-type"]).to eq("application/json")

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Didit debug logging" do
+RSpec.describe Didit::Internal::Log do
   include ApiHelpers
 
   let(:logger_class) do

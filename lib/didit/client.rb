@@ -128,8 +128,8 @@ module Didit
       return parser.call unless @raw
 
       raw = check_status(prepared, result.response)
-      RawResponse.new(status: raw.status, headers: raw.headers, body: raw.body, retries_taken: result.retries_taken,
-                      elapsed: result.elapsed, parser: parser)
+      RawResponse.new(status: raw.status, headers: raw.headers, body: raw.body,
+                      retries_taken: result.retries_taken, elapsed: result.elapsed, parser: parser)
     end
 
     # Fetches a page's +next+ link with the request options of the first page.
@@ -167,7 +167,8 @@ module Didit
     private
 
     def copy(config, raw:)
-      transport = config.http_client.equal?(@config.http_client) ? @transport : Internal::Transport.new(http_client: config.http_client)
+      same = config.http_client.equal?(@config.http_client)
+      transport = same ? @transport : Internal::Transport.new(http_client: config.http_client)
       Client.allocate.send(:setup, config, transport, raw: raw)
     end
 

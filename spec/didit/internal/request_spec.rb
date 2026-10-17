@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Didit retries" do
+RSpec.describe Didit::Internal::Request do
   include ApiHelpers
 
   let(:client) { generated_test_client(max_retries: 2) }
@@ -12,7 +12,7 @@ RSpec.describe "Didit retries" do
     allow(Didit::Internal::Util).to receive(:pause) { |seconds| delays << seconds }
   end
 
-  def get_decision
+  def fetch_decision
     client.sessions.retrieve_decision("s-1")
   end
 
@@ -22,7 +22,7 @@ RSpec.describe "Didit retries" do
 
   it "retries a GET on 5xx and gives up after max_retries" do
     stub = stub_request(:get, url).to_return(status: 503, body: '{"detail":"busy"}')
-    expect { get_decision }.to raise_error(Didit::InternalServerError, "HTTP 503: busy")
+    expect { fetch_decision }.to raise_error(Didit::InternalServerError, "HTTP 503: busy")
     expect(stub).to have_been_requested.times(3)
     expect(delays.size).to eq(2)
   end
@@ -64,7 +64,7 @@ RSpec.describe "Didit retries" do
 
   it "does not retry other 4xx" do
     stub = stub_request(:get, url).to_return(status: 404)
-    expect { get_decision }.to raise_error(Didit::NotFoundError)
+    expect { fetch_decision }.to raise_error(Didit::NotFoundError)
     expect(stub).to have_been_requested.once
   end
 
@@ -105,7 +105,7 @@ RSpec.describe "Didit retries" do
 
     it "retries a GET after a read timeout and then raises APITimeoutError" do
       stub = stub_request(:get, url).to_raise(Net::ReadTimeout)
-      expect { get_decision }.to raise_error(Didit::APITimeoutError) do |error|
+      expect { fetch_decision }.to raise_error(Didit::APITimeoutError) do |error|
         expect(error.url).to eq(url)
         expect(error.cause).to be_a(Didit::Internal::Transport::Failure)
       end
@@ -114,7 +114,7 @@ RSpec.describe "Didit retries" do
 
     it "redacts credentials from connection error messages" do
       stub_request(:get, url).to_raise(IOError.new("broken pipe near #{ApiHelpers::TEST_API_KEY}"))
-      expect { get_decision }.to raise_error(Didit::APIConnectionError) do |error|
+      expect { fetch_decision }.to raise_error(Didit::APIConnectionError) do |error|
         expect(error.message).not_to include(ApiHelpers::TEST_API_KEY)
         expect(error.message).to include("[redacted]")
       end
@@ -144,7 +144,7 @@ RSpec.describe "Didit retries" do
 
     it "uses Retry-After for retried 5xx responses" do
       stub_request(:get, url).to_return({ status: 503, headers: { "Retry-After" => "2" } }, ok)
-      get_decision
+      fetch_decision
       expect(delays).to eq([2.0])
     end
   end

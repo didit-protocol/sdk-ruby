@@ -287,16 +287,14 @@ module Didit
         return nil if value.nil?
 
         text = value.strip
-        seconds = if text.match?(/\A\d+(\.\d+)?\z/)
-                    text.to_f
-                  else
-                    begin
-                      Time.httpdate(text) - now
-                    rescue ArgumentError
-                      return nil
-                    end
-                  end
-        seconds.clamp(0.0, MAX_RETRY_AFTER)
+        seconds = text.match?(/\A\d+(\.\d+)?\z/) ? text.to_f : http_date_seconds(text, now)
+        seconds&.clamp(0.0, MAX_RETRY_AFTER)
+      end
+
+      def http_date_seconds(text, now)
+        Time.httpdate(text) - now
+      rescue ArgumentError
+        nil
       end
 
       def connection_error(prepared, failure)

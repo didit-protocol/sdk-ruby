@@ -34,9 +34,14 @@ Layout/LineLength:
 
 Metrics/MethodLength:
   Max: 25
+  Exclude:
+    # The generator is a tree of case statements over OpenAPI shapes; its tests guard it.
+    - "codegen/lib/**/*"
 
 Metrics/AbcSize:
   Max: 30
+  Exclude:
+    - "codegen/lib/**/*"
 
 Metrics/ClassLength:
   Max: 300
@@ -46,12 +51,21 @@ Metrics/ModuleLength:
 
 Metrics/CyclomaticComplexity:
   Max: 12
+  Exclude:
+    - "codegen/lib/**/*"
 
 Metrics/PerceivedComplexity:
   Max: 12
+  Exclude:
+    - "codegen/lib/**/*"
 
 Metrics/ParameterLists:
   CountKeywordArgs: false
+  Exclude:
+    - "codegen/lib/**/*"
+
+Naming/MethodParameterName:
+  AllowedNames: [op, io, id, to, at, by]
 
 Metrics/BlockLength:
   Exclude:
@@ -75,3 +89,12 @@ RSpec/NestedGroups:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 10
+
+RSpec/DescribeClass:
+  Exclude:
+    - "spec/contract_spec.rb"
+    - "spec/live/**/*"
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - "codegen/spec/**/*"

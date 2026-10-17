@@ -5,7 +5,7 @@ require "socket"
 # A tiny HTTP/1.1 server on 127.0.0.1 for transport tests: keep-alive, dropped
 # connections, slow answers. The handler gets the request and returns what to do.
 class LocalServer
-  Request = Struct.new(:method, :target, :headers, :body, keyword_init: true)
+  Request = Struct.new(:verb, :target, :headers, :body, keyword_init: true)
 
   attr_reader :requests, :connections
 
@@ -81,7 +81,7 @@ class LocalServer
       headers[name.downcase] = value.strip
     end
     body = headers["content-length"] ? socket.read(headers["content-length"].to_i) : nil
-    Request.new(method: method, target: target, headers: headers, body: body)
+    Request.new(verb: method, target: target, headers: headers, body: body)
   end
 
   def write_response(socket, action)
