@@ -83,7 +83,8 @@ RSpec.describe "Didit::Webhooks.canonical_json against Python" do
   def random_number_literal
     digits = Array.new(rng.rand(1..25)) { rng.rand(10) }.join.sub(/\A0+(?=\d)/, "")
     fraction = rng.rand(2).zero? ? "" : ".#{Array.new(rng.rand(1..20)) { rng.rand(10) }.join}"
-    exponent = rng.rand(2).zero? ? "" : "#{%w[e E e+ e-].sample(random: rng)}#{rng.rand(0..300)}"
+    # At most 25 digits and e+280: never beyond Float::MAX, which Python and Ruby read as Infinity.
+    exponent = rng.rand(2).zero? ? "" : "#{%w[e E e+ e-].sample(random: rng)}#{rng.rand(0..280)}"
     "#{"-" if rng.rand(2).zero?}#{digits}#{fraction}#{exponent}"
   end
 

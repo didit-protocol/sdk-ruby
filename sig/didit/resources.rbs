@@ -2,7 +2,7 @@
 
 module Didit
   module Resources
-    module ClientMethods : Didit::Client
+    module ClientMethods
       def account: () -> Didit::Resources::Account
       def age_estimation: () -> Didit::Resources::AgeEstimation
       def aml: () -> Didit::Resources::Aml

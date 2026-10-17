@@ -48,7 +48,7 @@ module DiditCodegen
 
     def types_index
       entries = (@registry.classes.values + @registry.enums.values).sort_by(&:name).map do |defn|
-        "    autoload :#{defn.name}, File.expand_path(\"types/#{defn.group}\", __dir__)"
+        "    autoload :#{defn.name}, \"didit/types/#{defn.group}\""
       end
       <<~RUBY
         #{header}
@@ -122,7 +122,7 @@ module DiditCodegen
 
     def resources_index
       autoloads = @tree.children.each_value.map do |node|
-        "    autoload :#{node.class_name}, File.expand_path(\"resources/#{node.segment}\", __dir__)"
+        "    autoload :#{node.class_name}, \"didit/resources/#{node.segment}\""
       end
       accessors = @tree.children.each_value.map { |node| accessor(node, "      ") }
       <<~RUBY

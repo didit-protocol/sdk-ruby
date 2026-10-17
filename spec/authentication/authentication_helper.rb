@@ -25,7 +25,7 @@ module AuthenticationHelper
   DISCOVERY = "/.well-known/openid-configuration"
   JWKS = "/.well-known/jwks.json"
   # Pass as a claim override to leave the claim out.
-  REMOVE = Object.new.freeze
+  REMOVE = Object.new.tap { |remove| def remove.inspect = "REMOVE" }.freeze
 
   TOKEN_RESPONSE = {
     "access_token" => "synthetic.access.jwt",
@@ -231,10 +231,19 @@ RSpec.shared_context "with a stubbed issuer" do
     Didit::Authentication.new(AuthenticationHelper::ISSUER, clock: clock)
   end
 
+  # The reason of the Didit::TokenVerificationError the block raises.
   def reason_of
     yield
     raise "expected a Didit::TokenVerificationError"
   rescue Didit::TokenVerificationError => e
     e.reason
+  end
+
+  # The error the block raises, or nil.
+  def error_of
+    yield
+    nil
+  rescue StandardError => e
+    e
   end
 end

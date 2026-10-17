@@ -17,15 +17,15 @@ module Didit
     def omit.to_s = "Didit::OMIT"
   end.freeze
 
-  autoload :Authentication, File.expand_path("didit/authentication", __dir__)
-  autoload :Client, File.expand_path("didit/client", __dir__)
-  autoload :FilePart, File.expand_path("didit/file_part", __dir__)
-  autoload :Internal, File.expand_path("didit/internal", __dir__)
-  autoload :Model, File.expand_path("didit/model", __dir__)
-  autoload :Page, File.expand_path("didit/page", __dir__)
-  autoload :RawResponse, File.expand_path("didit/raw_response", __dir__)
-  autoload :Resource, File.expand_path("didit/resource", __dir__)
-  autoload :Resources, File.expand_path("didit/resources", __dir__)
-  autoload :Types, File.expand_path("didit/types", __dir__)
-  autoload :Webhooks, File.expand_path("didit/webhooks", __dir__)
+  autoload :Authentication, "didit/authentication"
+  autoload :Client, "didit/client"
+  autoload :FilePart, "didit/file_part"
+  autoload :Internal, "didit/internal"
+  autoload :Model, "didit/model"
+  autoload :Page, "didit/page"
+  autoload :RawResponse, "didit/raw_response"
+  autoload :Resource, "didit/resource"
+  autoload :Resources, "didit/resources"
+  autoload :Types, "didit/types"
+  autoload :Webhooks, "didit/webhooks"
 end

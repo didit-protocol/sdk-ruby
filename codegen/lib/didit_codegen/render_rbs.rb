@@ -88,7 +88,7 @@ module DiditCodegen
 
         module Didit
           module Resources
-            module ClientMethods : Didit::Client
+            module ClientMethods
         #{accessors.join("\n")}
             end
           end

@@ -4,40 +4,40 @@
 module Didit
   # One class per API resource, one method per operation (docs/DESIGN.md section 4).
   module Resources
-    autoload :Account, File.expand_path("resources/account", __dir__)
-    autoload :AgeEstimation, File.expand_path("resources/age_estimation", __dir__)
-    autoload :Aml, File.expand_path("resources/aml", __dir__)
-    autoload :AmlMonitoring, File.expand_path("resources/aml_monitoring", __dir__)
-    autoload :Billing, File.expand_path("resources/billing", __dir__)
-    autoload :BiometricTemplates, File.expand_path("resources/biometric_templates", __dir__)
-    autoload :BusinessSessions, File.expand_path("resources/business_sessions", __dir__)
-    autoload :Businesses, File.expand_path("resources/businesses", __dir__)
-    autoload :Cases, File.expand_path("resources/cases", __dir__)
-    autoload :Customization, File.expand_path("resources/customization", __dir__)
-    autoload :DatabaseValidation, File.expand_path("resources/database_validation", __dir__)
-    autoload :DocumentAi, File.expand_path("resources/document_ai", __dir__)
-    autoload :Email, File.expand_path("resources/email", __dir__)
-    autoload :FaceMatch, File.expand_path("resources/face_match", __dir__)
-    autoload :FaceSearch, File.expand_path("resources/face_search", __dir__)
-    autoload :FraudChecks, File.expand_path("resources/fraud_checks", __dir__)
-    autoload :IdVerification, File.expand_path("resources/id_verification", __dir__)
-    autoload :IdWallets, File.expand_path("resources/id_wallets", __dir__)
-    autoload :Ip, File.expand_path("resources/ip", __dir__)
-    autoload :Kyb, File.expand_path("resources/kyb", __dir__)
-    autoload :Networks, File.expand_path("resources/networks", __dir__)
-    autoload :PassiveLiveness, File.expand_path("resources/passive_liveness", __dir__)
-    autoload :Phone, File.expand_path("resources/phone", __dir__)
-    autoload :ProofOfAddress, File.expand_path("resources/proof_of_address", __dir__)
-    autoload :Questionnaires, File.expand_path("resources/questionnaires", __dir__)
-    autoload :RegulatoryReports, File.expand_path("resources/regulatory_reports", __dir__)
-    autoload :ReportTemplates, File.expand_path("resources/report_templates", __dir__)
-    autoload :Sessions, File.expand_path("resources/sessions", __dir__)
-    autoload :Transactions, File.expand_path("resources/transactions", __dir__)
-    autoload :TravelRule, File.expand_path("resources/travel_rule", __dir__)
-    autoload :Users, File.expand_path("resources/users", __dir__)
-    autoload :WalletScreening, File.expand_path("resources/wallet_screening", __dir__)
-    autoload :Webhooks, File.expand_path("resources/webhooks", __dir__)
-    autoload :Workflows, File.expand_path("resources/workflows", __dir__)
+    autoload :Account, "didit/resources/account"
+    autoload :AgeEstimation, "didit/resources/age_estimation"
+    autoload :Aml, "didit/resources/aml"
+    autoload :AmlMonitoring, "didit/resources/aml_monitoring"
+    autoload :Billing, "didit/resources/billing"
+    autoload :BiometricTemplates, "didit/resources/biometric_templates"
+    autoload :BusinessSessions, "didit/resources/business_sessions"
+    autoload :Businesses, "didit/resources/businesses"
+    autoload :Cases, "didit/resources/cases"
+    autoload :Customization, "didit/resources/customization"
+    autoload :DatabaseValidation, "didit/resources/database_validation"
+    autoload :DocumentAi, "didit/resources/document_ai"
+    autoload :Email, "didit/resources/email"
+    autoload :FaceMatch, "didit/resources/face_match"
+    autoload :FaceSearch, "didit/resources/face_search"
+    autoload :FraudChecks, "didit/resources/fraud_checks"
+    autoload :IdVerification, "didit/resources/id_verification"
+    autoload :IdWallets, "didit/resources/id_wallets"
+    autoload :Ip, "didit/resources/ip"
+    autoload :Kyb, "didit/resources/kyb"
+    autoload :Networks, "didit/resources/networks"
+    autoload :PassiveLiveness, "didit/resources/passive_liveness"
+    autoload :Phone, "didit/resources/phone"
+    autoload :ProofOfAddress, "didit/resources/proof_of_address"
+    autoload :Questionnaires, "didit/resources/questionnaires"
+    autoload :RegulatoryReports, "didit/resources/regulatory_reports"
+    autoload :ReportTemplates, "didit/resources/report_templates"
+    autoload :Sessions, "didit/resources/sessions"
+    autoload :Transactions, "didit/resources/transactions"
+    autoload :TravelRule, "didit/resources/travel_rule"
+    autoload :Users, "didit/resources/users"
+    autoload :WalletScreening, "didit/resources/wallet_screening"
+    autoload :Webhooks, "didit/resources/webhooks"
+    autoload :Workflows, "didit/resources/workflows"
 
     # The top-level resources of Didit::Client.
     module ClientMethods
