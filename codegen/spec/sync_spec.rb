@@ -443,7 +443,7 @@ RSpec.describe DiditCodegen::Sync do
       upstream(verification: changed)
       expect(sync).to eq(0)
       frozen = read_json("deprecated-operations.json").dig("methods", "tree.retrieve", "operation", "responses",
-                                                             "200", "content", "application/json", "schema")
+                                                           "200", "content", "application/json", "schema")
       expect(frozen.dig("properties", "children", "items")).to eq(
         "description" => "Recursive #/components/schemas/Node, not expanded."
       )
