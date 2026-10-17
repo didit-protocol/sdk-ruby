@@ -13,6 +13,7 @@ module DiditCodegen
       CREDENTIAL_KEY = /(token|secret|password|passwd|passphrase|key|authorization|credential|cookie)s?\z/i
       # Replaced wherever they appear, descriptions included.
       JWT = /eyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]*/
+      WHOLE_JWT = /\A#{JWT}\z/
       PRIVATE_KEY = /-----BEGIN [A-Z ]*PRIVATE KEY-----(?:.*?-----END [A-Z ]*PRIVATE KEY-----)?/m
       AUTH_VALUE = /\A(bearer|basic)\s+\S+/i
 
@@ -98,7 +99,7 @@ module DiditCodegen
       # The placeholder for a credential-like +value+, or nil when it looks harmless.
       def credential(value, key)
         return nil if value.empty?
-        return "redacted-jwt" if value.match?(/\A#{JWT}\z/)
+        return "redacted-jwt" if value.match?(WHOLE_JWT)
         return "redacted-authorization" if value.match?(AUTH_VALUE)
         return nil unless key.is_a?(String) && key.match?(CREDENTIAL_KEY)
 

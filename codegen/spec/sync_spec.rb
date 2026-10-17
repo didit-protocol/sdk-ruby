@@ -105,17 +105,18 @@ RSpec.describe DiditCodegen::Sync do
     }
   end
 
+  def login
+    op("Log in", body: body({ "type" => "object", "required" => %w[email password],
+                              "properties" => { "email" => { "type" => "string" },
+                                                "password" => { "type" => "string" } } }),
+                 responses: ok({ "type" => "object", "properties" => { "access_token" => { "type" => "string" } } },
+                               example: { "access_token" => jwt, "signing_key" => "k" * 40 }))
+      .merge("description" => "Send #{jwt} as a Bearer token.")
+  end
+
   def account_paths
     {
-      "/programmatic/login/" => {
-        "post" => op("Log in", body: body({ "type" => "object", "required" => %w[email password],
-                                            "properties" => { "email" => { "type" => "string" },
-                                                              "password" => { "type" => "string" } } }),
-                               responses: ok({ "type" => "object",
-                                               "properties" => { "access_token" => { "type" => "string" } } },
-                                             example: { "access_token" => jwt, "signing_key" => "k" * 40 }))
-                     .merge("description" => "Send #{jwt} as a Bearer token.")
-      },
+      "/programmatic/login/" => { "post" => login },
       "/organizations/me/" => {
         "get" => op("List organizations",
                     responses: ok({ "type" => "array",
@@ -174,10 +175,8 @@ RSpec.describe DiditCodegen::Sync do
 
   # Writes the fixture repository; overlay.json gets the seeded one-space layout.
   def repo(overlay: base_overlay, deprecated: nil, version: "0.1.0", **docs)
-    write_repo(root, verification: docs.fetch(:verification) { verification }, account: docs.fetch(:account) do
-      account
-    end,
-                     deprecated: deprecated, version: version)
+    write_repo(root, verification: docs.fetch(:verification) { verification },
+                     account: docs.fetch(:account) { account }, deprecated: deprecated, version: version)
     overlay_file = { "description" => "test overlay", "version" => 1, "operations" => overlay.sort.to_h }
     File.write(openapi("overlay.json"), JSON.pretty_generate(overlay_file, indent: " "))
     File.write(openapi("SOURCE.json"), source_text(sha("verification.json"), sha("account.json")))
