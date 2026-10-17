@@ -2,8 +2,8 @@ module Didit
   class Authentication
     # One audience (the application id) or several, any of which is accepted.
     type audience = String | Array[String]
-    # A money amount; sent as a decimal string.
-    type amount = String | Integer | Float | Numeric
+    # A money amount (String, Integer, Float or BigDecimal); sent as a decimal string.
+    type amount = String | Numeric
 
     DEFAULT_TIMEOUT: Integer
     DEFAULT_LEEWAY: Integer

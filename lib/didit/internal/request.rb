@@ -217,7 +217,7 @@ module Didit
           delay = retry_delay(config, prepared, attempt, retries)
           if delay.nil?
             failure = attempt.failure
-            raise connection_error(prepared, failure) if failure
+            raise connection_error(prepared, failure), cause: failure if failure
 
             return Result.new(response: attempt.response, retries_taken: retries, elapsed: attempt.elapsed)
           end

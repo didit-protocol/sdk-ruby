@@ -159,7 +159,8 @@ module WebhookSpecs
         end
       expect(matched).to eq("11111111-2222-3333-4444-555555555555")
       callback = { "event_type" => "kyb.registry_search.resolved", "search_resolved" => true }
-      resolved = Didit::Webhooks.parse_event(callback) in { webhook_type: "kyb.registry_search.resolved", search_resolved: true }
+      event = Didit::Webhooks.parse_event(callback)
+      resolved = (event in { webhook_type: "kyb.registry_search.resolved", search_resolved: true })
       expect(resolved).to be(true)
     end
 
