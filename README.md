@@ -75,7 +75,7 @@ didit = Didit::Client.new(
 - One client per process is the intended use. It is thread safe, keeps connections open per host, and a forked child never reuses its parent's connections.
 - `with_options` returns a copy with some options changed that shares the connections: `didit.with_options(timeout: 5, max_retries: 0)`.
 - Every method takes `request_options:` for one call: `{ timeout:, max_retries:, extra_headers:, extra_query:, extra_body: }`.
-- Methods of the case, report and console resources are application scoped: the SDK fills `organization_id` and `application_id` from the client, and raises `Didit::ConfigurationError` before sending when either is missing.
+- Application-scoped methods (all of `cases`, `networks`, `regulatory_reports`, `report_templates` and `business_sessions`, and some of `sessions`, `users`, `businesses` and `transactions`): the SDK fills `organization_id` and `application_id` from the client, and raises `Didit::ConfigurationError` before sending when either is missing.
 - The API key is sent only to `base_url`. It never appears in logs, error messages or error bodies.
 
 ## Making calls

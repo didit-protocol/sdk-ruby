@@ -93,6 +93,7 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/DescribeClass:
   Exclude:
     - "spec/contract_spec.rb"
+    - "spec/readme_spec.rb"
     - "spec/live/**/*"
 
 RSpec/SpecFilePathFormat:

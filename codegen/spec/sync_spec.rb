@@ -150,13 +150,13 @@ RSpec.describe "spec sync" do
   end
 
   # The seeded layout of openapi/SOURCE.json: one-space indent, no trailing newline.
-  def source_text(verification_sha, account_sha)
+  def source_text(verification_sha, account_sha, verification_fetched_at = "2026-10-17T10:00:00Z")
     <<~JSON.chomp
       {
        "verification.json": {
         "url": "https://docs.didit.me/openapi-25.json",
         "sha256": "#{verification_sha}",
-        "fetched_at": "2026-10-17T10:00:00Z"
+        "fetched_at": "#{verification_fetched_at}"
        },
        "account.json": {
         "url": "https://docs.didit.me/openapi-auth.json",
@@ -305,8 +305,7 @@ RSpec.describe "spec sync" do
     it "updates SOURCE.json in its exact layout and keeps the webhook-vectors.json entry" do
       account_sha = sha("account.json")
       expect(sync).to eq(0)
-      expected = source_text(sha("verification.json"), account_sha)
-                 .sub(/("sha256": "#{sha('verification.json')}",\n  "fetched_at": )"[^"]+"/, "\\1\"#{fetched_at}\"")
+      expected = source_text(sha("verification.json"), account_sha, fetched_at)
       expect(File.read(openapi("SOURCE.json"), encoding: "UTF-8")).to eq(expected)
       expect(expected).to include(%("fetched_at": "#{fetched_at}"), %("fetched_at": "2026-10-17T10:00:00Z"))
       expect(expected).not_to end_with("\n")
@@ -499,8 +498,8 @@ RSpec.describe "spec sync" do
     def entry(name, key, remove_in)
       resource, method = name.split(/\.(?=[^.]+\z)/)
       {
-        "reason" => "removed", "operation_key" => key, "x-didit-sdk" => naming(resource, method), "since" => "2026-09-01",
-        "deprecated_since" => "0.1.0", "remove_in" => remove_in, "note" => "Removed.",
+        "reason" => "removed", "operation_key" => key, "x-didit-sdk" => naming(resource, method),
+        "since" => "2026-09-01", "deprecated_since" => "0.1.0", "remove_in" => remove_in, "note" => "Removed.",
         "operation" => { "summary" => "Old", "responses" => ok({ "type" => "object" }) }
       }
     end
@@ -518,7 +517,7 @@ RSpec.describe "spec sync" do
       expect(File.read(openapi("deprecated-operations.json"), encoding: "UTF-8"))
         .to eq(JSON.pretty_generate({ "description" => "kept", "methods" => {} }))
       expect(section("Deprecations")).to include("`billing.refund`: provided again by `POST /v3/billing/refund/`")
-      expect(section("Operations")).not_to include("POST /v3/billing/refund/")
+      expect(section("Operations")).to include("### Added (1)", "`POST /v3/billing/refund/`: `billing.refund`")
       expect(generated("lib/didit/resources/billing.rb")).to include("def refund(")
     end
 
@@ -589,9 +588,9 @@ RSpec.describe "spec sync" do
 
     it "suggests the old naming for an operation that lost it upstream" do
       repo(overlay: base_overlay.reject { |k, _| k == "POST /v3/session/" })
-      File.write(openapi("verification.json"), JSON.generate(verification.tap do |doc|
-        doc["paths"]["/v3/session/"]["post"]["x-didit-sdk"] = naming("sessions", "create")
-      end))
+      named = verification
+      named["paths"]["/v3/session/"]["post"]["x-didit-sdk"] = naming("sessions", "create")
+      File.write(openapi("verification.json"), JSON.generate(named))
       upstream(verification: verification)
       expect(sync).to eq(2)
       expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`) has no SDK naming any " \
@@ -618,10 +617,10 @@ RSpec.describe "spec sync" do
       response["properties"].delete("url")
       response["properties"]["status"]["enum"].delete("In Progress")
       response["properties"]["title"] = { "type" => "integer" }
-      changed["paths"]["/v3/billing/top-up/"]["post"]["requestBody"]["content"]["application/json"]["schema"]["properties"]["currency"] =
-        { "type" => "string" }
-      changed["paths"]["/v3/billing/top-up/"]["post"]["requestBody"]["content"]["application/json"]["schema"]["required"] <<
-        "currency"
+      top_up = changed.dig("paths", "/v3/billing/top-up/", "post", "requestBody", "content", "application/json",
+                           "schema")
+      top_up["properties"]["currency"] = { "type" => "string" }
+      top_up["required"] << "currency"
       upstream(verification: changed)
       expect(sync).to eq(0)
       expect(breaking).to include(
@@ -667,7 +666,7 @@ RSpec.describe "spec sync" do
       expect(sync).to eq(0)
       added = section("Operations")
       expect(added).to include("### Added (120)", "- ... and 20 more")
-      expect(added.scan(/^- `GET \/v3\/things/).size).to eq(100)
+      expect(added.scan(%r{^- `GET /v3/things}).size).to eq(100)
     end
 
     it "caps the summary at 60 000 characters with a truncation note" do
@@ -692,7 +691,9 @@ RSpec.describe "spec sync" do
       repo
       upstream
       script = File.expand_path("../spec_sync.rb", __dir__)
-      stdout, stderr, status = Open3.capture3(RbConfig.ruby, script, "--root", root, "--from-dir", upstream_dir)
+      # GitHub Actions sets GITHUB_OUTPUT for every step; the child must not write to it.
+      stdout, stderr, status = Open3.capture3({ "GITHUB_OUTPUT" => nil }, RbConfig.ruby, script, "--root", root,
+                                              "--from-dir", upstream_dir)
       expect([stdout, stderr, status.exitstatus]).to eq(["No upstream change\n", "", 0])
     end
 
@@ -704,7 +705,7 @@ RSpec.describe "spec sync" do
       File.write(File.join(upstream_dir, "openapi-25.json"), JSON.generate(changed))
       FileUtils.cp(openapi("account.json"), File.join(upstream_dir, "openapi-auth.json"))
       expect(sync).to eq(0)
-      expect(File.read(openapi("verification.json"))).to eq(JSON.generate(changed))
+      expect(File.read(openapi("verification.json"), encoding: "UTF-8")).to eq(JSON.generate(changed))
     end
 
     it "rejects a bad --date and unknown options" do
@@ -724,7 +725,7 @@ RSpec.describe "spec sync" do
       allow(downloader).to receive(:fetch).with("https://docs.didit.me/openapi-auth.json")
                                           .and_return(File.binread(openapi("account.json")))
       expect(sync(downloader: downloader)).to eq(0)
-      expect(File.read(openapi("verification.json"))).to eq(changed)
+      expect(File.read(openapi("verification.json"), encoding: "UTF-8")).to eq(changed)
     end
   end
 
