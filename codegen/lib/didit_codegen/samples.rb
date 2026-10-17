@@ -95,7 +95,7 @@ module DiditCodegen
       case value
       when Hash then value.to_h { |k, v| [k, scrub(v, k)] }
       when Array then value.map { |v| scrub(v, key) }
-      when String then secret?(key) || value.match?(TOKEN_SHAPED) ? "redacted-#{key || 'value'}" : value
+      when String then secret?(key) || value.match?(TOKEN_SHAPED) ? "redacted-#{key || "value"}" : value
       else value
       end
     end

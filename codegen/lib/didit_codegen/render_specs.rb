@@ -91,7 +91,8 @@ module DiditCodegen
       meth.query_args.each_with_object({}) do |arg, out|
         next unless arg.required || arg.has_example
 
-        value = Samples.scrub(scalar_example(arg), arg.wire) || Samples.synthesize(arg_document(meth), arg.schema, name: arg.wire)
+        value = Samples.scrub(scalar_example(arg), arg.wire) ||
+                Samples.synthesize(arg_document(meth), arg.schema, name: arg.wire)
         value = [value].flatten.compact.first(2) if arg.schema.is_a?(Hash) && arg.schema["type"] == "array"
         out[arg] = value
       end
