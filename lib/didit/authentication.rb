@@ -81,7 +81,8 @@ module Didit
       end
     end
 
-    # @return [String] the issuer every token must name in +iss+, without a trailing slash
+    # @return [String] the configured issuer, without a trailing slash. Tokens must name the
+    #   issuer in +iss+ exactly as its discovery document does, which may end in a slash.
     attr_reader :issuer
     # @return [String, nil] the application id: sent with token requests and the default audience
     attr_reader :client_id
@@ -115,6 +116,7 @@ module Didit
       @cache = IssuerCache.new(@clock)
       @http = Http.new(timeout: @timeout, http_client: http_client)
       @lock = Mutex.new
+      @token_issuer = nil
     end
 
     # Verifies an access token offline and returns its claims.
@@ -296,9 +298,15 @@ module Didit
       end
 
       Jws.verify_signature(parsed, key)
-      Jws.check_claims(parsed.claims, kind: kind, issuer: issuer, audience: audience, nonce: nonce,
+      Jws.check_claims(parsed.claims, kind: kind, issuer: token_issuer, audience: audience, nonce: nonce,
                                       leeway: leeway, now: @clock.call.to_f)
       parsed.claims
+    end
+
+    # The issuer as the discovery document names it, the +iss+ every token must carry. The keys
+    # are only ever fetched after the discovery document, so it is known here.
+    def token_issuer
+      @token_issuer || current_discovery.issuer
     end
 
     def expected_audience(audience, required:)
@@ -328,9 +336,21 @@ module Didit
       cached = @cache.discovery
       return cached if cached
 
+      # A document that names another issuer is a configuration problem the next fetch most
+      # likely repeats: report it for a minute instead of fetching it again for every token.
+      refused = @cache.refused_discovery
+      raise ConfigurationError, refused if refused
+
       call = Http::Call.new("GET", issuer_uri(DISCOVERY_PATH))
       response = @http.perform(call)
-      @cache.store_discovery(parse_discovery(call, response), response.headers)
+      discovery = begin
+        parse_discovery(call, response)
+      rescue ConfigurationError => e
+        @cache.discovery_refused(e.message)
+        raise
+      end
+      @token_issuer = discovery.issuer
+      @cache.store_discovery(discovery, response.headers)
     end
 
     # The fresh key set that should hold +kid+, fetching it when needed (at most
@@ -374,11 +394,13 @@ module Didit
       data = @http.read_object(call, response)
       found = data["issuer"]
       raise @http.validation_error(call, response, "The discovery document names no issuer.") unless found.is_a?(String)
-      if found != issuer
+      # The configured issuer has no trailing slash; the document's may have one (OpenID Connect
+      # Discovery allows it), and then tokens carry it too.
+      unless [issuer, "#{issuer}/"].include?(found)
         raise ConfigurationError,
               "The discovery document at #{call.display_url} names the issuer #{found.inspect}, " \
               "not #{issuer.inspect}. Configure Didit::Authentication with #{found.inspect} (an application's " \
-              "issuer changes when its custom domain is activated)."
+              "issuer changes when its custom domain is activated). Checked again after a minute."
       end
 
       Discovery.new(

@@ -31,6 +31,7 @@ module Didit
     @cache: IssuerCache
     @http: Http
     @lock: Thread::Mutex
+    @token_issuer: String?
 
     def initialize: (String issuer, ?client_id: String?, ?timeout: Numeric, ?leeway: Numeric,
                      ?http_client: Internal::http_client?, ?clock: (^() -> (Integer | Float))?) -> void
@@ -53,6 +54,7 @@ module Didit
     private
 
     def verify: (untyped token, Symbol kind, Array[String]? audience, String? nonce) -> Hash[String, untyped]
+    def token_issuer: () -> String
     def expected_audience: (untyped audience, required: bool) -> Array[String]?
     def current_discovery: () -> Discovery
     def discovery_locked: () -> Discovery
