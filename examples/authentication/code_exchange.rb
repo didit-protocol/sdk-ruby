@@ -67,9 +67,10 @@ def handle_callback(callback_url, pkce, state, nonce)
 end
 
 # 3. Before a payout: ask whether the person must verify first.
-def approve_payout(signed_in, amount)
-  step_up = AUTH.create_step_up(signed_in.access_token, action: "payout", amount: amount, currency: "EUR",
-                                                        return_to: REDIRECT_URI)
+def payout_approved?(signed_in, amount)
+  step_up = AUTH.create_step_up(
+    signed_in.access_token, action: "payout", amount: amount, currency: "EUR", return_to: REDIRECT_URI
+  )
   # Fail closed: only an explicit "required": false lets the payout go ahead.
   return true if step_up.required == false
 
@@ -95,11 +96,11 @@ if $PROGRAM_NAME == __FILE__
     session = AUTH.get_session(signed_in.access_token)
     puts "session #{session.sid} live until #{session.expires_at}"
 
-    puts approve_payout(signed_in, "900.00") ? "payout approved" : "payout not approved"
+    puts payout_approved?(signed_in, "900.00") ? "payout approved" : "payout not approved"
 
-    signed_in.refresh!(AUTH)
+    refreshed = signed_in.refresh!(AUTH)
     # An ID token from a refresh carries no nonce.
-    AUTH.verify_id_token(signed_in.id_token, nonce: nil) if signed_in.id_token
+    AUTH.verify_id_token(refreshed.id_token, nonce: nil) if refreshed.id_token
     puts "refreshed: #{AUTH.verify_access_token(signed_in.access_token).jti}"
 
     AUTH.revoke_session(signed_in.access_token)

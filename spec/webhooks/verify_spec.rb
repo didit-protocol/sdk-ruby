@@ -47,7 +47,8 @@ module WebhookSpecs
     end
 
     describe "configuration errors, raised before anything else" do
-      [nil, "", [], [""], [SECRET, ""], [SECRET, nil], 5, :whsec_test_symbol, { secret: SECRET }].each do |secret|
+      broken = (+"\xD8\x00").force_encoding(Encoding::UTF_16BE)
+      [nil, "", [], [""], [SECRET, ""], [SECRET, nil], 5, :whsec_test_symbol, { secret: SECRET }, broken].each do |secret|
         it "rejects the secret #{secret.inspect}" do
           expect { verify(body, headers, secret) }.to raise_error(Didit::ConfigurationError)
           expect { verify("not json", {}, secret) }.to raise_error(Didit::ConfigurationError)

@@ -65,6 +65,7 @@ module WebhookSpecs
         ["-Infinity", [-Float::INFINITY]],
         ["a lone surrogate", [(+"a\xED\xA0\x80b").force_encoding(Encoding::UTF_8)]],
         ["invalid UTF-8", ["\xFF".b]],
+        ["a lone surrogate in UTF-16", [(+"\xD8\x00").force_encoding(Encoding::UTF_16BE)]],
         ["a Symbol value", [:approved]],
         ["a Time", [Time.at(0)]],
         ["a Rational", [Rational(1, 3)]],

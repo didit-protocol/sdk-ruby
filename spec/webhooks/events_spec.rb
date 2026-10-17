@@ -195,6 +195,13 @@ module WebhookSpecs
         expect(Didit::Webhooks).to have_received(:verify_parsed).with({}, {}, SECRET, tolerance: 6, now: 2)
       end
 
+      it "is mixed into client.webhooks, which needs no API key" do
+        webhooks = Didit::Client.new.webhooks
+        raw, hdrs = signed
+        expect(webhooks).to be_a(described_class)
+        expect(webhooks.verify(raw, hdrs, SECRET, now: NOW).verified_by).to eq("X-Signature")
+      end
+
       it "defaults like Didit::Webhooks.verify" do
         allow(Didit::Webhooks).to receive(:verify)
         resource.verify("b", {}, SECRET)
