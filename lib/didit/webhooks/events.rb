@@ -10,7 +10,7 @@ module Didit
       # Unique id of the event; retries carry the same id, so use it to drop duplicates.
       field :event_id, "event_id", :string
       # Read by #webhook_type, which falls back to +event_type+.
-      fields[:webhook_type] = ["webhook_type", :string].freeze
+      fields[:webhook_type] = ["webhook_type", :string]
       # Unix seconds when the delivery was signed (X-Timestamp repeats it).
       field :timestamp, "timestamp", :integer
       # Unix seconds when the event happened, as sent.

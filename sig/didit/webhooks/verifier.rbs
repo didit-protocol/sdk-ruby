@@ -1,0 +1,53 @@
+module Didit
+  module Webhooks
+    class Verifier
+      FULL_BODY: Array[String]
+      CANONICAL: Array[String]
+      SIMPLE: Array[String]
+      ALL: Array[String]
+      SIMPLE_FIELDS: Array[String]
+      MAX_TIMESTAMP: Integer
+      TIMESTAMP_HEADER: Regexp
+      PARSE_OPTIONS: Hash[Symbol, bool]
+
+      type kind = :raw | :canonical | :simple
+
+      @keys: Array[String]
+      @tolerance: Webhooks::tolerance
+      @now: Integer | Float
+      @headers: Headers
+      @raw: String?
+      @payload: Hash[String, untyped]?
+      @digests: Hash[[String, kind], String]
+      @canonical: String?
+      @simple_message: String?
+
+      def initialize: (untyped secret, untyped headers, tolerance: untyped, now: untyped) -> void
+      def verify: (untyped raw_body, allow_simple: bool) -> Event
+      def verify_parsed: (untyped payload) -> Event
+
+      private
+
+      def payload: () -> Hash[String, untyped]
+      def secret_keys: (untyped secret) -> Array[String]
+      def key_bytes: (untyped secret) -> String
+      def check_tolerance: (untyped tolerance) -> Webhooks::tolerance
+      def check_now: (untyped now) -> (Integer | Float)
+      def body_bytes: (untyped raw_body) -> String
+      def parse_json: (String bytes) -> Hash[untyped, untyped]
+      def normalize: (untyped value) -> Hash[String, untyped]
+      def check_signatures: (Array[String] checked) -> String
+      def check_timestamp: () -> void
+      def check_timestamp_header: (Integer timestamp) -> void
+      def match: (Array[String] checked) -> String?
+      def signed?: (String key, String name) -> bool
+      def digest: (String key, String name) -> String
+      def message_kind: (String name) -> kind
+      def message: (kind kind) -> String
+      def canonical: () -> String
+      def simple_message: () -> String?
+      def no_match: (Array[String] checked) -> WebhookVerificationError
+      def failure: (Symbol reason, String message) -> WebhookVerificationError
+    end
+  end
+end

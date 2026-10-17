@@ -234,7 +234,7 @@ module Didit
     # @param amount [String, Integer, Float, BigDecimal, nil] sent as a decimal string
     # @return [StepUp]
     def create_step_up(access_token, action:, amount: nil, currency: nil, return_to: nil)
-      body = { "action" => required_text(action, "action") } # : Hash[String, untyped]
+      body = { "action" => required_text(action, "action") }
       body["amount"] = amount_text(amount) unless amount.nil?
       body["currency"] = optional_text(currency, "currency") unless currency.nil?
       body["return_to"] = optional_text(return_to, "return_to") unless return_to.nil?
@@ -419,7 +419,8 @@ module Didit
 
     def bearer_call(http_method, uri, access_token, json: nil)
       token = required_text(access_token, "access_token")
-      raise ConfigurationError, "access_token contains invalid characters." if token.match?(/[\x00-\x20\x7f]/)
+      # Sent in a header: printable ASCII only, so it can never split or extend the request.
+      raise ConfigurationError, "access_token contains invalid characters." if token.b.match?(/[^\x21-\x7e]/n)
 
       Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token])
     end
