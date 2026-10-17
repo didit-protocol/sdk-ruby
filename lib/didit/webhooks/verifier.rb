@@ -24,7 +24,8 @@ module Didit
       MAX_TIMESTAMP = 10**15
       # X-Timestamp: an optional sign and digits (leading zeros allowed), at most 32 characters.
       TIMESTAMP_HEADER = /\A[+-]?[0-9]{1,31}\z/
-      PARSE_OPTIONS = { allow_nan: false, allow_duplicate_key: true, create_additions: false }.freeze
+      # Strict JSON (no NaN); a repeated key keeps its last value, like Python (json 2.13+ warns otherwise).
+      PARSE_OPTIONS = { allow_nan: false, allow_duplicate_key: true }.freeze
 
       # @raise [Didit::ConfigurationError] for a missing or empty secret, a bad tolerance or clock,
       #   or headers that cannot be read
@@ -113,7 +114,7 @@ module Didit
         raise failure(:invalid_payload, "The webhook body is not valid UTF-8.") unless text.valid_encoding?
 
         value = begin
-          JSON.parse(text, PARSE_OPTIONS)
+          JSON.parse(text, **PARSE_OPTIONS)
         rescue StandardError # JSON::ParserError, JSON::NestingError, EncodingError, ...
           raise failure(:invalid_payload, "The webhook body is not valid JSON.")
         end
