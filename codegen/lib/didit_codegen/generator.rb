@@ -148,11 +148,13 @@ module DiditCodegen
         Dir.glob(File.join(@root, dir, "**", "*#{suffix}")).map { |f| f.delete_prefix("#{@root}/") }
       end
       existing += OUTPUT_FILES.select { |f| File.exist?(File.join(@root, f)) }
-      existing.uniq.reject { |path| wanted.key?(path) }.each do |path|
+      stale = existing.uniq.reject { |path| wanted.key?(path) }
+      stale.each do |path|
         next if File.read(File.join(@root, path), encoding: "UTF-8").start_with?(HEADER)
 
         raise Error, "#{path} is in a generated directory but was not generated; move hand-written code elsewhere."
-      end.reject { |path| wanted.key?(path) }
+      end
+      stale
     end
   end
 end

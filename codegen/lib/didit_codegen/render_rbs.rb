@@ -30,10 +30,10 @@ module DiditCodegen
     private
 
     def types_file(group)
-      blocks = []
-      @registry.enums.values.select { |e| e.group == group }.sort_by(&:name).each { |e| blocks << enum_block(e) }
-      @registry.classes.values.select { |c| c.group == group }.sort_by(&:name).each { |c| blocks << class_block(c) }
-      @registry.records.values.select { |r| r.group == group }.sort_by(&:name).each { |r| blocks << record_block(r) }
+      in_group = ->(defs) { defs.values.select { |d| d.group == group }.sort_by(&:name) }
+      blocks = in_group.call(@registry.enums).map { |e| enum_block(e) } +
+               in_group.call(@registry.classes).map { |c| class_block(c) } +
+               in_group.call(@registry.records).map { |r| record_block(r) }
       <<~RBS
         #{HEADER}
 
@@ -48,7 +48,7 @@ module DiditCodegen
     def enum_block(enum)
       used = ["VALUES"]
       lines = ["    module #{enum.name}"]
-      enum.values.each do |value|
+      enum.choices.each do |value|
         name = Naming.constant(value)
         name += "_" while used.include?(name)
         used << name
@@ -65,7 +65,8 @@ module DiditCodegen
       lines = ["    class #{defn.name} < #{superclass}"]
       defn.fields.each do |field|
         optional = !field.required
-        lines << "      def #{RbsRenderer.method_name(field.reader)}: () -> #{field.type.rbs_response(optional: optional)}"
+        type = field.type.rbs_response(optional: optional)
+        lines << "      def #{RbsRenderer.method_name(field.reader)}: () -> #{type}"
       end
       lines << "    end"
       "#{lines.join("\n")}\n"

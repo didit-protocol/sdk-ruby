@@ -120,8 +120,7 @@ module DiditCodegen
 
         items = value.map { |v| "#{indent}  #{literal(v, "#{indent}  ", symbols: symbols)}" }
         "[\n#{items.join(",\n")}\n#{indent}]"
-      when String then value.inspect
-      when Float then value.inspect
+      when String, Float then value.inspect
       when nil then "nil"
       else value.to_s
       end

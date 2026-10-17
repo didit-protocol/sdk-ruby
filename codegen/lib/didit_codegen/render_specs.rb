@@ -120,7 +120,7 @@ module DiditCodegen
                 [a.wire, Samples.synthesize(document, a.schema, name: a.wire)]
               end
             end
-      raw = raw.reject { |k, _| meth.file_fields.include?(k) }
+      raw = raw.except(*meth.file_fields)
       meth.file_fields.each { |f| raw[f] = :file } if %i[multipart auto].include?(meth.encoding)
       raw
     end
@@ -173,10 +173,7 @@ module DiditCodegen
     end
 
     def query_string(value)
-      case value
-      when true, false then value.to_s
-      else value.to_s
-      end
+      value.to_s
     end
 
     def body_assertions(meth, body, indent)
@@ -237,7 +234,8 @@ module DiditCodegen
       when :none
         ["#{indent}calls = stub_api(status: #{status}, body: nil, content_type: nil)"]
       when :binary
-        ["#{indent}calls = stub_api(status: #{status}, body: \"fake-binary-body\", content_type: #{resp.content_type.inspect})"]
+        content_type = resp.content_type.inspect
+        ["#{indent}calls = stub_api(status: #{status}, body: \"fake-binary-body\", content_type: #{content_type})"]
       else
         json = JSON.pretty_generate(response_body)
         ["#{indent}calls = stub_api(status: #{status}, body: <<~'JSON')",

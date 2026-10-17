@@ -40,6 +40,8 @@ module DiditCodegen
   # Turns each server operation into the description of one SDK method.
   class OperationBuilder
     RESERVED = %w[request_options].freeze
+    SCOPE_IDS = %w[organization_id application_id].freeze
+    BODYLESS = %w[delete head].freeze
 
     def initialize(types)
       @types = types
@@ -47,7 +49,7 @@ module DiditCodegen
 
     def build(op)
       sdk = op.sdk
-      rc = Naming.resource_classes(sdk.resource).join + Naming.pascal(sdk.method)
+      prefix = Naming.resource_classes(sdk.resource).join + Naming.pascal(sdk.method)
       group = sdk.resource.split(".").first
       used = RESERVED.dup
       path_args = build_path_args(op, used)
@@ -61,7 +63,7 @@ module DiditCodegen
         schema, encoding, file_fields, media = merge_body(op, request_body.fetch("content", {}))
         has_body_example, body_example = example_of(media, op.document.resolve(schema))
         root = op.document.resolve(schema)
-        type = @types.request(op.document, root, "#{rc}Params", group)
+        type = @types.request(op.document, root, "#{prefix}Params", group)
         if type.kind == :record && @types.registry.records[type.name]
           record = @types.registry.records[type.name]
           record.fields.each do |field|
@@ -79,12 +81,12 @@ module DiditCodegen
                                description: text(request_body, "description"), schema: root)
         end
       end
-      kwargs.concat(build_query_args(op, rc, group, used))
+      kwargs.concat(build_query_args(op, prefix, group, used))
       idempotency = build_idempotency(op, used)
       MethodDef.new(
         op: op, resource: sdk.resource, name: sdk.method, path_args: path_args,
         kwargs: kwargs.partition(&:required).flatten, encoding: encoding, file_fields: file_fields,
-        idempotency: idempotency, response: build_response(op, rc, group), body_example: body_example,
+        idempotency: idempotency, response: build_response(op, prefix, group), body_example: body_example,
         has_body_example: has_body_example, whole_body: whole_body, summary: text(op.op, "summary"),
         description: text(op.op, "description")
       )
@@ -95,7 +97,7 @@ module DiditCodegen
     def build_path_args(op, used)
       params = op.parameters.select { |p| p["in"] == "path" }.to_h { |p| [p["name"], p] }
       op.path.scan(/\{([^}]+)\}/).flatten.filter_map do |wire|
-        next if op.sdk.scope == "application" && %w[organization_id application_id].include?(wire)
+        next if op.sdk.scope == "application" && SCOPE_IDS.include?(wire)
 
         param = params.fetch(wire, { "name" => wire, "schema" => { "type" => "string" } })
         schema = param["schema"] || { "type" => "string" }
@@ -109,7 +111,7 @@ module DiditCodegen
       end
     end
 
-    def build_query_args(op, rc, group, used)
+    def build_query_args(op, prefix, group, used)
       op.parameters.select { |p| p["in"] == "query" }.map do |param|
         wire = param["name"]
         base = Naming.snake(wire)
@@ -117,7 +119,7 @@ module DiditCodegen
         name = Naming.identifier(base, used)
         used << name
         schema = param["schema"] || {}
-        type = @types.request(op.document, schema, "#{rc}Params#{Naming.pascal(wire)}", group)
+        type = @types.request(op.document, schema, "#{prefix}Params#{Naming.pascal(wire)}", group)
         has_example = param.key?("example") || (schema.is_a?(Hash) && schema.key?("example"))
         Arg.new(name: name, wire: wire, location: :query, type: type, required: param["required"] == true,
                 description: text(param, "description"), schema: schema,
@@ -184,17 +186,17 @@ module DiditCodegen
       {}
     end
 
-    def build_response(op, rc, group)
+    def build_response(op, prefix, group)
       successes = (op.op["responses"] || {}).select { |code, _| code.to_s.start_with?("2") }
                                             .map { |code, raw| [code.to_i, op.document.resolve(raw)] }
                                             .sort_by(&:first)
       json, binary, empty = classify_responses(op, successes)
-      return json_response(op, rc, group, json, empty) unless json.empty?
+      return json_response(op, prefix, group, json, empty) unless json.empty?
 
       if binary
         code, content_type = binary
-        return ResponseDef.new(kind: :binary, type: TypeRef.scalar(:binary), accept: "#{content_type}, application/json",
-                               status: code, content_type: content_type)
+        return ResponseDef.new(kind: :binary, type: TypeRef.scalar(:binary), status: code,
+                               accept: "#{content_type}, application/json", content_type: content_type)
       end
       ResponseDef.new(kind: :none, status: successes.first&.first || 204, accept: "application/json")
     end
@@ -209,7 +211,7 @@ module DiditCodegen
           json << [code, media.key?("schema") ? media : media.merge("schema" => {})]
         elsif (other = content.keys.find { |ct| BINARY_TYPES.any? { |b| ct.start_with?(b) } })
           binary = [code, other]
-        elsif content.empty? && code != 204 && !%w[delete head].include?(op.http_method)
+        elsif content.empty? && code != 204 && !BODYLESS.include?(op.http_method)
           # A body is promised but not described: return the JSON as is.
           json << [code, { "schema" => {} }]
         else
@@ -219,7 +221,7 @@ module DiditCodegen
       [json, binary, empty]
     end
 
-    def json_response(op, rc, group, json, empty)
+    def json_response(op, prefix, group, json, empty)
       seen = []
       by_status = {}
       json.each_with_index do |(code, media), index|
@@ -229,7 +231,7 @@ module DiditCodegen
           by_status[code] = reuse.last
           next
         end
-        hint = "#{rc}Response#{code unless index.zero?}"
+        hint = "#{prefix}Response#{code unless index.zero?}"
         resolved = op.document.resolve(schema)
         type = if resolved.is_a?(Hash) && resolved["type"] == "array" && !schema.key?("$ref")
                  item = @types.response(op.document, resolved["items"] || {}, "#{hint}Item", group)

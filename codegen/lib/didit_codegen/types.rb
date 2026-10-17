@@ -19,8 +19,8 @@ module DiditCodegen
       new(kind)
     end
 
-    def with_nullable(value = true)
-      TypeRef.new(kind, name: name, inner: inner, members: members, nullable: nullable || value)
+    def with_nullable
+      TypeRef.new(kind, name: name, inner: inner, members: members, nullable: true)
     end
 
     def ==(other)
@@ -108,7 +108,7 @@ module DiditCodegen
   # A response class (a Didit::Model subclass).
   ClassDef = Struct.new(:name, :group, :description, :fields, :superclass, keyword_init: true)
   # An open enum: a module of frozen string constants.
-  EnumDef = Struct.new(:name, :group, :description, :values, keyword_init: true)
+  EnumDef = Struct.new(:name, :group, :description, :choices, keyword_init: true)
   # A request object: an RBS record type alias (the SDK sends Hashes).
   RecordDef = Struct.new(:name, :group, :description, :fields, keyword_init: true)
 
@@ -134,7 +134,7 @@ module DiditCodegen
 
     def add_enum(defn)
       existing = @enums[defn.name]
-      return existing if existing && existing.values == defn.values
+      return existing if existing && existing.choices == defn.choices
       raise Error, duplicate(defn.name) if taken?(defn.name)
 
       @enums[defn.name] = defn
@@ -405,7 +405,7 @@ module DiditCodegen
       values = schema["enum"].compact
       if !values.empty? && values.all?(String)
         @registry.add_enum(EnumDef.new(name: hint, group: group, description: description(schema),
-                                       values: values.uniq))
+                                       choices: values.uniq))
         return TypeRef.scalar(:string)
       end
       return TypeRef.scalar(:integer) if schema["type"] == "integer" || (!values.empty? && values.all?(Integer))
@@ -417,12 +417,12 @@ module DiditCodegen
 
     def model(document, schema, name, group)
       props, required = collect(document, schema)
-      superclass, props = inherited(document, schema, props, required)
+      superclass, props = superclass_of(document, schema, props, required)
       define_model(document, schema, name, group, props, required, superclass)
     end
 
     # allOf with exactly one object component and own properties: a subclass of that component.
-    def inherited(document, schema, props, required)
+    def superclass_of(document, schema, props, required)
       refs = (schema["allOf"] || []).select { |p| p.is_a?(Hash) && p["$ref"].to_s.start_with?("#/components/schemas/") }
       return [nil, props] unless refs.size == 1
 

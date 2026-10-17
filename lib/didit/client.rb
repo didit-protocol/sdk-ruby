@@ -119,8 +119,8 @@ module Didit
       opts = Internal::Request.options(@config, request_options)
       prepared = Internal::Request.prepare(
         @config, http_method, path, opts, path_params: path_params, query: query, body: body,
-                                          encoding: encoding, file_fields: file_fields, headers: headers, auth: auth, api: api, scope: scope,
-                                          accept: accept
+        encoding: encoding, file_fields: file_fields, headers: headers, auth: auth, api: api, scope: scope,
+        accept: accept
       )
       stream = response == :binary ? block : nil
       result = Internal::Request.perform(@config, @transport, prepared, &stream)

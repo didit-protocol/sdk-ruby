@@ -9,7 +9,8 @@ module DiditCodegen
   APPLICATION_PREFIX = "/v3/organization/{organization_id}/application/{application_id}/"
 
   # The x-didit-sdk naming of one operation (docs/DESIGN.md section 4).
-  SdkNaming = Struct.new(:resource, :method, :auth, :server, :scope, keyword_init: true) do
+  # +method+ mirrors the x-didit-sdk key, so it hides Struct#method on purpose.
+  SdkNaming = Struct.new(:resource, :method, :auth, :server, :scope, keyword_init: true) do # rubocop:disable Lint/StructNewOverride
     def self.parse(where, raw)
       raise Error, "#{where}: x-didit-sdk must be an object." unless raw.is_a?(Hash)
 

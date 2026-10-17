@@ -30,7 +30,7 @@ module DiditCodegen
       hang = " " * (line[/\A\s*(?:[-*]|\d+\.)\s+/] || line[/\A\s*/]).length
       parts = []
       current = +""
-      line.split(" ").each do |word|
+      line.split.each do |word|
         prefix = parts.empty? ? line[/\A\s*/] : hang
         candidate = current.empty? ? "#{prefix}#{word}" : "#{current} #{word}"
         if candidate.length > width && !current.empty?
@@ -51,6 +51,8 @@ module DiditCodegen
 
   # Writes the Ruby side of the generated layer: lib/didit/types* and lib/didit/resources*.
   class RubyRenderer
+    REQUEST_OPTIONS = ":timeout, :max_retries, :extra_headers, :extra_query, :extra_body"
+
     def initialize(registry, methods, resource_tree)
       @registry = registry
       @methods = methods
@@ -127,7 +129,7 @@ module DiditCodegen
       lines << "    # Known values of an open enum: the API may send others." if lines.empty?
       lines << "    module #{enum.name}"
       used = ["VALUES"]
-      names = enum.values.map do |value|
+      names = enum.choices.map do |value|
         name = Naming.constant(value)
         name += "_" while used.include?(name)
         used << name
@@ -220,7 +222,8 @@ module DiditCodegen
       lines = method_doc(meth, indent)
       lines.concat(signature(meth, indent))
       if meth.deprecated?
-        lines << "#{indent}  @client.deprecated(#{"#{meth.resource}.#{meth.name}".inspect}, #{deprecation(meth).inspect})"
+        name = "#{meth.resource}.#{meth.name}"
+        lines << "#{indent}  @client.deprecated(#{name.inspect}, #{deprecation(meth).inspect})"
       end
       lines.concat(call_lines(meth, "#{indent}  "))
       lines << "#{indent}end"
@@ -335,7 +338,7 @@ module DiditCodegen
       if meth.idempotency
         lines << "#{indent}# @param #{meth.idempotency.name} [String] sent as the Idempotency-Key header"
       end
-      lines << "#{indent}# @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body"
+      lines << "#{indent}# @param request_options [Hash, nil] #{REQUEST_OPTIONS}"
       lines << return_doc(meth, indent)
       lines << "#{indent}# @deprecated #{deprecation(meth)}" if meth.deprecated?
       lines
