@@ -115,6 +115,7 @@ module Didit
                          ?query: Hash[String, untyped]?, ?body: untyped, ?encoding: Symbol, ?file_fields: Array[String],
                          ?headers: Hash[String, untyped], ?auth: Symbol, ?api: Symbol, ?scope: Symbol?,
                          ?accept: String) -> Prepared
+      def self?.scoped: (Config config, Hash[String, untyped] path_params) -> Hash[String, untyped]
       def self?.check_credentials: (Config config, Symbol auth) -> void
       def self?.encode_path: (String path, Hash[String, untyped] params) -> String
       def self?.path_segment: (String name, untyped value) -> String
@@ -123,13 +124,26 @@ module Didit
       def self?.query_value: (untyped value) -> String
       def self?.encode_body: (untyped body, untyped extra_body, Symbol encoding, Array[String] file_fields) -> [String?, String?]
       def self?.json_value: (untyped value) -> untyped
-      def self?.build_headers: (Config config, Symbol auth, String accept, String? content_type,
-                               Hash[String, untyped] op_headers, Hash[untyped, untyped] extra_headers) -> Hash[String, String]
+      def self?.build_headers: (Config config, Symbol auth, accept: String, content_type: String?,
+                                op_headers: Hash[String, untyped], extra_headers: Hash[untyped, untyped]) -> Hash[String, String]
+      def self?.credential_header: (Config config, Symbol auth) -> [String, String]?
+      class Attempt < Struct[untyped]
+        attr_accessor response: Transport::Response?
+        attr_accessor failure: Transport::Failure?
+        attr_accessor streamed: bool
+        attr_accessor elapsed: Float
+
+        def self.new: (?response: Transport::Response?, ?failure: Transport::Failure?, ?streamed: bool, ?elapsed: Float) -> Attempt
+      end
+
       def self?.perform: (Config config, Transport transport, Prepared prepared) ?{ (String chunk) -> void } -> Result
+      def self?.attempt: (Transport transport, Prepared prepared) ?{ (String chunk) -> void } -> Attempt
+      def self?.retry_delay: (Config config, Prepared prepared, Attempt attempt, Integer retries) -> Float?
       def self?.retry_status?: (Symbol http_method, Integer status) -> bool
       def self?.retry_failure?: (Symbol http_method, Transport::Failure failure) -> bool
       def self?.backoff: (Integer retries_taken) -> Float
       def self?.retry_after: (String? value, ?now: Time) -> Float?
+      def self?.http_date_seconds: (String text, Time now) -> Float?
       def self?.connection_error: (Prepared prepared, Transport::Failure failure) -> APIConnectionError
     end
 
