@@ -20,7 +20,9 @@ module Didit
       # +POST /v3/fraud/checks/+
       #
       # @param subject [Hash]
-      # @param client_reference [String] Your own reference for this check. Doubles as the idempotency key: reusing it with the same body returns the original check without running or billing the modules again; reusing it with a different b...
+      # @param client_reference [String] Your own reference for this check. Doubles as the idempotency key: reusing it
+      #   with the same body returns the original check without running or billing the modules again; reusing it with a
+      #   different body returns 409.
       # @param profile [String] Orchestration profile id. Defaults to the Didit `standard` profile.
       # @param profile_version [String] Pin a frozen profile version. Defaults to the current version of the profile.
       # @param context [Hash]
@@ -65,7 +67,9 @@ module Didit
       # +POST /v3/fraud/checks/plan/+
       #
       # @param subject [Hash]
-      # @param client_reference [String] Your own reference for this check. Doubles as the idempotency key: reusing it with the same body returns the original check without running or billing the modules again; reusing it with a different b...
+      # @param client_reference [String] Your own reference for this check. Doubles as the idempotency key: reusing it
+      #   with the same body returns the original check without running or billing the modules again; reusing it with a
+      #   different body returns 409.
       # @param profile [String] Orchestration profile id. Defaults to the Didit `standard` profile.
       # @param profile_version [String] Pin a frozen profile version. Defaults to the current version of the profile.
       # @param context [Hash]

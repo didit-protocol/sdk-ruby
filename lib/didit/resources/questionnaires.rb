@@ -14,7 +14,8 @@ module Didit
       #
       # @param title [String] Internal name for the questionnaire.
       # @param languages [Array<String>] Languages included in every label. Must include `en`.
-      # @param form_elements [Array<Hash>] Questions in the exact order users should see them. Branching and conditional fields are not supported.
+      # @param form_elements [Array<Hash>] Questions in the exact order users should see them. Branching and
+      #   conditional fields are not supported.
       # @param description [String, nil]
       # @param default_language [String] Default language. Must be included in `languages`.
       # @param is_active [Boolean]
@@ -100,7 +101,8 @@ module Didit
       #
       # +GET /v3/questionnaires/{questionnaire_uuid}/+
       #
-      # @param questionnaire_uuid [String] Per-version UUID of the questionnaire (the `uuid` value returned by the list endpoint, also returned as `questionnaire_id` on detail endpoints).
+      # @param questionnaire_uuid [String] Per-version UUID of the questionnaire (the `uuid` value returned by the
+      #   list endpoint, also returned as `questionnaire_id` on detail endpoints).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::QuestionnaireDetail]
       def retrieve(questionnaire_uuid, request_options: nil)

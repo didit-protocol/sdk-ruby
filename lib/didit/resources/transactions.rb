@@ -26,16 +26,23 @@ module Didit
       # +POST /v3/transactions/+
       #
       # @param transaction_id [String] Your unique identifier for this transaction (max 128 characters).
-      # @param transaction_category [String] Category of the transaction. CamelCase aliases (`travelRule`, `userPlatformEvent`, `gamblingBet`, …) are also accepted; the stored/echoed value is camelCase for multi-word categories.
+      # @param transaction_category [String] Category of the transaction. CamelCase aliases (`travelRule`,
+      #   `userPlatformEvent`, `gamblingBet`, …) are also accepted; the stored/echoed value is camelCase for multi-word
+      #   categories.
       # @param transaction_details [Hash] Core financial details of the transaction.
       # @param subject [Hash] The subject (applicant) of the transaction.
       # @param transaction_at [Time, String] When the transaction occurred. Defaults to now if omitted.
       # @param time_zone [String] IANA time zone identifier, e.g. `Europe/Madrid`.
       # @param counterparty [Hash] The counterparty of the transaction (optional).
-      # @param custom_properties [Hash] Arbitrary key-value pairs attached to the transaction. Each key can be referenced in rule conditions with the field path `custom_values.<key>`.
+      # @param custom_properties [Hash] Arbitrary key-value pairs attached to the transaction. Each key can be
+      #   referenced in rule conditions with the field path `custom_values.<key>`.
       # @param travel_rule_details [Hash] Travel Rule compliance metadata.
       # @param network_snapshot [Hash] Pre-computed network graph snapshot.
-      # @param include_crypto_screening [Boolean, nil] Per-transaction override for crypto blockchain analytics screening. When `true`, crypto screening is performed regardless of the application default. When `false`, crypto screening is skipped even if...
+      # @param include_crypto_screening [Boolean, nil] Per-transaction override for crypto blockchain analytics
+      #   screening. When `true`, crypto screening is performed regardless of the application default. When `false`,
+      #   crypto screening is skipped even if enabled in the application settings. When omitted or `null`, the
+      #   application-level default configured in the Console is used. Crypto screening requires
+      #   `transaction_details.direction`, `currency_kind...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionDetail]
       def create(
@@ -83,9 +90,12 @@ module Didit
       #
       # +POST /v3/transactions/sdk-token/+
       #
-      # @param vendor_data [String] Your internal identifier for the end user this token is scoped to. Enforced as the subject identity of every transaction submitted with the token.
-      # @param ttl_seconds [Integer] Token lifetime in seconds. Defaults to 900 (15 minutes); maximum 86400 (24 hours).
-      # @param max_uses [Integer, nil] Maximum number of successful submissions allowed with this token. Omit or null for unlimited uses within the TTL.
+      # @param vendor_data [String] Your internal identifier for the end user this token is scoped to. Enforced as the
+      #   subject identity of every transaction submitted with the token.
+      # @param ttl_seconds [Integer] Token lifetime in seconds. Defaults to 900 (15 minutes); maximum 86400 (24
+      #   hours).
+      # @param max_uses [Integer, nil] Maximum number of successful submissions allowed with this token. Omit or null
+      #   for unlimited uses within the TTL.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionsCreateSdkTokenResponse]
       def create_sdk_token(vendor_data:, ttl_seconds: OMIT, max_uses: OMIT, request_options: nil)
@@ -109,8 +119,10 @@ module Didit
       #
       # +GET /v3/transactions/+
       #
-      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages small for latency.
-      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from the previous page.
+      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages
+      #   small for latency.
+      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from
+      #   the previous page.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::TransactionsListResponseResults>]
       def list(limit: OMIT, offset: OMIT, request_options: nil)
@@ -176,7 +188,8 @@ module Didit
       #
       # +GET /v3/transactions/{transaction_id}/+
       #
-      # @param transaction_id [String] Didit-stable transaction UUID (the `uuid` returned from create / list, **not** your `txn_id`).
+      # @param transaction_id [String] Didit-stable transaction UUID (the `uuid` returned from create / list, **not**
+      #   your `txn_id`).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionDetail]
       def retrieve(transaction_id, request_options: nil)
@@ -239,10 +252,14 @@ module Didit
         # +POST /v3/transactions/rules/+
         #
         # @param title [String] Rule name. Unique per application among non-deleted rules; duplicates return 400.
-        # @param category [String] Risk theme used for grouping and reporting, e.g. finance, aml_ctf, anomaly_detection, fatf, device_intelligence, crypto_monitoring, travel_rule, responsible_gaming, e_commerce.
-        # @param mode [String] ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended starting mode. DISABLED is skipped.
+        # @param category [String] Risk theme used for grouping and reporting, e.g. finance, aml_ctf,
+        #   anomaly_detection, fatf, device_intelligence, crypto_monitoring, travel_rule, responsible_gaming,
+        #   e_commerce.
+        # @param mode [String] ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or
+        #   status - the recommended starting mode. DISABLED is skipped.
         # @param description [String, nil]
-        # @param evaluation_mode [String] Whether every condition must match (ALL) or at least one (ANY). Ignored when conditions use group_index.
+        # @param evaluation_mode [String] Whether every condition must match (ALL) or at least one (ANY). Ignored when
+        #   conditions use group_index.
         # @param scope [Hash] Which transactions the rule applies to. Only these three keys are accepted.
         # @param conditions [Array<Hash>]
         # @param aggregation [Array<Hash>]
@@ -459,9 +476,13 @@ module Didit
         # @param rule_uuid [String] The rule's uuid from list or create.
         # @param title [String] Rule name. Unique per application among non-deleted rules; duplicates return 400.
         # @param description [String, nil]
-        # @param category [String] Risk theme used for grouping and reporting, e.g. finance, aml_ctf, anomaly_detection, fatf, device_intelligence, crypto_monitoring, travel_rule, responsible_gaming, e_commerce.
-        # @param mode [String] ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or status - the recommended starting mode. DISABLED is skipped.
-        # @param evaluation_mode [String] Whether every condition must match (ALL) or at least one (ANY). Ignored when conditions use group_index.
+        # @param category [String] Risk theme used for grouping and reporting, e.g. finance, aml_ctf,
+        #   anomaly_detection, fatf, device_intelligence, crypto_monitoring, travel_rule, responsible_gaming,
+        #   e_commerce.
+        # @param mode [String] ACTIVE evaluates live. TEST evaluates and records rule runs but never touches score or
+        #   status - the recommended starting mode. DISABLED is skipped.
+        # @param evaluation_mode [String] Whether every condition must match (ALL) or at least one (ANY). Ignored when
+        #   conditions use group_index.
         # @param scope [Hash] Which transactions the rule applies to. Only these three keys are accepted.
         # @param conditions [Array<Hash>]
         # @param aggregation [Array<Hash>]
@@ -515,7 +536,8 @@ module Didit
         #
         # +POST /v3/transactions/{transaction_id}/travel-rule/ownership/+
         #
-        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer (the beneficiary side's transaction).
+        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer (the beneficiary side's
+        #   transaction).
         # @param confirmed [Boolean]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
@@ -543,8 +565,11 @@ module Didit
         # +PATCH /v3/transactions/{transaction_id}/travel-rule/+
         #
         # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
-        # @param payment_txn_id [String] The on-chain transaction hash. Requires the transfer to be an outbound transfer in COMPLETED status.
-        # @param action [String] "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound transfer stuck in COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA.
+        # @param payment_txn_id [String] The on-chain transaction hash. Requires the transfer to be an outbound
+        #   transfer in COMPLETED status.
+        # @param action [String] "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound
+        #   transfer stuck in COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or
+        #   NOT_ENOUGH_COUNTERPARTY_DATA.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
         def update_transfer(transaction_id, payment_txn_id: OMIT, action: OMIT, request_options: nil)

@@ -24,11 +24,17 @@ module Didit
         #
         # +POST /v3/webhook/destinations/+
         #
-        # @param label [String] Human-readable name displayed in Console → Webhooks. Helps distinguish destinations when you have several (e.g. "Prod", "Staging mirror").
-        # @param url [String] HTTPS URL that will receive `POST` requests. Must be unique per application among non-deleted destinations. Use a stable, hardened endpoint - Didit retries failed deliveries on a backoff schedule.
-        # @param enabled [Boolean] When `false`, the destination is saved but Didit will not push any webhooks to it. Useful for staging configs you want to keep parked.
-        # @param webhook_version [String] Payload schema version Didit will send. `v3` is the current/recommended format; older versions are kept for backward compatibility with legacy integrations.
-        # @param subscribed_events [Array<String>] Events to deliver. Effectively required: an explicit `[]` is rejected with 400, and omitting the field creates a destination with no subscriptions that receives nothing.
+        # @param label [String] Human-readable name displayed in Console → Webhooks. Helps distinguish destinations
+        #   when you have several (e.g. "Prod", "Staging mirror").
+        # @param url [String] HTTPS URL that will receive `POST` requests. Must be unique per application among
+        #   non-deleted destinations. Use a stable, hardened endpoint - Didit retries failed deliveries on a backoff
+        #   schedule.
+        # @param enabled [Boolean] When `false`, the destination is saved but Didit will not push any webhooks to it.
+        #   Useful for staging configs you want to keep parked.
+        # @param webhook_version [String] Payload schema version Didit will send. `v3` is the current/recommended
+        #   format; older versions are kept for backward compatibility with legacy integrations.
+        # @param subscribed_events [Array<String>] Events to deliver. Effectively required: an explicit `[]` is
+        #   rejected with 400, and omitting the field creates a destination with no subscriptions that receives nothing.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhooksDestinationsCreateResponse]
         def create(label:, url:, enabled: OMIT, webhook_version: OMIT, subscribed_events: OMIT, request_options: nil)
@@ -119,7 +125,11 @@ module Didit
         # @param url [String] New target URL. Must be unique within the application.
         # @param enabled [Boolean] Set to `false` to pause deliveries to this destination without deleting it.
         # @param webhook_version [String] New payload schema version for future deliveries.
-        # @param subscribed_events [Array<String>] Event filter for this webhook destination. Didit delivers only webhooks whose event type exactly matches one of these values - there is no wildcard subscription. When sent, the list must contain at l...
+        # @param subscribed_events [Array<String>] Event filter for this webhook destination. Didit delivers only
+        #   webhooks whose event type exactly matches one of these values - there is no wildcard subscription. When
+        #   sent, the list must contain at least one valid event (an explicit `[]` is rejected with 400); a destination
+        #   whose list is empty (field omitted at create) receives nothing. On update the list is replaced wholesale,
+        #   never merged.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhooksDestinationsUpdateResponse]
         def update(

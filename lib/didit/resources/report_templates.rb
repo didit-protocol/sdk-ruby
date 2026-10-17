@@ -17,7 +17,10 @@ module Didit
       # @param name [String]
       # @param jurisdiction [String] ISO 3166-1 alpha-2 country code, upper-cased on save.
       # @param report_type [String]
-      # @param field_config [Hash] Reusable goAML header defaults. Template-level obligatory fields: rentity_id, submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to include) p...
+      # @param field_config [Hash] Reusable goAML header defaults. Template-level obligatory fields: rentity_id,
+      #   submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to
+      #   include) plus reporting_person, location, reason, and action defaults. Per-filing header fields (action,
+      #   submission_date, transactions, jurisdiction) are enforced when the report is validated or finalized, not...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ReportTemplateDetail]
       def create(name:, jurisdiction:, report_type:, field_config: OMIT, request_options: nil)
@@ -109,7 +112,10 @@ module Didit
       # @param name [String]
       # @param jurisdiction [String] ISO 3166-1 alpha-2 country code, upper-cased on save.
       # @param report_type [String]
-      # @param field_config [Hash] Reusable goAML header defaults. Template-level obligatory fields: rentity_id, submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to include) p...
+      # @param field_config [Hash] Reusable goAML header defaults. Template-level obligatory fields: rentity_id,
+      #   submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to
+      #   include) plus reporting_person, location, reason, and action defaults. Per-filing header fields (action,
+      #   submission_date, transactions, jurisdiction) are enforced when the report is validated or finalized, not...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ReportTemplateDetail]
       def update(

@@ -24,9 +24,12 @@ module Didit
       #
       # +POST /v3/biometric-templates/delete/+
       #
-      # @param template_uuids [Array<String>] Templates to purge. Required unless `delete_all` is `true`. Already purged ids are reported as `already_purged`.
-      # @param delete_all [Boolean] When `true`, purges every template matching the filters below (all of the application's templates when no filter is given). `template_uuids` is ignored. Irreversible.
-      # @param vendor_data [String] Only with `delete_all`: case-insensitive substring match on the owning User's `vendor_data`.
+      # @param template_uuids [Array<String>] Templates to purge. Required unless `delete_all` is `true`. Already
+      #   purged ids are reported as `already_purged`.
+      # @param delete_all [Boolean] When `true`, purges every template matching the filters below (all of the
+      #   application's templates when no filter is given). `template_uuids` is ignored. Irreversible.
+      # @param vendor_data [String] Only with `delete_all`: case-insensitive substring match on the owning User's
+      #   `vendor_data`.
       # @param vendor_user_uuid [String] Only with `delete_all`: exact match on the owning User.
       # @param status [String] Only with `delete_all`.
       # @param source_type [String] Only with `delete_all`.
@@ -81,7 +84,8 @@ module Didit
       # @param status [String] Lifecycle status. Purged templates are never listed.
       # @param source_type [String] How the template was created.
       # @param retained_from [Time, String] Templates retained at or after this time.
-      # @param retained_to [Time, String] Templates retained at or before this time. Must not be earlier than `retained_from` (`400`).
+      # @param retained_to [Time, String] Templates retained at or before this time. Must not be earlier than
+      #   `retained_from` (`400`).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesCountResponse]
       def count(
@@ -130,7 +134,8 @@ module Didit
       #
       # +DELETE /v3/biometric-templates/{template_uuid}/+
       #
-      # @param template_uuid [String] Template id, as returned in `biometric_template_uuid` by the session deletion endpoints, `biometric_template_id` on a Face Search match, or the list endpoint.
+      # @param template_uuid [String] Template id, as returned in `biometric_template_uuid` by the session deletion
+      #   endpoints, `biometric_template_id` on a Face Search match, or the list endpoint.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesDeleteResponse]
       def delete(template_uuid, request_options: nil)
@@ -160,7 +165,8 @@ module Didit
       # @param status [String] Lifecycle status. Purged templates are never listed.
       # @param source_type [String] How the template was created.
       # @param retained_from [Time, String] Templates retained at or after this time.
-      # @param retained_to [Time, String] Templates retained at or before this time. Must not be earlier than `retained_from` (`400`).
+      # @param retained_to [Time, String] Templates retained at or before this time. Must not be earlier than
+      #   `retained_from` (`400`).
       # @param ordering [String] Sort order.
       # @param limit [Integer] Page size.
       # @param offset [Integer] Pagination offset.
@@ -210,7 +216,8 @@ module Didit
       #
       # +GET /v3/biometric-templates/{template_uuid}/+
       #
-      # @param template_uuid [String] Template id, as returned in `biometric_template_uuid` by the session deletion endpoints, `biometric_template_id` on a Face Search match, or the list endpoint.
+      # @param template_uuid [String] Template id, as returned in `biometric_template_uuid` by the session deletion
+      #   endpoints, `biometric_template_id` on a Face Search match, or the list endpoint.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesRetrieveResponse]
       def retrieve(template_uuid, request_options: nil)

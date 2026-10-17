@@ -44,13 +44,30 @@ module Didit
       #
       # +POST /v3/face-match/+
       #
-      # @param user_image [Pathname, IO, String, Didit::FilePart] Live or candidate face image to verify (e.g. a selfie). Submit a single front-facing photo with the subject's face clearly visible and well lit. Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `web...
-      # @param ref_image [Pathname, IO, String, Didit::FilePart] Reference face image to compare against (e.g. an ID document portrait or a previously enrolled photo). Same format and size limits as `user_image`.
-      # @param face_match_score_decline_threshold [Numeric] Similarity threshold (0–100) that drives the response `status`. A computed score **at or below** this value sets `status` to `Declined` and adds a `LOW_FACE_MATCH_SIMILARITY` warning; a score strictl...
-      # @param rotate_image [Boolean] When `true`, the service tries the input images in 90-degree increments (0, 90, 180, 270) and uses the orientation that yields the best face detection - useful for mobile captures with missing EXIF o...
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`, and announc...
-      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the persisted session and echoed back in the response. Use it to correlate API calls with your own records and to filter session...
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"log...
+      # @param user_image [Pathname, IO, String, Didit::FilePart] Live or candidate face image to verify (e.g. a
+      #   selfie). Submit a single front-facing photo with the subject's face clearly visible and well lit. Allowed
+      #   extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`. Maximum upload size: **5 MB** (larger files are rejected
+      #   with `400`). Images are automatically compressed to ~0.5 MB before processing, so very high resolutions do not
+      #   improve accuracy.
+      # @param ref_image [Pathname, IO, String, Didit::FilePart] Reference face image to compare against (e.g. an ID
+      #   document portrait or a previously enrolled photo). Same format and size limits as `user_image`.
+      # @param face_match_score_decline_threshold [Numeric] Similarity threshold (0-100) that drives the response
+      #   `status`. A computed score **at or below** this value sets `status` to `Declined` and adds a
+      #   `LOW_FACE_MATCH_SIMILARITY` warning; a score strictly above it returns `Approved`. Default `30` is permissive
+      #   - raise it (e.g. `50`-`60`) for stricter verification. Values outside 0-100 return `400`.
+      # @param rotate_image [Boolean] When `true`, the service tries the input images in 90-degree increments (0, 90,
+      #   180, 270) and uses the orientation that yields the best face detection - useful for mobile captures with
+      #   missing EXIF orientation. Adds latency, so only enable it if you cannot guarantee upright images.
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in
+      #   the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`,
+      #   and announced through a `status.updated` webhook. When `false`, nothing is stored and `request_id` is a
+      #   transient UUID for response correlation only.
+      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the
+      #   persisted session and echoed back in the response. Use it to correlate API calls with your own records and to
+      #   filter sessions later.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back in the response. In multipart requests, send it as a JSON-encoded string field (e.g.
+      #   `metadata={"flow":"login"}`) - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FaceMatchCompareResponse]
       def compare(

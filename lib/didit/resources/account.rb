@@ -50,7 +50,9 @@ module Didit
       # +POST /programmatic/register/+
       #
       # @param email [String] Any valid email address (personal, work, alias). Used as the unique account identifier.
-      # @param password [String] Minimum 8 characters. Must contain at least one uppercase letter (`A-Z`), one lowercase letter (`a-z`), one digit (`0-9`), and one special character from `!@#$%^&*()_+-=[]{}|;:,.<>?`. Validation repo...
+      # @param password [String] Minimum 8 characters. Must contain at least one uppercase letter (`A-Z`), one
+      #   lowercase letter (`a-z`), one digit (`0-9`), and one special character from `!@#$%^&*()_+-=[]{}|;:,.<>?`.
+      #   Validation reports one failed rule at a time.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegisterResponse]
       def register(email:, password:, request_options: nil)
@@ -106,7 +108,8 @@ module Didit
       # +POST /programmatic/verify-email/+
       #
       # @param email [String] Email used during `POST /programmatic/register/`.
-      # @param code [String] 6-character alphanumeric code from the verification email. Codes expire 10 minutes after the most recent code was sent.
+      # @param code [String] 6-character alphanumeric code from the verification email. Codes expire 10 minutes after
+      #   the most recent code was sent.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::VerifyEmailResponse]
       def verify_email(email:, code:, request_options: nil)

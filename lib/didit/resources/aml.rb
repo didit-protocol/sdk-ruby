@@ -47,23 +47,40 @@ module Didit
       #
       # +POST /v3/aml/+
       #
-      # @param full_name [String] Full name of the person or company to screen. Minimum **2 characters** - the screening provider's own floor. A shorter or blank name returns `400` on this field before any screening runs, so nothing...
+      # @param full_name [String] Full name of the person or company to screen. Minimum **2 characters** - the
+      #   screening provider's own floor. A shorter or blank name returns `400` on this field before any screening runs,
+      #   so nothing is billed.
       # @param entity_type [String] Type of entity to screen. Defaults to `person`.
-      # @param date_of_birth [Date, String] Date of birth (persons) or incorporation date (companies), `YYYY-MM-DD`. Improves match precision via the DOB weight.
-      # @param nationality [String] ISO 3166-1 **alpha-2** country code (e.g. `ES`). Invalid codes return `400`. Improves match precision via the country weight.
-      # @param document_number [String] Identity document number. Not weighted - acts as a golden key: an exact match overrides the hit's `match_score` to 100, a hard mismatch penalizes it. Sent to the screening provider as a search filter...
-      # @param aml_score_approve_threshold [Numeric] Risk-score threshold at or below which the result is `Approved`. Must be ≤ `aml_score_review_threshold` (else `400`).
-      # @param aml_score_review_threshold [Numeric] Risk-score threshold above which the result is `Declined`. Scores between the two thresholds produce `In Review`.
-      # @param aml_name_weight [Integer] Weight of name similarity in the per-hit match score. The three weights must sum to exactly 100 (else `400`).
+      # @param date_of_birth [Date, String] Date of birth (persons) or incorporation date (companies), `YYYY-MM-DD`.
+      #   Improves match precision via the DOB weight.
+      # @param nationality [String] ISO 3166-1 **alpha-2** country code (e.g. `ES`). Invalid codes return `400`.
+      #   Improves match precision via the country weight.
+      # @param document_number [String] Identity document number. Not weighted - acts as a golden key: an exact match
+      #   overrides the hit's `match_score` to 100, a hard mismatch penalizes it. Sent to the screening provider as a
+      #   search filter only when it is **2-50 characters**; a value outside that range is accepted and stored, and the
+      #   screening still runs and is billed, just not narrowed by document number.
+      # @param aml_score_approve_threshold [Numeric] Risk-score threshold at or below which the result is `Approved`.
+      #   Must be ≤ `aml_score_review_threshold` (else `400`).
+      # @param aml_score_review_threshold [Numeric] Risk-score threshold above which the result is `Declined`. Scores
+      #   between the two thresholds produce `In Review`.
+      # @param aml_name_weight [Integer] Weight of name similarity in the per-hit match score. The three weights must
+      #   sum to exactly 100 (else `400`).
       # @param aml_dob_weight [Integer] Weight of date of birth in the per-hit match score.
       # @param aml_country_weight [Integer] Weight of country/nationality in the per-hit match score.
-      # @param aml_match_score_threshold [Integer] Per-hit cutoff: hits with `match_score` below this are `False Positive` (excluded from risk assessment); at or above are `Unreviewed` possible matches.
-      # @param include_adverse_media [Boolean] Also search news media for negative coverage. Adds up to ~30 s of latency while results are gathered - use a ≥60 s client timeout.
-      # @param include_ongoing_monitoring [Boolean] Keep re-screening this profile and push changes via webhook. Requires `save_api_request=true` (else `400`).
-      # @param save_api_request [Boolean] Persist the screening as a session (console visibility, decision endpoint, webhooks, hit review). Set to `false` for a stateless check.
+      # @param aml_match_score_threshold [Integer] Per-hit cutoff: hits with `match_score` below this are `False
+      #   Positive` (excluded from risk assessment); at or above are `Unreviewed` possible matches.
+      # @param include_adverse_media [Boolean] Also search news media for negative coverage. Adds up to ~30 s of
+      #   latency while results are gathered - use a ≥60 s client timeout.
+      # @param include_ongoing_monitoring [Boolean] Keep re-screening this profile and push changes via webhook.
+      #   Requires `save_api_request=true` (else `400`).
+      # @param save_api_request [Boolean] Persist the screening as a session (console visibility, decision endpoint,
+      #   webhooks, hit review). Set to `false` for a stateless check.
       # @param vendor_data [String] Your identifier for the screened user; echoed back and stored with the session.
       # @param metadata [Hash, nil] Free-form JSON stored with the request and echoed back.
-      # @param sandbox_scenario [String] Sandbox-only scenario slug. Only accepted when the API key belongs to a sandbox-mode application; rejected on live applications. A standalone screening has no session to arm, so the slug goes on the...
+      # @param sandbox_scenario [String] Sandbox-only scenario slug. Only accepted when the API key belongs to a
+      #   sandbox-mode application; rejected on live applications. A standalone screening has no session to arm, so the
+      #   slug goes on the screening request itself: `decline_aml_hit` returns one production-shaped hit and settles the
+      #   screening as `Declined`, `review_aml_possible_match` settles it `In Review`, and a scenario that arms no A...
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AmlScreenResponse]

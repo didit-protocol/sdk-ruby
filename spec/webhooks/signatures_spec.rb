@@ -37,8 +37,9 @@ module WebhookSpecs
       end
 
       it "checks each header on its own" do
-        { "X-Signature" => "X-Signature", "X-Signature-V2" => "X-Signature-V2",
-          "X-Signature-Previous" => "X-Signature", "X-Signature-V2-Previous" => "X-Signature-V2" }.each do |name, source|
+        sources = { "X-Signature" => "X-Signature", "X-Signature-V2" => "X-Signature-V2",
+                    "X-Signature-Previous" => "X-Signature", "X-Signature-V2-Previous" => "X-Signature-V2" }
+        sources.each do |name, source|
           expect(verify(body, { name => headers[source] }).verified_by).to eq(name)
         end
       end
@@ -46,10 +47,12 @@ module WebhookSpecs
       it "tries X-Signature first, then X-Signature-V2, then the -Previous variants" do
         wrong = "0" * 64
         expect(verify(body, headers.merge("X-Signature" => wrong)).verified_by).to eq("X-Signature-V2")
-        only_previous = { "X-Signature" => wrong, "X-Signature-V2" => wrong, "X-Signature-Previous" => headers["X-Signature"],
+        only_previous = { "X-Signature" => wrong, "X-Signature-V2" => wrong,
+                          "X-Signature-Previous" => headers["X-Signature"],
                           "X-Signature-V2-Previous" => headers["X-Signature-V2"] }
         expect(verify(body, only_previous).verified_by).to eq("X-Signature-Previous")
-        expect(verify(body, only_previous.merge("X-Signature-Previous" => wrong)).verified_by).to eq("X-Signature-V2-Previous")
+        expect(verify(body, only_previous.merge("X-Signature-Previous" => wrong)).verified_by)
+          .to eq("X-Signature-V2-Previous")
       end
 
       it "only considers 64 lowercase hex characters" do
@@ -64,7 +67,8 @@ module WebhookSpecs
       it "compares in constant time" do
         allow(OpenSSL).to receive(:fixed_length_secure_compare).and_call_original
         verify
-        expect(OpenSSL).to have_received(:fixed_length_secure_compare).with(headers["X-Signature"], headers["X-Signature"])
+        signature = headers["X-Signature"]
+        expect(OpenSSL).to have_received(:fixed_length_secure_compare).with(signature, signature)
       end
 
       it "builds the canonical JSON only when an X-Signature-V2 is needed" do
@@ -89,7 +93,8 @@ module WebhookSpecs
         end
         expect(messages.size).to eq(6)
         messages.each do |message|
-          expect(message).not_to include(SECRET, "whsec_test_other", *headers.values_at("X-Signature", "X-Signature-V2"))
+          signatures = headers.values_at("X-Signature", "X-Signature-V2")
+          expect(message).not_to include(SECRET, "whsec_test_other", *signatures)
         end
       end
     end
@@ -107,7 +112,8 @@ module WebhookSpecs
         expect(verify(raw, hdrs, PREVIOUS).verified_by).to eq("X-Signature-Previous")
         expect(verify(raw, hdrs.except("X-Signature-Previous"), PREVIOUS).verified_by).to eq("X-Signature-V2-Previous")
         simple_previous = hdrs.slice("X-Signature-Simple-Previous")
-        expect(verify(raw, simple_previous, PREVIOUS, allow_simple: true).verified_by).to eq("X-Signature-Simple-Previous")
+        expect(verify(raw, simple_previous, PREVIOUS, allow_simple: true).verified_by)
+          .to eq("X-Signature-Simple-Previous")
         expect(verify(raw, hdrs, [PREVIOUS, SECRET]).verified_by).to eq("X-Signature-Previous")
       end
 
@@ -147,7 +153,8 @@ module WebhookSpecs
       }.each do |description, data|
         it "formats #{description} like the backend's str()" do
           raw, hdrs = delivery(data)
-          expect(verify(raw, hdrs.slice("X-Signature-Simple"), allow_simple: true).verified_by).to eq("X-Signature-Simple")
+          event = verify(raw, hdrs.slice("X-Signature-Simple"), allow_simple: true)
+          expect(event.verified_by).to eq("X-Signature-Simple")
         end
       end
 

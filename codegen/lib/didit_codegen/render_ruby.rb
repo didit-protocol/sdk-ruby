@@ -323,9 +323,9 @@ end
       lines << "#{indent}#" unless lines.empty?
       lines << "#{indent}# +#{meth.op.http_method.upcase} #{meth.op.path}+"
       lines << "#{indent}#"
-      meth.path_args.each { |a| lines << param_doc(a, indent) }
-      lines << param_doc(meth.whole_body, indent) if meth.whole_body
-      meth.kwargs.each { |a| lines << param_doc(a, indent) }
+      meth.path_args.each { |a| lines.concat(param_doc(a, indent)) }
+      lines.concat(param_doc(meth.whole_body, indent)) if meth.whole_body
+      meth.kwargs.each { |a| lines.concat(param_doc(a, indent)) }
       if meth.idempotency
         lines << "#{indent}# @param #{meth.idempotency.name} [String] sent as the Idempotency-Key header"
       end
@@ -335,11 +335,12 @@ end
       lines
     end
 
-    def param_doc(arg, indent)
-      text = arg.description ? " #{arg.description.gsub(/\s+/, ' ').gsub("—", '-')}" : ""
-      text = "#{text[0, 200].rstrip}..." if text.length > 200
-      "#{indent}# @param #{arg.name} [#{yard(arg.type, request: true)}]#{text}"
-    end
+def param_doc(arg, indent)
+  text = arg.description ? " #{arg.description.gsub(/\s+/, ' ').gsub("—", '-').gsub("–", '-')}" : ""
+  text = "#{text[0, 400].rstrip}..." if text.length > 400
+  first, *rest = Text.wrap("@param #{arg.name} [#{yard(arg.type, request: true)}]#{text}", Text::WIDTH - indent.length - 2)
+  ["#{indent}# #{first}", *rest.map { |part| "#{indent}#   #{part.strip}" }]
+end
 
     def return_doc(meth, indent)
       resp = meth.response

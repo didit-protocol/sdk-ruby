@@ -50,21 +50,49 @@ module Didit
       #
       # +POST /v3/document-ai/+
       #
-      # @param document [Pathname, IO, String, Didit::FilePart] The document to read. Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `pdf`, `webp`, `zip`. Maximum upload size: **30 MB** (larger files are rejected with `400`). Multi-page PDFs are supported (exp...
-      # @param fields [String] One JSON-encoded array string with **1–30** field definitions (maximum 16 KB). Each item: `key` (required, `^[a-z0-9_]{1,64}$`, unique - the key returned in `extracted_data`), `name` (≤100 chars, sho...
-      # @param expected_first_name [String] First name to verify against the document's name field (fuzzy match, transliteration-aware). Use together with `expected_last_name`; cannot be combined with `expected_company_name`.
-      # @param expected_last_name [String] Last name to verify against the document's name field, combined with `expected_first_name` for `name_match_score`.
-      # @param expected_company_name [String] Company name to verify against the document's name field (for business documents). Cannot be combined with `expected_first_name` / `expected_last_name` (no example value on purpose - the generated re...
-      # @param expected_company_country [String] Optional ISO 3166-1 alpha-2 country code (two ASCII letters, e.g. `FR`) that tunes company-name normalization for `expected_company_name`. Only used with `expected_company_name`.
-      # @param document_ai_name_match_score_threshold [Integer] Minimum `name_match_score` (0–100) to consider the name matched. A lower score adds `DOCUMENT_AI_NAME_MISMATCH`, governed by `document_ai_name_mismatch_action`.
-      # @param document_ai_unreadable_document_action [String] What to do when no field could be read from the document (`DOCUMENT_AI_UNREADABLE_DOCUMENT`).
-      # @param document_ai_missing_required_fields_action [String] What to do when at least one `required` field could not be read (`DOCUMENT_AI_MISSING_REQUIRED_FIELDS`; `additional_data.missing_fields` lists them).
-      # @param document_ai_document_tampering_action [String] What to do when PDF/EXIF forensics suspect manipulation - modified after digital signing, known PDF editor, overlay-text manipulation, suspicious re-export, image anomalies (`DOCUMENT_AI_SUSPECTED_MA...
-      # @param document_ai_name_mismatch_action [String] What to do when `name_match_score` is below the threshold (`DOCUMENT_AI_NAME_MISMATCH`).
-      # @param document_ai_unsupported_file_action [String] What to do when the upload is empty or not a processable file (`DOCUMENT_AI_UNSUPPORTED_FILE`).
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`, with the up...
-      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the persisted session and echoed back in the response. Use it to correlate API calls with your own records and to filter session...
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"onb...
+      # @param document [Pathname, IO, String, Didit::FilePart] The document to read. Allowed extensions: `tiff`,
+      #   `jpg`, `jpeg`, `png`, `pdf`, `webp`, `zip`. Maximum upload size: **30 MB** (larger files are rejected with
+      #   `400`). Multi-page PDFs are supported (expect higher latency); encrypted PDFs are rejected with `400`. Images
+      #   are automatically compressed before processing.
+      # @param fields [String] One JSON-encoded array string with **1-30** field definitions (maximum 16 KB). Each
+      #   item: `key` (required, `^[a-z0-9_]{1,64}$`, unique - the key returned in `extracted_data`), `name` (≤100
+      #   chars, shown in messages), `instruction` (≤500 chars, what the model should read), `type` (`text` default |
+      #   `number` | `date`), `required` (boolean, default `false`), `is_full_name` (boolean, default `false`, a...
+      # @param expected_first_name [String] First name to verify against the document's name field (fuzzy match,
+      #   transliteration-aware). Use together with `expected_last_name`; cannot be combined with
+      #   `expected_company_name`.
+      # @param expected_last_name [String] Last name to verify against the document's name field, combined with
+      #   `expected_first_name` for `name_match_score`.
+      # @param expected_company_name [String] Company name to verify against the document's name field (for business
+      #   documents). Cannot be combined with `expected_first_name` / `expected_last_name` (no example value on purpose
+      #   - the generated request sample uses the person fields; swap them for this one when verifying a business
+      #   document).
+      # @param expected_company_country [String] Optional ISO 3166-1 alpha-2 country code (two ASCII letters, e.g.
+      #   `FR`) that tunes company-name normalization for `expected_company_name`. Only used with
+      #   `expected_company_name`.
+      # @param document_ai_name_match_score_threshold [Integer] Minimum `name_match_score` (0-100) to consider the
+      #   name matched. A lower score adds `DOCUMENT_AI_NAME_MISMATCH`, governed by `document_ai_name_mismatch_action`.
+      # @param document_ai_unreadable_document_action [String] What to do when no field could be read from the
+      #   document (`DOCUMENT_AI_UNREADABLE_DOCUMENT`).
+      # @param document_ai_missing_required_fields_action [String] What to do when at least one `required` field could
+      #   not be read (`DOCUMENT_AI_MISSING_REQUIRED_FIELDS`; `additional_data.missing_fields` lists them).
+      # @param document_ai_document_tampering_action [String] What to do when PDF/EXIF forensics suspect manipulation
+      #   - modified after digital signing, known PDF editor, overlay-text manipulation, suspicious re-export, image
+      #   anomalies (`DOCUMENT_AI_SUSPECTED_MANIPULATION`).
+      # @param document_ai_name_mismatch_action [String] What to do when `name_match_score` is below the threshold
+      #   (`DOCUMENT_AI_NAME_MISMATCH`).
+      # @param document_ai_unsupported_file_action [String] What to do when the upload is empty or not a processable
+      #   file (`DOCUMENT_AI_UNSUPPORTED_FILE`).
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in
+      #   the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`,
+      #   with the uploaded document, the extracted values, the field definitions and the name-match snapshot stored.
+      #   When `false`, nothing is stored and `request_id` is a transient UUID for response correlation only; the...
+      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the
+      #   persisted session and echoed back in the response. Use it to correlate API calls with your own records and to
+      #   filter sessions later.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back in the response. In multipart requests, send it as a JSON-encoded string field (e.g.
+      #   `metadata={"flow":"onboarding"}`) - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DocumentAiAnalyzeResponse]
       def analyze(

@@ -98,12 +98,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/audkenni/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Auðkenni identity. Defaults to ISL, the only country it serves. * `ISL` - ISL
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Auðkenni identity. Defaults to ISL, the only country
+      #   it serves. * `ISL` - ISL
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -144,12 +153,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/bankid-cz/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Bank iD identity. Defaults to CZE, the only country it serves. * `CZE` - CZE
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Bank iD identity. Defaults to CZE, the only country
+      #   it serves. * `CZE` - CZE
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -190,12 +208,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/bankid-no/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the BankID identity. Defaults to NOR, the only country it serves. * `NOR` - NOR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the BankID identity. Defaults to NOR, the only country
+      #   it serves. * `NOR` - NOR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -236,12 +263,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/bankid-se/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the BankID identity. Defaults to SWE, the only country it serves. * `SWE` - SWE
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the BankID identity. Defaults to SWE, the only country
+      #   it serves. * `SWE` - SWE
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -282,12 +318,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/buypass/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Buypass ID identity. Defaults to NOR, the only country it serves. * `NOR` - NOR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Buypass ID identity. Defaults to NOR, the only
+      #   country it serves. * `NOR` - NOR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -328,13 +373,23 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/connectid/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the ConnectID identity. Defaults to AUS, the only country it serves. * `AUS` - AUS
-      # @param authorisation_server_id [String] Authorisation server ID selected with ConnectID's bank selector. Sandbox defaults to Mock Bank A.
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the ConnectID identity. Defaults to AUS, the only
+      #   country it serves. * `AUS` - AUS
+      # @param authorisation_server_id [String] Authorisation server ID selected with ConnectID's bank selector.
+      #   Sandbox defaults to Mock Bank A.
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -377,12 +432,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/diia/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Diia identity. Defaults to UKR, the only country it serves. * `UKR` - UKR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Diia identity. Defaults to UKR, the only country it
+      #   serves. * `UKR` - UKR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -424,12 +488,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/eparaksts-mobile/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the eParaksts mobile identity. Defaults to LVA, the only country it serves. * `LVA` - LVA
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the eParaksts mobile identity. Defaults to LVA, the only
+      #   country it serves. * `LVA` - LVA
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -472,12 +545,23 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/eudi/+
       #
-      # @param country [String] ISO 3166-1 alpha-3 country of the EUDI Wallet identity. * `AUT` - AUT * `BEL` - BEL * `BGR` - BGR * `HRV` - HRV * `CYP` - CYP * `CZE` - CZE * `DNK` - DNK * `EST` - EST * `FIN` - FIN * `FRA` - FRA * `...
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param country [String] ISO 3166-1 alpha-3 country of the EUDI Wallet identity. * `AUT` - AUT * `BEL` - BEL *
+      #   `BGR` - BGR * `HRV` - HRV * `CYP` - CYP * `CZE` - CZE * `DNK` - DNK * `EST` - EST * `FIN` - FIN * `FRA` - FRA
+      #   * `DEU` - DEU * `GRC` - GRC * `HUN` - HUN * `IRL` - IRL * `ITA` - ITA * `LVA` - LVA * `LTU` - LTU * `LUX` -
+      #   LUX * `MLT` - MLT * `NLD` - NLD * `POL` - POL * `PRT` - PRT * `ROU` - ROU * `SVK` - SVK * `SVN`...
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -518,12 +602,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/franceconnect/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the FranceConnect identity. Defaults to FRA, the only country it serves. * `FRA` - FRA
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the FranceConnect identity. Defaults to FRA, the only
+      #   country it serves. * `FRA` - FRA
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -564,12 +657,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/frejaid/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Freja eID identity. Defaults to SWE, the only country it serves. * `SWE` - SWE
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Freja eID identity. Defaults to SWE, the only
+      #   country it serves. * `SWE` - SWE
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -610,12 +712,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/ftn/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Finnish Trust Network identity. Defaults to FIN, the only country it serves. * `FIN` - FIN
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Finnish Trust Network identity. Defaults to FIN, the
+      #   only country it serves. * `FIN` - FIN
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -656,12 +767,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/govbr/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the gov.br identity. Defaults to BRA, the only country it serves. * `BRA` - BRA
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the gov.br identity. Defaults to BRA, the only country
+      #   it serves. * `BRA` - BRA
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -702,12 +822,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/govuk-wallet/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the GOV.UK Wallet identity. Defaults to GBR, the only country it serves. * `GBR` - GBR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the GOV.UK Wallet identity. Defaults to GBR, the only
+      #   country it serves. * `GBR` - GBR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -748,12 +877,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/idcard-ee/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Estonian ID-card identity. Defaults to EST, the only country it serves. * `EST` - EST
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Estonian ID-card identity. Defaults to EST, the only
+      #   country it serves. * `EST` - EST
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -794,12 +932,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/idin/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the iDIN identity. Defaults to NLD, the only country it serves. * `NLD` - NLD
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the iDIN identity. Defaults to NLD, the only country it
+      #   serves. * `NLD` - NLD
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -840,12 +987,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/itsme/+
       #
-      # @param country [String] ISO 3166-1 alpha-3 country of the itsme identity. * `BEL` - BEL * `LUX` - LUX * `NLD` - NLD
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param country [String] ISO 3166-1 alpha-3 country of the itsme identity. * `BEL` - BEL * `LUX` - LUX * `NLD`
+      #   - NLD
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -886,12 +1042,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/mitid/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the MitID identity. Defaults to DNK, the only country it serves. * `DNK` - DNK
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the MitID identity. Defaults to DNK, the only country it
+      #   serves. * `DNK` - DNK
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -934,11 +1099,16 @@ module Didit
       # +POST /v3/id-verification/wallets/mobile-id/+
       #
       # @param country [String] ISO 3166-1 alpha-3 country of the Mobile-ID identity. * `EST` - EST * `LTU` - LTU
-      # @param personal_code [String] The user's national personal identification code. It addresses the user's Mobile-ID app; the user confirms the comparison code and enters their PIN in the app. Never collect the PIN.
+      # @param personal_code [String] The user's national personal identification code. It addresses the user's
+      #   Mobile-ID app; the user confirms the comparison code and enters their PIN in the app. Never collect the PIN.
       # @param phone_number [String] The Mobile-ID phone number in E.164 format (+372... or +370...).
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -979,12 +1149,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/mojeid/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the MojeID identity. Defaults to CZE, the only country it serves. * `CZE` - CZE
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the MojeID identity. Defaults to CZE, the only country
+      #   it serves. * `CZE` - CZE
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -1025,12 +1204,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/oneid/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the OneID identity. Defaults to GBR, the only country it serves. * `GBR` - GBR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the OneID identity. Defaults to GBR, the only country it
+      #   serves. * `GBR` - GBR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -1071,12 +1259,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/personalausweis/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Personalausweis identity. Defaults to DEU, the only country it serves. * `DEU` - DEU
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Personalausweis identity. Defaults to DEU, the only
+      #   country it serves. * `DEU` - DEU
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -1118,11 +1315,17 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/smart-id/+
       #
-      # @param country [String] ISO 3166-1 alpha-3 country of the Smart-ID identity. * `EST` - EST * `LVA` - LVA * `LTU` - LTU * `BEL` - BEL
-      # @param personal_code [String] The user's national personal identification code. It addresses the user's Smart-ID app; the user confirms the comparison code and enters their PIN in the app. Never collect the PIN.
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
+      # @param country [String] ISO 3166-1 alpha-3 country of the Smart-ID identity. * `EST` - EST * `LVA` - LVA *
+      #   `LTU` - LTU * `BEL` - BEL
+      # @param personal_code [String] The user's national personal identification code. It addresses the user's
+      #   Smart-ID app; the user confirms the comparison code and enters their PIN in the app. Never collect the PIN.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -1161,12 +1364,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/uae-pass/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the UAE PASS identity. Defaults to ARE, the only country it serves. * `ARE` - ARE
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the UAE PASS identity. Defaults to ARE, the only country
+      #   it serves. * `ARE` - ARE
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
@@ -1207,12 +1419,21 @@ module Didit
       #
       # +POST /v3/id-verification/wallets/vipps/+
       #
-      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label domain). Ne...
-      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in results and webhooks.
-      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and webhooks.
-      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled', 'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live applications. The full cata...
-      # @param country [String] ISO 3166-1 alpha-3 country of the Vipps identity. Defaults to NOR, the only country it serves. * `NOR` - NOR
-      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
+      # @param return_url [String] https URL the user's browser returns to after the wallet, with request_id and
+      #   result appended. Its host must be registered in the application's allowed_return_hosts (or be its white-label
+      #   domain). Never trust result on its own: read the outcome with GET .../verifications/{request_id}/ or the
+      #   webhook.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param country [String] ISO 3166-1 alpha-3 country of the Vipps identity. Defaults to NOR, the only country it
+      #   serves. * `NOR` - NOR
+      # @param device [String] same_device when the user signs in on the device showing your page, cross_device when
+      #   they use another one (e.g. BankID's QR code). * `same_device` - same_device * `cross_device` - cross_device
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]

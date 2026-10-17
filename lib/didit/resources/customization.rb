@@ -52,14 +52,17 @@ module Didit
       # @param app_public_name [String, nil] Public name shown in the verification flow.
       # @param privacy_policy_url [String, nil] Privacy policy URL shown to the end user.
       # @param skip_welcome_screen [Boolean] Skip the initial welcome screen.
-      # @param disable_login_with_didit [Boolean] Continue as guest instead of showing the login-with-Didit screen. Cannot be set back to `false` while a custom domain is configured (400).
+      # @param disable_login_with_didit [Boolean] Continue as guest instead of showing the login-with-Didit screen.
+      #   Cannot be set back to `false` while a custom domain is configured (400).
       # @param hide_progress_bar [Boolean] Hide the progress bar during the flow.
       # @param callback_seconds [Integer] Delay (seconds) before redirecting to the callback URL.
       # @param delete_logo_square [Boolean] When `true`, removes the current square logo.
       # @param delete_logo_rectangular [Boolean] When `true`, removes the current rectangular logo.
       # @param delete_favicon [Boolean] When `true`, removes the current favicon.
-      # @param image_square [Pathname, IO, String, Didit::FilePart] Square logo (1:1 aspect ratio). Max **1 MB**. Allowed: `png`, `jpg`, `jpeg`, `webp`.
-      # @param image_rectangular [Pathname, IO, String, Didit::FilePart] Rectangular logo (2:1 aspect ratio). Max **1 MB**. Allowed: `png`, `jpg`, `jpeg`, `webp`.
+      # @param image_square [Pathname, IO, String, Didit::FilePart] Square logo (1:1 aspect ratio). Max **1 MB**.
+      #   Allowed: `png`, `jpg`, `jpeg`, `webp`.
+      # @param image_rectangular [Pathname, IO, String, Didit::FilePart] Rectangular logo (2:1 aspect ratio). Max **1
+      #   MB**. Allowed: `png`, `jpg`, `jpeg`, `webp`.
       # @param image_favicon [Pathname, IO, String, Didit::FilePart] Favicon image. Max **500 KB**.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BrandingCustomization]

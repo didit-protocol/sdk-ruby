@@ -51,12 +51,25 @@ module Didit
       #
       # +POST /v3/passive-liveness/+
       #
-      # @param user_image [Pathname, IO, String, Didit::FilePart] Front-facing face image (e.g. a selfie). Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`. Maximum upload size: **5 MB** (larger files are rejected with `400`). Images are automatically compr...
-      # @param face_liveness_score_decline_threshold [Numeric] Liveness score threshold (0–100). A computed score **at or below** this value emits a `LOW_LIVENESS_SCORE` warning and sets `status` to `Declined`. Default `30`; raise it for a stricter anti-spoofing...
-      # @param rotate_image [Boolean] When `true`, the service tries 90-degree rotations of the input and uses the orientation that yields the best face detection. Useful when EXIF orientation is missing. Adds latency.
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session, stores the face images, emits a `status.updated` webhook, and enrolls the detected face into your face search index. When `false`, the...
-      # @param vendor_data [String] Optional opaque identifier (your user id, email, UUID…) stored on the persisted session and echoed back. Also used to exclude prior sessions with the same `vendor_data` from the duplicate-face check,...
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
+      # @param user_image [Pathname, IO, String, Didit::FilePart] Front-facing face image (e.g. a selfie). Allowed
+      #   extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`. Maximum upload size: **5 MB** (larger files are rejected
+      #   with `400`). Images are automatically compressed to ~0.5 MB before processing, so very high resolutions do not
+      #   improve accuracy. The image should contain a single subject - when several faces are present, the largest one
+      #   is evaluated and a `MU...
+      # @param face_liveness_score_decline_threshold [Numeric] Liveness score threshold (0-100). A computed score **at
+      #   or below** this value emits a `LOW_LIVENESS_SCORE` warning and sets `status` to `Declined`. Default `30`;
+      #   raise it for a stricter anti-spoofing posture. Values outside 0-100 return `400`.
+      # @param rotate_image [Boolean] When `true`, the service tries 90-degree rotations of the input and uses the
+      #   orientation that yields the best face detection. Useful when EXIF orientation is missing. Adds latency.
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session, stores the
+      #   face images, emits a `status.updated` webhook, and enrolls the detected face into your face search index. When
+      #   `false`, the call is one-shot - nothing is stored and the face is not enrolled. Blocklist and duplicate
+      #   screening run either way.
+      # @param vendor_data [String] Optional opaque identifier (your user id, email, UUID…) stored on the persisted
+      #   session and echoed back. Also used to exclude prior sessions with the same `vendor_data` from the
+      #   duplicate-face check, so re-verifying the same user does not raise `DUPLICATED_FACE`.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PassiveLivenessCheckResponse]
       def check(

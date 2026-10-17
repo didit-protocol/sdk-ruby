@@ -62,39 +62,73 @@ module Didit
       #
       # +POST /v3/database-validation/+
       #
-      # @param issuing_state [String] ISO 3166-1 **alpha-3** country code of the registry to validate against (e.g. `BRA`, `ESP`, `COL`). Determines which services are available. Unsupported codes return `400` with the full list of valid...
-      # @param services [Array<String>] Catalog `service_id`s to run for this country (e.g. `["bra_cpf"]`). Also accepts a single string or a comma-separated/JSON-encoded string. **If omitted or empty, exactly one default service runs** -...
-      # @param validation_type [String] DEPRECATED. Accepted for backward compatibility but ignored - the response `validation_type` is now derived from how many services full-matched. Use `services` to pin specific services.
-      # @param consent [Boolean] Set to `true` when the end user has explicitly consented to the selected validation services. Required for services flagged `requires_consent=true` in the catalog - without it those services return `...
-      # @param identification_number [String] Universal identification number - automatically mapped to the correct country-specific field, so you can use it instead of `personal_number`/`tax_number`/`document_number`: ARG→document_number (DNI),...
+      # @param issuing_state [String] ISO 3166-1 **alpha-3** country code of the registry to validate against (e.g.
+      #   `BRA`, `ESP`, `COL`). Determines which services are available. Unsupported codes return `400` with the full
+      #   list of valid options.
+      # @param services [Array<String>] Catalog `service_id`s to run for this country (e.g. `["bra_cpf"]`). Also
+      #   accepts a single string or a comma-separated/JSON-encoded string. **If omitted or empty, exactly one default
+      #   service runs** - the longest-established live service for the country; newer, biometric, and pay-as-you-go
+      #   services must be named explicitly. Sending `services` switches the response to the extended shape (adds
+      #   `servi...
+      # @param validation_type [String] DEPRECATED. Accepted for backward compatibility but ignored - the response
+      #   `validation_type` is now derived from how many services full-matched. Use `services` to pin specific services.
+      # @param consent [Boolean] Set to `true` when the end user has explicitly consented to the selected validation
+      #   services. Required for services flagged `requires_consent=true` in the catalog - without it those services
+      #   return `400` with `services_requiring_consent`.
+      # @param identification_number [String] Universal identification number - automatically mapped to the correct
+      #   country-specific field, so you can use it instead of `personal_number`/`tax_number`/`document_number`:
+      #   ARG→document_number (DNI), BOL→document_number (CI), BRA→tax_number (CPF, 11 digits), CHL→personal_number
+      #   (RUT), COL→personal_number (Cédula), CRI→personal_number (Cédula), DOM→personal_number (Cédula, 11 digits),
+      #   ECU→personal...
       # @param first_name [String] The individual's first name. Required by some services/countries.
       # @param last_name [String] The individual's last name. Required by some services/countries.
       # @param middle_name [String] Middle name, used by some country services (AUS, NZL, …).
-      # @param full_name [String] Full name - some services accept this in lieu of first/last name (e.g. CHN services, which match the native-script name).
+      # @param full_name [String] Full name - some services accept this in lieu of first/last name (e.g. CHN services,
+      #   which match the native-script name).
       # @param date_of_birth [Date, String] Date of birth, `YYYY-MM-DD`. Required by many services.
-      # @param personal_number [String] Government-issued unique personal identifier. Used by: CHL (RUT), COL (Cédula), CRI, DOM, ECU, ESP (DNI/NIE), MEX (CURP), PAN (Cédula), PER (DNI), URY. Consider `identification_number` instead.
-      # @param tax_number [String] Tax identification number. Used by: BRA (CPF, 11 digits). Consider `identification_number` instead.
-      # @param document_number [String] Document number. Used by: ARG (DNI), BOL (CI), GTM (DPI), HND (DNI), PRY (CI), SLV (DUI), VEN (Cédula). Consider `identification_number` instead.
-      # @param document_type [String] Type of document being validated: `P` passport, `DL` driver license, `ID` national ID, `RP` residence permit (plus `SSC`, `HIC`, `WP`, `TC`, `VISA`, `PSC`, `BC`, `OTHER`). Required by some services (...
-      # @param expiration_date [Date, String] Document expiration date, `YYYY-MM-DD`. Required for ESP (Spain) validation.
-      # @param date_of_issue [Date, String] Document issue date, `YYYY-MM-DD` (fecha de expedición). Required for COL (Colombia) cédula validation.
+      # @param personal_number [String] Government-issued unique personal identifier. Used by: CHL (RUT), COL
+      #   (Cédula), CRI, DOM, ECU, ESP (DNI/NIE), MEX (CURP), PAN (Cédula), PER (DNI), URY. Consider
+      #   `identification_number` instead.
+      # @param tax_number [String] Tax identification number. Used by: BRA (CPF, 11 digits). Consider
+      #   `identification_number` instead.
+      # @param document_number [String] Document number. Used by: ARG (DNI), BOL (CI), GTM (DPI), HND (DNI), PRY (CI),
+      #   SLV (DUI), VEN (Cédula). Consider `identification_number` instead.
+      # @param document_type [String] Type of document being validated: `P` passport, `DL` driver license, `ID`
+      #   national ID, `RP` residence permit (plus `SSC`, `HIC`, `WP`, `TC`, `VISA`, `PSC`, `BC`, `OTHER`). Required by
+      #   some services (e.g. ESP).
+      # @param expiration_date [Date, String] Document expiration date, `YYYY-MM-DD`. Required for ESP (Spain)
+      #   validation.
+      # @param date_of_issue [Date, String] Document issue date, `YYYY-MM-DD` (fecha de expedición). Required for COL
+      #   (Colombia) cédula validation.
       # @param nationality [String] Nationality as ISO 3166-1 alpha-3. Required by some services.
-      # @param gender [String] Gender: `M`, `F`, or `X` (other/unknown). Required for Argentina's RENAPER validation (`arg_renaper`).
-      # @param address [Hash, String] Residential address. Prefer the structured object `{"street_1":"123 Main St","street_2":"Apt 4B","city":"Springfield","region":"IL","postal_code":"62701","country":"US"}`; a complete single-line stri...
-      # @param address_element_1 [String] Street address including street number and type. If omitted, derived from `address`.
-      # @param address_element_2 [String] Apartment, unit, building, floor, or extra address line. Only send when you have it explicitly.
-      # @param address_element_3 [String] City, suburb, district, locality, or neighborhood. If omitted, derived from `address`.
+      # @param gender [String] Gender: `M`, `F`, or `X` (other/unknown). Required for Argentina's RENAPER validation
+      #   (`arg_renaper`).
+      # @param address [Hash, String] Residential address. Prefer the structured object `{"street_1":"123 Main
+      #   St","street_2":"Apt 4B","city":"Springfield","region":"IL","postal_code":"62701","country":"US"}`; a complete
+      #   single-line string is still accepted. Required by address-verification services; when a service defines
+      #   address requirements, missing parts return `400` with `address_fields_required_by`.
+      # @param address_element_1 [String] Street address including street number and type. If omitted, derived from
+      #   `address`.
+      # @param address_element_2 [String] Apartment, unit, building, floor, or extra address line. Only send when you
+      #   have it explicitly.
+      # @param address_element_3 [String] City, suburb, district, locality, or neighborhood. If omitted, derived from
+      #   `address`.
       # @param address_element_4 [String] State, province, region, or town. If omitted, derived from `address`.
       # @param address_element_5 [String] Postcode or postal code. `postal_code` is accepted as an alias.
       # @param postal_code [String] Postal code for address-based services (alias of `address_element_5`).
-      # @param driver_license_number [String] Driver licence number for government document-verification services (AUS, NZL, IND).
-      # @param driver_license_card_number [String] Physical driver licence card number, where required separately from the licence number (AUS).
+      # @param driver_license_number [String] Driver licence number for government document-verification services
+      #   (AUS, NZL, IND).
+      # @param driver_license_card_number [String] Physical driver licence card number, where required separately from
+      #   the licence number (AUS).
       # @param driver_license_state [String] Driver licence state or territory of issue (AUS).
       # @param driver_license_version [String] Driver licence version code (NZL).
-      # @param passport_number [String] Passport number for government passport-verification services (AUS, NZL, IND, CHN).
-      # @param passport_expiration_date [Date, String] Passport expiry date, `YYYY-MM-DD`, for passport-verification services.
+      # @param passport_number [String] Passport number for government passport-verification services (AUS, NZL, IND,
+      #   CHN).
+      # @param passport_expiration_date [Date, String] Passport expiry date, `YYYY-MM-DD`, for passport-verification
+      #   services.
       # @param passport_file_number [String] Passport file number (IND).
-      # @param passport_issue_country [String] Issuing country of the passport (ISO 3166-1 alpha-3) for passport-verification services.
+      # @param passport_issue_country [String] Issuing country of the passport (ISO 3166-1 alpha-3) for
+      #   passport-verification services.
       # @param medicare_card_number [String] Medicare card number (AUS).
       # @param immi_card_number [String] Australian ImmiCard number.
       # @param immi_card_expiry_date [Date, String] Australian ImmiCard expiry date.
@@ -110,24 +144,36 @@ module Didit
       # @param epic_card [String] India EPIC voter card number.
       # @param pan [String] India PAN (Permanent Account Number).
       # @param national_id [String] National ID number (CHN, MYS, KEN, KHM, NGA, ZAF, …).
-      # @param cic [String] Mexican INE/IFE Código de Identificación de Credencial (CIC), 9 digits. Used by the MEX INE credential-validity service (`mex_ine_vigencia`).
-      # @param identificador_ciudadano [String] Mexican INE Identificador del Ciudadano (9 digits). Used with `cic` for modern INE models (E/F/G/H) in `mex_ine_vigencia`.
-      # @param ocr [String] Mexican INE OCR number (13 digits, back of card). Used with `cic` for Model D in `mex_ine_vigencia`.
-      # @param voter_number [String] Mexican INE Clave de Elector (18 chars). Used with `emission_number` for legacy IFE models (A/B/C) in `mex_ine_vigencia`.
-      # @param emission_number [String] Mexican INE Número de Emisión. Used with `voter_number` for legacy IFE models (A/B/C) in `mex_ine_vigencia`.
+      # @param cic [String] Mexican INE/IFE Código de Identificación de Credencial (CIC), 9 digits. Used by the MEX
+      #   INE credential-validity service (`mex_ine_vigencia`).
+      # @param identificador_ciudadano [String] Mexican INE Identificador del Ciudadano (9 digits). Used with `cic`
+      #   for modern INE models (E/F/G/H) in `mex_ine_vigencia`.
+      # @param ocr [String] Mexican INE OCR number (13 digits, back of card). Used with `cic` for Model D in
+      #   `mex_ine_vigencia`.
+      # @param voter_number [String] Mexican INE Clave de Elector (18 chars). Used with `emission_number` for legacy
+      #   IFE models (A/B/C) in `mex_ine_vigencia`.
+      # @param emission_number [String] Mexican INE Número de Emisión. Used with `voter_number` for legacy IFE models
+      #   (A/B/C) in `mex_ine_vigencia`.
       # @param bvn [String] Nigerian Bank Verification Number.
       # @param bank_card_number [String] Bank card number (CHN bank-card verification).
       # @param ssn [String] Social Security Number (USA).
       # @param phone [String] Phone number for phone-verification services.
       # @param landline [String] Landline number for phone-verification services.
       # @param email [String] Email address for identity-verification services.
-      # @param country_of_residence [String] ISO 3166-1 alpha-2 country of residence. Used by global identity-enrichment services (e.g. `glb_identity_enrichment`) to focus the lookup.
-      # @param partial_match_action [String] What a `partial_match` does to `database_validation.status`. Defaults to `NO_ACTION` (status stays `Approved`, with a warning).
+      # @param country_of_residence [String] ISO 3166-1 alpha-2 country of residence. Used by global
+      #   identity-enrichment services (e.g. `glb_identity_enrichment`) to focus the lookup.
+      # @param partial_match_action [String] What a `partial_match` does to `database_validation.status`. Defaults to
+      #   `NO_ACTION` (status stays `Approved`, with a warning).
       # @param no_match_action [String] What a `no_match` does to `database_validation.status`. Defaults to `DECLINE`.
-      # @param save_api_request [Boolean] Persist the validation as a session (console visibility, decision endpoint, `status.updated` webhook). Also changes the `validations` response shape: per-service objects when `true` (default), a merg...
+      # @param save_api_request [Boolean] Persist the validation as a session (console visibility, decision endpoint,
+      #   `status.updated` webhook). Also changes the `validations` response shape: per-service objects when `true`
+      #   (default), a merged field map when `false`.
       # @param vendor_data [String] Your identifier for the validated user; echoed back and stored with the session.
       # @param metadata [Hash, nil] Free-form JSON stored with the request and echoed back.
-      # @param selfie [Pathname, IO, String, Didit::FilePart] Selfie image (`jpg`, `jpeg`, `png`, `webp`; max 2 MB - images are compressed to ~1.5 MB before upload to the registry) for biometric validation services, e.g. Argentina RENAPER (`arg_renaper`) and Pa...
+      # @param selfie [Pathname, IO, String, Didit::FilePart] Selfie image (`jpg`, `jpeg`, `png`, `webp`; max 2 MB -
+      #   images are compressed to ~1.5 MB before upload to the registry) for biometric validation services, e.g.
+      #   Argentina RENAPER (`arg_renaper`) and Panama SIB (`pan_cedula_sib`, `pan_cedula_sib_plus`). Required whenever
+      #   a selected service lists it as a required field. Only available via `multipart/form-data`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DatabaseValidationValidateResponse]
       def validate(

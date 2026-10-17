@@ -15,9 +15,16 @@ module Didit
       #
       # +POST /v3/wallet-screening/+
       #
-      # @param wallet_address [String] The crypto address or network identifier to screen. Must match the selected network (e.g. a `0x`-prefixed 40-hex-char address for EVM chains). Alias: `address`.
-      # @param blockchain [String] Network identifier. Managed screening supports BTC, ETH, LTC, XRP, BCH, DOGE, TRX, SOL, MATIC, BNB, BASE (Base), OP (Optimism), and ARB (Arbitrum One). USDT and USDC are legacy Ethereum aliases, not...
-      # @param direction [String] Optional. Whether the address is being screened as an inbound (deposit) or outbound (withdrawal) counterparty. Accepts `inbound`, `outbound`, `deposit`, or `withdrawal`. Defaults to a neutral pre-tra...
+      # @param wallet_address [String] The crypto address or network identifier to screen. Must match the selected
+      #   network (e.g. a `0x`-prefixed 40-hex-char address for EVM chains). Alias: `address`.
+      # @param blockchain [String] Network identifier. Managed screening supports BTC, ETH, LTC, XRP, BCH, DOGE, TRX,
+      #   SOL, MATIC, BNB, BASE (Base), OP (Optimism), and ARB (Arbitrum One). USDT and USDC are legacy Ethereum
+      #   aliases, not multi-network searches. Connected-provider coverage varies. LIGHTNING requires a supported
+      #   connected provider. Celo, Mode and Plume are not currently supported. Alias: `currency`.
+      # @param direction [String] Optional. Whether the address is being screened as an inbound (deposit) or outbound
+      #   (withdrawal) counterparty. Accepts `inbound`, `outbound`, `deposit`, or `withdrawal`. Defaults to a neutral
+      #   pre-transfer screen when omitted. This is passed to the provider as context only; it does not change the
+      #   returned `risk_score`, `severity`, or the `source_of_funds`/`destination_of_funds` breakdowns, which a...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WalletScreeningResult]
       def screen(wallet_address:, blockchain:, direction: OMIT, request_options: nil)
@@ -46,32 +53,65 @@ module Didit
       #
       # @param provider [String] Provider that performed the screening (e.g. `merklescience`, `crystal`).
       # @param screening_type [String] Always `WALLET_SCREENING` for this endpoint.
-      # @param risk_score [Integer] Normalised 0-100 risk score. Higher means greater exposure to risky entities. Merkle Science grades an address 0-5, which maps to 0, 15, 35, 55, 75 or 95.
-      # @param severity [String] Risk bucket derived from `risk_score`: `0-9` UNKNOWN, `10-39` LOW, `40-69` MEDIUM, `70-89` HIGH, `90-100` CRITICAL. `UNKNOWN` is the lowest band, not a separate no-data state: `risk_score` 0 (the com...
+      # @param risk_score [Integer] Normalised 0-100 risk score. Higher means greater exposure to risky entities.
+      #   Merkle Science grades an address 0-5, which maps to 0, 15, 35, 55, 75 or 95.
+      # @param severity [String] Risk bucket derived from `risk_score`: `0-9` UNKNOWN, `10-39` LOW, `40-69` MEDIUM,
+      #   `70-89` HIGH, `90-100` CRITICAL. `UNKNOWN` is the lowest band, not a separate no-data state: `risk_score` 0
+      #   (the common clean-address case) means no adverse assessment, while a non-zero score in the 1-9 range is a real
+      #   but sub-LOW signal - read the `risk_score`, not just the band. Never treat `UNKNOWN` as an affirm...
       # @param status [String] Screening outcome status.
       # @param summary [String] Human-readable summary of the screening result.
       # @param wallet_address [String] The screened address, echoed back.
       # @param blockchain [String] The blockchain that was screened.
-      # @param source_of_funds [Array<Hash>] Where the address received funds from, attributed by entity. Each entry is an exposure breakdown.
-      # @param destination_of_funds [Array<Hash>] Where the address sent funds to, attributed by entity. Same item shape as `source_of_funds` with `exposure_direction` = `outgoing`.
-      # @param counterparty_connections [Array<Hash>] Entities the provider attributes the screened address to. For Merkle Science these come from the address's own owner and user tags, so the same entity can appear twice, and they carry no fund flows:...
+      # @param source_of_funds [Array<Hash>] Where the address received funds from, attributed by entity. Each entry
+      #   is an exposure breakdown.
+      # @param destination_of_funds [Array<Hash>] Where the address sent funds to, attributed by entity. Same item
+      #   shape as `source_of_funds` with `exposure_direction` = `outgoing`.
+      # @param counterparty_connections [Array<Hash>] Entities the provider attributes the screened address to. For
+      #   Merkle Science these come from the address's own owner and user tags, so the same entity can appear twice, and
+      #   they carry no fund flows: `received_usd`, `sent_usd`, `received_hops` and `sent_hops` are `null` and
+      #   `percentage` is 0. Do not route on `risk_level` or `is_direct` here: use `sanctions_hit`,
+      #   `dominant_risk_category` and `risk_...
       # @param sanctions_hit [Boolean] True if the address has direct or indirect sanctions exposure.
-      # @param dominant_risk_category [String, nil] Highest-weighted high-risk category, or `null` when none is dominant (e.g. `sanctioned`, `mixer`, `stolen_funds`).
-      # @param report_signature [String] Opaque HMAC-SHA256 signature over this exact result, scoped to your application. Not meaningful on its own - repost the full response body, unmodified and including this field, to `POST /v3/wallet-sc...
-      # @param transaction_hash [String, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param block_timestamp [String, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param total_value_usd [Numeric, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param fee_usd [Numeric, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param sender_rows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty on a wallet screening result.
-      # @param receiver_rows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty on a wallet screening result.
-      # @param transaction_flows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty on a wallet screening result.
-      # @param transaction_flows_status [String, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param transaction_flows_error [String, nil] Transaction screening field, shared with the result shape. Always `null` on a wallet screening result.
-      # @param network_nodes [Array<Hash>] Exposure graph nodes for transaction screening. Empty on a wallet screening result.
-      # @param network_edges [Array<Hash>] Exposure graph edges for transaction screening. Empty on a wallet screening result.
-      # @param pep_counterparty [Boolean, nil] Politically exposed person exposure. `null` when no PEP finding is available, which is every result today because no provider reports one; `false` only for an explicit negative screening result. Do n...
-      # @param risk_factors [Array<Hash>] Ranked explanation of `risk_score`: what produced this verdict. Providers grade an address on their own model and return only a verdict (Merkle Science returns an integer 0-5), so the score alone is...
-      # @param raw_response [Hash] The provider's own payload. Its shape is provider-specific and can change without notice: read the normalised fields instead of parsing it.
+      # @param dominant_risk_category [String, nil] Highest-weighted high-risk category, or `null` when none is
+      #   dominant (e.g. `sanctioned`, `mixer`, `stolen_funds`).
+      # @param report_signature [String] Opaque HMAC-SHA256 signature over this exact result, scoped to your
+      #   application. Not meaningful on its own - repost the full response body, unmodified and including this field,
+      #   to `POST /v3/wallet-screening/pdf/` to render it as a PDF. The PDF endpoint rejects the request with `400` if
+      #   `report_signature` is missing or if any signed field (e.g. `risk_score`, `severity`, `sanctions_hit`) was
+      #   edited...
+      # @param transaction_hash [String, nil] Transaction screening field, shared with the result shape. Always `null`
+      #   on a wallet screening result.
+      # @param block_timestamp [String, nil] Transaction screening field, shared with the result shape. Always `null`
+      #   on a wallet screening result.
+      # @param total_value_usd [Numeric, nil] Transaction screening field, shared with the result shape. Always `null`
+      #   on a wallet screening result.
+      # @param fee_usd [Numeric, nil] Transaction screening field, shared with the result shape. Always `null` on a
+      #   wallet screening result.
+      # @param sender_rows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty on a
+      #   wallet screening result.
+      # @param receiver_rows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty on
+      #   a wallet screening result.
+      # @param transaction_flows [Array<Hash>] Transaction screening field, shared with the result shape. Always empty
+      #   on a wallet screening result.
+      # @param transaction_flows_status [String, nil] Transaction screening field, shared with the result shape.
+      #   Always `null` on a wallet screening result.
+      # @param transaction_flows_error [String, nil] Transaction screening field, shared with the result shape. Always
+      #   `null` on a wallet screening result.
+      # @param network_nodes [Array<Hash>] Exposure graph nodes for transaction screening. Empty on a wallet screening
+      #   result.
+      # @param network_edges [Array<Hash>] Exposure graph edges for transaction screening. Empty on a wallet screening
+      #   result.
+      # @param pep_counterparty [Boolean, nil] Politically exposed person exposure. `null` when no PEP finding is
+      #   available, which is every result today because no provider reports one; `false` only for an explicit negative
+      #   screening result. Do not read `null` as a completed PEP check.
+      # @param risk_factors [Array<Hash>] Ranked explanation of `risk_score`: what produced this verdict. Providers
+      #   grade an address on their own model and return only a verdict (Merkle Science returns an integer 0-5), so the
+      #   score alone is not actionable. Ordered high-risk first, then by the value that moved through each driver,
+      #   capped at the five strongest; `source_of_funds` and `destination_of_funds` always carry the complete
+      #   breakdow...
+      # @param raw_response [Hash] The provider's own payload. Its shape is provider-specific and can change without
+      #   notice: read the normalised fields instead of parsing it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
       def screen_pdf(

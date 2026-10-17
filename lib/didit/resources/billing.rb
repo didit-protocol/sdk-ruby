@@ -30,9 +30,14 @@ module Didit
       #
       # +POST /v3/billing/top-up/+
       #
-      # @param amount_in_dollars [Numeric] Amount to charge, in USD. **Must be at least 50.** Tax is added automatically at checkout based on the customer's billing address.
-      # @param success_url [String] URL Stripe redirects the customer to after a successful payment. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is unavailable. Append the literal p...
-      # @param cancel_url [String] URL Stripe redirects the customer to when they abort or close the Checkout window. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is unavailable.
+      # @param amount_in_dollars [Numeric] Amount to charge, in USD. **Must be at least 50.** Tax is added
+      #   automatically at checkout based on the customer's billing address.
+      # @param success_url [String] URL Stripe redirects the customer to after a successful payment. Currently
+      #   defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is unavailable. Append
+      #   the literal placeholder `{CHECKOUT_SESSION_ID}` if you want Stripe to substitute the session ID.
+      # @param cancel_url [String] URL Stripe redirects the customer to when they abort or close the Checkout window.
+      #   Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is
+      #   unavailable.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BillingTopUpResponse]
       def top_up(amount_in_dollars:, success_url: OMIT, cancel_url: OMIT, request_options: nil)

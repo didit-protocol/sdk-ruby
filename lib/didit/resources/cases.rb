@@ -54,7 +54,8 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/entity-actions/+
       #
       # @param case_uuid [String]
-      # @param action [String] * `set_status` - set_status * `add_tags` - add_tags * `add_note` - add_note * `add_to_blocklist` - add_to_blocklist
+      # @param action [String] * `set_status` - set_status * `add_tags` - add_tags * `add_note` - add_note *
+      #   `add_to_blocklist` - add_to_blocklist
       # @param client_reference [String]
       # @param retry [Boolean]
       # @param status [String, nil]
@@ -212,9 +213,13 @@ module Didit
       # @param due_at [Time, String, nil]
       # @param tags [Array<String>]
       # @param subject [Hash] Required unless links is provided; the case's exactly-one subject.
-      # @param links [Array<Hash>] Sessions/business sessions/transactions to attach on creation, e.g. [{"entity_type": "transaction", "entity_uuid": "..."}]. When subject is omitted, the subject is derived from the first link's owner...
+      # @param links [Array<Hash>] Sessions/business sessions/transactions to attach on creation, e.g.
+      #   [{"entity_type": "transaction", "entity_uuid": "..."}]. When subject is omitted, the subject is derived from
+      #   the first link's owner.
       # @param assigned_to [String, nil] User UUID to assign immediately.
-      # @param review_duplicates [Boolean] Recheck existing investigations before creating the case. When true, a subject with existing cases requires a nonblank separate_incident_reason. The console always enables this protection. Omitting i...
+      # @param review_duplicates [Boolean] Recheck existing investigations before creating the case. When true, a
+      #   subject with existing cases requires a nonblank separate_incident_reason. The console always enables this
+      #   protection. Omitting it preserves existing API behavior.
       # @param separate_incident_reason [String]
       # @param source_context [Hash]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -336,7 +341,8 @@ module Didit
       # @param assigned_to [String] Filter to cases assigned to this user.
       # @param unassigned [Boolean] true for unassigned cases, false for assigned cases.
       # @param tag [String] Filter to cases carrying this exact tag.
-      # @param search [String] Matches title, case_number, tag, subject name/UUID/external ID, linked session UUID, or linked transaction UUID.
+      # @param search [String] Matches title, case_number, tag, subject name/UUID/external ID, linked session UUID, or
+      #   linked transaction UUID.
       # @param date_from [Date, String] Created-at lower bound (inclusive).
       # @param date_to [Date, String] Created-at upper bound (inclusive).
       # @param due_before [Time, String] due_at upper bound.
@@ -748,19 +754,27 @@ module Didit
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/+
         #
         # @param name [String] Max 24 characters, e.g. "AML investigation".
-        # @param assignee_pool [Array<String>] List of User UUIDs. Empty arrays are rejected with "Pick at least one assignee".
+        # @param assignee_pool [Array<String>] List of User UUIDs. Empty arrays are rejected with "Pick at least one
+        #   assignee".
         # @param description [String, nil]
         # @param assignment_method [String]
-        # @param max_active_cases [Integer, nil] Automatic-mode threshold: "fewer than N cases of this blueprint assigned".
+        # @param max_active_cases [Integer, nil] Automatic-mode threshold: "fewer than N cases of this blueprint
+        #   assigned".
         # @param escalation_enabled [Boolean]
-        # @param escalation_blueprint [String, nil] Target blueprint UUID. Not enforced at save time, but the escalate action fails with 400 until both escalation_enabled and escalation_blueprint are set.
+        # @param escalation_blueprint [String, nil] Target blueprint UUID. Not enforced at save time, but the escalate
+        #   action fails with 400 until both escalation_enabled and escalation_blueprint are set.
         # @param transfer_enabled [Boolean]
-        # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this blueprint stage on the checker blueprint's queue.
+        # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this
+        #   blueprint stage on the checker blueprint's queue.
         # @param require_resolution_note [Boolean]
-        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys are rejected.
+        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case
+        #   page. Unknown sections or keys are rejected.
         # @param is_active [Boolean]
-        # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case deadlines are unchanged.
-        # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0 until the draft is explicitly published. Omitting this field preserves immediate creation for existing integrations...
+        # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case
+        #   deadlines are unchanged.
+        # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0
+        #   until the draft is explicitly published. Omitting this field preserves immediate creation for existing
+        #   integrations.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def create(
@@ -855,7 +869,8 @@ module Didit
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/presets/install/+
         #
-        # @param preset_keys [Array<String>, nil] Subset of screening_hit, aml_investigation, suspicious_activity, kyc. Omit to install all.
+        # @param preset_keys [Array<String>, nil] Subset of screening_hit, aml_investigation, suspicious_activity,
+        #   kyc. Omit to install all.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CasesBlueprintsInstallPresetsResponse]
         def install_presets(preset_keys: OMIT, request_options: nil)
@@ -1030,18 +1045,25 @@ module Didit
         # @param blueprint_uuid [String] Blueprint UUID.
         # @param name [String] Max 24 characters, e.g. "AML investigation".
         # @param description [String, nil]
-        # @param assignee_pool [Array<String>] List of User UUIDs. Empty arrays are rejected with "Pick at least one assignee".
+        # @param assignee_pool [Array<String>] List of User UUIDs. Empty arrays are rejected with "Pick at least one
+        #   assignee".
         # @param assignment_method [String]
-        # @param max_active_cases [Integer, nil] Automatic-mode threshold: "fewer than N cases of this blueprint assigned".
+        # @param max_active_cases [Integer, nil] Automatic-mode threshold: "fewer than N cases of this blueprint
+        #   assigned".
         # @param escalation_enabled [Boolean]
-        # @param escalation_blueprint [String, nil] Target blueprint UUID. Not enforced at save time, but the escalate action fails with 400 until both escalation_enabled and escalation_blueprint are set.
+        # @param escalation_blueprint [String, nil] Target blueprint UUID. Not enforced at save time, but the escalate
+        #   action fails with 400 until both escalation_enabled and escalation_blueprint are set.
         # @param transfer_enabled [Boolean]
-        # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this blueprint stage on the checker blueprint's queue.
+        # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this
+        #   blueprint stage on the checker blueprint's queue.
         # @param require_resolution_note [Boolean]
-        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys are rejected.
+        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case
+        #   page. Unknown sections or keys are rejected.
         # @param is_active [Boolean]
-        # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case deadlines are unchanged.
-        # @param expected_version [Integer] The version opened by the editor. A stale version returns 409 without changing the review policy.
+        # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case
+        #   deadlines are unchanged.
+        # @param expected_version [Integer] The version opened by the editor. A stale version returns 409 without
+        #   changing the review policy.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def update(
@@ -1383,9 +1405,11 @@ module Didit
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/regulatory-reports/+
         #
         # @param case_uuid [String] Case UUID.
-        # @param report_type [String] Required unless a template is given; the template's report_type is used otherwise.
+        # @param report_type [String] Required unless a template is given; the template's report_type is used
+        #   otherwise.
         # @param jurisdiction [String] Required unless a template is given.
-        # @param template [String, nil] Report template UUID; its field_config seeds the draft before case-derived data is merged in.
+        # @param template [String, nil] Report template UUID; its field_config seeds the draft before case-derived
+        #   data is merged in.
         # @param transactions [Array<String>, nil] Transactions to attach; defaults to the case's linked transactions.
         # @param rentity_id [String, nil]
         # @param rentity_branch [String, nil]
@@ -1513,7 +1537,9 @@ module Didit
         #
         # @param case_uuid [String]
         # @param contact_id [String]
-        # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address * `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` - review_in_pr...
+        # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address *
+        #   `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` -
+        #   review_in_progress
         # @param request_id [String]
         # @param expires_at [Time, String]
         # @param preview_token [String]
@@ -1580,7 +1606,9 @@ module Didit
         #
         # @param case_uuid [String]
         # @param contact_id [String]
-        # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address * `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` - review_in_pr...
+        # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address *
+        #   `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` -
+        #   review_in_progress
         # @param language [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequestPreviewResponse]
@@ -1652,7 +1680,9 @@ module Didit
         # @param required_skills [Array<String>]
         # @param team [String, nil]
         # @param is_active [Boolean]
-        # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0 until the draft is explicitly published. Omitting this field preserves immediate creation for existing integrations...
+        # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0
+        #   until the draft is explicitly published. Omitting this field preserves immediate creation for existing
+        #   integrations.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
         def create(
@@ -1885,7 +1915,8 @@ module Didit
         # @param blueprint [String]
         # @param team [String, nil]
         # @param is_active [Boolean]
-        # @param expected_version [Integer] Version opened by the editor. When supplied, stale writes return 409 without changing the rule.
+        # @param expected_version [Integer] Version opened by the editor. When supplied, stale writes return 409
+        #   without changing the rule.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
         def update(

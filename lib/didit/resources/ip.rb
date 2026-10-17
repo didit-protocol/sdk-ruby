@@ -31,10 +31,14 @@ module Didit
       # +POST /v3/ip/risk/+
       #
       # @param ip_address [String] IPv4 or IPv6 address to score.
-      # @param claimed_country [String] Optional ISO 3166-1 alpha-2 or alpha-3 country claimed by the user or session. Used to calculate `country_mismatch`.
-      # @param user_agent [String] User agent observed by your backend. Stored as request context; it does not provide device fingerprinting.
-      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in the response.
-      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the response.
+      # @param claimed_country [String] Optional ISO 3166-1 alpha-2 or alpha-3 country claimed by the user or session.
+      #   Used to calculate `country_mismatch`.
+      # @param user_agent [String] User agent observed by your backend. Stored as request context; it does not provide
+      #   device fingerprinting.
+      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in
+      #   the response.
+      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the
+      #   response.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::IPRiskResponse]
       def assess_risk(

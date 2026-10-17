@@ -40,10 +40,15 @@ module Didit
       #
       # @param phone_number [String] Phone number to score. It is validated and normalized to E.164.
       # @param country_code [String] Optional ISO 3166-1 alpha-2 or alpha-3 country hint for intelligence coverage.
-      # @param signals [Hash] Optional device and network context observed by your application. All fields are optional. Passing them feeds cross-session match detection in Networks.
-      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in the response.
-      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the response.
-      # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging, social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per request in additio...
+      # @param signals [Hash] Optional device and network context observed by your application. All fields are
+      #   optional. Passing them feeds cross-session match detection in Networks.
+      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in
+      #   the response.
+      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the
+      #   response.
+      # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging,
+      #   social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per
+      #   request in addition to this endpoint's own price.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneRiskResponse]
       def assess_risk(
@@ -123,13 +128,27 @@ module Didit
       #
       # +POST /v3/phone/check/+
       #
-      # @param phone_number [String] The same phone number used in the matching [`POST /v3/phone/send/`](/standalone-apis/phone-send) call, in E.164 format. This is what links the check to the send.
-      # @param code [String] The OTP the end user received. Must be 4–8 numeric digits - anything else returns `400` without consuming an attempt. A well-formed but wrong code returns `200` with `status: "Failed"` and consumes o...
-      # @param duplicated_phone_number_action [String] What to do when the same number was already used by a different user (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `...
-      # @param disposable_number_action [String] What to do when the carrier lookup flags the number as a temporary/burner line (`phone.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnin...
-      # @param voip_number_action [String] What to do when the carrier lookup reports a virtual line type - `voip`, `isp`, or `vpn` (`phone.is_virtual`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone...
-      # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging, social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per request in additio...
-      # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow co...
+      # @param phone_number [String] The same phone number used in the matching [`POST
+      #   /v3/phone/send/`](/standalone-apis/phone-send) call, in E.164 format. This is what links the check to the
+      #   send.
+      # @param code [String] The OTP the end user received. Must be 4-8 numeric digits - anything else returns `400`
+      #   without consuming an attempt. A well-formed but wrong code returns `200` with `status: "Failed"` and consumes
+      #   one of the 3 attempts.
+      # @param duplicated_phone_number_action [String] What to do when the same number was already used by a different
+      #   user (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`;
+      #   `NO_ACTION` records the risk in `phone.warnings` and fills `phone.matches`.
+      # @param disposable_number_action [String] What to do when the carrier lookup flags the number as a
+      #   temporary/burner line (`phone.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION`
+      #   records the risk in `phone.warnings`.
+      # @param voip_number_action [String] What to do when the carrier lookup reports a virtual line type - `voip`,
+      #   `isp`, or `vpn` (`phone.is_virtual`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records
+      #   the risk in `phone.warnings`.
+      # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging,
+      #   social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per
+      #   request in addition to this endpoint's own price.
+      # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number
+      #   registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint;
+      #   REVIEW is available on the workflow configuration key of the same name.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationCheckResponse]
       def check_code(
@@ -211,11 +230,17 @@ module Didit
       #
       # +POST /v3/phone/send/+
       #
-      # @param phone_number [String] Recipient phone number in E.164 format - leading `+` and country code (e.g., `+14155552671`). Numbers are validated and normalized to E.164; unparseable or invalid numbers return `400` with a `phone_...
+      # @param phone_number [String] Recipient phone number in E.164 format - leading `+` and country code (e.g.,
+      #   `+14155552671`). Numbers are validated and normalized to E.164; unparseable or invalid numbers return `400`
+      #   with a `phone_number` field error.
       # @param options [Hash] OTP delivery options. All fields are optional.
-      # @param signals [Hash] Optional device and network signals about the end user, forwarded to the anti-fraud layer to improve detection of abusive or automated traffic. All fields are optional.
-      # @param vendor_data [String] Optional caller-controlled identifier (your internal user id, an email, a UUID, etc.) persisted on the session and echoed back in the send response, the matching check response, webhooks, and the Bus...
-      # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the send response, the matching check response, webhooks, and the Business Console.
+      # @param signals [Hash] Optional device and network signals about the end user, forwarded to the anti-fraud
+      #   layer to improve detection of abusive or automated traffic. All fields are optional.
+      # @param vendor_data [String] Optional caller-controlled identifier (your internal user id, an email, a UUID,
+      #   etc.) persisted on the session and echoed back in the send response, the matching check response, webhooks,
+      #   and the Business Console. Use it to correlate Didit's `request_id` with your user record.
+      # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the
+      #   send response, the matching check response, webhooks, and the Business Console.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationSendResponse]
       def send_code(

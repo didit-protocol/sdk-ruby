@@ -55,21 +55,56 @@ module Didit
       #
       # +POST /v3/id-verification/+
       #
-      # @param front_image [Pathname, IO, String, Didit::FilePart] Front side of the identity document. Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`, `pdf`. Maximum upload size: **10 MB** (larger files are rejected with `400`). PDFs are rendered to an im...
-      # @param front_image_password [String] Password to decrypt `front_image` when it is an encrypted PDF. Sending an encrypted PDF without (or with a wrong) password returns `400`.
-      # @param back_image [Pathname, IO, String, Didit::FilePart] Back side of the document - send it whenever the document has one (many ID cards carry the MRZ or a barcode on the back; omitting it simply leaves the MRZ and back-side fields empty in the response -...
+      # @param front_image [Pathname, IO, String, Didit::FilePart] Front side of the identity document. Allowed
+      #   extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`, `pdf`. Maximum upload size: **10 MB** (larger files are
+      #   rejected with `400`). PDFs are rendered to an image before OCR; encrypted PDFs require `front_image_password`.
+      #   Images are automatically compressed to ~0.5 MB and EXIF orientation is applied. Upload the full, uncropped
+      #   capture with all four corners...
+      # @param front_image_password [String] Password to decrypt `front_image` when it is an encrypted PDF. Sending an
+      #   encrypted PDF without (or with a wrong) password returns `400`.
+      # @param back_image [Pathname, IO, String, Didit::FilePart] Back side of the document - send it whenever the
+      #   document has one (many ID cards carry the MRZ or a barcode on the back; omitting it simply leaves the MRZ and
+      #   back-side fields empty in the response - this endpoint does not raise a missing-MRZ warning). Same format and
+      #   size limits as `front_image`. When omitted, `back_image` and back-side fields are `null` in the response.
       # @param back_image_password [String] Password to decrypt `back_image` when it is an encrypted PDF.
-      # @param perform_document_liveness [Boolean] Screens both images for presentation fraud: screen replays (`SCREEN_CAPTURE_DETECTED`), printed copies (`PRINTED_COPY_DETECTED`), and portrait manipulation (`PORTRAIT_MANIPULATION_DETECTED`). Any of...
-      # @param minimum_age [Integer, nil] Accepted and validated (1–120) but **currently not applied** by this endpoint - it never produces a `MINIMUM_AGE_NOT_MET` warning from this field. Enforce age rules from the returned `date_of_birth`/...
-      # @param expiration_date_not_detected_action [String] What to do when no expiration date can be read (`EXPIRATION_DATE_NOT_DETECTED`). Default `NO_ACTION` because many identity documents print no expiry date. Note: a *detected and past* expiry date alwa...
-      # @param invalid_mrz_action [String] What to do when the extracted MRZ fails check-digit validation (`MRZ_VALIDATION_FAILED`). A missing MRZ raises no warning on this endpoint. Only relevant for documents that carry an MRZ. `REVIEW` is...
-      # @param inconsistent_data_action [String] What to do when extracted data is internally inconsistent: `DATA_INCONSISTENT`, `MRZ_AND_DATA_EXTRACTED_FROM_OCR_NOT_SAME` (visual zone disagrees with the MRZ), or `DOCUMENT_NAME_DIFFERENT_FROM_OTHER...
-      # @param critical_field_occlusion_action [String] What to do when a critical printed field was physically covered on the capture (`CRITICAL_FIELD_OCCLUSION_DETECTED`) - an identity number, a name, the date of birth, or the expiry date. Declines by d...
-      # @param document_or_personal_number_format_mismatch_action [String] What to do when a number does not match the format its issuing authority uses for that document type (`DOCUMENT_NUMBER_FORMAT_MISMATCH`, `PERSONAL_NUMBER_FORMAT_MISMATCH`). Default `NO_ACTION`, which...
-      # @param preferred_characters [String] Preferred script for name/address fields on documents that print both Latin and non-Latin text (Arabic, Cyrillic, CJK, …). `latin` returns transliterated/Latin values; `non_latin` prefers the native...
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`, announced t...
-      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the persisted session and echoed back in the response. Use it to correlate API calls with your own records and to filter session...
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"onb...
+      # @param perform_document_liveness [Boolean] Screens both images for presentation fraud: screen replays
+      #   (`SCREEN_CAPTURE_DETECTED`), printed copies (`PRINTED_COPY_DETECTED`), and portrait manipulation
+      #   (`PORTRAIT_MANIPULATION_DETECTED`). Any of these auto-declines. Enabled by default; set to `false` to skip
+      #   fraud screening and reduce latency.
+      # @param minimum_age [Integer, nil] Accepted and validated (1-120) but **currently not applied** by this
+      #   endpoint - it never produces a `MINIMUM_AGE_NOT_MET` warning from this field. Enforce age rules from the
+      #   returned `date_of_birth`/`age`, or use a verification-session workflow with age restrictions.
+      # @param expiration_date_not_detected_action [String] What to do when no expiration date can be read
+      #   (`EXPIRATION_DATE_NOT_DETECTED`). Default `NO_ACTION` because many identity documents print no expiry date.
+      #   Note: a *detected and past* expiry date always declines (`DOCUMENT_EXPIRED`), regardless of this option.
+      # @param invalid_mrz_action [String] What to do when the extracted MRZ fails check-digit validation
+      #   (`MRZ_VALIDATION_FAILED`). A missing MRZ raises no warning on this endpoint. Only relevant for documents that
+      #   carry an MRZ. `REVIEW` is not supported on this endpoint and returns `400`.
+      # @param inconsistent_data_action [String] What to do when extracted data is internally inconsistent:
+      #   `DATA_INCONSISTENT`, `MRZ_AND_DATA_EXTRACTED_FROM_OCR_NOT_SAME` (visual zone disagrees with the MRZ), or
+      #   `DOCUMENT_NAME_DIFFERENT_FROM_OTHER_APPROVED_DOCUMENTS`.
+      # @param critical_field_occlusion_action [String] What to do when a critical printed field was physically
+      #   covered on the capture (`CRITICAL_FIELD_OCCLUSION_DETECTED`) - an identity number, a name, the date of birth,
+      #   or the expiry date. Declines by default, like this endpoint's other document-integrity risks: covering the
+      #   numbers a report is reconciled against is what a redacted document looks like. The value read for a covered
+      #   field is dropped f...
+      # @param document_or_personal_number_format_mismatch_action [String] What to do when a number does not match the
+      #   format its issuing authority uses for that document type (`DOCUMENT_NUMBER_FORMAT_MISMATCH`,
+      #   `PERSONAL_NUMBER_FORMAT_MISMATCH`). Default `NO_ACTION`, which reports the warning without changing the
+      #   status. `REVIEW` is not supported on this endpoint and returns `400`.
+      # @param preferred_characters [String] Preferred script for name/address fields on documents that print both
+      #   Latin and non-Latin text (Arabic, Cyrillic, CJK, …). `latin` returns transliterated/Latin values; `non_latin`
+      #   prefers the native script.
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in
+      #   the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`,
+      #   announced through a `status.updated` webhook, and with document images returned as media URLs. When `false`,
+      #   nothing is stored, `request_id` is a transient UUID, and images are returned inline as base64 JPEG str...
+      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the
+      #   persisted session and echoed back in the response. Use it to correlate API calls with your own records and to
+      #   filter sessions later.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back in the response. In multipart requests, send it as a JSON-encoded string field (e.g.
+      #   `metadata={"flow":"onboarding"}`) - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::IdVerificationVerifyResponse]
       def verify(

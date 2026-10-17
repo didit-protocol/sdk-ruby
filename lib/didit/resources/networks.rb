@@ -42,16 +42,21 @@ module Didit
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/+
       #
-      # @param status [String] Comma-separated statuses to include: active,in_review,resolved,dismissed. Omit to exclude dismissed.
-      # @param signal_type [String] Comma-separated signal types: ip_address,device,face,document_number,phone,email,address.
+      # @param status [String] Comma-separated statuses to include: active,in_review,resolved,dismissed. Omit to
+      #   exclude dismissed.
+      # @param signal_type [String] Comma-separated signal types:
+      #   ip_address,device,face,document_number,phone,email,address.
       # @param pattern_type [String] Comma-separated pattern types, e.g. exact_same_device,same_email.
       # @param risk_band [String] Comma-separated bands: low,medium,high.
       # @param min_size [Integer] Minimum member count.
       # @param max_size [Integer] Maximum member count.
       # @param date_from [Date, String] Lower bound on last_activity_at (ISO 8601 date or datetime).
       # @param date_to [Date, String] Upper bound on first_activity_at (ISO 8601 date or datetime).
-      # @param q [String] Free-text search across network name, member names, the network_id (N-0001), and exact pattern_type tokens.
-      # @param ordering [String] One of risk_score, -risk_score, last_activity_at, -last_activity_at, first_activity_at, -first_activity_at, network_number, -network_number. Defaults to -risk_score,-last_activity_at.
+      # @param q [String] Free-text search across network name, member names, the network_id (N-0001), and exact
+      #   pattern_type tokens.
+      # @param ordering [String] One of risk_score, -risk_score, last_activity_at, -last_activity_at,
+      #   first_activity_at, -first_activity_at, network_number, -network_number. Defaults to
+      #   -risk_score,-last_activity_at.
       # @param limit [Integer] Page size, 1-500. Defaults to 100.
       # @param offset [Integer] Zero-based offset of the first record.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -165,7 +170,8 @@ module Didit
       #
       # @param network_uuid [String] Network UUID.
       # @param depth [String] Hops from the focus subject to include. Defaults to all (unbounded).
-      # @param focus_kind [String] Subject type to center the graph on. Must be supplied together with focus_id; defaults to an arbitrary member when depth is bounded and neither is supplied.
+      # @param focus_kind [String] Subject type to center the graph on. Must be supplied together with focus_id;
+      #   defaults to an arbitrary member when depth is bounded and neither is supplied.
       # @param focus_id [String] Subject UUID to center the graph on.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::NetworkGraph]

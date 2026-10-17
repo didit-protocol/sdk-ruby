@@ -39,10 +39,15 @@ module Didit
       #
       # @param email [String] Email address to score.
       # @param country_code [String] Optional ISO 3166-1 alpha-2 or alpha-3 country hint for intelligence coverage.
-      # @param signals [Hash] Optional device and network context observed by your application. All fields are optional. Passing them feeds cross-session match detection in Networks.
-      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in the response.
-      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the response.
-      # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email, social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social` unit per reques...
+      # @param signals [Hash] Optional device and network context observed by your application. All fields are
+      #   optional. Passing them feeds cross-session match detection in Networks.
+      # @param vendor_data [String] Your stable reference for this request. Stored on the API session and echoed in
+      #   the response.
+      # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the
+      #   response.
+      # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email,
+      #   social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social`
+      #   unit per request in addition to this endpoint's own price.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::EmailRiskResponse]
       def assess_risk(
@@ -124,13 +129,26 @@ module Didit
       #
       # +POST /v3/email/check/+
       #
-      # @param email [String] The same email address used in the matching [`POST /v3/email/send/`](/standalone-apis/email-send) call. This is what links the check to the send.
-      # @param code [String] The OTP the end user received: 4–8 digits, or 4–8 letters/digits when `alphanumeric_code: true` was used at send time. Comparison is case-insensitive.
-      # @param duplicated_email_action [String] What to do when the same address was already used and approved by a different user (only previously Approved verifications count) (different `vendor_data`) of your application. `DECLINE` flips the fi...
-      # @param breached_email_action [String] What to do when the address appears in known data breaches (`email.is_breached`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
-      # @param disposable_email_action [String] What to do when the domain belongs to a disposable/temporary-mail provider (`email.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings`.
-      # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email, social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social` unit per reques...
-      # @param email_no_social_presence_action [String] Action when the social footprint check finds the address registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow c...
+      # @param email [String] The same email address used in the matching [`POST
+      #   /v3/email/send/`](/standalone-apis/email-send) call. This is what links the check to the send.
+      # @param code [String] The OTP the end user received: 4-8 digits, or 4-8 letters/digits when `alphanumeric_code:
+      #   true` was used at send time. Comparison is case-insensitive.
+      # @param duplicated_email_action [String] What to do when the same address was already used and approved by a
+      #   different user (only previously Approved verifications count) (different `vendor_data`) of your application.
+      #   `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `email.warnings` and fills
+      #   `email.matches`.
+      # @param breached_email_action [String] What to do when the address appears in known data breaches
+      #   (`email.is_breached`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in
+      #   `email.warnings`.
+      # @param disposable_email_action [String] What to do when the domain belongs to a disposable/temporary-mail
+      #   provider (`email.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the
+      #   risk in `email.warnings`.
+      # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email,
+      #   social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social`
+      #   unit per request in addition to this endpoint's own price.
+      # @param email_no_social_presence_action [String] Action when the social footprint check finds the address
+      #   registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint;
+      #   REVIEW is available on the workflow configuration key of the same name.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::EmailVerificationCheckResponse]
       def check_code(
@@ -204,11 +222,16 @@ module Didit
       #
       # +POST /v3/email/send/+
       #
-      # @param email [String] Recipient email address. Malformed addresses return `400`; syntactically valid addresses that cannot receive mail (failed DNS/MX validation) return `200` with `status: "Undeliverable"`.
+      # @param email [String] Recipient email address. Malformed addresses return `400`; syntactically valid addresses
+      #   that cannot receive mail (failed DNS/MX validation) return `200` with `status: "Undeliverable"`.
       # @param options [Hash] OTP format, localization, and branding options. All fields are optional.
-      # @param signals [Hash] Optional device and network signals about the end user, forwarded to the anti-fraud layer to improve detection of abusive or automated traffic. All fields are optional.
-      # @param vendor_data [String] Optional caller-controlled identifier (your internal user id, an email, a UUID, etc.) persisted on the session and echoed back in the send response, the matching check response, webhooks, and the Bus...
-      # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the send response, the matching check response, webhooks, and the Business Console.
+      # @param signals [Hash] Optional device and network signals about the end user, forwarded to the anti-fraud
+      #   layer to improve detection of abusive or automated traffic. All fields are optional.
+      # @param vendor_data [String] Optional caller-controlled identifier (your internal user id, an email, a UUID,
+      #   etc.) persisted on the session and echoed back in the send response, the matching check response, webhooks,
+      #   and the Business Console. Use it to correlate Didit's `request_id` with your user record.
+      # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the
+      #   send response, the matching check response, webhooks, and the Business Console.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::EmailVerificationSendResponse]
       def send_code(email:, options: OMIT, signals: OMIT, vendor_data: OMIT, metadata: OMIT, request_options: nil)

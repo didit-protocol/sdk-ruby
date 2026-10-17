@@ -14,17 +14,28 @@ module Didit
       #
       # +POST /v3/workflows/+
       #
-      # @param features [Array<Hash>] Verification features in execution order. The API links each item to the next one and adds one final status node automatically.
-      # @param workflow_label [String] Display name for the workflow (max 50 characters). Defaults to `"ID Verification"` when omitted - always set it so workflows stay distinguishable.
+      # @param features [Array<Hash>] Verification features in execution order. The API links each item to the next
+      #   one and adds one final status node automatically.
+      # @param workflow_label [String] Display name for the workflow (max 50 characters). Defaults to `"ID
+      #   Verification"` when omitted - always set it so workflows stay distinguishable.
       # @param is_default [Boolean] Set this workflow as the default for new sessions.
-      # @param status [String] Omit this field to create a published workflow ready for sessions. Use `draft` only when you want to save without publishing.
-      # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this workflow.
+      # @param status [String] Omit this field to create a published workflow ready for sessions. Use `draft` only
+      #   when you want to save without publishing.
+      # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
+      #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
-      # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks the user after the first decline.
-      # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an all-time limit.
-      # @param face_liveness_max_attempts [Integer] Maximum liveness submissions per session. Default 3: one initial attempt plus two retries. This value is also copied into generated liveness and age-estimation workflow nodes unless the feature-level...
-      # @param face_match_max_attempts [Integer] Maximum face-match submissions per session. Default 3: one initial attempt plus two retries. This value is also copied into generated face-match workflow nodes unless the feature-level config overrid...
-      # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600), maximum 4 weeks (2419200).
+      # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks
+      #   the user after the first decline.
+      # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an
+      #   all-time limit.
+      # @param face_liveness_max_attempts [Integer] Maximum liveness submissions per session. Default 3: one initial
+      #   attempt plus two retries. This value is also copied into generated liveness and age-estimation workflow nodes
+      #   unless the feature-level config overrides it.
+      # @param face_match_max_attempts [Integer] Maximum face-match submissions per session. Default 3: one initial
+      #   attempt plus two retries. This value is also copied into generated face-match workflow nodes unless the
+      #   feature-level config overrides it.
+      # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
+      #   maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Hash]
       def create(
@@ -113,7 +124,8 @@ module Didit
       #
       # +GET /v3/workflows/{settings_uuid}/+
       #
-      # @param settings_uuid [String] Per-version UUID of the workflow (the `uuid` value returned by the list endpoint). Each version of a workflow has its own `settings_uuid`.
+      # @param settings_uuid [String] Per-version UUID of the workflow (the `uuid` value returned by the list
+      #   endpoint). Each version of a workflow has its own `settings_uuid`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Object]
       def retrieve(settings_uuid, request_options: nil)
@@ -142,15 +154,23 @@ module Didit
       # @param settings_uuid [String] Per-version UUID of the workflow to update.
       # @param workflow_label [String] Display name for the workflow (max 50 characters).
       # @param is_default [Boolean] Set this workflow as the default for new sessions.
-      # @param status [String] Controls versioning. Omit to update the current version in place (drafts auto-publish). `published` on an already-published version creates and returns a NEW version. `draft` is only valid while the...
+      # @param status [String] Controls versioning. Omit to update the current version in place (drafts auto-publish).
+      #   `published` on an already-published version creates and returns a NEW version. `draft` is only valid while the
+      #   version is still a draft.
       # @param features [Array<Hash>] If provided, this replaces the full feature order and configuration.
-      # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this workflow.
+      # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
+      #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
-      # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks the user after the first decline.
-      # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an all-time limit.
-      # @param face_liveness_max_attempts [Integer] Maximum liveness submissions per session. This value is also copied into generated liveness and age-estimation workflow nodes unless the feature-level config overrides it.
-      # @param face_match_max_attempts [Integer] Maximum face-match submissions per session. This value is also copied into generated face-match workflow nodes unless the feature-level config overrides it.
-      # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600), maximum 4 weeks (2419200).
+      # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks
+      #   the user after the first decline.
+      # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an
+      #   all-time limit.
+      # @param face_liveness_max_attempts [Integer] Maximum liveness submissions per session. This value is also
+      #   copied into generated liveness and age-estimation workflow nodes unless the feature-level config overrides it.
+      # @param face_match_max_attempts [Integer] Maximum face-match submissions per session. This value is also copied
+      #   into generated face-match workflow nodes unless the feature-level config overrides it.
+      # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
+      #   maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Hash]
       def update(

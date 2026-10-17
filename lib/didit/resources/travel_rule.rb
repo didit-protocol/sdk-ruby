@@ -21,11 +21,15 @@ module Didit
       # @param wallet_address [String] The wallet address to verify.
       # @param chain [String] Chain identifier for the address, e.g. "ethereum", "bitcoin", "solana".
       # @param holder_name [String] Name of the wallet holder, used for the beneficiary name match.
-      # @param vendor_data [String] Your internal identifier for the holder, carried onto the created address-book entry.
-      # @param transaction_id [String] Optional. Didit transaction UUID of a Travel Rule transfer to advance when the proof verifies.
-      # @param satoshi_deposit_address [String] Optional. A deposit address you control; supplying it enables the SATOSHI_TEST proof method.
+      # @param vendor_data [String] Your internal identifier for the holder, carried onto the created address-book
+      #   entry.
+      # @param transaction_id [String] Optional. Didit transaction UUID of a Travel Rule transfer to advance when the
+      #   proof verifies.
+      # @param satoshi_deposit_address [String] Optional. A deposit address you control; supplying it enables the
+      #   SATOSHI_TEST proof method.
       # @param callback_url [String] Optional. Where the widget returns the customer after completion.
-      # @param expires_in_minutes [Integer] Optional. Lifetime of the minted link, in minutes. Automatically extended to cover the Satoshi test window when SATOSHI_TEST is offered.
+      # @param expires_in_minutes [Integer] Optional. Lifetime of the minted link, in minutes. Automatically extended
+      #   to cover the Satoshi test window when SATOSHI_TEST is offered.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleWidgetSessionResponse]
       def create_widget_session(
@@ -168,10 +172,12 @@ module Didit
       # @param threshold_amount [String] Decimal string. Minimum transfer amount that triggers a managed exchange.
       # @param inbound_auto_accept [Boolean]
       # @param allow_self_declaration [Boolean]
-      # @param allow_screenshot_proof [Boolean] When true, the wallet-ownership widget offers screenshot upload as an ownership evidence method. Default true.
+      # @param allow_screenshot_proof [Boolean] When true, the wallet-ownership widget offers screenshot upload as an
+      #   ownership evidence method. Default true.
       # @param auto_wallet_verification [Boolean]
       # @param vasp_attribution_enabled [Boolean]
-      # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your connected own memberships or provision unavailable networks.
+      # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your
+      #   connected own memberships or provision unavailable networks.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleSettingsDetail]
       def update_settings(
@@ -233,8 +239,10 @@ module Didit
         # @param holder_vendor_data [String]
         # @param holder_name [String]
         # @param entity_type [String]
-        # @param self_declared [Boolean] Write-only. When true, the entry is created already ownership-verified via a SELF_DECLARATION proof.
-        # @param travel_address [String] Optional. The counterparty VASP's travel address for this wallet, enabling TRP routing.
+        # @param self_declared [Boolean] Write-only. When true, the entry is created already ownership-verified via a
+        #   SELF_DECLARATION proof.
+        # @param travel_address [String] Optional. The counterparty VASP's travel address for this wallet, enabling
+        #   TRP routing.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntry]
         def create(

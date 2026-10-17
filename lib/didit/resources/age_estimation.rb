@@ -51,13 +51,30 @@ module Didit
       #
       # +POST /v3/age-estimation/+
       #
-      # @param user_image [Pathname, IO, String, Didit::FilePart] Face photo to analyze (e.g. a selfie). Submit a single front-facing photo with the subject's face clearly visible and well lit. Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp` (no PDF). Maxi...
-      # @param face_liveness_score_decline_threshold [Numeric] Liveness threshold (0–100). A liveness `score` **at or below** this value adds a `LOW_LIVENESS_SCORE` warning and declines. Raise it for stricter anti-spoofing; values outside 0–100 return `400`.
-      # @param age_estimation_decline_threshold [Integer] Minimum acceptable estimated age in years. An estimated age **below** this value adds an `AGE_BELOW_MINIMUM` warning and declines. Set `0` to disable the age check (the call then only runs liveness +...
-      # @param rotate_image [Boolean] When `true`, the service tries the input image in 90-degree increments (0, 90, 180, 270) and uses the orientation that yields the best face detection - useful for mobile captures with missing EXIF or...
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`, announced t...
-      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the persisted session and echoed back in the response. Use it to correlate API calls with your own records and to filter session...
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back in the response. In multipart requests, send it as a JSON-encoded string field (e.g. `metadata={"flow":"age...
+      # @param user_image [Pathname, IO, String, Didit::FilePart] Face photo to analyze (e.g. a selfie). Submit a
+      #   single front-facing photo with the subject's face clearly visible and well lit. Allowed extensions: `tiff`,
+      #   `jpg`, `jpeg`, `png`, `webp` (no PDF). Maximum upload size: **5 MB** (larger files are rejected with `400`).
+      #   Images are automatically compressed to ~0.3 MB before processing, so very high resolutions do not improve
+      #   accuracy.
+      # @param face_liveness_score_decline_threshold [Numeric] Liveness threshold (0-100). A liveness `score` **at or
+      #   below** this value adds a `LOW_LIVENESS_SCORE` warning and declines. Raise it for stricter anti-spoofing;
+      #   values outside 0-100 return `400`.
+      # @param age_estimation_decline_threshold [Integer] Minimum acceptable estimated age in years. An estimated age
+      #   **below** this value adds an `AGE_BELOW_MINIMUM` warning and declines. Set `0` to disable the age check (the
+      #   call then only runs liveness + age estimation without an age-based decision).
+      # @param rotate_image [Boolean] When `true`, the service tries the input image in 90-degree increments (0, 90,
+      #   180, 270) and uses the orientation that yields the best face detection - useful for mobile captures with
+      #   missing EXIF orientation. Adds latency, so only enable it if you cannot guarantee upright images.
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session - visible in
+      #   the Business Console, retrievable via `GET /v3/session/{sessionId}/decision/` using the returned `request_id`,
+      #   announced through a `status.updated` webhook, and with the detected face added to your application's face
+      #   index. When `false`, nothing is stored and `request_id` is a transient UUID for response correlation only...
+      # @param vendor_data [String] Optional opaque string (your internal user id, email, UUID…) stored on the
+      #   persisted session and echoed back in the response. Use it to correlate API calls with your own records and to
+      #   filter sessions later.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back in the response. In multipart requests, send it as a JSON-encoded string field (e.g.
+      #   `metadata={"flow":"age-gate"}`) - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AgeEstimationEstimateResponse]
       def estimate(

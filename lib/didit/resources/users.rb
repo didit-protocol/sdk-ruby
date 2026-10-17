@@ -21,7 +21,8 @@ module Didit
       # +POST /v3/users/delete/+
       #
       # @param vendor_data_list [Array<String>] Your own identifiers to delete, matched exactly as sent.
-      # @param didit_internal_id_list [Array<String>] Didit internal user IDs to delete - the `didit_internal_id` returned by the create and get endpoints.
+      # @param didit_internal_id_list [Array<String>] Didit internal user IDs to delete - the `didit_internal_id`
+      #   returned by the create and get endpoints.
       # @param delete_all [Boolean] If `true`, deletes every user in the application.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersBatchDeleteResponse]
@@ -46,9 +47,11 @@ module Didit
       #
       # +POST /v3/users/create/+
       #
-      # @param vendor_data [String] Your unique identifier for this user (free-form string, NOT a UUID). Must be unique among non-deleted users for the application; matched exactly as sent.
+      # @param vendor_data [String] Your unique identifier for this user (free-form string, NOT a UUID). Must be
+      #   unique among non-deleted users for the application; matched exactly as sent.
       # @param full_name [String, nil] Full legal name of the user.
-      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over `full_name` for UI display).
+      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over
+      #   `full_name` for UI display).
       # @param date_of_birth [Date, String, nil] Date of birth in `YYYY-MM-DD` format.
       # @param status [String] Initial lifecycle status. Defaults to `ACTIVE`.
       # @param metadata [Hash, nil] Arbitrary JSON object you attach to the user. Defaults to `{}`.
@@ -131,7 +134,9 @@ module Didit
       #
       # +GET /v3/users/{vendor_data}/generate-pdf/+
       #
-      # @param vendor_data [String] Your unique identifier for the user - a free-form string (NOT a UUID). This is the same value you passed as `vendor_data` when creating the user's sessions, matched exactly as sent. URL-encode it; a...
+      # @param vendor_data [String] Your unique identifier for the user - a free-form string (NOT a UUID). This is the
+      #   same value you passed as `vendor_data` when creating the user's sessions, matched exactly as sent. URL-encode
+      #   it; a value containing `/` cannot be addressed by this route.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
       def generate_pdf(vendor_data, request_options: nil, &block)
@@ -153,8 +158,10 @@ module Didit
       #
       # +GET /v3/users/+
       #
-      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages small for latency.
-      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from the previous page over computing this by hand.
+      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages
+      #   small for latency.
+      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from
+      #   the previous page over computing this by hand.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::UserListItem>]
       def list(limit: OMIT, offset: OMIT, request_options: nil)
@@ -197,7 +204,9 @@ module Didit
       #
       # +GET /v3/users/{vendor_data}/+
       #
-      # @param vendor_data [String] Your unique identifier for the user - a free-form string (NOT a UUID). This is the same value you passed as `vendor_data` when creating the session that first introduced this user, matched exactly as...
+      # @param vendor_data [String] Your unique identifier for the user - a free-form string (NOT a UUID). This is the
+      #   same value you passed as `vendor_data` when creating the session that first introduced this user, matched
+      #   exactly as sent.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
       def retrieve(vendor_data, request_options: nil)
@@ -249,9 +258,11 @@ module Didit
       # +POST /v3/users/aml-monitoring/+
       #
       # @param is_enabled [Boolean] true to enable monitoring, false to disable it.
-      # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes - no screening, no billing, no job.
+      # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes - no screening, no
+      #   billing, no job.
       # @param vendor_data_list [Array<String>] Your own identifiers of the users to toggle, matched exactly as sent.
-      # @param didit_internal_id_list [Array<String>] Didit internal ids of the users to toggle - the `didit_internal_id` returned by the create, get and list endpoints.
+      # @param didit_internal_id_list [Array<String>] Didit internal ids of the users to toggle - the
+      #   `didit_internal_id` returned by the create, get and list endpoints.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersSetAmlMonitoringResponse, Didit::Types::UsersSetAmlMonitoringResponse202]
       def set_aml_monitoring(
@@ -286,7 +297,8 @@ module Didit
       #
       # @param is_enabled [Boolean] true to enable monitoring, false to disable it.
       # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes.
-      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when present).
+      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when
+      #   present).
       # @param filter_search [String]
       # @param filter_status [Array<String>]
       # @param filter_country [String]
@@ -341,11 +353,15 @@ module Didit
       # @param full_name [String, nil] Full name of the user
       # @param display_name [String, nil] Custom display name for this user
       # @param date_of_birth [Date, String, nil] Date of birth in YYYY-MM-DD format
-      # @param status [String] User lifecycle status. Changing it via this generic PATCH does NOT sync the system blocklist or record a status-change activity; prefer the update-status endpoint.
-      # @param metadata [Hash, nil] Arbitrary JSON object you attach to the user. **Fully replaces** the existing metadata on update - merge client-side if you only want to add keys.
-      # @param approved_emails [Array<String>] Verified email addresses for this user, e.g. `["john@example.com"]`. Fully replaces the stored list.
+      # @param status [String] User lifecycle status. Changing it via this generic PATCH does NOT sync the system
+      #   blocklist or record a status-change activity; prefer the update-status endpoint.
+      # @param metadata [Hash, nil] Arbitrary JSON object you attach to the user. **Fully replaces** the existing
+      #   metadata on update - merge client-side if you only want to add keys.
+      # @param approved_emails [Array<String>] Verified email addresses for this user, e.g. `["john@example.com"]`.
+      #   Fully replaces the stored list.
       # @param approved_phones [Array<String>] Verified phone numbers for this user. Fully replaces the stored list.
-      # @param issuing_states [Array<String>] Issuing countries (ISO 3166-1 alpha-3), e.g. `["USA"]`. Fully replaces the stored list.
+      # @param issuing_states [Array<String>] Issuing countries (ISO 3166-1 alpha-3), e.g. `["USA"]`. Fully replaces
+      #   the stored list.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
       def update(
@@ -412,8 +428,10 @@ module Didit
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/vendor-users/by-id/{didit_internal_id}/faces/upload/+
       #
-      # @param didit_internal_id [String] Didit's internal User UUID, returned as `didit_internal_id` by `GET /v3/users/{vendor_data}/` and `POST /v3/users/create/`.
-      # @param image [String] Raw base64-encoded JPG or PNG face image. Do not include a `data:image/...;base64,` prefix. Max decoded size: 2 MB.
+      # @param didit_internal_id [String] Didit's internal User UUID, returned as `didit_internal_id` by `GET
+      #   /v3/users/{vendor_data}/` and `POST /v3/users/create/`.
+      # @param image [String] Raw base64-encoded JPG or PNG face image. Do not include a `data:image/...;base64,`
+      #   prefix. Max decoded size: 2 MB.
       # @param comment [String] Optional operator-visible note for the uploaded face.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersUploadFaceResponse]

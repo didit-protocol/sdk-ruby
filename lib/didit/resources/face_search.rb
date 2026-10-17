@@ -52,12 +52,24 @@ module Didit
       #
       # +POST /v3/face-search/+
       #
-      # @param user_image [Pathname, IO, String, Didit::FilePart] Front-facing face image to search with. Allowed extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`. Maximum upload size: **5 MB** (larger files are rejected with `400`). Images are automatically compre...
-      # @param search_type [String] Search policy. `most_similar` (default) ranks every enrolled face in your application by similarity. `blocklisted_or_approved` restricts candidates to blocklisted faces, allowlisted faces, faces from...
-      # @param rotate_image [Boolean] When `true`, the service tries 90-degree rotations of the input and uses the orientation that yields the best face detection. Useful when EXIF orientation is missing. Adds latency.
-      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session, emits a `status.updated` webhook, presigns `match_image_url` values, and enrolls the searched face into your face search index (Face S...
-      # @param vendor_data [String] Optional opaque identifier (your user id, email, UUID…) stored on the persisted session and echoed back. It does not exclude same-user faces from the search results.
-      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
+      # @param user_image [Pathname, IO, String, Didit::FilePart] Front-facing face image to search with. Allowed
+      #   extensions: `tiff`, `jpg`, `jpeg`, `png`, `webp`. Maximum upload size: **5 MB** (larger files are rejected
+      #   with `400`). Images are automatically compressed to ~0.5 MB before processing, so very high resolutions do not
+      #   improve accuracy. The image must contain at least one detectable face - otherwise the endpoint returns `400`.
+      #   When several faces are...
+      # @param search_type [String] Search policy. `most_similar` (default) ranks every enrolled face in your
+      #   application by similarity. `blocklisted_or_approved` restricts candidates to blocklisted faces, allowlisted
+      #   faces, faces from approved sessions, and imported user-profile faces - with blocklisted entries ranked first.
+      # @param rotate_image [Boolean] When `true`, the service tries 90-degree rotations of the input and uses the
+      #   orientation that yields the best face detection. Useful when EXIF orientation is missing. Adds latency.
+      # @param save_api_request [Boolean] When `true` (default), persists the call as an API-type session, emits a
+      #   `status.updated` webhook, presigns `match_image_url` values, and enrolls the searched face into your face
+      #   search index (Face Search enrollments are excluded from future searches). When `false`, the search is one-shot
+      #   - no session is stored and the face is not enrolled.
+      # @param vendor_data [String] Optional opaque identifier (your user id, email, UUID…) stored on the persisted
+      #   session and echoed back. It does not exclude same-user faces from the search results.
+      # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
+      #   back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FaceSearchSearchResponse]
       def search(

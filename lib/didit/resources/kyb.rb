@@ -31,10 +31,13 @@ module Didit
       #
       # +POST /v3/kyb/shareholders/+
       #
-      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/` (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
-      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business session.
+      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
+      #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
-      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so billing and retrieval can be tracked; `false` returns `400`.
+      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
+      #   billing and retrieval can be tracked; `false` returns `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybListShareholdersResponse, Didit::Types::KybListShareholdersResponse202]
       def list_shareholders(
@@ -85,10 +88,13 @@ module Didit
       #
       # +POST /v3/kyb/ubo/+
       #
-      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/` (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
-      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business session.
+      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
+      #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
-      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so billing and retrieval can be tracked; `false` returns `400`.
+      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
+      #   billing and retrieval can be tracked; `false` returns `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybListUbosResponse, Didit::Types::KybListUbosResponse202]
       def list_ubos(kyb_response_id:, vendor_data: OMIT, metadata: OMIT, save_api_request: OMIT, request_options: nil)
@@ -141,13 +147,18 @@ module Didit
       #
       # +POST /v3/kyb/search/+
       #
-      # @param country_code [String] ISO 3166-1 alpha-2 code of the country whose company registry to search. For example, `GB`. Where company registries operate at state or province level, append the ISO 3166-2 subdivision code as `XX-...
+      # @param country_code [String] ISO 3166-1 alpha-2 code of the country whose company registry to search. For
+      #   example, `GB`. Where company registries operate at state or province level, append the ISO 3166-2 subdivision
+      #   code as `XX-YY`: `US-CA` searches the California registry. United States searches always require the
+      #   subdivision - a bare `US` is rejected. Case-insensitive; normalized to upper case.
       # @param name [String] Company name to search for. Either `name` or `registration_number` is required.
-      # @param registration_number [String] Registry registration number to search for. Either `name` or `registration_number` is required.
+      # @param registration_number [String] Registry registration number to search for. Either `name` or
+      #   `registration_number` is required.
       # @param search_type [String] Name-matching strategy applied by the registry search.
       # @param vendor_data [String] Your identifier for this lookup; echoed back and included in the webhook callback.
       # @param metadata [Hash, nil] Free-form JSON; echoed back and included in the webhook callback.
-      # @param webhook_url [String] Switches the search to asynchronous mode: the API returns immediately and POSTs an unsigned `kyb.registry_search.resolved` callback to this URL when the candidate list is ready.
+      # @param webhook_url [String] Switches the search to asynchronous mode: the API returns immediately and POSTs an
+      #   unsigned `kyb.registry_search.resolved` callback to this URL when the candidate list is ready.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybSearchResponse]
       def search(
@@ -197,10 +208,13 @@ module Didit
       #
       # +POST /v3/kyb/select/+
       #
-      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/` (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
-      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business session.
+      # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
+      #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
-      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so billing and retrieval can be tracked; `false` returns `400`.
+      # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
+      #   billing and retrieval can be tracked; `false` returns `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybSelectResponse]
       def select(kyb_response_id:, vendor_data: OMIT, metadata: OMIT, save_api_request: OMIT, request_options: nil)

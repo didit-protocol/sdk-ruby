@@ -14,7 +14,8 @@ module Didit
       #
       # @param vendor_data_list [Array<String>] Your own identifiers to delete, matched exactly as sent.
       # @param didit_internal_id_list [Array<String>] Didit's internal UUIDs (`didit_internal_id`) to delete.
-      # @param delete_all [Boolean] If `true`, deletes every business in the application. Cannot be combined with the list selectors.
+      # @param delete_all [Boolean] If `true`, deletes every business in the application. Cannot be combined with the
+      #   list selectors.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesBatchDeleteResponse]
       def batch_delete(vendor_data_list: OMIT, didit_internal_id_list: OMIT, delete_all: OMIT, request_options: nil)
@@ -39,8 +40,11 @@ module Didit
       #
       # +POST /v3/businesses/create/+
       #
-      # @param vendor_data [String, nil] Your unique identifier for this business (free-form string, NOT a UUID). Optional but strongly recommended. When provided, must be unique among non-deleted businesses for the application; matched exa...
-      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over `legal_name` for UI display).
+      # @param vendor_data [String, nil] Your unique identifier for this business (free-form string, NOT a UUID).
+      #   Optional but strongly recommended. When provided, must be unique among non-deleted businesses for the
+      #   application; matched exactly as sent.
+      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over
+      #   `legal_name` for UI display).
       # @param legal_name [String, nil] Official legal name of the company.
       # @param registration_number [String, nil] Company registration or incorporation number.
       # @param country_code [String, nil] Country of incorporation (ISO 3166-1 alpha-2, e.g. `GB`, `US`).
@@ -83,8 +87,10 @@ module Didit
       #
       # +GET /v3/businesses/+
       #
-      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages small for latency.
-      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from the previous page over computing this by hand.
+      # @param limit [Integer] Page size. Defaults to 50 when omitted. There is no enforced maximum, but keep pages
+      #   small for latency.
+      # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from
+      #   the previous page over computing this by hand.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::BusinessListItem>]
       def list(limit: OMIT, offset: OMIT, request_options: nil)
@@ -127,7 +133,8 @@ module Didit
       #
       # +GET /v3/businesses/{vendor_data}/+
       #
-      # @param vendor_data [String] Your unique identifier for the business - a free-form string (NOT a UUID), matched exactly as sent.
+      # @param vendor_data [String] Your unique identifier for the business - a free-form string (NOT a UUID), matched
+      #   exactly as sent.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
       def retrieve(vendor_data, request_options: nil)
@@ -200,9 +207,12 @@ module Didit
       # +POST /v3/businesses/aml-monitoring/+
       #
       # @param is_enabled [Boolean] true to enable monitoring, false to disable it.
-      # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes - no screening, no billing, no job.
-      # @param vendor_data_list [Array<String>] Your own identifiers of the businesses to toggle, matched exactly as sent.
-      # @param didit_internal_id_list [Array<String>] Didit internal ids of the businesses to toggle - the `didit_internal_id` returned by the create, get and list endpoints.
+      # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes - no screening, no
+      #   billing, no job.
+      # @param vendor_data_list [Array<String>] Your own identifiers of the businesses to toggle, matched exactly as
+      #   sent.
+      # @param didit_internal_id_list [Array<String>] Didit internal ids of the businesses to toggle - the
+      #   `didit_internal_id` returned by the create, get and list endpoints.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesSetAmlMonitoringResponse, Didit::Types::BusinessesSetAmlMonitoringResponse202]
       def set_aml_monitoring(
@@ -236,7 +246,8 @@ module Didit
       #
       # @param is_enabled [Boolean] true to enable monitoring, false to disable it.
       # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes.
-      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when present).
+      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when
+      #   present).
       # @param filter_search [String]
       # @param filter_status [Array<String>]
       # @param filter_country [String]
@@ -288,13 +299,15 @@ module Didit
       #
       # @param is_enabled [Boolean] true to enable monitoring, false to disable it.
       # @param estimate_only [Boolean] When true, returns the cost estimate and performs no writes.
-      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when present).
+      # @param update_all [Boolean] Apply to every entity of the application (scoped by the filter_* params when
+      #   present).
       # @param filter_search [String]
       # @param filter_status [Array<String>]
       # @param filter_country [String]
       # @param filter_date_from [Date, String]
       # @param filter_date_to [Date, String]
-      # @param session_numbers [Array<String>] Business session numbers to toggle. Required unless update_all (or the legacy toggle_all alias) is true.
+      # @param session_numbers [Array<String>] Business session numbers to toggle. Required unless update_all (or the
+      #   legacy toggle_all alias) is true.
       # @param toggle_all [Boolean] Legacy alias of update_all.
       # @param filter_workflow_id [String]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -344,12 +357,15 @@ module Didit
       # +PATCH /v3/businesses/{vendor_data}/+
       #
       # @param vendor_data [String] Your unique identifier for the business (free-form string, NOT a UUID).
-      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over `legal_name` for UI display).
+      # @param display_name [String, nil] Friendly display name shown in the console (takes precedence over
+      #   `legal_name` for UI display).
       # @param legal_name [String, nil] Official legal name from registry or manual entry.
       # @param registration_number [String, nil] Company registration or incorporation number.
       # @param country_code [String, nil] Country of incorporation (ISO 3166-1 alpha-2, e.g. `GB`, `US`).
-      # @param status [String] Business lifecycle status. Setting `BLOCKED` automatically adds the `vendor_data` to the system blocklist; flipping away from `BLOCKED` removes that blocklist entry.
-      # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. **Fully replaces** the existing metadata on update - merge client-side if you only want to add keys.
+      # @param status [String] Business lifecycle status. Setting `BLOCKED` automatically adds the `vendor_data` to
+      #   the system blocklist; flipping away from `BLOCKED` removes that blocklist entry.
+      # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. **Fully replaces** the existing
+      #   metadata on update - merge client-side if you only want to add keys.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
       def update(
