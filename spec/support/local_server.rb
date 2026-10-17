@@ -2,7 +2,7 @@
 
 require "socket"
 
-# A tiny HTTP/1.1 server on 127.0.0.1 for transport tests: keep-alive, dropped
+# A tiny HTTP/1.1 server on 127.0.0.1 (or ::1) for transport tests: keep-alive, dropped
 # connections, slow answers. The handler gets the request and returns what to do.
 class LocalServer
   Request = Struct.new(:verb, :target, :headers, :body, keyword_init: true)
@@ -10,9 +10,10 @@ class LocalServer
   attr_reader :requests, :connections
 
   # handler: ->(request, index) { { status:, headers:, body:, delay:, drop:, chunks: } }
-  def initialize(&handler)
+  def initialize(host: "127.0.0.1", &handler)
     @handler = handler
-    @server = TCPServer.new("127.0.0.1", 0)
+    @host = host
+    @server = TCPServer.new(host, 0)
     @requests = Queue.new
     @connections = 0
     @lock = Mutex.new
@@ -26,7 +27,7 @@ class LocalServer
   end
 
   def url
-    "http://127.0.0.1:#{port}"
+    "http://#{@host.include?(":") ? "[#{@host}]" : @host}:#{port}"
   end
 
   def received
