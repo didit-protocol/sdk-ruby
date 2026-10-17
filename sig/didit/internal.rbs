@@ -14,7 +14,7 @@ module Didit
       def self?.redact_value: (untyped value, Array[String] secrets) -> untyped
       def self?.origin: (URI::Generic | String uri) -> String
       def self?.display_url: (URI::Generic | String uri) -> String
-      def self?.pause: (Numeric seconds) -> void
+      def self?.pause: (Float seconds) -> void
       def self?.debug_from_env?: () -> bool
     end
 
@@ -170,6 +170,7 @@ module Didit
 
       def perform: (Net::HTTP http, Net::HTTPRequest request) ?{ (String chunk) -> void } -> Response
       def build: (Symbol http_method, URI::Generic uri, Hash[String, String] headers, String? body) -> Net::HTTPRequest
+      def target: (URI::Generic uri) -> String
       def checkout: (URI::Generic uri, Float timeout) -> Net::HTTP
       def start: (Net::HTTP http) -> void
       def checkin: (URI::Generic uri, Net::HTTP http) -> void

@@ -71,13 +71,13 @@ module Didit
     #   account = didit.with_options(account_token: login.access_token)
     #
     # @return [Didit::Client]
-    def with_options(**changes)
-      allowed = Internal::Config::FIELDS - [:http_client]
-      unknown = changes.keys - allowed
-      unless unknown.empty?
-        raise ConfigurationError, "Unknown options #{unknown.map(&:inspect).join(', ')}; use " \
-                                  "#{allowed.map(&:inspect).join(', ')}."
-      end
+    def with_options(api_key: OMIT, account_token: OMIT, organization_id: OMIT, application_id: OMIT, base_url: OMIT,
+                     account_base_url: OMIT, timeout: OMIT, max_retries: OMIT, default_headers: OMIT, logger: OMIT)
+      changes = {
+        api_key: api_key, account_token: account_token, organization_id: organization_id,
+        application_id: application_id, base_url: base_url, account_base_url: account_base_url, timeout: timeout,
+        max_retries: max_retries, default_headers: default_headers, logger: logger
+      }.reject { |_, value| value.equal?(OMIT) }
       copy(@config.merge(changes), raw: @raw)
     end
 
@@ -192,10 +192,13 @@ module Didit
 
     def parse_json(prepared, response)
       text = response.body.to_s.dup.force_encoding(Encoding::UTF_8)
-      raise JSON::ParserError, "invalid UTF-8" unless text.valid_encoding?
+      begin
+        raise JSON::ParserError, "invalid UTF-8" unless text.valid_encoding?
 
-      JSON.parse(text)
-    rescue JSON::ParserError
+        return JSON.parse(text)
+      rescue JSON::ParserError
+        nil
+      end
       raise APIResponseValidationError.new(
         "Expected a JSON response from #{prepared.http_method.to_s.upcase} #{prepared.uri.path}, got " \
         "#{response.headers['content-type'] || 'no content type'}.",

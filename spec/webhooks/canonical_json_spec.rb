@@ -2,19 +2,29 @@
 
 require_relative "webhooks_helper"
 
-RSpec.describe "Didit::Webhooks.canonical_json" do
+RSpec.describe "Didit::Webhooks.canonical_json" do # rubocop:disable RSpec/DescribeClass -- specs are grouped by area
   def canonical(value)
     Didit::Webhooks.canonical_json(value)
   end
 
   {
-    "sorts keys and drops whitespace" => [{ "b" => 1, "a" => [2, { "d" => nil, "c" => true }] }, '{"a":[2,{"c":true,"d":null}],"b":1}'],
-    "writes integral floats as integers" => [{ "score" => 87.0, "neg" => -3.0, "zero" => -0.0 }, '{"neg":-3,"score":87,"zero":0}'],
+    "sorts keys and drops whitespace" => [
+      { "b" => 1, "a" => [2, { "d" => nil, "c" => true }] }, '{"a":[2,{"c":true,"d":null}],"b":1}'
+    ],
+    "writes integral floats as integers" => [
+      { "score" => 87.0, "neg" => -3.0, "zero" => -0.0 }, '{"neg":-3,"score":87,"zero":0}'
+    ],
     "writes 1e16 in full" => [{ "x" => 1e16 }, '{"x":10000000000000000}'],
     "writes 1e300 exactly" => [[1e300], "[#{1e300.to_i}]"],
-    "keeps big integers exact" => [[9_007_199_254_740_993, -(10**30)], "[9007199254740993,-1000000000000000000000000000000]"],
-    "writes small floats like Python" => [[1e-05, 1.5e-07, 1.2345e-05, 0.0001, 0.1, -2.5], "[1e-05,1.5e-07,1.2345e-05,0.0001,0.1,-2.5]"],
-    "writes large non-integral floats" => [[1234567890123456.7, 123456789.123], "[1234567890123456.8,123456789.123]"],
+    "keeps big integers exact" => [
+      [9_007_199_254_740_993, -(10**30)], "[9007199254740993,-1000000000000000000000000000000]"
+    ],
+    "writes small floats like Python" => [
+      [1e-05, 1.5e-07, 1.2345e-05, 0.0001, 0.1, -2.5], "[1e-05,1.5e-07,1.2345e-05,0.0001,0.1,-2.5]"
+    ],
+    "writes large non-integral floats" => [
+      [1_234_567_890_123_456.7, 123_456_789.123], "[1234567890123456.8,123456789.123]"
+    ],
     "writes subnormals" => [[5e-324, 2.2250738585072014e-308], "[5e-324,2.2250738585072014e-308]"],
     "writes true, false and null" => [[true, false, nil], "[true,false,null]"],
     "escapes only what Python escapes" => [

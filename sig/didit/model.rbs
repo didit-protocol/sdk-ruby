@@ -9,6 +9,7 @@ module Didit
     def self.from_json: (untyped value) -> untyped
     def self.coerce: (untyped value, Didit::type_spec? type) -> untyped
     def self.symbolize: (untyped value) -> untyped
+    def self.fields_of: (singleton(Model) klass) -> Hash[Symbol, [String, Didit::type_spec]]
 
     private
 

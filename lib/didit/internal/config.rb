@@ -59,7 +59,7 @@ module Didit
           raise ConfigurationError, "timeout must be a positive number of seconds, got #{value.inspect}."
         end
 
-        Float(value)
+        value.fdiv(1)
       end
 
       def self.check_max_retries(value)

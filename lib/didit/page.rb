@@ -103,6 +103,7 @@ module Didit
     def self.normalize(uri)
       uri = uri.dup
       uri.fragment = nil
+      # @type var query: Array[[String, String]]
       query = uri.query ? URI.decode_www_form(uri.query).sort : []
       [Internal::Util.origin(uri), uri.path, query]
     end

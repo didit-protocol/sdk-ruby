@@ -3,21 +3,19 @@
 require_relative "webhooks_helper"
 
 # Every vector of openapi/webhook-vectors.json, produced by the backend's own signing code.
-RSpec.describe Didit::Webhooks, "vectors" do
+RSpec.describe "Didit::Webhooks vectors" do # rubocop:disable RSpec/DescribeClass -- specs are grouped by area
   include WebhookSpecHelpers
 
-  document = WebhookSpecHelpers.vectors_document
-
-  let(:tolerance) { document.fetch("tolerance_seconds") }
+  let(:tolerance) { WebhookSpecHelpers.vectors_document.fetch("tolerance_seconds") }
 
   it "covers every outcome" do
-    expect(document["vectors"].map { |v| v["expect"] }.uniq).to contain_exactly(
+    expect(WebhookSpecHelpers.vectors_document["vectors"].map { |v| v["expect"] }.uniq).to contain_exactly(
       "valid", "valid_only_with_allow_simple", "invalid_signature", "missing_signature",
       "timestamp_out_of_tolerance", "timestamp_mismatch"
     )
   end
 
-  document.fetch("vectors").each do |vector|
+  WebhookSpecHelpers.vectors_document.fetch("vectors").each do |vector|
     describe vector["name"] do
       let(:body) { vector["body"] }
       let(:headers) { vector["headers"] }

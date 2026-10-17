@@ -9,6 +9,7 @@ module WebhookSpecHelpers
   PREVIOUS = "whsec_test_unit_secret_0000"
   NOW = 1_760_702_400
   VECTORS_FILE = File.expand_path("../../openapi/webhook-vectors.json", __dir__)
+  PYTHON_CONSTANTS = { nil => "None", true => "True", false => "False" }.freeze
 
   module_function
 
@@ -56,7 +57,7 @@ module WebhookSpecHelpers
     %w[timestamp session_id status webhook_type].map do |key|
       next "" unless data.key?(key)
 
-      { nil => "None", true => "True", false => "False" }.fetch(data[key]) { data[key].to_s }
+      PYTHON_CONSTANTS.fetch(data[key]) { data[key].to_s }
     end.join(":")
   end
 

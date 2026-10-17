@@ -119,7 +119,7 @@ module Didit
       raise ArgumentError, "#{self.class.name} needs a Hash, got #{data.class}" unless data.is_a?(Hash)
 
       # @type var normalized: Hash[String, untyped]
-      normalized = data.each_key.all?(String) ? data : data.transform_keys(&:to_s)
+      normalized = data.each_key.all?(String) ? (_ = data) : data.transform_keys(&:to_s)
       @data = normalized.freeze
       @cache = {}
     end
@@ -145,15 +145,16 @@ module Didit
 
     # @return [String] the JSON object, unchanged
     def to_json(*args)
-      JSON.generate(@data, *args)
+      JSON.generate(@data, args.first)
     end
 
     # Pattern matching on the typed readers: +in {status: "Approved"}+.
     def deconstruct_keys(keys)
-      names = keys || self.class.fields.keys
-      names.each_with_object({}) do |name, out| # : Hash[Symbol, untyped]
-        out[name] = public_send(name) if self.class.fields.key?(name)
-      end
+      fields = self.class.fields
+      # @type var out: Hash[Symbol, untyped]
+      out = {}
+      (keys || fields.keys).each { |name| out[name] = public_send(name) if fields.key?(name) }
+      out
     end
 
     def ==(other)

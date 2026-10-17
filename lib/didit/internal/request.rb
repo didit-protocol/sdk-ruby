@@ -157,9 +157,10 @@ module Didit
       def json_value(value)
         case value
         when Hash
-          value.each_with_object({}) do |(k, v), out| # : Hash[String, untyped]
-            out[k.to_s] = json_value(v) unless v.equal?(OMIT)
-          end
+          # @type var out: Hash[String, untyped]
+          out = {}
+          value.each { |k, v| out[k.to_s] = json_value(v) unless v.equal?(OMIT) }
+          out
         when Array then value.map { |v| json_value(v) }
         when Time then value.utc.iso8601(6)
         when Date then value.iso8601
