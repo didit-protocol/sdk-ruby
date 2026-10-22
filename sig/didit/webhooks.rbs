@@ -1,0 +1,37 @@
+module Didit
+  module Webhooks
+    DEFAULT_TOLERANCE: Integer
+
+    HEADER_SIGNATURE: String
+    HEADER_SIGNATURE_V2: String
+    HEADER_SIGNATURE_SIMPLE: String
+    HEADER_SIGNATURE_PREVIOUS: String
+    HEADER_SIGNATURE_V2_PREVIOUS: String
+    HEADER_SIGNATURE_SIMPLE_PREVIOUS: String
+    HEADER_TIMESTAMP: String
+
+    # Anything whose +each+ yields [name, value] pairs: a Rack env, Rails request.headers, Net::HTTPHeader.
+    interface _EachHeader
+      def each: () { (untyped name, untyped value) -> void } -> untyped
+    end
+
+    # Request headers: names in any case, values Strings or Arrays of Strings.
+    type headers = Hash[untyped, untyped] | Array[[untyped, untyped]] | _EachHeader
+
+    # One secret, or several during a rotation.
+    type secret = String | Array[String]
+
+    # Seconds.
+    type tolerance = Integer | Float
+
+    def self.verify: (String raw_body, headers headers, secret secret, ?tolerance: tolerance, ?allow_simple: bool,
+                      ?now: (Integer | Float)?) -> Event
+
+    def self.verify_parsed: (Hash[String | Symbol, untyped] payload, headers headers, secret secret,
+                             ?tolerance: tolerance, ?now: (Integer | Float)?) -> Event
+
+    def self.canonical_json: (untyped value) -> String
+
+    def self.parse_event: (Hash[String | Symbol, untyped] payload) -> Event
+  end
+end

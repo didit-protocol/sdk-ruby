@@ -1,0 +1,101 @@
+plugins:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    # Generated code: checked by its generator tests, Ruby's own syntax check and Steep.
+    - "lib/didit/resources/**/*"
+    - "lib/didit/resources.rb"
+    - "lib/didit/types/**/*"
+    - "lib/didit/types.rb"
+    - "spec/generated/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+Style/Documentation:
+  Exclude:
+    - "spec/**/*"
+    - "codegen/test/**/*"
+    - "examples/**/*"
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 25
+  Exclude:
+    # The generator is a tree of case statements over OpenAPI shapes; its tests guard it.
+    - "codegen/lib/**/*"
+
+Metrics/AbcSize:
+  Max: 30
+  Exclude:
+    - "codegen/lib/**/*"
+
+Metrics/ClassLength:
+  Max: 300
+
+Metrics/ModuleLength:
+  Max: 300
+
+Metrics/CyclomaticComplexity:
+  Max: 12
+  Exclude:
+    - "codegen/lib/**/*"
+
+Metrics/PerceivedComplexity:
+  Max: 12
+  Exclude:
+    - "codegen/lib/**/*"
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+  Exclude:
+    - "codegen/lib/**/*"
+
+Naming/MethodParameterName:
+  AllowedNames: [op, io, id, to, at, by]
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "codegen/test/**/*"
+    - "*.gemspec"
+    - "Rakefile"
+
+Naming/FileName:
+  Exclude:
+    - "lib/didit-sdk.rb"
+
+RSpec/ExampleLength:
+  Max: 30
+
+RSpec/MultipleExpectations:
+  Max: 12
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/DescribeClass:
+  Exclude:
+    - "spec/contract_spec.rb"
+    - "spec/readme_spec.rb"
+    - "spec/live/**/*"
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - "codegen/spec/**/*"
