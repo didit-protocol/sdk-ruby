@@ -202,6 +202,132 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BankAccountCheckResponseResult
+      MATCH: String
+      CLOSE_MATCH: String
+      NO_MATCH: String
+      CANNOT_VERIFY: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultAccountHolderType
+      PERSON: String
+      BUSINESS: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultAccountType
+      CHECKING: String
+      CURRENT: String
+      SAVINGS: String
+      BUSINESS: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultBillingRoute
+      NATIVE: String
+      BYOK: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultConnectionStatus
+      PENDING: String
+      CONNECTED: String
+      CANCELLED: String
+      TIMEOUT: String
+      FAILED: String
+      UNSUPPORTED: String
+      REVOKED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultCredentialSource
+      NATIVE: String
+      BYOK: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultFinancialDataNotCollected
+      BALANCES: String
+      INCOME: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultMethod
+      OPEN_BANKING: String
+      ACCOUNT_LOOKUP: String
+      MICRODEPOSITS: String
+      STATEMENT: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultOwnershipEvidenceFreshness
+      LIVE: String
+      CACHED: String
+      REFRESHED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultOwnershipHolderConfirmation
+      PENDING: String
+      CONFIRMED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultOwnershipMethod
+      EXACT: String
+      TOKEN_SET: String
+      NICKNAME: String
+      TRANSLITERATION: String
+      FUZZY: String
+      PROVIDER_ONLY: String
+      MICRODEPOSITS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultOwnershipResult
+      MATCH: String
+      PARTIAL_MATCH: String
+      NO_MATCH: String
+      UNKNOWN: String
+      NOT_VERIFIABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultRouteCredentialSource
+      NATIVE: String
+      BYOK: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultStatus
+      NOT_FINISHED: String
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
     module BlocklistedItemType
       FACE: String
       DOCUMENT: String
@@ -5034,6 +5160,110 @@ module Didit
       def reached: () -> Integer?
     end
 
+    class BankAccountCheckResponse < Didit::Model
+      def request_id: () -> String
+      def result: () -> String
+      def holder_name: () -> String?
+      def account: () -> String
+      def vendor_data: () -> String?
+      def created_at: () -> Time
+    end
+
+    class BankVerificationResult < Didit::Model
+      def schema_version: () -> Integer?
+      def bank_verification_id: () -> String?
+      def node_id: () -> String?
+      def status: () -> String?
+      def original_status: () -> String?
+      def method_: () -> String?
+      def provider: () -> String?
+      def credential_source: () -> String?
+      def route: () -> Didit::Types::BankVerificationResultRoute?
+      def connection: () -> Didit::Types::BankVerificationResultConnection?
+      def account: () -> Didit::Types::BankVerificationResultAccount?
+      def ownership: () -> Didit::Types::BankVerificationResultOwnership?
+      def financial_data: () -> Didit::Types::BankVerificationResultFinancialData?
+      def billing: () -> Didit::Types::BankVerificationResultBilling?
+      def reference_identity: () -> Hash[String, untyped]?
+      def signals: () -> Hash[String, untyped]?
+      def connection_abandoned: () -> bool?
+      def not_covered: () -> bool?
+      def evidence_purged_at: () -> Time?
+      def warnings: () -> Array[String]?
+      def reason_codes: () -> Array[String]?
+      def created_at: () -> Time?
+      def updated_at: () -> Time?
+    end
+
+    class BankVerificationResultAccount < Didit::Model
+      def account_id_masked: () -> String?
+      def iban_masked: () -> String?
+      def sort_code: () -> String?
+      def routing_number_masked: () -> String?
+      def `type`: () -> String?
+      def subtype: () -> String?
+      def currency: () -> String?
+      def holder_type: () -> String?
+      def holders_count: () -> Integer?
+      def is_joint: () -> bool?
+      def is_business: () -> bool?
+    end
+
+    class BankVerificationResultBilling < Didit::Model
+      def route: () -> String?
+      def billed: () -> bool?
+      def marketplace_fee: () -> String?
+      def usage_type: () -> String?
+    end
+
+    class BankVerificationResultConnection < Didit::Model
+      def status: () -> String?
+      def institution_id: () -> String?
+      def institution_name: () -> String?
+      def institution_country: () -> String?
+      def oauth: () -> bool?
+      def connected_at: () -> Time?
+      def consent_expires_at: () -> Time?
+      def last_refreshed_at: () -> Time?
+      def attempts: () -> Integer?
+      def reason_code: () -> String?
+    end
+
+    class BankVerificationResultFinancialData < Didit::Model
+      def balances: () -> Hash[String, untyped]?
+      def transactions: () -> Hash[String, untyped]?
+      def income: () -> Hash[String, untyped]?
+      def categorization: () -> Hash[String, untyped]?
+      def not_collected: () -> Array[String]?
+    end
+
+    class BankVerificationResultOwnership < Didit::Model
+      def result: () -> String?
+      def reference_identity_source: () -> String?
+      def name_score: () -> Integer?
+      def provider_name_score: () -> Integer?
+      def address_score: () -> Integer?
+      def email_score: () -> Integer?
+      def phone_score: () -> Integer?
+      def dob_score: () -> Integer?
+      def close_match: () -> bool?
+      def holder_confirmation: () -> String?
+      def method_: () -> String?
+      def matched_holder_index: () -> Integer?
+      def holders: () -> Array[Hash[String, untyped]]?
+      def owner_identity_available: () -> bool?
+      def evidence_freshness: () -> String?
+      def evaluated_at: () -> Time?
+    end
+
+    class BankVerificationResultRoute < Didit::Model
+      def provider_key: () -> String?
+      def credential_source: () -> String?
+      def is_fallback: () -> bool?
+      def provider_connection_id: () -> String?
+      def requested_scopes: () -> Array[String]?
+    end
+
     class BlocklistedItem < Didit::Model
       def `type`: () -> String
       def session_id: () -> String
@@ -7180,6 +7410,7 @@ module Didit
       def poa_verifications: () -> Array[Didit::Types::SessionDecisionPoaVerifications]?
       def document_ai_documents: () -> Array[Didit::Types::SessionDecisionDocumentAiDocuments]?
       def questionnaire_responses: () -> Array[Didit::Types::SessionDecisionQuestionnaireResponses]?
+      def bank_verifications: () -> Array[Didit::Types::BankVerificationResult]?
       def signatures: () -> Array[Didit::Types::SignatureResult]?
       def aml_screenings: () -> Array[Didit::Types::AMLScreening]?
       def ip_analyses: () -> Array[Didit::Types::SessionDecisionIpAnalyses]?
@@ -10010,6 +10241,10 @@ module Didit
       def email: () -> String?
       def `type`: () -> String?
     end
+
+    type bank_account_check_business_holder = { business_name: String }
+
+    type bank_account_check_person_holder = { full_name: String }
 
     type case_content_config = { ?checklist: Didit::Types::case_content_config_checklist, ?aml_control: Didit::Types::case_content_config_aml_control, ?identity: Didit::Types::case_content_config_identity, ?verifications: Didit::Types::case_content_config_verifications, ?reporting: Didit::Types::case_content_config_reporting, ?financial: Didit::Types::case_content_config_financial }
 

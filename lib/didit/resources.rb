@@ -9,6 +9,7 @@ module Didit
     autoload :Aml, "didit/resources/aml"
     autoload :AmlMonitoring, "didit/resources/aml_monitoring"
     autoload :Analytics, "didit/resources/analytics"
+    autoload :Bank, "didit/resources/bank"
     autoload :Billing, "didit/resources/billing"
     autoload :BiometricTemplates, "didit/resources/biometric_templates"
     autoload :Blocklist, "didit/resources/blocklist"
@@ -69,6 +70,11 @@ module Didit
       # @return [Didit::Resources::Analytics]
       def analytics
         @analytics ||= Resources::Analytics.new(self)
+      end
+
+      # @return [Didit::Resources::Bank]
+      def bank
+        @bank ||= Resources::Bank.new(self)
       end
 
       # @return [Didit::Resources::Billing]
