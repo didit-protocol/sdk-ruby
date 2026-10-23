@@ -225,6 +225,154 @@ module Didit
       VALUES = [SESSIONS_VOLUME, WORKFLOW_FUNNEL, AVERAGE_VERIFICATION_TIME, COUNTRY_DISTRIBUTION, WARNING_INSIGHTS, CONVERSION_RATE, CONVERSION_BY_COUNTRY, RESUBMISSION_INSIGHTS, ORIGINAL_STATUS_DISTRIBUTION, DATABASE_VALIDATION_COVERAGE, DATABASE_VALIDATION_LATENCY, DEMOGRAPHICS, DEVICE_DETAILS, HORIZONTAL_BAR, KYB_REGISTRY_COVERAGE, KYB_REGISTRY_DATA_COMPLETENESS, METRIC, TIME_SERIES, BREAKDOWN, STATUS_TIME_SERIES, LEADERBOARD, HISTOGRAM].freeze
     end
 
+    # `match`: the bank holds the account under the name you sent. `close_match`: under a close name, for example a
+    # missing middle name or a typo. `no_match`: under another name, or there is no such account. `cannot_verify`: the
+    # bank answered without comparing the name, for example for a blocked or closed account.
+    module BankAccountCheckResponseResult
+      MATCH = "match"
+      CLOSE_MATCH = "close_match"
+      NO_MATCH = "no_match"
+      CANNOT_VERIFY = "cannot_verify"
+
+      VALUES = [MATCH, CLOSE_MATCH, NO_MATCH, CANNOT_VERIFY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultAccountHolderType
+      PERSON = "person"
+      BUSINESS = "business"
+      UNKNOWN = "unknown"
+
+      VALUES = [PERSON, BUSINESS, UNKNOWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultAccountType
+      CHECKING = "checking"
+      CURRENT = "current"
+      SAVINGS = "savings"
+      BUSINESS = "business"
+      OTHER = "other"
+
+      VALUES = [CHECKING, CURRENT, SAVINGS, BUSINESS, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultBillingRoute
+      NATIVE = "native"
+      BYOK = "byok"
+
+      VALUES = [NATIVE, BYOK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultConnectionStatus
+      PENDING = "pending"
+      CONNECTED = "connected"
+      CANCELLED = "cancelled"
+      TIMEOUT = "timeout"
+      FAILED = "failed"
+      UNSUPPORTED = "unsupported"
+      REVOKED = "revoked"
+      EXPIRED = "expired"
+
+      VALUES = [PENDING, CONNECTED, CANCELLED, TIMEOUT, FAILED, UNSUPPORTED, REVOKED, EXPIRED].freeze
+    end
+
+    # `native`: Didit's own route, billed to your Didit balance. `byok`: a marketplace provider you connected with
+    # your own credentials.
+    module BankVerificationResultCredentialSource
+      NATIVE = "native"
+      BYOK = "byok"
+
+      VALUES = [NATIVE, BYOK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultFinancialDataNotCollected
+      BALANCES = "balances"
+      INCOME = "income"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [BALANCES, INCOME, TRANSACTIONS].freeze
+    end
+
+    # How the account was verified: `open_banking` (bank sign-in: the person signed in at their bank),
+    # `account_lookup` (account check: the person typed the account details and the bank confirmed the name),
+    # `microdeposits` or `statement` (a statement upload). `null` until an account is evaluated. Workflow rules read
+    # the same value as `bank.method`.
+    module BankVerificationResultMethod
+      OPEN_BANKING = "open_banking"
+      ACCOUNT_LOOKUP = "account_lookup"
+      MICRODEPOSITS = "microdeposits"
+      STATEMENT = "statement"
+
+      VALUES = [OPEN_BANKING, ACCOUNT_LOOKUP, MICRODEPOSITS, STATEMENT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultOwnershipEvidenceFreshness
+      LIVE = "live"
+      CACHED = "cached"
+      REFRESHED = "refreshed"
+
+      VALUES = [LIVE, CACHED, REFRESHED].freeze
+    end
+
+    # The person's answer when asked to confirm a close-match name. `null` when never asked.
+    module BankVerificationResultOwnershipHolderConfirmation
+      PENDING = "pending"
+      CONFIRMED = "confirmed"
+      REJECTED = "rejected"
+
+      VALUES = [PENDING, CONFIRMED, REJECTED].freeze
+    end
+
+    # Which name comparison produced the score. This is not the verification method: read the top-level `method` for
+    # that.
+    module BankVerificationResultOwnershipMethod
+      EXACT = "exact"
+      TOKEN_SET = "token_set"
+      NICKNAME = "nickname"
+      TRANSLITERATION = "transliteration"
+      FUZZY = "fuzzy"
+      PROVIDER_ONLY = "provider_only"
+      MICRODEPOSITS = "microdeposits"
+
+      VALUES = [EXACT, TOKEN_SET, NICKNAME, TRANSLITERATION, FUZZY, PROVIDER_ONLY, MICRODEPOSITS].freeze
+    end
+
+    # `partial_match` is a close match. `not_verifiable`: the bank answered with no holder to compare. `unknown`: the
+    # evidence could not be read, or there was no identity to compare.
+    module BankVerificationResultOwnershipResult
+      MATCH = "match"
+      PARTIAL_MATCH = "partial_match"
+      NO_MATCH = "no_match"
+      UNKNOWN = "unknown"
+      NOT_VERIFIABLE = "not_verifiable"
+
+      VALUES = [MATCH, PARTIAL_MATCH, NO_MATCH, UNKNOWN, NOT_VERIFIABLE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultRouteCredentialSource
+      NATIVE = "native"
+      BYOK = "byok"
+
+      VALUES = [NATIVE, BYOK].freeze
+    end
+
+    # The step's verdict, after its actions and status rules.
+    module BankVerificationResultStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      EXPIRED = "Expired"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
+    end
+
     # What was blocklisted.
     module BlocklistedItemType
       FACE = "face"
@@ -5921,6 +6069,117 @@ module Didit
       field :reached, "reached", :integer
     end
 
+    class BankAccountCheckResponse < Didit::Model
+      field :request_id, "request_id", :string
+      field :result, "result", :string
+      field :holder_name, "holder_name", :string
+      field :account, "account", :string
+      field :vendor_data, "vendor_data", :string
+      field :created_at, "created_at", :datetime
+    end
+
+    # One Bank Verification step's result, for User and Business Verification. `method` says how the account was
+    # verified. See [Bank verification methods](/core-technology/bank-verification/verification-methods).
+    class BankVerificationResult < Didit::Model
+      field :schema_version, "schema_version", :integer
+      field :bank_verification_id, "bank_verification_id", :string
+      field :node_id, "node_id", :string
+      field :status, "status", :string
+      field :original_status, "original_status", :string
+      field :method_, "method", :string
+      field :provider, "provider", :string
+      field :credential_source, "credential_source", :string
+      field :route, "route", "BankVerificationResultRoute"
+      field :connection, "connection", "BankVerificationResultConnection"
+      field :account, "account", "BankVerificationResultAccount"
+      field :ownership, "ownership", "BankVerificationResultOwnership"
+      field :financial_data, "financial_data", "BankVerificationResultFinancialData"
+      field :billing, "billing", "BankVerificationResultBilling"
+      field :reference_identity, "reference_identity", :any
+      field :signals, "signals", :any
+      field :connection_abandoned, "connection_abandoned", :boolean
+      field :not_covered, "not_covered", :boolean
+      field :evidence_purged_at, "evidence_purged_at", :datetime
+      field :warnings, "warnings", [:array, :string]
+      field :reason_codes, "reason_codes", [:array, :string]
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # The evaluated account. `null` until an account is evaluated.
+    class BankVerificationResultAccount < Didit::Model
+      field :account_id_masked, "account_id_masked", :string
+      field :iban_masked, "iban_masked", :string
+      field :sort_code, "sort_code", :string
+      field :routing_number_masked, "routing_number_masked", :string
+      field :type, "type", :string
+      field :subtype, "subtype", :string
+      field :currency, "currency", :string
+      field :holder_type, "holder_type", :string
+      field :holders_count, "holders_count", :integer
+      field :is_joint, "is_joint", :boolean
+      field :is_business, "is_business", :boolean
+    end
+
+    class BankVerificationResultBilling < Didit::Model
+      field :route, "route", :string
+      field :billed, "billed", :boolean
+      field :marketplace_fee, "marketplace_fee", :string
+      field :usage_type, "usage_type", :string
+    end
+
+    # The latest attempt's connection. `null` before the first attempt.
+    class BankVerificationResultConnection < Didit::Model
+      field :status, "status", :string
+      field :institution_id, "institution_id", :string
+      field :institution_name, "institution_name", :string
+      field :institution_country, "institution_country", :string
+      field :oauth, "oauth", :boolean
+      field :connected_at, "connected_at", :datetime
+      field :consent_expires_at, "consent_expires_at", :datetime
+      field :last_refreshed_at, "last_refreshed_at", :datetime
+      field :attempts, "attempts", :integer
+      field :reason_code, "reason_code", :string
+    end
+
+    # The financial data the step read. Only bank sign-in reads it.
+    class BankVerificationResultFinancialData < Didit::Model
+      field :balances, "balances", :any
+      field :transactions, "transactions", :any
+      field :income, "income", :any
+      field :categorization, "categorization", :any
+      field :not_collected, "not_collected", [:array, :string]
+    end
+
+    # How the account holder compared with the verified identity. `null` until an account is evaluated.
+    class BankVerificationResultOwnership < Didit::Model
+      field :result, "result", :string
+      field :reference_identity_source, "reference_identity_source", :string
+      field :name_score, "name_score", :integer
+      field :provider_name_score, "provider_name_score", :integer
+      field :address_score, "address_score", :integer
+      field :email_score, "email_score", :integer
+      field :phone_score, "phone_score", :integer
+      field :dob_score, "dob_score", :integer
+      field :close_match, "close_match", :boolean
+      field :holder_confirmation, "holder_confirmation", :string
+      field :method_, "method", :string
+      field :matched_holder_index, "matched_holder_index", :integer
+      field :holders, "holders", [:array, :any]
+      field :owner_identity_available, "owner_identity_available", :boolean
+      field :evidence_freshness, "evidence_freshness", :string
+      field :evaluated_at, "evaluated_at", :datetime
+    end
+
+    # The route chosen before consent. It never changes afterwards.
+    class BankVerificationResultRoute < Didit::Model
+      field :provider_key, "provider_key", :string
+      field :credential_source, "credential_source", :string
+      field :is_fallback, "is_fallback", :boolean
+      field :provider_connection_id, "provider_connection_id", :string
+      field :requested_scopes, "requested_scopes", [:array, :string]
+    end
+
     # One blocklisted face, identity document, phone number or email address of a verification session. Fields that do
     # not apply to the item's `type` are `null`.
     class BlocklistedItem < Didit::Model
@@ -8179,6 +8438,7 @@ module Didit
       field :poa_verifications, "poa_verifications", [:array, "SessionDecisionPoaVerifications"]
       field :document_ai_documents, "document_ai_documents", [:array, "SessionDecisionDocumentAiDocuments"]
       field :questionnaire_responses, "questionnaire_responses", [:array, "SessionDecisionQuestionnaireResponses"]
+      field :bank_verifications, "bank_verifications", [:array, "BankVerificationResult"]
       field :signatures, "signatures", [:array, "SignatureResult"]
       field :aml_screenings, "aml_screenings", [:array, "AMLScreening"]
       field :ip_analyses, "ip_analyses", [:array, "SessionDecisionIpAnalyses"]
