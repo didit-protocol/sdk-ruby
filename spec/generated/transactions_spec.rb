@@ -85,6 +85,7 @@ RSpec.describe Didit::Resources::Transactions do
         "travel_rule": null,
         "network_snapshot": null,
         "remediation": null,
+        "action_required": null,
         "cost_breakdown": null
       }
     JSON
@@ -161,6 +162,23 @@ RSpec.describe Didit::Resources::Transactions do
     exercise_readers(result)
   end
 
+  it "transactions.generate_pdf sends GET /v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/pdf/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
+    result = client.transactions.generate_pdf(
+      "abcdef12-3456-7890-abcd-ef1234567890"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/transactions/abcdef12-3456-7890-abcd-ef1234567890/pdf/",
+      query: [],
+      auth: :api_key,
+      accept: "application/pdf, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
   it "transactions.list sends GET /v3/transactions/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -203,7 +221,9 @@ RSpec.describe Didit::Resources::Transactions do
             "counterparty_vendor_data": null,
             "counterparty_country": null,
             "subject_country": null,
-            "assigned_to_name": "Alex Reviewer"
+            "assigned_to_name": "Alex Reviewer",
+            "travel_rule_status": null,
+            "travel_rule": null
           }
         ]
       }
@@ -274,7 +294,7 @@ RSpec.describe Didit::Resources::Transactions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::TransactionsListNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -330,9 +350,74 @@ RSpec.describe Didit::Resources::Transactions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::TransactionsListPartyNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
+  end
+
+  it "transactions.list_related sends GET /v3/transactions/{transaction_id}/related/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "abcdef99-3456-4890-abcd-ef1234567890",
+            "transaction_number": 4087,
+            "txn_id": "your-txn-2026-10-02-017",
+            "transaction_type": "finance",
+            "action_type": "deposit",
+            "status": "APPROVED",
+            "source": "LIVE",
+            "direction": "INBOUND",
+            "amount": "250",
+            "currency": "EUR",
+            "currency_type": "fiat",
+            "preferred_currency_amount": "270.08",
+            "preferred_currency_code": "USD",
+            "payment_details": "Card top-up",
+            "txn_date": "2026-10-02T14:10:00Z",
+            "created_at": "2026-10-02T14:10:03.512244Z",
+            "score": 12,
+            "severity": "LOW",
+            "decision_reason_code": null,
+            "decision_reason_label": null,
+            "tags": [],
+            "subject_name": "Maria Garcia",
+            "subject_vendor_data": "user-12345",
+            "subject_type": "user",
+            "subject_uuid": "e1111111-2222-4333-8444-555555555555",
+            "counterparty_name": null,
+            "counterparty_vendor_data": null,
+            "counterparty_country": null,
+            "subject_country": "ESP",
+            "assigned_to_name": null,
+            "travel_rule_status": null,
+            "application_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "application_name": "Production app",
+            "organization_id": "11111111-2222-3333-4444-555555555555",
+            "organization_name": "Example Org"
+          }
+        ]
+      }
+    JSON
+    result = client.transactions.list_related(
+      "abcdef12-3456-7890-abcd-ef1234567890"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/transactions/abcdef12-3456-7890-abcd-ef1234567890/related/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TransactionSummary))
+    exercise_readers(result.results)
   end
 
   it "transactions.retrieve sends GET /v3/transactions/{transaction_id}/" do
@@ -417,6 +502,7 @@ RSpec.describe Didit::Resources::Transactions do
         "travel_rule": null,
         "network_snapshot": null,
         "remediation": null,
+        "action_required": null,
         "cost_breakdown": null
       }
     JSON
@@ -435,6 +521,112 @@ RSpec.describe Didit::Resources::Transactions do
     expect(result).to be_a(Didit::Types::TransactionDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
+  end
+
+  it "transactions.notes.create sends POST /v3/transactions/{transaction_id}/notes/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "uuid": "c1111111-2222-4333-8444-555555555555",
+        "note": "Customer confirmed the withdrawal by phone.",
+        "actor_email": null,
+        "actor_name": null,
+        "metadata": {
+          "mentioned_emails": [
+            "analyst@example.com"
+          ]
+        },
+        "created_at": "2026-10-16T10:05:12.481203Z"
+      }
+    JSON
+    result = client.transactions.notes.create(
+      "abcdef12-3456-7890-abcd-ef1234567890",
+      note: "Customer confirmed the withdrawal by phone.",
+      mentioned_emails: [
+        "analyst@example.com"
+      ]
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/transactions/abcdef12-3456-7890-abcd-ef1234567890/notes/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "note" => "Customer confirmed the withdrawal by phone.",
+      "mentioned_emails" => [
+        "analyst@example.com"
+      ]
+    })
+    expect(result).to be_a(Didit::Types::TransactionNote)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "transactions.notes.list sends GET /v3/transactions/{transaction_id}/notes/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 3,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "c1111111-2222-4333-8444-555555555555",
+            "note": "Customer confirmed the withdrawal by phone.",
+            "actor_email": null,
+            "actor_name": null,
+            "metadata": {
+              "mentioned_emails": [
+                "analyst@example.com"
+              ]
+            },
+            "created_at": "2026-10-16T10:05:12.481203Z"
+          },
+          {
+            "uuid": "c2222222-3333-4444-8555-666666666666",
+            "note": "Status changed from IN_REVIEW to APPROVED. Reason: Source of funds verified",
+            "actor_email": "reviewer@example.com",
+            "actor_name": "Alex Reviewer",
+            "metadata": {
+              "type": "status_change",
+              "previous_status": "IN_REVIEW",
+              "new_status": "APPROVED",
+              "reason_code": "SOF_VERIFIED",
+              "reason_label": "Source of funds verified"
+            },
+            "created_at": "2026-10-15T17:22:40.103911Z"
+          },
+          {
+            "uuid": "c3333333-4444-4555-8666-777777777777",
+            "note": "Large withdrawal to a new wallet: check the source of funds.",
+            "actor_email": null,
+            "actor_name": "Rule Engine",
+            "metadata": {
+              "rule_uuid": "d1111111-2222-4333-8444-555555555555",
+              "source": "rule_action"
+            },
+            "created_at": "2026-10-15T08:42:12.004518Z"
+          }
+        ]
+      }
+    JSON
+    result = client.transactions.notes.list(
+      "abcdef12-3456-7890-abcd-ef1234567890"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/transactions/abcdef12-3456-7890-abcd-ef1234567890/notes/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TransactionNote))
+    exercise_readers(result.results)
   end
 
   it "transactions.rules.backtest sends POST /v3/transactions/rules/backtest/" do
@@ -1189,17 +1381,145 @@ RSpec.describe Didit::Resources::Transactions do
           {
             "status": "status-value",
             "at": "2026-01-02T03:04:05Z",
-            "detail": "detail-value"
+            "detail": "detail-value",
+            "name_match": {
+              "score": 1,
+              "matched": true,
+              "method": "none",
+              "strictness": "NONE",
+              "compared_with": "wallet_holder",
+              "transfer_name": "transfer_name-value",
+              "compared_name": "compared_name-value",
+              "matched_names": [
+                "example"
+              ],
+              "mismatched_names": [
+                "example"
+              ]
+            },
+            "reason": "reason-value"
           }
         ],
         "counterparty_vasp": {
           "name": "name-value",
           "lei": "lei-value",
-          "dd_score": 1
+          "dd_score": 1,
+          "dd_score_breakdown": {
+            "key": {
+              "points": 1.5,
+              "max": 1,
+              "reason": "reason-value",
+              "detail": "detail-value"
+            }
+          },
+          "dd_assessed_at": "2026-01-02T03:04:05Z"
         },
         "originator_data": {},
         "beneficiary_data": {},
-        "created_at": "2026-01-02T03:04:05Z"
+        "name_match": {
+          "score": 1,
+          "matched": true,
+          "method": "none",
+          "strictness": "NONE",
+          "compared_with": "wallet_holder",
+          "transfer_name": "transfer_name-value",
+          "compared_name": "compared_name-value",
+          "matched_names": [
+            "matched_names-value"
+          ],
+          "mismatched_names": [
+            "mismatched_names-value"
+          ]
+        },
+        "data_match": {
+          "matched": true,
+          "mismatched_fields": [
+            "name"
+          ],
+          "fields": {
+            "key": {
+              "result": "matched",
+              "strictness": "NONE"
+            }
+          }
+        },
+        "mismatched_fields": [
+          "mismatched_fields-value"
+        ],
+        "data_unmasked": {
+          "at": "2026-01-02T03:04:05Z",
+          "reason": "ownership_confirmed",
+          "actor": "actor-value"
+        },
+        "data_masked": true,
+        "created_at": "2026-01-02T03:04:05Z",
+        "delivery": {
+          "kind": "SEND",
+          "status": "QUEUED",
+          "rail": "INTERNAL",
+          "attempts": 1,
+          "last_error": "email undeliverable",
+          "next_attempt_at": "2026-01-02T03:04:05Z",
+          "delivered_at": "2026-01-02T03:04:05Z"
+        },
+        "discovery": [
+          {
+            "step": "internal_address_book",
+            "outcome": "match",
+            "reason": "reason-value",
+            "vasp": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "rail": "rail-value",
+            "at": "2026-01-02T03:04:05Z"
+          }
+        ],
+        "reason": "reason-value",
+        "next_actions": [
+          {
+            "action": "select_counterparty_vasp",
+            "url": "https://example.com/callback"
+          }
+        ],
+        "chain_details": {
+          "chain": "chain-value",
+          "shape": "utxo",
+          "originator": {
+            "address": "address-value",
+            "memo": "memo-value",
+            "source": "declared"
+          },
+          "beneficiary": {
+            "address": "address-value",
+            "memo": "memo-value",
+            "source": "declared"
+          },
+          "utxo": {
+            "inputs": [
+              {
+                "address": "example",
+                "amount": "example",
+                "txid": "example",
+                "vout": "example"
+              }
+            ],
+            "outputs": [
+              {
+                "address": "example",
+                "amount": "example",
+                "txid": "example",
+                "vout": "example"
+              }
+            ],
+            "change_output_indexes": [
+              1
+            ],
+            "beneficiary_output_index": 1
+          },
+          "lightning": {},
+          "warnings": [
+            "declared_originator_not_an_input"
+          ],
+          "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
+        }
       }
     JSON
     result = client.transactions.travel_rule.confirm_ownership(
@@ -1222,6 +1542,291 @@ RSpec.describe Didit::Resources::Transactions do
     exercise_readers(result)
   end
 
+  it "transactions.travel_rule.create_message sends POST /v3/transactions/{transaction_id}/travel-rule/messages/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "kind": "MESSAGE",
+        "direction": "INBOUND",
+        "author": "author-value",
+        "body": "body-value",
+        "requested_documents": [
+          "requested_documents-value"
+        ],
+        "reply_to": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "fulfilled_at": "2026-01-02T03:04:05Z",
+        "attachment": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "label": "label-value",
+          "note": "note-value",
+          "uploaded_by": "uploaded_by-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "files": [
+            {
+              "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "file_url": "file_url-value",
+              "original_filename": "original_filename-value",
+              "file_size": 1
+            }
+          ]
+        },
+        "created_at": "2026-01-02T03:04:05Z"
+      }
+    JSON
+    result = client.transactions.travel_rule.create_message(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      kind: "DOCUMENT_REQUEST",
+      body: "Please confirm the date of birth of the beneficiary.",
+      requested_documents: [
+        "Proof of address"
+      ]
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/transactions/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/travel-rule/messages/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "kind" => "DOCUMENT_REQUEST",
+      "body" => "Please confirm the date of birth of the beneficiary.",
+      "requested_documents" => [
+        "Proof of address"
+      ]
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleMessage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "transactions.travel_rule.list_messages sends GET /v3/transactions/{transaction_id}/travel-rule/messages/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      [
+        {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "kind": "MESSAGE",
+          "direction": "INBOUND",
+          "author": "author-value",
+          "body": "body-value",
+          "requested_documents": [
+            "requested_documents-value"
+          ],
+          "reply_to": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "fulfilled_at": "2026-01-02T03:04:05Z",
+          "attachment": {
+            "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "label": "label-value",
+            "note": "note-value",
+            "uploaded_by": "uploaded_by-value",
+            "created_at": "2026-01-02T03:04:05Z",
+            "files": [
+              {
+                "uuid": "example",
+                "file_url": "example",
+                "original_filename": "example",
+                "file_size": "example"
+              }
+            ]
+          },
+          "created_at": "2026-01-02T03:04:05Z"
+        }
+      ]
+    JSON
+    result = client.transactions.travel_rule.list_messages(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/transactions/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/travel-rule/messages/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Array)
+    expect(result).to all(be_a(Didit::Types::TravelRuleMessage))
+    exercise_readers(result)
+  end
+
+  it "transactions.travel_rule.trigger_test_vasp_inbound sends POST /v3/travel-rule/test-vasp/inbound/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "txn_id": "txn_id-value",
+        "scenario": "scenario-value",
+        "travel_rule_status": "travel_rule_status-value",
+        "detail": "detail-value",
+        "test_vasp": true,
+        "travel_rule": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "AWAITING_COUNTERPARTY",
+          "direction": "INBOUND",
+          "rail": "INTERNAL",
+          "protocol": "protocol-value",
+          "ivms_version": "ivms101.2023",
+          "required": true,
+          "ownership_confirmed": true,
+          "deadline_at": "2026-01-02T03:04:05Z",
+          "timeline": [
+            {
+              "status": "status-value",
+              "at": "2026-01-02T03:04:05Z",
+              "detail": "detail-value",
+              "name_match": {
+                "score": "example",
+                "matched": "example",
+                "method": "example",
+                "strictness": "example",
+                "compared_with": "example",
+                "transfer_name": "example",
+                "compared_name": "example",
+                "matched_names": "example",
+                "mismatched_names": "example"
+              },
+              "reason": "reason-value"
+            }
+          ],
+          "counterparty_vasp": {
+            "name": "name-value",
+            "lei": "lei-value",
+            "dd_score": 1,
+            "dd_score_breakdown": {
+              "key": {
+                "points": "example",
+                "max": "example",
+                "reason": "example",
+                "detail": "example"
+              }
+            },
+            "dd_assessed_at": "2026-01-02T03:04:05Z"
+          },
+          "originator_data": {},
+          "beneficiary_data": {},
+          "name_match": {
+            "score": 1,
+            "matched": true,
+            "method": "none",
+            "strictness": "NONE",
+            "compared_with": "wallet_holder",
+            "transfer_name": "transfer_name-value",
+            "compared_name": "compared_name-value",
+            "matched_names": [
+              "matched_names-value"
+            ],
+            "mismatched_names": [
+              "mismatched_names-value"
+            ]
+          },
+          "data_match": {
+            "matched": true,
+            "mismatched_fields": [
+              "name"
+            ],
+            "fields": {
+              "key": {
+                "result": "example",
+                "strictness": "example"
+              }
+            }
+          },
+          "mismatched_fields": [
+            "mismatched_fields-value"
+          ],
+          "data_unmasked": {
+            "at": "2026-01-02T03:04:05Z",
+            "reason": "ownership_confirmed",
+            "actor": "actor-value"
+          },
+          "data_masked": true,
+          "created_at": "2026-01-02T03:04:05Z",
+          "delivery": {
+            "kind": "SEND",
+            "status": "QUEUED",
+            "rail": "INTERNAL",
+            "attempts": 1,
+            "last_error": "email undeliverable",
+            "next_attempt_at": "2026-01-02T03:04:05Z",
+            "delivered_at": "2026-01-02T03:04:05Z"
+          },
+          "discovery": [
+            {
+              "step": "internal_address_book",
+              "outcome": "match",
+              "reason": "reason-value",
+              "vasp": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "rail": "rail-value",
+              "at": "2026-01-02T03:04:05Z"
+            }
+          ],
+          "reason": "reason-value",
+          "next_actions": [
+            {
+              "action": "select_counterparty_vasp",
+              "url": "https://example.com/callback"
+            }
+          ],
+          "chain_details": {
+            "chain": "chain-value",
+            "shape": "utxo",
+            "originator": {
+              "address": "address-value",
+              "memo": "memo-value",
+              "source": "declared"
+            },
+            "beneficiary": {
+              "address": "address-value",
+              "memo": "memo-value",
+              "source": "declared"
+            },
+            "utxo": {
+              "inputs": [
+                "example"
+              ],
+              "outputs": [
+                "example"
+              ],
+              "change_output_indexes": [
+                "example"
+              ],
+              "beneficiary_output_index": 1
+            },
+            "lightning": {},
+            "warnings": [
+              "declared_originator_not_an_input"
+            ],
+            "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
+          }
+        }
+      }
+    JSON
+    result = client.transactions.travel_rule.trigger_test_vasp_inbound(
+      beneficiary_wallet_address: "0xYourSandboxWallet",
+      scenario: "accept",
+      amount: "1",
+      reference: "demo-001"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/test-vasp/inbound/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "beneficiary_wallet_address" => "0xYourSandboxWallet",
+      "scenario" => "accept",
+      "amount" => "1",
+      "reference" => "demo-001"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleTestVaspInboundResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "transactions.travel_rule.update_transfer sends PATCH /v3/transactions/{transaction_id}/travel-rule/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1238,17 +1843,145 @@ RSpec.describe Didit::Resources::Transactions do
           {
             "status": "status-value",
             "at": "2026-01-02T03:04:05Z",
-            "detail": "detail-value"
+            "detail": "detail-value",
+            "name_match": {
+              "score": 1,
+              "matched": true,
+              "method": "none",
+              "strictness": "NONE",
+              "compared_with": "wallet_holder",
+              "transfer_name": "transfer_name-value",
+              "compared_name": "compared_name-value",
+              "matched_names": [
+                "example"
+              ],
+              "mismatched_names": [
+                "example"
+              ]
+            },
+            "reason": "reason-value"
           }
         ],
         "counterparty_vasp": {
           "name": "name-value",
           "lei": "lei-value",
-          "dd_score": 1
+          "dd_score": 1,
+          "dd_score_breakdown": {
+            "key": {
+              "points": 1.5,
+              "max": 1,
+              "reason": "reason-value",
+              "detail": "detail-value"
+            }
+          },
+          "dd_assessed_at": "2026-01-02T03:04:05Z"
         },
         "originator_data": {},
         "beneficiary_data": {},
-        "created_at": "2026-01-02T03:04:05Z"
+        "name_match": {
+          "score": 1,
+          "matched": true,
+          "method": "none",
+          "strictness": "NONE",
+          "compared_with": "wallet_holder",
+          "transfer_name": "transfer_name-value",
+          "compared_name": "compared_name-value",
+          "matched_names": [
+            "matched_names-value"
+          ],
+          "mismatched_names": [
+            "mismatched_names-value"
+          ]
+        },
+        "data_match": {
+          "matched": true,
+          "mismatched_fields": [
+            "name"
+          ],
+          "fields": {
+            "key": {
+              "result": "matched",
+              "strictness": "NONE"
+            }
+          }
+        },
+        "mismatched_fields": [
+          "mismatched_fields-value"
+        ],
+        "data_unmasked": {
+          "at": "2026-01-02T03:04:05Z",
+          "reason": "ownership_confirmed",
+          "actor": "actor-value"
+        },
+        "data_masked": true,
+        "created_at": "2026-01-02T03:04:05Z",
+        "delivery": {
+          "kind": "SEND",
+          "status": "QUEUED",
+          "rail": "INTERNAL",
+          "attempts": 1,
+          "last_error": "email undeliverable",
+          "next_attempt_at": "2026-01-02T03:04:05Z",
+          "delivered_at": "2026-01-02T03:04:05Z"
+        },
+        "discovery": [
+          {
+            "step": "internal_address_book",
+            "outcome": "match",
+            "reason": "reason-value",
+            "vasp": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "rail": "rail-value",
+            "at": "2026-01-02T03:04:05Z"
+          }
+        ],
+        "reason": "reason-value",
+        "next_actions": [
+          {
+            "action": "select_counterparty_vasp",
+            "url": "https://example.com/callback"
+          }
+        ],
+        "chain_details": {
+          "chain": "chain-value",
+          "shape": "utxo",
+          "originator": {
+            "address": "address-value",
+            "memo": "memo-value",
+            "source": "declared"
+          },
+          "beneficiary": {
+            "address": "address-value",
+            "memo": "memo-value",
+            "source": "declared"
+          },
+          "utxo": {
+            "inputs": [
+              {
+                "address": "example",
+                "amount": "example",
+                "txid": "example",
+                "vout": "example"
+              }
+            ],
+            "outputs": [
+              {
+                "address": "example",
+                "amount": "example",
+                "txid": "example",
+                "vout": "example"
+              }
+            ],
+            "change_output_indexes": [
+              1
+            ],
+            "beneficiary_output_index": 1
+          },
+          "lightning": {},
+          "warnings": [
+            "declared_originator_not_an_input"
+          ],
+          "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
+        }
       }
     JSON
     result = client.transactions.travel_rule.update_transfer(

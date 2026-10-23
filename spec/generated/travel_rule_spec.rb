@@ -6,6 +6,29 @@ RSpec.describe Didit::Resources::TravelRule do
 
   let(:client) { generated_test_client }
 
+  it "travel_rule.clear_vasp_decision sends DELETE /v3/travel-rule/vasps/{vasp_id}/decision/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "decision": null
+      }
+    JSON
+    result = client.travel_rule.clear_vasp_decision(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/decision/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyDecisionResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.create_widget_session sends POST /v3/travel-rule/widget-session/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -16,11 +39,11 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.create_widget_session(
-      wallet_address: "0xBeneficiaryWallet01",
-      chain: "ethereum",
-      holder_name: "Ana Diaz",
+      wallet_address: "0xd3b62acb76fb27a7f8961ec40fa11746b113aca9",
+      chain: "ETH",
+      holder_name: "Jane Doe",
       vendor_data: "user-042",
-      transaction_id: "22222222-3333-4444-5555-666666666666",
+      transaction_id: "99999999-aaaa-bbbb-cccc-dddddddddddd",
       expires_in_minutes: 60
     )
     request = expect_api_request(
@@ -32,14 +55,75 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "wallet_address" => "0xBeneficiaryWallet01",
-      "chain" => "ethereum",
-      "holder_name" => "Ana Diaz",
+      "wallet_address" => "0xd3b62acb76fb27a7f8961ec40fa11746b113aca9",
+      "chain" => "ETH",
+      "holder_name" => "Jane Doe",
       "vendor_data" => "user-042",
-      "transaction_id" => "22222222-3333-4444-5555-666666666666",
+      "transaction_id" => "99999999-aaaa-bbbb-cccc-dddddddddddd",
       "expires_in_minutes" => 60
     })
     expect(result).to be_a(Didit::Types::TravelRuleWidgetSessionResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.list_vasp_questionnaires sends GET /v3/travel-rule/vasps/{vasp_id}/questionnaires/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "questionnaires": [
+          {
+            "id": "3f9e8d7c-6b5a-4c3d-9e2f-1a0b9c8d7e6f",
+            "status": "SENT",
+            "form_version": "1",
+            "sent_to": "travelrule@counterparty.example",
+            "sent_at": "2026-10-14T10:00:00Z",
+            "expires_at": "2026-11-13T10:00:00Z",
+            "answered_at": null,
+            "valid_until": null,
+            "current": false,
+            "answers": {}
+          },
+          {
+            "id": "8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d",
+            "status": "ANSWERED",
+            "form_version": "1",
+            "sent_to": "travelrule@counterparty.example",
+            "sent_at": "2026-09-02T08:00:00Z",
+            "expires_at": "2026-10-02T08:00:00Z",
+            "answered_at": "2026-09-04T15:20:00Z",
+            "valid_until": "2027-09-04T15:20:00Z",
+            "current": true,
+            "answers": {
+              "legal_name": "Example Counterparty VASP, incorporated in the example jurisdiction.",
+              "licensing": "Crypto-asset service provider authorised under MiCA by its national regulator, licence active.",
+              "jurisdictions": "EU and EEA. We do not serve the United States.",
+              "aml_program": "Written AML/CFT policy, annual independent review, last completed in March 2026.",
+              "compliance_officer": "Head of Compliance, reachable at compliance@counterparty.example.",
+              "sanctions_screening": "Customers at onboarding and daily; counterparties on every transfer.",
+              "transaction_monitoring": "Rule-based monitoring with analyst review; suspicious activity reports filed with the FIU.",
+              "travel_rule": "TRP and email; we answer requests within one business day.",
+              "custody": "Segregated customer wallets held with a qualified custodian, insured.",
+              "ownership": "No shareholder holds 25 percent or more; parent company Example Holding Group.",
+              "record_keeping": "Five-year record-keeping for Travel Rule and transaction data, as our regulator requires.",
+              "data_protection": "Encrypted at rest and in transit, stored in the EU."
+            }
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.list_vasp_questionnaires(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/questionnaires/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyQuestionnaireList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -52,9 +136,63 @@ RSpec.describe Didit::Resources::TravelRule do
         "previous": "previous-value",
         "results": [
           {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "kind": "directory",
             "name": "name-value",
             "lei": "lei-value",
             "jurisdiction": "jurisdiction-value",
+            "domains": [
+              "domains-value"
+            ],
+            "reachable": true,
+            "aliases": [
+              {
+                "name": "example",
+                "kind": "example"
+              }
+            ],
+            "networks": [
+              {
+                "network": "example",
+                "code": "example",
+                "listed_name": "example",
+                "country": "example",
+                "verified_at": "example",
+                "last_seen_at": "example",
+                "source": "example"
+              }
+            ],
+            "routes": [
+              {
+                "rail": "example",
+                "status": "example",
+                "reason": "example",
+                "via": "example"
+              }
+            ],
+            "umbrella": {
+              "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "name": "name-value"
+            },
+            "entities": [
+              {
+                "id": "example",
+                "name": "example",
+                "lei": "example",
+                "jurisdiction": "example",
+                "reachable": "example"
+              }
+            ],
+            "contacts": [
+              {
+                "id": "example",
+                "email": "example",
+                "name": "example",
+                "source": "example",
+                "scope": "example",
+                "verified_at": "example"
+              }
+            ],
             "dd_status": "NOT_STARTED",
             "dd_score": 1,
             "reachable_rails": [
@@ -62,9 +200,66 @@ RSpec.describe Didit::Resources::TravelRule do
             ],
             "is_didit_customer": true,
             "dd_score_breakdown": {
-              "key": 1
+              "key": {
+                "points": "example",
+                "max": "example",
+                "reason": "example",
+                "detail": "example"
+              }
             },
-            "dd_assessed_at": "2026-01-02T03:04:05Z"
+            "dd_assessed_at": "2026-01-02T03:04:05Z",
+            "dd_score_semantic": "higher_is_safer",
+            "risk_level": "LOW",
+            "responsiveness": {
+              "status": "RESPONSIVE",
+              "answered": 1,
+              "total": 1,
+              "computed_at": "2026-01-02T03:04:05Z"
+            },
+            "essential_checks": {
+              "level": "essential",
+              "checked_at": "2026-01-02T03:04:05Z",
+              "checks": [
+                "example"
+              ],
+              "passed": 1,
+              "failed": 1,
+              "unknown": 1,
+              "total": 1
+            },
+            "decision": {
+              "decision": "APPROVED",
+              "reason": "reason-value",
+              "decided_by": "decided_by-value",
+              "updated_at": "2026-01-02T03:04:05Z",
+              "inherited_from": {
+                "id": "example",
+                "name": "example"
+              }
+            },
+            "entity_screening": {
+              "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "status": "Approved",
+              "total_hits": 1,
+              "score": 1.5,
+              "screened_at": "2026-01-02T03:04:05Z",
+              "fresh": true,
+              "flagged": true
+            },
+            "questionnaires": [
+              {
+                "id": "example",
+                "status": "example",
+                "form_version": "example",
+                "sent_to": "example",
+                "sent_at": "example",
+                "expires_at": "example",
+                "answered_at": "example",
+                "valid_until": "example",
+                "current": "example",
+                "answers": "example"
+              }
+            ]
           }
         ]
       }
@@ -105,22 +300,136 @@ RSpec.describe Didit::Resources::TravelRule do
             {
               "status": "status-value",
               "at": "2026-01-02T03:04:05Z",
-              "detail": "detail-value"
+              "detail": "detail-value",
+              "name_match": {
+                "score": "example",
+                "matched": "example",
+                "method": "example",
+                "strictness": "example",
+                "compared_with": "example",
+                "transfer_name": "example",
+                "compared_name": "example",
+                "matched_names": "example",
+                "mismatched_names": "example"
+              },
+              "reason": "reason-value"
             }
           ],
           "counterparty_vasp": {
             "name": "name-value",
             "lei": "lei-value",
-            "dd_score": 1
+            "dd_score": 1,
+            "dd_score_breakdown": {
+              "key": {
+                "points": "example",
+                "max": "example",
+                "reason": "example",
+                "detail": "example"
+              }
+            },
+            "dd_assessed_at": "2026-01-02T03:04:05Z"
           },
           "originator_data": {},
           "beneficiary_data": {},
-          "created_at": "2026-01-02T03:04:05Z"
+          "name_match": {
+            "score": 1,
+            "matched": true,
+            "method": "none",
+            "strictness": "NONE",
+            "compared_with": "wallet_holder",
+            "transfer_name": "transfer_name-value",
+            "compared_name": "compared_name-value",
+            "matched_names": [
+              "matched_names-value"
+            ],
+            "mismatched_names": [
+              "mismatched_names-value"
+            ]
+          },
+          "data_match": {
+            "matched": true,
+            "mismatched_fields": [
+              "name"
+            ],
+            "fields": {
+              "key": {
+                "result": "example",
+                "strictness": "example"
+              }
+            }
+          },
+          "mismatched_fields": [
+            "mismatched_fields-value"
+          ],
+          "data_unmasked": {
+            "at": "2026-01-02T03:04:05Z",
+            "reason": "ownership_confirmed",
+            "actor": "actor-value"
+          },
+          "data_masked": true,
+          "created_at": "2026-01-02T03:04:05Z",
+          "delivery": {
+            "kind": "SEND",
+            "status": "QUEUED",
+            "rail": "INTERNAL",
+            "attempts": 1,
+            "last_error": "email undeliverable",
+            "next_attempt_at": "2026-01-02T03:04:05Z",
+            "delivered_at": "2026-01-02T03:04:05Z"
+          },
+          "discovery": [
+            {
+              "step": "internal_address_book",
+              "outcome": "match",
+              "reason": "reason-value",
+              "vasp": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "rail": "rail-value",
+              "at": "2026-01-02T03:04:05Z"
+            }
+          ],
+          "reason": "reason-value",
+          "next_actions": [
+            {
+              "action": "select_counterparty_vasp",
+              "url": "https://example.com/callback"
+            }
+          ],
+          "chain_details": {
+            "chain": "chain-value",
+            "shape": "utxo",
+            "originator": {
+              "address": "address-value",
+              "memo": "memo-value",
+              "source": "declared"
+            },
+            "beneficiary": {
+              "address": "address-value",
+              "memo": "memo-value",
+              "source": "declared"
+            },
+            "utxo": {
+              "inputs": [
+                "example"
+              ],
+              "outputs": [
+                "example"
+              ],
+              "change_output_indexes": [
+                "example"
+              ],
+              "beneficiary_output_index": 1
+            },
+            "lightning": {},
+            "warnings": [
+              "declared_originator_not_an_input"
+            ],
+            "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
+          }
         }
       }
     JSON
     result = client.travel_rule.register_inbound(
-      chain: "ethereum",
+      chain: "ETH",
       txid: "0xdeposit-hash",
       wallet_address: "0xYourDepositWallet",
       amount: "500.00",
@@ -134,7 +443,7 @@ RSpec.describe Didit::Resources::TravelRule do
       originating_vasp: {
         name: "Origin CASP SL",
         lei: "",
-        travel_address: "ta..."
+        travel_address: "ta9JbXbsBSuS5ozArJRFVgvBHMVnDGUnrPPChSZYQsuZTn3kPrJXUQ7RSLUEJ5KjyPvr8C9sAxmPtZfGsQVKCi4n8ShxP9BkbDdbtjtA9aumNybAZ1BxC"
       }
     )
     request = expect_api_request(
@@ -146,7 +455,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "chain" => "ethereum",
+      "chain" => "ETH",
       "txid" => "0xdeposit-hash",
       "wallet_address" => "0xYourDepositWallet",
       "amount" => "500.00",
@@ -160,7 +469,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "originating_vasp" => {
         "name" => "Origin CASP SL",
         "lei" => "",
-        "travel_address" => "ta..."
+        "travel_address" => "ta9JbXbsBSuS5ozArJRFVgvBHMVnDGUnrPPChSZYQsuZTn3kPrJXUQ7RSLUEJ5KjyPvr8C9sAxmPtZfGsQVKCi4n8ShxP9BkbDdbtjtA9aumNybAZ1BxC"
       }
     })
     expect(result).to be_a(Didit::Types::TravelRuleInboundResponse)
@@ -177,10 +486,24 @@ RSpec.describe Didit::Resources::TravelRule do
         "confirmation_timeout_hours": 48,
         "timeout_outcome": "HOLD",
         "threshold_amount": "0.00",
+        "inbound_auto_accept": true,
+        "allow_self_declaration": true,
+        "allow_screenshot_proof": true,
+        "auto_wallet_verification": true,
+        "vasp_attribution_enabled": true,
         "legal_name": "",
         "lei": "",
         "compliance_email": "",
         "is_discoverable": true,
+        "counterparty_screening_enabled": false,
+        "sunrise_policy": "",
+        "sunrise_jurisdictions": [
+          "CO",
+          "KH",
+          "VN"
+        ],
+        "non_responsive_policy": "",
+        "travel_address": "",
         "disabled_networks": [],
         "networks": {
           "gtr": {
@@ -207,6 +530,15 @@ RSpec.describe Didit::Resources::TravelRule do
             "platform_available": false,
             "connected": false
           }
+        },
+        "didit_network": {
+          "listed": false,
+          "missing": [
+            "travel_rule_off",
+            "legal_name_missing",
+            "compliance_email_missing"
+          ],
+          "compliance_email_confirmed": false
         }
       }
     JSON
@@ -225,6 +557,338 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.retrieve_vasp sends GET /v3/travel-rule/vasps/{vasp_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "id": "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
+        "kind": "directory",
+        "name": "Example Counterparty VASP",
+        "lei": "529900EXAMPLECPTY001",
+        "jurisdiction": "DE",
+        "domains": [
+          "counterparty.example"
+        ],
+        "reachable": true,
+        "aliases": [
+          {
+            "name": "Example Counterparty",
+            "kind": "trading_name"
+          }
+        ],
+        "networks": [
+          {
+            "network": "GTR",
+            "code": "EXAMPLE01",
+            "listed_name": "Example Counterparty VASP",
+            "country": "DE",
+            "verified_at": "2026-10-12T09:30:00Z",
+            "last_seen_at": "2026-10-12T09:30:00Z",
+            "source": "staff"
+          }
+        ],
+        "routes": [
+          {
+            "rail": "GTR",
+            "status": "unavailable",
+            "reason": "no_membership",
+            "via": ""
+          },
+          {
+            "rail": "EMAIL",
+            "status": "available",
+            "reason": "",
+            "via": "contact"
+          }
+        ],
+        "umbrella": null,
+        "entities": [],
+        "contacts": [
+          {
+            "id": "6c1f9b8e-2d4a-4f7e-8b3c-5a9d0e1f2a3b",
+            "email": "travelrule@counterparty.example",
+            "name": "Travel Rule desk",
+            "source": "staff",
+            "scope": "platform",
+            "verified_at": null
+          }
+        ],
+        "dd_status": "NOT_STARTED",
+        "dd_score": 62,
+        "dd_score_breakdown": {
+          "jurisdiction": {
+            "points": 25.0,
+            "max": 25,
+            "reason": "jurisdiction_not_high_risk",
+            "detail": "DEU is not on the high-risk jurisdiction list"
+          },
+          "verification": {
+            "points": 3.8,
+            "max": 15,
+            "reason": "dd_status_not_started",
+            "detail": "due diligence status NOT_STARTED"
+          },
+          "protocol": {
+            "points": 6.0,
+            "max": 15,
+            "reason": "email_only",
+            "detail": "reachable over the email fallback only"
+          },
+          "lei": {
+            "points": 10.0,
+            "max": 10,
+            "reason": "lei_valid",
+            "detail": "valid LEI on record"
+          },
+          "history": {
+            "points": 5.0,
+            "max": 10,
+            "reason": "no_history",
+            "detail": "no exchange history"
+          },
+          "essentials": {
+            "points": 7.5,
+            "max": 15,
+            "reason": "no_essential_checks",
+            "detail": "no decided essential check yet"
+          },
+          "responsiveness": {
+            "points": 5.0,
+            "max": 10,
+            "reason": "responsiveness_unknown",
+            "detail": "0 decided recent requests, too few to judge"
+          }
+        },
+        "dd_assessed_at": "2026-10-12T09:30:00Z",
+        "dd_score_semantic": "higher_is_safer",
+        "risk_level": "MEDIUM",
+        "responsiveness": {
+          "status": "UNKNOWN",
+          "answered": 0,
+          "total": 0,
+          "computed_at": "2026-10-12T09:30:00Z"
+        },
+        "essential_checks": {},
+        "reachable_rails": [
+          "GTR",
+          "EMAIL"
+        ],
+        "is_didit_customer": false,
+        "decision": {
+          "decision": "APPROVED",
+          "reason": "Licensed in DE, questionnaire reviewed",
+          "decided_by": "",
+          "updated_at": "2026-10-14T10:05:00Z",
+          "inherited_from": null
+        },
+        "entity_screening": {
+          "id": "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+          "status": "Approved",
+          "total_hits": 0,
+          "score": null,
+          "screened_at": "2026-10-14T09:58:00Z",
+          "fresh": true,
+          "flagged": false
+        },
+        "questionnaires": [
+          {
+            "id": "8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d",
+            "status": "ANSWERED",
+            "form_version": "1",
+            "sent_to": "travelrule@counterparty.example",
+            "sent_at": "2026-09-02T08:00:00Z",
+            "expires_at": "2026-10-02T08:00:00Z",
+            "answered_at": "2026-09-04T15:20:00Z",
+            "valid_until": "2027-09-04T15:20:00Z",
+            "current": true,
+            "answers": {
+              "legal_name": "Example Counterparty VASP, incorporated in the example jurisdiction.",
+              "licensing": "Crypto-asset service provider authorised under MiCA by its national regulator, licence active.",
+              "jurisdictions": "EU and EEA. We do not serve the United States.",
+              "aml_program": "Written AML/CFT policy, annual independent review, last completed in March 2026.",
+              "compliance_officer": "Head of Compliance, reachable at compliance@counterparty.example.",
+              "sanctions_screening": "Customers at onboarding and daily; counterparties on every transfer.",
+              "transaction_monitoring": "Rule-based monitoring with analyst review; suspicious activity reports filed with the FIU.",
+              "travel_rule": "TRP and email; we answer requests within one business day.",
+              "custody": "Segregated customer wallets held with a qualified custodian, insured.",
+              "ownership": "No shareholder holds 25 percent or more; parent company Example Holding Group.",
+              "record_keeping": "Five-year record-keeping for Travel Rule and transaction data, as our regulator requires.",
+              "data_protection": "Encrypted at rest and in transit, stored in the EU."
+            }
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.retrieve_vasp(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::VaspDirectoryEntry)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.retrieve_vasp_decision sends GET /v3/travel-rule/vasps/{vasp_id}/decision/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "decision": {
+          "decision": "APPROVED",
+          "reason": "Licensed in DE, questionnaire reviewed",
+          "decided_by": "",
+          "updated_at": "2026-10-14T10:05:00Z",
+          "inherited_from": null
+        }
+      }
+    JSON
+    result = client.travel_rule.retrieve_vasp_decision(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/decision/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyDecisionResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.retrieve_vasp_screening sends GET /v3/travel-rule/vasps/{vasp_id}/screening/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "enabled": true,
+        "price": "0.20",
+        "fresh_days": 30,
+        "screening": {
+          "id": "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+          "status": "Approved",
+          "total_hits": 0,
+          "score": null,
+          "screened_at": "2026-10-14T09:58:00Z",
+          "fresh": true,
+          "flagged": false
+        }
+      }
+    JSON
+    result = client.travel_rule.retrieve_vasp_screening(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/screening/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyScreeningStatus)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.screen_vasp sends POST /v3/travel-rule/vasps/{vasp_id}/screening/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "outcome": "reused",
+        "screening": {
+          "id": "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+          "status": "Approved",
+          "total_hits": 0,
+          "score": null,
+          "screened_at": "2026-10-14T09:58:00Z",
+          "fresh": true,
+          "flagged": false
+        }
+      }
+    JSON
+    result = client.travel_rule.screen_vasp(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      refresh: false
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/screening/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "refresh" => false
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyScreeningResult)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.send_compliance_email_confirmation sends POST /v3/travel-rule/settings/compliance-email/confirmation/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "sent_to": "compliance@your-vasp.example"
+      }
+    JSON
+    result = client.travel_rule.send_compliance_email_confirmation
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/settings/compliance-email/confirmation/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.send_vasp_questionnaire sends POST /v3/travel-rule/vasps/{vasp_id}/questionnaires/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "id": "3f9e8d7c-6b5a-4c3d-9e2f-1a0b9c8d7e6f",
+        "status": "SENT",
+        "form_version": "1",
+        "sent_to": "travelrule@counterparty.example",
+        "sent_at": "2026-10-14T10:00:00Z",
+        "expires_at": "2026-11-13T10:00:00Z",
+        "answered_at": null,
+        "valid_until": null,
+        "current": false,
+        "answers": {}
+      }
+    JSON
+    result = client.travel_rule.send_vasp_questionnaire(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      sent_to: "travelrule@counterparty.example"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/questionnaires/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "sent_to" => "travelrule@counterparty.example"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyQuestionnaire)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.update_settings sends PUT /v3/travel-rule/settings/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -234,6 +898,29 @@ RSpec.describe Didit::Resources::TravelRule do
         "confirmation_timeout_hours": 1,
         "timeout_outcome": "HOLD",
         "threshold_amount": "threshold_amount-value",
+        "ownership_validation_mode": "FULL",
+        "simplified_validation_threshold": "simplified_validation_threshold-value",
+        "data_sharing_fields": {
+          "individual": [
+            "name"
+          ],
+          "company": [
+            "name"
+          ]
+        },
+        "matching_rules": {
+          "individual": {
+            "name": "NONE",
+            "date_of_birth": "NONE",
+            "address": "NONE",
+            "account": "NONE"
+          },
+          "company": {
+            "name": "NONE",
+            "address": "NONE",
+            "account": "NONE"
+          }
+        },
         "legal_name": "legal_name-value",
         "lei": "lei-value",
         "compliance_email": "user@example.com",
@@ -243,6 +930,12 @@ RSpec.describe Didit::Resources::TravelRule do
         "allow_screenshot_proof": true,
         "auto_wallet_verification": true,
         "vasp_attribution_enabled": true,
+        "counterparty_screening_enabled": true,
+        "sunrise_policy": "",
+        "sunrise_jurisdictions": [
+          "sunrise_jurisdictions-value"
+        ],
+        "non_responsive_policy": "",
         "travel_address": "travel_address-value",
         "disabled_networks": [
           "GTR"
@@ -272,6 +965,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "platform_available": true,
             "connected": true
           }
+        },
+        "didit_network": {
+          "listed": true,
+          "missing": [
+            "travel_rule_off"
+          ],
+          "compliance_email_confirmed": true
         }
       }
     JSON
@@ -306,6 +1006,280 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.update_vasp_decision sends PUT /v3/travel-rule/vasps/{vasp_id}/decision/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "decision": {
+          "decision": "BLOCKED",
+          "reason": "Unlicensed in its home jurisdiction",
+          "decided_by": "",
+          "updated_at": "2026-10-14T10:05:00Z",
+          "inherited_from": null
+        }
+      }
+    JSON
+    result = client.travel_rule.update_vasp_decision(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      decision: "BLOCKED",
+      reason: "Unlicensed in its home jurisdiction"
+    )
+    request = expect_api_request(
+      calls,
+      method: :put,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/decision/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "decision" => "BLOCKED",
+      "reason" => "Unlicensed in its home jurisdiction"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyDecisionResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.counterparty_contacts.create sends POST /v3/travel-rule/counterparty-contacts/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "uuid": "6c1f9b8e-2d4a-4f7e-8b3c-5a9d0e1f2a3b",
+        "counterparty": "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
+        "counterparty_name": "Example Counterparty VASP",
+        "email": "compliance@counterparty.example",
+        "name": "Compliance desk",
+        "source": "application",
+        "scope": "application",
+        "created_by": "",
+        "verified_at": null,
+        "is_invalid": false,
+        "invalid_reason": "",
+        "invalid_detail": "",
+        "invalid_at": null,
+        "created_at": "2026-10-19T09:00:00Z"
+      }
+    JSON
+    result = client.travel_rule.counterparty_contacts.create(
+      counterparty: "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
+      email: "compliance@counterparty.example",
+      name: "Compliance desk"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/counterparty-contacts/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "counterparty" => "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
+      "email" => "compliance@counterparty.example",
+      "name" => "Compliance desk"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyContact)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.counterparty_contacts.delete sends DELETE /v3/travel-rule/counterparty-contacts/{contact_uuid}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.travel_rule.counterparty_contacts.delete(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/travel-rule/counterparty-contacts/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_nil
+  end
+
+  it "travel_rule.counterparty_contacts.list sends GET /v3/travel-rule/counterparty-contacts/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "6c1f9b8e-2d4a-4f7e-8b3c-5a9d0e1f2a3b",
+            "counterparty": "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
+            "counterparty_name": "Example Counterparty VASP",
+            "email": "compliance@counterparty.example",
+            "name": "Compliance desk",
+            "source": "application",
+            "scope": "application",
+            "created_by": "",
+            "verified_at": null,
+            "is_invalid": false,
+            "invalid_reason": "",
+            "invalid_detail": "",
+            "invalid_at": null,
+            "created_at": "2026-10-19T09:00:00Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.counterparty_contacts.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/counterparty-contacts/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleCounterpartyContact))
+    exercise_readers(result.results)
+  end
+
+  it "travel_rule.transfers.list sends GET /v3/travel-rule/transfers/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "id": "5b0f6c2e-2a4d-4f0e-9a41-0c3f9a7e1d22",
+            "transaction_id": "a3c1e8f4-7b62-4d1a-8e0b-2f9d6c4b7a10",
+            "txn_id": "wd-2026-10-19-0042",
+            "txn_date": "2026-10-19T08:41:12Z",
+            "kind": "withdrawal",
+            "direction": "OUTBOUND",
+            "status": "AWAITING_COUNTERPARTY",
+            "rail": "TRP",
+            "asset": "ETH",
+            "amount": "1.25",
+            "originator_vasp": "Origin CASP SL",
+            "beneficiary_vasp": "Example Counterparty VASP",
+            "originator_wallet": "0x77ccff0cc624a53cd8b8d8703ced826710211ec7",
+            "beneficiary_wallet": "0xede2d7e4f5b097e6391ab6bbcf2f47a53f4778cb",
+            "originator_memo": "",
+            "beneficiary_memo": "",
+            "originator_wallet_type": "vasp",
+            "beneficiary_wallet_type": "vasp",
+            "matched_transaction_id": null,
+            "deadline_at": "2026-10-21T08:41:13Z",
+            "created_at": "2026-10-19T08:41:13Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.transfers.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/transfers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleTransferRow))
+    exercise_readers(result.results)
+  end
+
+  it "travel_rule.wallet_addresses.bulk_import sends POST /v3/travel-rule/wallet-addresses/import/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "total": 3,
+        "created": 2,
+        "existing": 1,
+        "duplicate": 0,
+        "failed": 0,
+        "rows": [
+          {
+            "row": 1,
+            "status": "existing",
+            "entry_id": "11111111-2222-3333-4444-555555555555",
+            "errors": {},
+            "duplicate_of_row": null
+          },
+          {
+            "row": 2,
+            "status": "created",
+            "entry_id": "22222222-3333-4444-5555-666666666666",
+            "errors": {},
+            "duplicate_of_row": null
+          },
+          {
+            "row": 3,
+            "status": "created",
+            "entry_id": "33333333-4444-5555-6666-777777777777",
+            "errors": {},
+            "duplicate_of_row": null
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.wallet_addresses.bulk_import(
+      body: {
+        entries: [
+          {
+            address: "0xBeneficiaryWallet01",
+            chain: "ETH",
+            holder_name: "Ana Diaz",
+            holder_vendor_data: "user-042"
+          },
+          {
+            address_hash: "4f7d2e1c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e",
+            chain: "bitcoin",
+            holder_vendor_data: "user-043"
+          },
+          {
+            address: "rExchangeSharedAddress01",
+            chain: "XRP",
+            memo: "104729",
+            holder_name: "Ana Diaz"
+          }
+        ]
+      }
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/wallet-addresses/import/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "entries" => [
+        {
+          "address" => "0xBeneficiaryWallet01",
+          "chain" => "ETH",
+          "holder_name" => "Ana Diaz",
+          "holder_vendor_data" => "user-042"
+        },
+        {
+          "address_hash" => "4f7d2e1c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e",
+          "chain" => "bitcoin",
+          "holder_vendor_data" => "user-043"
+        },
+        {
+          "address" => "rExchangeSharedAddress01",
+          "chain" => "XRP",
+          "memo" => "104729",
+          "holder_name" => "Ana Diaz"
+        }
+      ]
+    })
+    expect(result).to be_a(Didit::Types::WalletAddressImportReport)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.wallet_addresses.create sends POST /v3/travel-rule/wallet-addresses/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -317,13 +1291,15 @@ RSpec.describe Didit::Resources::TravelRule do
         "entity_type": "entity_type-value",
         "is_ownership_verified": true,
         "created_at": "2026-01-02T03:04:05Z",
-        "self_declared": true,
-        "travel_address": "travel_address-value"
+        "travel_address": "travel_address-value",
+        "address_hash": "address_hash-value",
+        "memo": "memo-value",
+        "receiving_travel_address": "receiving_travel_address-value"
       }
     JSON
     result = client.travel_rule.wallet_addresses.create(
       address: "0xBeneficiaryWallet01",
-      chain: "ethereum",
+      chain: "ETH",
       holder_name: "Ana Diaz",
       holder_vendor_data: "user-042",
       self_declared: true
@@ -338,7 +1314,7 @@ RSpec.describe Didit::Resources::TravelRule do
     )
     expect_json_body(request, {
       "address" => "0xBeneficiaryWallet01",
-      "chain" => "ethereum",
+      "chain" => "ETH",
       "holder_name" => "Ana Diaz",
       "holder_vendor_data" => "user-042",
       "self_declared" => true
@@ -381,8 +1357,10 @@ RSpec.describe Didit::Resources::TravelRule do
             "entity_type": "entity_type-value",
             "is_ownership_verified": true,
             "created_at": "2026-01-02T03:04:05Z",
-            "self_declared": true,
-            "travel_address": "travel_address-value"
+            "travel_address": "travel_address-value",
+            "address_hash": "address_hash-value",
+            "memo": "memo-value",
+            "receiving_travel_address": "receiving_travel_address-value"
           }
         ]
       }
@@ -415,7 +1393,7 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.wallet_addresses.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       holder_name: "Ana Updated",
-      travel_address: "ta..."
+      travel_address: "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx"
     )
     request = expect_api_request(
       calls,
@@ -427,9 +1405,687 @@ RSpec.describe Didit::Resources::TravelRule do
     )
     expect_json_body(request, {
       "holder_name" => "Ana Updated",
-      "travel_address" => "ta..."
+      "travel_address" => "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx"
     })
     expect(result).to be_a(Didit::Types::WalletAddressEntryUpdate)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.claim sends POST /v3/travel-rule/workspace/claim/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "joined_free": true,
+        "work_email": "user@example.com",
+        "joined_at": "2026-01-02T03:04:05Z",
+        "claim": {
+          "status": "unclaimed",
+          "proved_by_domain": true,
+          "claimed_at": "2026-01-02T03:04:05Z",
+          "reviewed_at": "2026-01-02T03:04:05Z",
+          "review_note": "review_note-value",
+          "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "vasp_name": "vasp_name-value"
+        },
+        "prefill": {},
+        "domain": {
+          "domain": "domain-value",
+          "status": "unverified",
+          "verified_at": "2026-01-02T03:04:05Z",
+          "txt": {
+            "host": "didit-tr-verify.example.com",
+            "value": "value-value"
+          }
+        },
+        "billing_enabled": true,
+        "billing_enabled_at": "2026-01-02T03:04:05Z",
+        "didit_network": {},
+        "settings": {
+          "is_enabled": true,
+          "jurisdiction": "jurisdiction-value",
+          "name_matching_strictness": "NONE",
+          "confirmation_timeout_hours": 1,
+          "timeout_outcome": "HOLD",
+          "threshold_amount": "threshold_amount-value",
+          "ownership_validation_mode": "FULL",
+          "simplified_validation_threshold": "simplified_validation_threshold-value",
+          "data_sharing_fields": {
+            "individual": [
+              "name"
+            ],
+            "company": [
+              "name"
+            ]
+          },
+          "matching_rules": {
+            "individual": {
+              "name": "NONE",
+              "date_of_birth": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            },
+            "company": {
+              "name": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            }
+          },
+          "legal_name": "legal_name-value",
+          "lei": "lei-value",
+          "compliance_email": "user@example.com",
+          "is_discoverable": true,
+          "inbound_auto_accept": true,
+          "allow_self_declaration": true,
+          "allow_screenshot_proof": true,
+          "auto_wallet_verification": true,
+          "vasp_attribution_enabled": true,
+          "counterparty_screening_enabled": true,
+          "sunrise_policy": "",
+          "sunrise_jurisdictions": [
+            "sunrise_jurisdictions-value"
+          ],
+          "non_responsive_policy": "",
+          "travel_address": "travel_address-value",
+          "disabled_networks": [
+            "GTR"
+          ],
+          "networks": {
+            "gtr": {
+              "rail": "GTR",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "trust": {
+              "rail": "TRUST",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "verifyvasp": {
+              "rail": "VERIFYVASP",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "sygna": {
+              "rail": "SYGNA",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            }
+          },
+          "didit_network": {
+            "listed": true,
+            "missing": [
+              "travel_rule_off"
+            ],
+            "compliance_email_confirmed": true
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.claim(
+      vasp_id: "0b0c9d3e-5a53-4a3e-9d6e-1f2f6f6a1c11"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/claim/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "vasp_id" => "0b0c9d3e-5a53-4a3e-9d6e-1f2f6f6a1c11"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.confirm_domain sends POST /v3/travel-rule/workspace/domain/confirm/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "joined_free": true,
+        "work_email": "user@example.com",
+        "joined_at": "2026-01-02T03:04:05Z",
+        "claim": {
+          "status": "unclaimed",
+          "proved_by_domain": true,
+          "claimed_at": "2026-01-02T03:04:05Z",
+          "reviewed_at": "2026-01-02T03:04:05Z",
+          "review_note": "review_note-value",
+          "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "vasp_name": "vasp_name-value"
+        },
+        "prefill": {},
+        "domain": {
+          "domain": "domain-value",
+          "status": "unverified",
+          "verified_at": "2026-01-02T03:04:05Z",
+          "txt": {
+            "host": "didit-tr-verify.example.com",
+            "value": "value-value"
+          }
+        },
+        "billing_enabled": true,
+        "billing_enabled_at": "2026-01-02T03:04:05Z",
+        "didit_network": {},
+        "settings": {
+          "is_enabled": true,
+          "jurisdiction": "jurisdiction-value",
+          "name_matching_strictness": "NONE",
+          "confirmation_timeout_hours": 1,
+          "timeout_outcome": "HOLD",
+          "threshold_amount": "threshold_amount-value",
+          "ownership_validation_mode": "FULL",
+          "simplified_validation_threshold": "simplified_validation_threshold-value",
+          "data_sharing_fields": {
+            "individual": [
+              "name"
+            ],
+            "company": [
+              "name"
+            ]
+          },
+          "matching_rules": {
+            "individual": {
+              "name": "NONE",
+              "date_of_birth": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            },
+            "company": {
+              "name": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            }
+          },
+          "legal_name": "legal_name-value",
+          "lei": "lei-value",
+          "compliance_email": "user@example.com",
+          "is_discoverable": true,
+          "inbound_auto_accept": true,
+          "allow_self_declaration": true,
+          "allow_screenshot_proof": true,
+          "auto_wallet_verification": true,
+          "vasp_attribution_enabled": true,
+          "counterparty_screening_enabled": true,
+          "sunrise_policy": "",
+          "sunrise_jurisdictions": [
+            "sunrise_jurisdictions-value"
+          ],
+          "non_responsive_policy": "",
+          "travel_address": "travel_address-value",
+          "disabled_networks": [
+            "GTR"
+          ],
+          "networks": {
+            "gtr": {
+              "rail": "GTR",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "trust": {
+              "rail": "TRUST",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "verifyvasp": {
+              "rail": "VERIFYVASP",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "sygna": {
+              "rail": "SYGNA",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            }
+          },
+          "didit_network": {
+            "listed": true,
+            "missing": [
+              "travel_rule_off"
+            ],
+            "compliance_email_confirmed": true
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.confirm_domain(
+      code: "123456"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/domain/confirm/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "code" => "123456"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.enable_billing sends POST /v3/travel-rule/workspace/billing/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "joined_free": true,
+        "work_email": "user@example.com",
+        "joined_at": "2026-01-02T03:04:05Z",
+        "claim": {
+          "status": "unclaimed",
+          "proved_by_domain": true,
+          "claimed_at": "2026-01-02T03:04:05Z",
+          "reviewed_at": "2026-01-02T03:04:05Z",
+          "review_note": "review_note-value",
+          "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "vasp_name": "vasp_name-value"
+        },
+        "prefill": {},
+        "domain": {
+          "domain": "domain-value",
+          "status": "unverified",
+          "verified_at": "2026-01-02T03:04:05Z",
+          "txt": {
+            "host": "didit-tr-verify.example.com",
+            "value": "value-value"
+          }
+        },
+        "billing_enabled": true,
+        "billing_enabled_at": "2026-01-02T03:04:05Z",
+        "didit_network": {},
+        "settings": {
+          "is_enabled": true,
+          "jurisdiction": "jurisdiction-value",
+          "name_matching_strictness": "NONE",
+          "confirmation_timeout_hours": 1,
+          "timeout_outcome": "HOLD",
+          "threshold_amount": "threshold_amount-value",
+          "ownership_validation_mode": "FULL",
+          "simplified_validation_threshold": "simplified_validation_threshold-value",
+          "data_sharing_fields": {
+            "individual": [
+              "name"
+            ],
+            "company": [
+              "name"
+            ]
+          },
+          "matching_rules": {
+            "individual": {
+              "name": "NONE",
+              "date_of_birth": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            },
+            "company": {
+              "name": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            }
+          },
+          "legal_name": "legal_name-value",
+          "lei": "lei-value",
+          "compliance_email": "user@example.com",
+          "is_discoverable": true,
+          "inbound_auto_accept": true,
+          "allow_self_declaration": true,
+          "allow_screenshot_proof": true,
+          "auto_wallet_verification": true,
+          "vasp_attribution_enabled": true,
+          "counterparty_screening_enabled": true,
+          "sunrise_policy": "",
+          "sunrise_jurisdictions": [
+            "sunrise_jurisdictions-value"
+          ],
+          "non_responsive_policy": "",
+          "travel_address": "travel_address-value",
+          "disabled_networks": [
+            "GTR"
+          ],
+          "networks": {
+            "gtr": {
+              "rail": "GTR",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "trust": {
+              "rail": "TRUST",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "verifyvasp": {
+              "rail": "VERIFYVASP",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "sygna": {
+              "rail": "SYGNA",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            }
+          },
+          "didit_network": {
+            "listed": true,
+            "missing": [
+              "travel_rule_off"
+            ],
+            "compliance_email_confirmed": true
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.enable_billing(
+      enabled: true
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/billing/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "enabled" => true
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.get sends GET /v3/travel-rule/workspace/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "joined_free": true,
+        "work_email": "user@example.com",
+        "joined_at": "2026-01-02T03:04:05Z",
+        "claim": {
+          "status": "unclaimed",
+          "proved_by_domain": true,
+          "claimed_at": "2026-01-02T03:04:05Z",
+          "reviewed_at": "2026-01-02T03:04:05Z",
+          "review_note": "review_note-value",
+          "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "vasp_name": "vasp_name-value"
+        },
+        "prefill": {},
+        "domain": {
+          "domain": "domain-value",
+          "status": "unverified",
+          "verified_at": "2026-01-02T03:04:05Z",
+          "txt": {
+            "host": "didit-tr-verify.example.com",
+            "value": "value-value"
+          }
+        },
+        "billing_enabled": true,
+        "billing_enabled_at": "2026-01-02T03:04:05Z",
+        "didit_network": {},
+        "settings": {
+          "is_enabled": true,
+          "jurisdiction": "jurisdiction-value",
+          "name_matching_strictness": "NONE",
+          "confirmation_timeout_hours": 1,
+          "timeout_outcome": "HOLD",
+          "threshold_amount": "threshold_amount-value",
+          "ownership_validation_mode": "FULL",
+          "simplified_validation_threshold": "simplified_validation_threshold-value",
+          "data_sharing_fields": {
+            "individual": [
+              "name"
+            ],
+            "company": [
+              "name"
+            ]
+          },
+          "matching_rules": {
+            "individual": {
+              "name": "NONE",
+              "date_of_birth": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            },
+            "company": {
+              "name": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            }
+          },
+          "legal_name": "legal_name-value",
+          "lei": "lei-value",
+          "compliance_email": "user@example.com",
+          "is_discoverable": true,
+          "inbound_auto_accept": true,
+          "allow_self_declaration": true,
+          "allow_screenshot_proof": true,
+          "auto_wallet_verification": true,
+          "vasp_attribution_enabled": true,
+          "counterparty_screening_enabled": true,
+          "sunrise_policy": "",
+          "sunrise_jurisdictions": [
+            "sunrise_jurisdictions-value"
+          ],
+          "non_responsive_policy": "",
+          "travel_address": "travel_address-value",
+          "disabled_networks": [
+            "GTR"
+          ],
+          "networks": {
+            "gtr": {
+              "rail": "GTR",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "trust": {
+              "rail": "TRUST",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "verifyvasp": {
+              "rail": "VERIFYVASP",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "sygna": {
+              "rail": "SYGNA",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            }
+          },
+          "didit_network": {
+            "listed": true,
+            "missing": [
+              "travel_rule_off"
+            ],
+            "compliance_email_confirmed": true
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.get
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.send_domain_code sends POST /v3/travel-rule/workspace/domain/code/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "domain": "domain-value",
+        "status": "unverified",
+        "txt": {
+          "host": "didit-tr-verify.example.com",
+          "value": "value-value"
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.send_domain_code
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/domain/code/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspaceDomainCodeResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.workspace.verify_domain_dns sends POST /v3/travel-rule/workspace/domain/dns/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "joined_free": true,
+        "work_email": "user@example.com",
+        "joined_at": "2026-01-02T03:04:05Z",
+        "claim": {
+          "status": "unclaimed",
+          "proved_by_domain": true,
+          "claimed_at": "2026-01-02T03:04:05Z",
+          "reviewed_at": "2026-01-02T03:04:05Z",
+          "review_note": "review_note-value",
+          "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "vasp_name": "vasp_name-value"
+        },
+        "prefill": {},
+        "domain": {
+          "domain": "domain-value",
+          "status": "unverified",
+          "verified_at": "2026-01-02T03:04:05Z",
+          "txt": {
+            "host": "didit-tr-verify.example.com",
+            "value": "value-value"
+          }
+        },
+        "billing_enabled": true,
+        "billing_enabled_at": "2026-01-02T03:04:05Z",
+        "didit_network": {},
+        "settings": {
+          "is_enabled": true,
+          "jurisdiction": "jurisdiction-value",
+          "name_matching_strictness": "NONE",
+          "confirmation_timeout_hours": 1,
+          "timeout_outcome": "HOLD",
+          "threshold_amount": "threshold_amount-value",
+          "ownership_validation_mode": "FULL",
+          "simplified_validation_threshold": "simplified_validation_threshold-value",
+          "data_sharing_fields": {
+            "individual": [
+              "name"
+            ],
+            "company": [
+              "name"
+            ]
+          },
+          "matching_rules": {
+            "individual": {
+              "name": "NONE",
+              "date_of_birth": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            },
+            "company": {
+              "name": "NONE",
+              "address": "NONE",
+              "account": "NONE"
+            }
+          },
+          "legal_name": "legal_name-value",
+          "lei": "lei-value",
+          "compliance_email": "user@example.com",
+          "is_discoverable": true,
+          "inbound_auto_accept": true,
+          "allow_self_declaration": true,
+          "allow_screenshot_proof": true,
+          "auto_wallet_verification": true,
+          "vasp_attribution_enabled": true,
+          "counterparty_screening_enabled": true,
+          "sunrise_policy": "",
+          "sunrise_jurisdictions": [
+            "sunrise_jurisdictions-value"
+          ],
+          "non_responsive_policy": "",
+          "travel_address": "travel_address-value",
+          "disabled_networks": [
+            "GTR"
+          ],
+          "networks": {
+            "gtr": {
+              "rail": "GTR",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "trust": {
+              "rail": "TRUST",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "verifyvasp": {
+              "rail": "VERIFYVASP",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            },
+            "sygna": {
+              "rail": "SYGNA",
+              "mode": "own",
+              "platform_available": true,
+              "connected": true
+            }
+          },
+          "didit_network": {
+            "listed": true,
+            "missing": [
+              "travel_rule_off"
+            ],
+            "compliance_email_confirmed": true
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.workspace.verify_domain_dns
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/workspace/domain/dns/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

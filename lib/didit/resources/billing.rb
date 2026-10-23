@@ -25,19 +25,20 @@ module Didit
 
       # Top up credits
       #
-      # Add credits via a hosted Stripe Checkout session (**$50 minimum**); not available on annual plans. Redirect
-      # the customer to the returned `checkout_session_url`.
+      # Add credits via a hosted checkout session (**$50 minimum**); not available on annual plans. Redirect the
+      # customer to the returned `checkout_session_url`.
       #
       # +POST /v3/billing/top-up/+
       #
       # @param amount_in_dollars [Numeric] Amount to charge, in USD. **Must be at least 50.** Tax is added
       #   automatically at checkout based on the customer's billing address.
-      # @param success_url [String] URL Stripe redirects the customer to after a successful payment. Currently
-      #   defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is unavailable. Append
-      #   the literal placeholder `{CHECKOUT_SESSION_ID}` if you want Stripe to substitute the session ID.
-      # @param cancel_url [String] URL Stripe redirects the customer to when they abort or close the Checkout window.
+      # @param success_url [String] URL the hosted checkout redirects the customer to after a successful payment.
       #   Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is
-      #   unavailable.
+      #   unavailable. Append the literal placeholder `{CHECKOUT_SESSION_ID}` if you want the hosted checkout to
+      #   substitute the session ID.
+      # @param cancel_url [String] URL the hosted checkout redirects the customer to when they abort or close the
+      #   Checkout window. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default
+      #   host is unavailable.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BillingTopUpResponse]
       def top_up(amount_in_dollars:, success_url: OMIT, cancel_url: OMIT, request_options: nil)

@@ -28,6 +28,9 @@ module Didit
     module CasesBulkUpdateStatusParamsResolution
       FALSE_POSITIVE: String
       VALID_THREAT: String
+      INCONCLUSIVE: String
+      REQUIREMENTS_NOT_MET: String
+      REQUIREMENTS_SATISFIED: String
 
       VALUES: Array[String]
     end
@@ -92,9 +95,20 @@ module Didit
       VALUES: Array[String]
     end
 
+    module CasesRequestsRemindResponseDeliveryStatus
+      SENT: String
+      SIMULATED: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
     module CasesResolveParamsResolution
       FALSE_POSITIVE: String
       VALID_THREAT: String
+      INCONCLUSIVE: String
+      REQUIREMENTS_NOT_MET: String
+      REQUIREMENTS_SATISFIED: String
 
       VALUES: Array[String]
     end
@@ -149,10 +163,6 @@ module Didit
       VALUES: Array[String]
     end
 
-    class CasesBlueprintsInstallPresetsResponse < Didit::Model
-      def created: () -> Array[String]?
-    end
-
     class CasesBlueprintsListPresetsResponse < Didit::Model
       def results: () -> Array[Didit::Types::CasesBlueprintsListPresetsResponseResults]?
     end
@@ -170,26 +180,6 @@ module Didit
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::CaseBlueprintListItem]?
-    end
-
-    class CasesBulkAssignResponse < Didit::Model
-      def updated: () -> Integer?
-      def failures: () -> Array[Didit::Types::CasesBulkAssignResponseFailures]?
-    end
-
-    class CasesBulkAssignResponseFailures < Didit::Model
-      def case_uuid: () -> String?
-      def detail: () -> String?
-    end
-
-    class CasesBulkUpdateStatusResponse < Didit::Model
-      def updated: () -> Integer?
-      def failures: () -> Array[Didit::Types::CasesBulkUpdateStatusResponseFailures]?
-    end
-
-    class CasesBulkUpdateStatusResponseFailures < Didit::Model
-      def case_uuid: () -> String?
-      def detail: () -> String?
     end
 
     class CasesListEventsResponse < Didit::Model
@@ -233,11 +223,11 @@ module Didit
       def url: () -> String?
     end
 
-    class CasesRegulatoryReportsListResponse < Didit::Model
-      def count: () -> Integer?
-      def `next`: () -> String?
-      def previous: () -> String?
-      def results: () -> Array[Didit::Types::RegulatoryReportDetail]?
+    class CasesRequestsRemindResponse < Didit::Model
+      def request: () -> Didit::Types::CustomerMessagingCaseRequest
+      def reminded_at: () -> Time
+      def delivery_status: () -> String
+      def next_reminder_at: () -> Time
     end
 
     class CasesRetrieveStatisticsResponse < Didit::Model
@@ -399,7 +389,7 @@ module Didit
 
     type cases_requests_preview_params = { contact_id: String, purpose: String, ?language: String }
 
-    type cases_resolve_params = { resolution: String, ?note: String? }
+    type cases_resolve_params = { resolution: String, ?note: String?, ?checker: String? }
 
     type cases_routing_rules_create_params = { name: String, ?description: String, ?priority: Integer, conditions: Array[Didit::Types::case_routing_condition], ?required_skills: Array[String], blueprint: String, ?team: String?, ?is_active: bool, ?publish: bool }
 
@@ -419,6 +409,6 @@ module Didit
 
     type cases_transfer_params = { target_blueprint: String }
 
-    type cases_update_params = { ?title: String, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String] }
+    type cases_update_params = { ?title: String, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?team: String? }
   end
 end

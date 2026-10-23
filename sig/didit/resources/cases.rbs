@@ -14,32 +14,32 @@ module Didit
       def apply_entity_action: (String case_uuid, action: String, ?client_reference: String, ?retry: bool, ?status: String?, ?tags: Array[String], ?note: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseActionCaseEntityActionResult
       def approve_resolution: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def assign: (String case_uuid, assignee_user_id: String?, ?assignee_email: String?, ?assignee_name: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
-      def bulk_assign: (case_uuids: Array[String], assignee_user_id: String?, ?assignee_email: String?, ?assignee_name: String?, ?request_options: Didit::request_options?) -> Didit::Types::CasesBulkAssignResponse
-      def bulk_update_status: (case_uuids: Array[String], status: String, ?resolution: String, ?note: String?, ?request_options: Didit::request_options?) -> Didit::Types::CasesBulkUpdateStatusResponse
+      def bulk_assign: (case_uuids: Array[String], assignee_user_id: String?, ?assignee_email: String?, ?assignee_name: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseBulkUpdateResult
+      def bulk_update_status: (case_uuids: Array[String], status: String, ?resolution: String, ?note: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseBulkUpdateResult
       def create: (title: String, ?blueprint: String?, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?subject: Didit::Types::cases_create_params_subject, ?links: Array[Hash[String | Symbol, untyped]], ?assigned_to: String?, ?review_duplicates: bool, ?separate_incident_reason: String, ?source_context: Didit::Types::case_duplicate_case_fraud_source_context_request, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def delete: (String case_uuid, ?request_options: Didit::request_options?) -> nil
       def escalate: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def find_duplicates: (?subject: Didit::Types::case_duplicate_case_subject_input_request, ?links: Array[Didit::Types::case_duplicate_case_link_create_request], ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Types::CaseDuplicateCaseDuplicatePage
       def list: (?limit: Integer, ?offset: Integer, ?status_in: String, ?priority: String, ?source_in: String, ?blueprint: String, ?assigned_to: String, ?unassigned: bool, ?tag: String, ?search: String, ?date_from: Date | String, ?date_to: Date | String, ?due_before: Time | String, ?overdue: bool, ?ordering: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::CaseListItem]
       def list_action_receipts: (String case_uuid, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Types::CaseActionCaseActionReceiptPage
-      def list_aml_hits: (String case_uuid, ?request_options: Didit::request_options?) -> Array[Hash[String, untyped]]
+      def list_aml_hits: (String case_uuid, ?request_options: Didit::request_options?) -> Array[Didit::Types::AMLScreening]
       def list_events: (String case_uuid, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::CaseEvent]
       def list_reviewers: (?request_options: Didit::request_options?) -> Didit::Types::CasesListReviewersResponse
       def print: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CasesPrintResponse
       def reject_resolution: (String case_uuid, ?notes: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def reopen: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def request_info: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
-      def resolve: (String case_uuid, resolution: String, ?note: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
+      def resolve: (String case_uuid, resolution: String, ?note: String?, ?checker: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def retrieve: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       def retrieve_statistics: (?date_from: Date | String, ?date_to: Date | String, ?blueprint: String, ?assigned_to: String, ?priority: String, ?source: String, ?status: String, ?request_options: Didit::request_options?) -> Didit::Types::CasesRetrieveStatisticsResponse
       def retry_action_receipt: (String case_uuid, String receipt_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CaseActionCaseActionReceipt
       def transfer: (String case_uuid, target_blueprint: String, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
-      def update: (String case_uuid, ?title: String, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
+      def update: (String case_uuid, ?title: String, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?team: String?, ?request_options: Didit::request_options?) -> Didit::Types::CaseDetail
       class Blueprints < Didit::Resource
         def create: (name: String, assignee_pool: Array[String], ?description: String?, ?assignment_method: String, ?max_active_cases: Integer?, ?escalation_enabled: bool, ?escalation_blueprint: String?, ?transfer_enabled: bool, ?four_eyes_checker_blueprint: String?, ?require_resolution_note: bool, ?content_config: Didit::Types::case_content_config, ?is_active: bool, ?default_deadline_hours: Integer?, ?publish: bool, ?request_options: Didit::request_options?) -> Didit::Types::CaseBlueprintDetail
         def delete: (String blueprint_uuid, ?request_options: Didit::request_options?) -> nil
         def discard_draft: (String blueprint_uuid, expected_version: Integer, expected_revision: String?, ?request_options: Didit::request_options?) -> nil
-        def install_presets: (?preset_keys: Array[String]?, ?request_options: Didit::request_options?) -> Didit::Types::CasesBlueprintsInstallPresetsResponse
+        def install_presets: (?preset_keys: Array[String]?, ?request_options: Didit::request_options?) -> Didit::Types::CaseBlueprintPresetInstallResult
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::CaseBlueprintListItem]
         def list_history: (String blueprint_uuid, ?ordering: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::CasePublicationPolicyRevision]
         def list_presets: (?request_options: Didit::request_options?) -> Didit::Types::CasesBlueprintsListPresetsResponse
@@ -75,6 +75,7 @@ module Didit
         def create: (String case_uuid, contact_id: String, purpose: String, request_id: String, expires_at: Time | String, preview_token: String, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::CustomerMessagingCaseRequest
         def list: (String case_uuid, ?ordering: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::CustomerMessagingCaseRequest]
         def preview: (String case_uuid, contact_id: String, purpose: String, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::CustomerMessagingCaseRequestPreviewResponse
+        def remind: (String case_uuid, String request_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CasesRequestsRemindResponse
         def retrieve_attachment: (String case_uuid, String request_uuid, ?request_options: Didit::request_options?) -> String
                                | (String case_uuid, String request_uuid, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
         def retrieve_options: (String case_uuid, ?request_options: Didit::request_options?) -> Didit::Types::CustomerMessagingCaseRequestOptions

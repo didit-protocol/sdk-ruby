@@ -548,15 +548,14 @@ module Didit
 
     module KybSearchParamsSearchType
       CONTAINS: String
-      START_WITH: String
-      FUZZY: String
 
       VALUES: Array[String]
     end
 
-    module KybSearchResponseKybRegistrySearchStatus
-      PENDING: String
-      RESOLVED: String
+    module KybSearchParamsTier
+      BASIC: String
+      SHAREHOLDERS: String
+      UBO: String
 
       VALUES: Array[String]
     end
@@ -1126,33 +1125,10 @@ module Didit
 
     class KybSearchResponse < Didit::Model
       def request_id: () -> String?
-      def kyb_registry: () -> Didit::Types::KybSearchResponseKybRegistry?
+      def kyb_registry: () -> Didit::Types::KYBRegistrySearchResults?
       def vendor_data: () -> String?
       def metadata: () -> Hash[String, untyped]?
       def created_at: () -> Time?
-    end
-
-    class KybSearchResponseKybRegistry < Didit::Model
-      def companies: () -> Array[Didit::Types::KybSearchResponseKybRegistryCompanies]?
-      def pagination: () -> Didit::Types::KybSearchResponseKybRegistryPagination?
-      def search_status: () -> String?
-      def search_resolved: () -> bool?
-    end
-
-    class KybSearchResponseKybRegistryCompanies < Didit::Model
-      def kyb_response_id: () -> String?
-      def name: () -> String?
-      def registration_number: () -> String?
-      def status: () -> String?
-      def `type`: () -> String?
-      def risk_level: () -> String?
-      def fetch_status: () -> String?
-    end
-
-    class KybSearchResponseKybRegistryPagination < Didit::Model
-      def total: () -> Integer?
-      def page: () -> Integer?
-      def per_page: () -> Integer?
     end
 
     class KybSelectResponse < Didit::Model
@@ -1266,7 +1242,7 @@ module Didit
 
     type kyb_list_ubos_params = { kyb_response_id: String, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?save_api_request: bool }
 
-    type kyb_search_params = { country_code: String, ?name: String, ?registration_number: String, ?search_type: String, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?webhook_url: String }
+    type kyb_search_params = { country_code: String, ?name: String, ?registration_number: String, ?tier: String, ?search_type: String, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?webhook_url: String }
 
     type kyb_select_params = { kyb_response_id: String, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?save_api_request: bool }
   end

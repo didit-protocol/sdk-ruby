@@ -3,6 +3,14 @@
 
 module Didit
   module Types
+    # `kyc` adds the file to the ID verification result, `poa` to the Proof of Address result.
+    module SessionsAddImagesParamsModelType
+      KYC = "kyc"
+      POA = "poa"
+
+      VALUES = [KYC, POA].freeze
+    end
+
     # The class of instruction you are giving. `operational_session_delete` deletes the session and retains a template
     # only when the policy or `retain_face_embeddings` says so. `privacy_erasure` purges every retained biometric
     # template anchored to the session's User before deleting the session, cannot be overridden by the application
@@ -12,17 +20,6 @@ module Didit
       PRIVACY_ERASURE = "privacy_erasure"
 
       VALUES = [OPERATIONAL_SESSION_DELETE, PRIVACY_ERASURE].freeze
-    end
-
-    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating.
-    # `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
-    module SessionsBatchDeleteResponse202Status
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
-
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
     # What happened to the session's face biometric data. `deleted`: the face embedding was deleted with the session
@@ -380,6 +377,48 @@ module Didit
       VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
     end
 
+    # The decision whose email you want to preview.
+    module SessionsPreviewDecisionEmailParamsNewStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+
+      VALUES = [APPROVED, DECLINED].freeze
+    end
+
+    # Why confirming would send no email, or `null` when it will be sent. `status_unchanged`: the session already has
+    # this status, so the update changes nothing and sends nothing. `notification_emails_disabled`: the session was
+    # created without `contact_details.send_notification_emails: true`, so no decision email goes to the address given
+    # in `contact_details`. `no_recipient`: no address is known for the person. `sandbox`: a sandbox session whose
+    # recipient has not opted into sandbox email delivery, so the send is only simulated.
+    module SessionsPreviewDecisionEmailResponseNotSentReason
+      STATUS_UNCHANGED = "status_unchanged"
+      NOTIFICATION_EMAILS_DISABLED = "notification_emails_disabled"
+      NO_RECIPIENT = "no_recipient"
+      SANDBOX = "sandbox"
+
+      VALUES = [STATUS_UNCHANGED, NOTIFICATION_EMAILS_DISABLED, NO_RECIPIENT, SANDBOX].freeze
+    end
+
+    # Where `recipient` comes from. `email_verification`: the address the person verified in an email verification
+    # step of the flow. `contact_details`: the address given in `contact_details` when the session was created. An
+    # empty string when there is no address.
+    module SessionsPreviewDecisionEmailResponseRecipientSource
+      EMAIL_VERIFICATION = "email_verification"
+      CONTACT_DETAILS = "contact_details"
+      VALUE = ""
+
+      VALUES = [EMAIL_VERIFICATION, CONTACT_DETAILS, VALUE].freeze
+    end
+
+    # `customer`: the email goes out from your application's verified sender domain (white label). `didit`: it goes
+    # out from Didit's own sender.
+    module SessionsPreviewDecisionEmailResponseSenderKind
+      CUSTOMER = "customer"
+      DIDIT = "didit"
+
+      VALUES = [CUSTOMER, DIDIT].freeze
+    end
+
     # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side
     # to `OCR`, `PROOF_OF_ADDRESS`, `PHONE_VERIFICATION`, and `EMAIL_VERIFICATION`. `KYB_REGISTRY`, `KYB_KEY_PEOPLE`,
     # and `KYB` pass schema validation but are always rejected with the business-rule `400` shown in the examples.
@@ -444,6 +483,39 @@ module Didit
       VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
     end
 
+    # Why confirming would send no email, or `null` when it will be sent. `no_user_action`: every selected step runs
+    # without the person, so the resubmission finishes on its own and no email goes out. `no_recipient`: no address is
+    # known for the person and you passed none. `sandbox`: a sandbox session whose recipient has not opted into
+    # sandbox email delivery, so the send is only simulated.
+    module SessionsPreviewResubmissionResponseNotSentReason
+      NO_USER_ACTION = "no_user_action"
+      NO_RECIPIENT = "no_recipient"
+      SANDBOX = "sandbox"
+
+      VALUES = [NO_USER_ACTION, NO_RECIPIENT, SANDBOX].freeze
+    end
+
+    # Where `recipient` comes from. `request`: the `email_address` you passed. `email_verification`: the address the
+    # person verified in an email verification step of the flow. `contact_details`: the address given in
+    # `contact_details` when the session was created. An empty string when there is no address.
+    module SessionsPreviewResubmissionResponseRecipientSource
+      EMAIL_VERIFICATION = "email_verification"
+      CONTACT_DETAILS = "contact_details"
+      REQUEST = "request"
+      VALUE = ""
+
+      VALUES = [EMAIL_VERIFICATION, CONTACT_DETAILS, REQUEST, VALUE].freeze
+    end
+
+    # `customer`: the email goes out from your application's verified sender domain (white label). `didit`: it goes
+    # out from Didit's own sender.
+    module SessionsPreviewResubmissionResponseSenderKind
+      CUSTOMER = "customer"
+      DIDIT = "didit"
+
+      VALUES = [CUSTOMER, DIDIT].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module SessionsRetrieveDecisionParamsInclude
       EVENTS = "events"
@@ -451,1140 +523,6 @@ module Didit
       EVENTS_RESUBMISSIONS = "events,resubmissions"
 
       VALUES = [EVENTS, RESUBMISSIONS, EVENTS_RESUBMISSIONS].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseAmlScreeningsHitsDatasets
-      PEP = "PEP"
-      PEP_LEVEL_1 = "PEP Level 1"
-      PEP_LEVEL_2 = "PEP Level 2"
-      PEP_LEVEL_3 = "PEP Level 3"
-      PEP_LEVEL_4 = "PEP Level 4"
-      SANCTIONS = "Sanctions"
-      ADVERSE_MEDIA = "Adverse Media"
-      WARNINGS_AND_REGULATORY_ENFORCEMENT = "Warnings and Regulatory Enforcement"
-      FITNESS_AND_PROBITY = "Fitness and Probity"
-      SIP = "SIP"
-      SIE = "SIE"
-      INSOLVENCY = "Insolvency"
-
-      VALUES = [PEP, PEP_LEVEL_1, PEP_LEVEL_2, PEP_LEVEL_3, PEP_LEVEL_4, SANCTIONS, ADVERSE_MEDIA, WARNINGS_AND_REGULATORY_ENFORCEMENT, FITNESS_AND_PROBITY, SIP, SIE, INSOLVENCY].freeze
-    end
-
-    # Review status for this hit. Can be 'Unreviewed', 'Confirmed Match', 'False Positive', or 'Inconclusive'.
-    module SessionsRetrieveDecisionResponseAmlScreeningsHitsReviewStatus
-      UNREVIEWED = "Unreviewed"
-      CONFIRMED_MATCH = "Confirmed Match"
-      FALSE_POSITIVE = "False Positive"
-      INCONCLUSIVE = "Inconclusive"
-
-      VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
-    end
-
-    # Result of document number 'Golden Key' evaluation.
-    module SessionsRetrieveDecisionResponseAmlScreeningsHitsScoreBreakdownDocumentNumberMatchType
-      MATCH = "MATCH"
-      NEUTRAL = "NEUTRAL"
-      HARD_MISMATCH = "HARD_MISMATCH"
-
-      VALUES = [MATCH, NEUTRAL, HARD_MISMATCH].freeze
-    end
-
-    # Type of the warning case
-    module SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalDataDataCaseDetailsCaseType
-      ACCUSATION = "Accusation"
-      ARREST = "Arrest"
-      BRIBERY = "Bribery"
-      CRIMINAL = "Criminal"
-      FRAUD = "Fraud"
-      ILLEGAL_FUNDRAISING = "Illegal Fundraising"
-      NON_CONVICTION_TERROR = "Non-conviction Terror"
-      PROCLAIMED_OFFENDER = "Proclaimed Offender"
-      REGULATORY_ENFORCEMENT = "Regulatory Enforcement"
-      TERRORISM = "Terrorism"
-      TERRORISM_RELATED = "Terrorism-related"
-      TERRORISM_RELATED_LISTING = "Terrorism-related listing"
-
-      VALUES = [ACCUSATION, ARREST, BRIBERY, CRIMINAL, FRAUD, ILLEGAL_FUNDRAISING, NON_CONVICTION_TERROR, PROCLAIMED_OFFENDER, REGULATORY_ENFORCEMENT, TERRORISM, TERRORISM_RELATED, TERRORISM_RELATED_LISTING].freeze
-    end
-
-    # Feature-level status of this AML screening. Independent of the top-level session `status` - a session can reach
-    # its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseAmlScreeningsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Within
-    # an AML screening this is typically `AML`, but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseAmlScreeningsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # The aggregate match outcome across the queried services. `null` until the validation has been evaluated.
-    module SessionsRetrieveDecisionResponseDatabaseValidationsMatchType
-      NO_MATCH = "no_match"
-      PARTIAL_MATCH = "partial_match"
-      FULL_MATCH = "full_match"
-
-      VALUES = [NO_MATCH, PARTIAL_MATCH, FULL_MATCH].freeze
-    end
-
-    # Feature-level status of this database validation. Independent of the top-level session `status` - a session can
-    # reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseDatabaseValidationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # How the result was corroborated: `one_by_one` (single-service outcome), `two_by_two` (two or more distinct
-    # services independently full-matched the identification number), or `not_enabled` (persisted when no service
-    # produced a usable match). The value is never `null`. Dedicated biometric 2x2 validation modes are currently
-    # available for `ECU` and `PER`.
-    module SessionsRetrieveDecisionResponseDatabaseValidationsValidationType
-      ONE_BY_ONE = "one_by_one"
-      TWO_BY_TWO = "two_by_two"
-      NOT_ENABLED = "not_enabled"
-
-      VALUES = [ONE_BY_ONE, TWO_BY_TWO, NOT_ENABLED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseDatabaseValidationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Expected value type of the extracted field.
-    module SessionsRetrieveDecisionResponseDocumentAiDocumentsItemsFieldsType
-      TEXT = "text"
-      NUMBER = "number"
-      DATE = "date"
-
-      VALUES = [TEXT, NUMBER, DATE].freeze
-    end
-
-    # Per-document Document AI status.
-    module SessionsRetrieveDecisionResponseDocumentAiDocumentsItemsStatus
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      NOT_FINISHED = "Not Finished"
-
-      VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED].freeze
-    end
-
-    # Aggregate Document AI status for this node, rolled up from its `items[]`.
-    module SessionsRetrieveDecisionResponseDocumentAiDocumentsStatus
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      NOT_FINISHED = "Not Finished"
-
-      VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED].freeze
-    end
-
-    # Alias of `document_type` - the group name used by `groups` and `required_groups`.
-    module SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentGroup
-      LEGAL_PRESENCE = "LEGAL_PRESENCE"
-      COMPANY_DETAILS = "COMPANY_DETAILS"
-      OWNERSHIP_STRUCTURE = "OWNERSHIP_STRUCTURE"
-      REPRESENTATIVES_AUTHORIZATION = "REPRESENTATIVES_AUTHORIZATION"
-      OTHER = "OTHER"
-
-      VALUES = [LEGAL_PRESENCE, COMPANY_DETAILS, OWNERSHIP_STRUCTURE, REPRESENTATIVES_AUTHORIZATION, OTHER].freeze
-    end
-
-    # High-level KYB document group the file was classified into. `null` while unclassified.
-    module SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentType
-      LEGAL_PRESENCE = "LEGAL_PRESENCE"
-      COMPANY_DETAILS = "COMPANY_DETAILS"
-      OWNERSHIP_STRUCTURE = "OWNERSHIP_STRUCTURE"
-      REPRESENTATIVES_AUTHORIZATION = "REPRESENTATIVES_AUTHORIZATION"
-      OTHER = "OTHER"
-
-      VALUES = [LEGAL_PRESENCE, COMPANY_DETAILS, OWNERSHIP_STRUCTURE, REPRESENTATIVES_AUTHORIZATION, OTHER].freeze
-    end
-
-    # Per-document verification status.
-    module SessionsRetrieveDecisionResponseDocumentVerificationsItemsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Where this match came from. `session` means another verification session in your application matched on this
-    # value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the
-    # management API lists overview at `/management-api/lists/overview` for how to manage those lists.
-    module SessionsRetrieveDecisionResponseEmailVerificationsMatchesSource
-      SESSION = "session"
-      LIST_ENTRY = "list_entry"
-
-      VALUES = [SESSION, LIST_ENTRY].freeze
-    end
-
-    # Feature-level status of this email verification step. Independent of the top-level session `status` - a session
-    # can reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseEmailVerificationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseEmailVerificationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Whether the session was created by a live application (`live`) or a sandbox application (`sandbox`). Sandbox
-    # sessions are free, fully simulated, and never bill credits.
-    module SessionsRetrieveDecisionResponseEnvironment
-      LIVE = "live"
-      SANDBOX = "sandbox"
-
-      VALUES = [LIVE, SANDBOX].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseExpectedDetailsExpectedDocumentTypes
-      P = "P"
-      ID = "ID"
-      DL = "DL"
-      RP = "RP"
-      HIC = "HIC"
-      TC = "TC"
-      SSC = "SSC"
-
-      VALUES = [P, ID, DL, RP, HIC, TC, SSC].freeze
-    end
-
-    # User's gender. Must be either 'M', 'F', or null.
-    module SessionsRetrieveDecisionResponseExpectedDetailsGender
-      M = "M"
-      F = "F"
-
-      VALUES = [M, F].freeze
-    end
-
-    # Feature-level status of this face-match step. Independent of the top-level session `status` - a session can
-    # reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseFaceMatchesStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseFaceMatchesWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Assurance tier derived from `verification_method`: `documentary` for a document that was captured and checked,
-    # `data_match` for details that matched a record held by the source queried, `cryptographic` for attributes an
-    # identity provider authenticated and signed.
-    module SessionsRetrieveDecisionResponseIdVerificationsAssurance
-      DOCUMENTARY = "documentary"
-      DATA_MATCH = "data_match"
-      CRYPTOGRAPHIC = "cryptographic"
-
-      VALUES = [DOCUMENTARY, DATA_MATCH, CRYPTOGRAPHIC].freeze
-    end
-
-    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is
-    # acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
-    module SessionsRetrieveDecisionResponseIdVerificationsBackImageQualityScoreBrightnessIssue
-      OK = "ok"
-      TOO_DARK = "too_dark"
-      TOO_BRIGHT = "too_bright"
-
-      VALUES = [OK, TOO_DARK, TOO_BRIGHT].freeze
-    end
-
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
-    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
-    module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPortraitReplaceBucket
-      APPROVE = "approve"
-      REVIEW = "review"
-      DECLINE = "decline"
-
-      VALUES = [APPROVE, REVIEW, DECLINE].freeze
-    end
-
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
-    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
-    module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPrintedCopyBucket
-      APPROVE = "approve"
-      REVIEW = "review"
-      DECLINE = "decline"
-
-      VALUES = [APPROVE, REVIEW, DECLINE].freeze
-    end
-
-    # The fraud-type bucket saved at evaluation time. Null when there is no usable score, the check was not applied,
-    # or historical evaluation evidence is unavailable. Later workflow edits do not change it.
-    module SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessScreenReplayBucket
-      APPROVE = "approve"
-      REVIEW = "review"
-      DECLINE = "decline"
-
-      VALUES = [APPROVE, REVIEW, DECLINE].freeze
-    end
-
-    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or
-    # `retained_template` (an image-free biometric template stored on a User, listed under
-    # `/v3/biometric-templates/`).
-    module SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatchesSource
-      SESSION = "session"
-      IMPORTED = "imported"
-      LIST_ENTRY = "list_entry"
-      RETAINED_TEMPLATE = "retained_template"
-
-      VALUES = [SESSION, IMPORTED, LIST_ENTRY, RETAINED_TEMPLATE].freeze
-    end
-
-    # The method that failed.
-    module SessionsRetrieveDecisionResponseIdVerificationsFallbackFromMethod
-      ID_LOOKUP = "id_lookup"
-      WALLET = "wallet"
-
-      VALUES = [ID_LOOKUP, WALLET].freeze
-    end
-
-    # Indicates the direction of the brightness problem when the brightness_score is low. 'ok' means brightness is
-    # acceptable, 'too_dark' means the image is underexposed, 'too_bright' means the image is overexposed.
-    module SessionsRetrieveDecisionResponseIdVerificationsFrontImageQualityScoreBrightnessIssue
-      OK = "ok"
-      TOO_DARK = "too_dark"
-      TOO_BRIGHT = "too_bright"
-
-      VALUES = [OK, TOO_DARK, TOO_BRIGHT].freeze
-    end
-
-    # Normalised comparison field. `provider` is not a user field: it marks a source error row.
-    module SessionsRetrieveDecisionResponseIdVerificationsIdLookupComparisonField
-      IDENTIFICATION_NUMBER = "identification_number"
-      FULL_NAME = "full_name"
-      DATE_OF_BIRTH = "date_of_birth"
-      ADDRESS = "address"
-      PROVIDER = "provider"
-
-      VALUES = [IDENTIFICATION_NUMBER, FULL_NAME, DATE_OF_BIRTH, ADDRESS, PROVIDER].freeze
-    end
-
-    # Per-field comparison result. `error` appears only on a `provider` row and means that source did not answer;
-    # treat it as evidence about the query, never as a field mismatch.
-    module SessionsRetrieveDecisionResponseIdVerificationsIdLookupComparisonResult
-      MATCH = "match"
-      PARTIAL = "partial"
-      NO_MATCH = "no_match"
-      ERROR = "error"
-
-      VALUES = [MATCH, PARTIAL, NO_MATCH, ERROR].freeze
-    end
-
-    # What the register answered. Only `match`, `partial_match` and `no_match` count against the attempt budget and
-    # bill.
-    module SessionsRetrieveDecisionResponseIdVerificationsIdLookupOutcome
-      MATCH = "match"
-      PARTIAL_MATCH = "partial_match"
-      NO_MATCH = "no_match"
-      PROVIDER_ERROR = "provider_error"
-      FORMAT_REJECTED = "format_rejected"
-
-      VALUES = [MATCH, PARTIAL_MATCH, NO_MATCH, PROVIDER_ERROR, FORMAT_REJECTED].freeze
-    end
-
-    # Feature-level status of this ID verification step. Independent of the top-level session `status` - a session can
-    # reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseIdVerificationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
-    end
-
-    # Which ID Verification method produced this report. `document` - the user photographed a physical ID (the
-    # default, and the value on every session created before the other methods existed). `id_lookup` - the user typed
-    # their national ID number and it was checked against a government register or another authoritative source for
-    # that country (`id_lookup.source` names which). `wallet` - the user signed in with a government or bank digital
-    # identity.
-    module SessionsRetrieveDecisionResponseIdVerificationsVerificationMethod
-      DOCUMENT = "document"
-      ID_LOOKUP = "id_lookup"
-      WALLET = "wallet"
-
-      VALUES = [DOCUMENT, ID_LOOKUP, WALLET].freeze
-    end
-
-    # The level of assurance the wallet asserted. A sign-in that asserts less than the level requested fails instead
-    # of downgrading.
-    module SessionsRetrieveDecisionResponseIdVerificationsWalletVerificationLevelOfAssurance
-      LOW = "low"
-      SUBSTANTIAL = "substantial"
-      HIGH = "high"
-
-      VALUES = [LOW, SUBSTANTIAL, HIGH].freeze
-    end
-
-    # The feature that generated this warning (e.g., `ID_VERIFICATION`, `NFC`, `LIVENESS`). The value identifies the
-    # feature block the warning belongs to. Each module's warnings array typically uses the value matching its module,
-    # but the enum above is authoritative across all feature warnings on the decision payload.
-    module SessionsRetrieveDecisionResponseIdVerificationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Evidence class of the match: `deterministic` (exact stored or hardware-rooted identifier that cannot collide
-    # between physical devices), `probabilistic` (fuzzy fingerprint evidence), or `co_occurrence` (shared network
-    # only, no device-identity claim).
-    module SessionsRetrieveDecisionResponseIpAnalysesMatchesMatchMode
-      DETERMINISTIC = "deterministic"
-      PROBABILISTIC = "probabilistic"
-      CO_OCCURRENCE = "co_occurrence"
-
-      VALUES = [DETERMINISTIC, PROBABILISTIC, CO_OCCURRENCE].freeze
-    end
-
-    # How this match was reached: `ip_address` (shared IP address - network co-location, not a device-identity claim),
-    # `persistent_id` (exact stored persistent device identifier), `legacy_fp` (legacy `didit-fp-*` device-fingerprint
-    # hash), or `recovered_high` (high-confidence fuzzy fingerprint-recovery hit). Lower-confidence recovery
-    # candidates surface as risk warnings only, never in this array.
-    module SessionsRetrieveDecisionResponseIpAnalysesMatchesMatchSource
-      IP_ADDRESS = "ip_address"
-      PERSISTENT_ID = "persistent_id"
-      LEGACY_FP = "legacy_fp"
-      RECOVERED_HIGH = "recovered_high"
-
-      VALUES = [IP_ADDRESS, PERSISTENT_ID, LEGACY_FP, RECOVERED_HIGH].freeze
-    end
-
-    # Whether the match was on IP address or device fingerprint
-    module SessionsRetrieveDecisionResponseIpAnalysesMatchesMatchType
-      IP_ADDRESS = "ip_address"
-      DEVICE_FINGERPRINT = "device_fingerprint"
-
-      VALUES = [IP_ADDRESS, DEVICE_FINGERPRINT].freeze
-    end
-
-    # Always `session` for device/IP matches - every match is another verification session in your application.
-    module SessionsRetrieveDecisionResponseIpAnalysesMatchesSource
-      SESSION = "session"
-
-      VALUES = [SESSION].freeze
-    end
-
-    # Feature-level status of this Device & IP Analysis entry. Independent of the top-level session `status` - a
-    # session can reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseIpAnalysesStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseIpAnalysesWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Status of the AML screening run for this beneficial owner. `null` when no AML screening was run.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersAmlStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersEntityType
-      PERSON = "person"
-      COMPANY = "company"
-
-      VALUES = [PERSON, COMPANY].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategoriesAdverseMedia
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategoriesPep
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategoriesSanctions
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategoriesWarnings
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Raw lifecycle status of the child KYC session spawned for this beneficial owner. This is the full session status
-    # enum (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycStatus
-      NOT_STARTED = "Not Started"
-      IN_PROGRESS = "In Progress"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-      ABANDONED = "Abandoned"
-      KYC_EXPIRED = "Kyc Expired"
-      RESUBMITTED = "Resubmitted"
-      AWAITING_USER = "Awaiting User"
-
-      VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
-    end
-
-    # Feature-level status inside the child session.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersVerificationWorkflowFeaturesStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Status of the AML screening run for this officer. `null` when no AML screening was run.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersAmlStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategoriesAdverseMedia
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategoriesPep
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategoriesSanctions
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategoriesWarnings
-      MATCH = "match"
-      CLEAR = "clear"
-
-      VALUES = [MATCH, CLEAR].freeze
-    end
-
-    # Raw lifecycle status of the child KYC session spawned for this officer. This is the full session status enum
-    # (not a reduced Approved/Declined/Pending set). `null` when no child KYC session exists.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycStatus
-      NOT_STARTED = "Not Started"
-      IN_PROGRESS = "In Progress"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-      ABANDONED = "Abandoned"
-      KYC_EXPIRED = "Kyc Expired"
-      RESUBMITTED = "Resubmitted"
-      AWAITING_USER = "Awaiting User"
-
-      VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
-    end
-
-    # Normalized officer role.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersRole
-      DIRECTOR = "director"
-      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
-      SECRETARY = "secretary"
-      CHAIRMAN = "chairman"
-      UBO = "ubo"
-      SHAREHOLDER = "shareholder"
-      REPRESENTATIVE = "representative"
-      FOUNDER = "founder"
-      LEGAL_ADVISOR = "legal_advisor"
-      AUTHORIZED_SIGNATORY = "authorized_signatory"
-      TRUSTEE = "trustee"
-      BENEFICIARY = "beneficiary"
-      SETTLOR = "settlor"
-      PROTECTOR = "protector"
-      COMPANY_OFFICER = "company_officer"
-      INVESTOR = "investor"
-      OTHER = "other"
-
-      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
-    end
-
-    # Feature-level status inside the child session.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersVerificationWorkflowFeaturesStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesEntityType
-      PERSON = "person"
-      COMPANY = "company"
-
-      VALUES = [PERSON, COMPANY].freeze
-    end
-
-    # Lifecycle status of the child KYB sub-session. `null` when no sub-session exists.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesKybSubSessionStatus
-      NOT_STARTED = "Not Started"
-      IN_PROGRESS = "In Progress"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-      ABANDONED = "Abandoned"
-      KYC_EXPIRED = "Kyc Expired"
-      RESUBMITTED = "Resubmitted"
-      AWAITING_USER = "Awaiting User"
-
-      VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
-    end
-
-    # Lifecycle status of the child KYC session. `null` when no child KYC session exists.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesKycSessionStatus
-      NOT_STARTED = "Not Started"
-      IN_PROGRESS = "In Progress"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-      ABANDONED = "Abandoned"
-      KYC_EXPIRED = "Kyc Expired"
-      RESUBMITTED = "Resubmitted"
-      AWAITING_USER = "Awaiting User"
-
-      VALUES = [NOT_STARTED, IN_PROGRESS, APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED, KYC_EXPIRED, RESUBMITTED, AWAITING_USER].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesRolesRole
-      DIRECTOR = "director"
-      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
-      SECRETARY = "secretary"
-      CHAIRMAN = "chairman"
-      UBO = "ubo"
-      SHAREHOLDER = "shareholder"
-      REPRESENTATIVE = "representative"
-      FOUNDER = "founder"
-      LEGAL_ADVISOR = "legal_advisor"
-      AUTHORIZED_SIGNATORY = "authorized_signatory"
-      TRUSTEE = "trustee"
-      BENEFICIARY = "beneficiary"
-      SETTLOR = "settlor"
-      PROTECTOR = "protector"
-      COMPANY_OFFICER = "company_officer"
-      INVESTOR = "investor"
-      OTHER = "other"
-
-      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
-    end
-
-    # Always `USER` here - this bucket only contains parties entered or confirmed by the end user in the Key People
-    # flow (registry-discovered people appear under `registry`).
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesSource
-      USER = "USER"
-
-      VALUES = [USER].freeze
-    end
-
-    # Feature-level status inside the child session.
-    module SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesVerificationWorkflowFeaturesStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # Origin of the matching face: `session`, `imported` (User face upload), `list_entry` (allow/block list), or
-    # `retained_template` (an image-free biometric template stored on a User, listed under
-    # `/v3/biometric-templates/`).
-    module SessionsRetrieveDecisionResponseLivenessChecksMatchesSource
-      SESSION = "session"
-      IMPORTED = "imported"
-      LIST_ENTRY = "list_entry"
-      RETAINED_TEMPLATE = "retained_template"
-
-      VALUES = [SESSION, IMPORTED, LIST_ENTRY, RETAINED_TEMPLATE].freeze
-    end
-
-    # Feature-level status of this liveness step. Independent of the top-level session `status` - a session can reach
-    # its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseLivenessChecksStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseLivenessChecksWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Why NFC chip verification did not run, populated whenever the workflow includes an NFC step. `null` while NFC is
-    # pending or when the chip was actually read. Values: `USER_SKIPPED` - the user chose to skip on an NFC-capable
-    # device (allowed by `allow_nfc_skip`); `DOCUMENT_WITHOUT_CHIP` - the document has no readable NFC chip (not an
-    # ICAO 9303 electronic document); `CHIP_CERTIFICATE_UNAVAILABLE` - the issuing country's signing certificate
-    # (CSCA) covering the document's issue period is unavailable, so the chip signature cannot be verified;
-    # `DEVICE_WITHOUT_NFC` - the device reported no NFC reader; `INTEGRATION_WITHOUT_NFC_ACCESS` - the verification
-    # ran without a native SDK (e.g. in a web browser), which has no access to the phone's NFC reader;
-    # `MRZ_KEY_UNAVAILABLE` - the chip access key could not be derived from the document's MRZ.
-    module SessionsRetrieveDecisionResponseNfcSkipReason
-      USER_SKIPPED = "USER_SKIPPED"
-      DOCUMENT_WITHOUT_CHIP = "DOCUMENT_WITHOUT_CHIP"
-      CHIP_CERTIFICATE_UNAVAILABLE = "CHIP_CERTIFICATE_UNAVAILABLE"
-      DEVICE_WITHOUT_NFC = "DEVICE_WITHOUT_NFC"
-      INTEGRATION_WITHOUT_NFC_ACCESS = "INTEGRATION_WITHOUT_NFC_ACCESS"
-      MRZ_KEY_UNAVAILABLE = "MRZ_KEY_UNAVAILABLE"
-
-      VALUES = [USER_SKIPPED, DOCUMENT_WITHOUT_CHIP, CHIP_CERTIFICATE_UNAVAILABLE, DEVICE_WITHOUT_NFC, INTEGRATION_WITHOUT_NFC_ACCESS, MRZ_KEY_UNAVAILABLE].freeze
-    end
-
-    # Why this NFC step was skipped. Only set when `is_nfc_skipped` is `true`. Same taxonomy as the session-level
-    # `nfc_skip_reason`, which additionally covers the cases where NFC never produced a report at all.
-    module SessionsRetrieveDecisionResponseNfcVerificationsSkipReason
-      USER_SKIPPED = "USER_SKIPPED"
-      DOCUMENT_WITHOUT_CHIP = "DOCUMENT_WITHOUT_CHIP"
-      CHIP_CERTIFICATE_UNAVAILABLE = "CHIP_CERTIFICATE_UNAVAILABLE"
-      DEVICE_WITHOUT_NFC = "DEVICE_WITHOUT_NFC"
-      INTEGRATION_WITHOUT_NFC_ACCESS = "INTEGRATION_WITHOUT_NFC_ACCESS"
-      MRZ_KEY_UNAVAILABLE = "MRZ_KEY_UNAVAILABLE"
-
-      VALUES = [USER_SKIPPED, DOCUMENT_WITHOUT_CHIP, CHIP_CERTIFICATE_UNAVAILABLE, DEVICE_WITHOUT_NFC, INTEGRATION_WITHOUT_NFC_ACCESS, MRZ_KEY_UNAVAILABLE].freeze
-    end
-
-    # Feature-level status of this NFC step. Independent of the top-level session `status` - a session can reach its
-    # overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponseNfcVerificationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponseNfcVerificationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Where this match came from. `session` means another verification session in your application matched on this
-    # value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the
-    # management API lists overview at `/management-api/lists/overview` for how to manage those lists.
-    module SessionsRetrieveDecisionResponsePhoneVerificationsMatchesSource
-      SESSION = "session"
-      LIST_ENTRY = "list_entry"
-
-      VALUES = [SESSION, LIST_ENTRY].freeze
-    end
-
-    # Feature-level status of this phone verification step. Independent of the top-level session `status` - a session
-    # can reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponsePhoneVerificationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      EXPIRED = "Expired"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponsePhoneVerificationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Feature-level status of this Proof of Address step. Independent of the top-level session `status` - a session
-    # can reach its overall decision while an individual feature stays `In Review`.
-    module SessionsRetrieveDecisionResponsePoaVerificationsStatus
-      NOT_FINISHED = "Not Finished"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      IN_REVIEW = "In Review"
-      RESUB_REQUESTED = "Resub Requested"
-
-      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
-    end
-
-    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
-    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
-    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
-    # decision payload.
-    module SessionsRetrieveDecisionResponsePoaVerificationsWarningsFeature
-      ID_VERIFICATION = "ID_VERIFICATION"
-      NFC = "NFC"
-      LIVENESS = "LIVENESS"
-      FACEMATCH = "FACEMATCH"
-      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
-      PHONE = "PHONE"
-      EMAIL = "EMAIL"
-      AML = "AML"
-      LOCATION = "LOCATION"
-      DATABASE_VALIDATION = "DATABASE_VALIDATION"
-      QUESTIONNAIRE = "QUESTIONNAIRE"
-      DOCUMENT_AI = "DOCUMENT_AI"
-      KYB_REGISTRY = "KYB_REGISTRY"
-      KYB_DOCUMENTS = "KYB_DOCUMENTS"
-      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
-
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyBeneficialOwnersEntityType
-      PERSON = "person"
-      COMPANY = "company"
-
-      VALUES = [PERSON, COMPANY].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyBeneficialOwnersKycStatus
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      PENDING = "Pending"
-
-      VALUES = [APPROVED, DECLINED, PENDING].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyOfficersKycStatus
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      PENDING = "Pending"
-
-      VALUES = [APPROVED, DECLINED, PENDING].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyRiskLevel
-      LOW = "LOW"
-      MEDIUM = "MEDIUM"
-      HIGH = "HIGH"
-
-      VALUES = [LOW, MEDIUM, HIGH].freeze
-    end
-
-    # The source that decided `vat_validation_status`: an official registry, or `format_rules`. `null` when no check
-    # ran.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyVatValidationSource
-      EU_VIES = "eu_vies"
-      PL_VAT_WHITE_LIST = "pl_vat_white_list"
-      NO_BRREG = "no_brreg"
-      CH_UID_REGISTER = "ch_uid_register"
-      BR_RECEITA_FEDERAL = "br_receita_federal"
-      CO_RUES = "co_rues"
-      CR_HACIENDA = "cr_hacienda"
-      EC_SRI = "ec_sri"
-      PY_DNIT = "py_dnit"
-      FORMAT_RULES = "format_rules"
-
-      VALUES = [EU_VIES, PL_VAT_WHITE_LIST, NO_BRREG, CH_UID_REGISTER, BR_RECEITA_FEDERAL, CO_RUES, CR_HACIENDA, EC_SRI, PY_DNIT, FORMAT_RULES].freeze
-    end
-
-    # Result of validating the VAT number or, when there is none, the `tax_number`, at registry submit. `valid` /
-    # `invalid`: decided by the official registry of the country (EU VIES, Norway, Switzerland, Brazil, Colombia,
-    # Costa Rica, Ecuador, Paraguay; Poland also by its domestic VAT register). `format_valid` / `invalid_format`:
-    # decided by the country's format and check-digit rules where no registry can be queried. `could_not_validate`:
-    # the registry was unavailable. `not_applicable`: no number, a country without registry or rules, or a sandbox
-    # session.
-    module SessionsRetrieveDecisionResponseRegistryChecksCompanyVatValidationStatus
-      VALID = "valid"
-      INVALID = "invalid"
-      FORMAT_VALID = "format_valid"
-      INVALID_FORMAT = "invalid_format"
-      COULD_NOT_VALIDATE = "could_not_validate"
-      NOT_APPLICABLE = "not_applicable"
-
-      VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
-    end
-
-    # Discriminator indicating whether this is a User Verification (KYC) or Business Verification (KYB) session. When
-    # `user`, the KYC feature arrays (`id_verifications`, `nfc_verifications`, `liveness_checks`, `face_matches`,
-    # `poa_verifications`, `document_ai_documents`, `database_validations`, ...) apply and the business arrays are
-    # absent. When `business`, the payload instead carries `registry_checks`, `document_verifications`,
-    # `key_people_checks` plus the shared arrays (`aml_screenings`, `phone_verifications`, `email_verifications`,
-    # `ip_analyses`, `questionnaire_responses`). **Omitted when `include=events` is passed** - the events shape only
-    # exists for user sessions, so the discriminator is dropped from that variant.
-    module SessionsRetrieveDecisionResponseSessionKind
-      USER = "user"
-      BUSINESS = "business"
-
-      VALUES = [USER, BUSINESS].freeze
-    end
-
-    # Overall lifecycle status of the session - the rolled-up workflow result. Terminal values are `Approved`,
-    # `Declined`, `In Review`, `Expired`, `Kyc Expired`, and `Abandoned`; `Not Started`, `In Progress`, `Awaiting
-    # User`, and `Resubmitted` indicate the session is still moving through the workflow.
-    module SessionsRetrieveDecisionResponseStatus
-      NOT_STARTED = "Not Started"
-      IN_PROGRESS = "In Progress"
-      AWAITING_USER = "Awaiting User"
-      IN_REVIEW = "In Review"
-      APPROVED = "Approved"
-      DECLINED = "Declined"
-      RESUBMITTED = "Resubmitted"
-      EXPIRED = "Expired"
-      KYC_EXPIRED = "Kyc Expired"
-      ABANDONED = "Abandoned"
-
-      VALUES = [NOT_STARTED, IN_PROGRESS, AWAITING_USER, IN_REVIEW, APPROVED, DECLINED, RESUBMITTED, EXPIRED, KYC_EXPIRED, ABANDONED].freeze
-    end
-
-    # `PENDING`: accepted, not started yet. `PROCESSING`: deleting; `processed` and `outcomes` are updating.
-    # `COMPLETED`: every selected session is accounted for. `FAILED`: the job stopped early; see `error`.
-    module SessionsRetrieveDeletionJobResponseStatus
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
-
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
     # Optional status label to record on the entry. Accepts any session status value, case-sensitive (`"approved"` is
@@ -1629,6 +567,18 @@ module Didit
       VALUES = [USER, BUSINESS].freeze
     end
 
+    # The status to set. When you leave it out, it defaults to the default status of the risk case (`risk`, or the
+    # first risk the scenario's magic values carry), else to the scenario's default status.
+    module SessionsSimulateParamsNewStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      EXPIRED = "Expired"
+      ABANDONED = "Abandoned"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED].freeze
+    end
+
     # The new review status for the hit.
     module SessionsUpdateAmlHitStatusParamsReviewStatus
       UNREVIEWED = "Unreviewed"
@@ -1637,6 +587,49 @@ module Didit
       INCONCLUSIVE = "Inconclusive"
 
       VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
+    end
+
+    # The review status now stored on the hit.
+    module SessionsUpdateAmlHitStatusResponseReviewStatus
+      UNREVIEWED = "Unreviewed"
+      CONFIRMED_MATCH = "Confirmed Match"
+      FALSE_POSITIVE = "False Positive"
+      INCONCLUSIVE = "Inconclusive"
+
+      VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
+    end
+
+    # New status of the AML check.
+    module SessionsUpdateAmlStatusParamsStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
+    end
+
+    # Status before the call. Equal to `status` when nothing changed.
+    module SessionsUpdateAmlStatusResponsePreviousStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
+    end
+
+    # Status of the AML check now.
+    module SessionsUpdateAmlStatusResponseStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
     end
 
     # Document type code. Accepts the short codes listed in the enum, plus six long-form aliases normalized
@@ -1721,6 +714,61 @@ module Didit
       UNKNOWN = "UNKNOWN"
 
       VALUES = [SINGLE, MARRIED, DIVORCED, WIDOWED, UNKNOWN].freeze
+    end
+
+    # New review status of the document.
+    module SessionsUpdateDocumentAiDataParamsStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      NOT_FINISHED = "Not Finished"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED].freeze
+    end
+
+    # Review status of the document.
+    module SessionsUpdateDocumentAiDataResponseStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
+    end
+
+    # Which kind of step to target. Needed on non-graph workflows (`nodeId` = `default`), where every step shares no
+    # node; optional otherwise. An unknown value returns `400`.
+    module SessionsUpdateFeatureStatusParamsFeatureType
+      ID_VERIFICATION = "ID_VERIFICATION"
+      OCR = "OCR"
+      OCR_BACK = "OCR_BACK"
+      NFC = "NFC"
+      LIVENESS = "LIVENESS"
+      FACE = "FACE"
+      AGE_ESTIMATION = "AGE_ESTIMATION"
+      AGE_VERIFICATION = "AGE_VERIFICATION"
+      FACE_SEARCH = "FACE_SEARCH"
+      FACE_MATCH = "FACE_MATCH"
+      IP_ANALYSIS = "IP_ANALYSIS"
+      AML = "AML"
+      PHONE = "PHONE"
+      PHONE_VERIFICATION = "PHONE_VERIFICATION"
+      EMAIL = "EMAIL"
+      EMAIL_VERIFICATION = "EMAIL_VERIFICATION"
+      POA = "POA"
+      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
+      DATABASE_VALIDATION = "DATABASE_VALIDATION"
+      DATA_VALIDATION = "DATA_VALIDATION"
+      QUESTIONNAIRE = "QUESTIONNAIRE"
+      DOCUMENT_AI = "DOCUMENT_AI"
+      KYB_REGISTRY = "KYB_REGISTRY"
+      KYB_DOCUMENTS = "KYB_DOCUMENTS"
+      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      BANK_VERIFICATION = "BANK_VERIFICATION"
+      GEOLOCATION = "GEOLOCATION"
+
+      VALUES = [ID_VERIFICATION, OCR, OCR_BACK, NFC, LIVENESS, FACE, AGE_ESTIMATION, AGE_VERIFICATION, FACE_SEARCH, FACE_MATCH, IP_ANALYSIS, AML, PHONE, PHONE_VERIFICATION, EMAIL, EMAIL_VERIFICATION, POA, PROOF_OF_ADDRESS, DATABASE_VALIDATION, DATA_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, BANK_VERIFICATION, GEOLOCATION].freeze
     end
 
     # Target status for this feature. Must differ from the current value.
@@ -1865,32 +913,12 @@ module Didit
       VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
     end
 
+    class SessionsAddImagesResponse < Didit::Model
+      field :extra_files, "extra_files", [:array, :string]
+    end
+
     class SessionsBatchDeleteResponse < Didit::Model
       field :results, "results", [:array, "SessionsBatchDeleteResponseResults"]
-    end
-
-    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it
-    # deleted.
-    class SessionsBatchDeleteResponse202 < Didit::Model
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "SessionsBatchDeleteResponse202Outcomes"
-      field :deleted_child_verifications, "deleted_child_verifications", :integer
-      field :error, "error", :string
-      field :created_at, "created_at", :datetime
-      field :completed_at, "completed_at", :datetime
-    end
-
-    # How many sessions ended in each outcome. Every key is always present.
-    class SessionsBatchDeleteResponse202Outcomes < Didit::Model
-      field :deleted, "deleted", :integer
-      field :none, "none", :integer
-      field :retained_with_user, "retained_with_user", :integer
-      field :ineligible_no_vendor_user, "ineligible_no_vendor_user", :integer
-      field :failed_retryable, "failed_retryable", :integer
-      field :already_deleted, "already_deleted", :integer
     end
 
     class SessionsBatchDeleteResponseResults < Didit::Model
@@ -1900,6 +928,11 @@ module Didit
       field :biometric_template_uuid, "biometric_template_uuid", :string
       field :biometric_template_expires_at, "biometric_template_expires_at", :datetime
       field :deleted_child_verifications, "deleted_child_verifications", :integer
+    end
+
+    class SessionsBulkUpdateAmlHitStatusResponse < Didit::Model
+      field :message, "message", :string
+      field :updated_hits, "updated_hits", [:array, :string]
     end
 
     class SessionsCreateResponse < Didit::Model
@@ -1931,8 +964,25 @@ module Didit
       field :results, "results", [:array, "SessionImportError"]
     end
 
-    class SessionsListNetworksResponse < Didit::Model
-      field :results, "results", [:array, "EntityNetworkMembership"]
+    class SessionsListAmlScreeningHistoryResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "AMLScreeningRun"]
+    end
+
+    class SessionsListEventsResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "SessionEvent"]
+    end
+
+    class SessionsListFeatureOverridesResponse < Didit::Model
+      field :session_id, "session_id", :string
+      field :person_in_flow, "person_in_flow", :boolean
+      field :flow_finished_at, "flow_finished_at", :datetime
+      field :overrides, "overrides", [:array, "FeatureStatusOverride"]
     end
 
     class SessionsListResponse < Didit::Model
@@ -2056,11 +1106,33 @@ module Didit
       field :is_verified, "is_verified", :boolean
     end
 
-    class SessionsPreviewResubmissionResponse < Didit::Model
+    class SessionsPreviewDecisionEmailResponse < Didit::Model
       field :recipient, "recipient", :string
+      field :recipient_source, "recipient_source", :string
       field :sender, "sender", :string
+      field :sender_name, "sender_name", :string
+      field :sender_email, "sender_email", :string
+      field :sender_kind, "sender_kind", :string
       field :subject, "subject", :string
       field :html, "html", :string
+      field :language, "language", :string
+      field :will_be_sent, "will_be_sent", :boolean
+      field :not_sent_reason, "not_sent_reason", :string
+      field :preview_token, "preview_token", :string
+    end
+
+    class SessionsPreviewResubmissionResponse < Didit::Model
+      field :recipient, "recipient", :string
+      field :recipient_source, "recipient_source", :string
+      field :sender, "sender", :string
+      field :sender_name, "sender_name", :string
+      field :sender_email, "sender_email", :string
+      field :sender_kind, "sender_kind", :string
+      field :subject, "subject", :string
+      field :html, "html", :string
+      field :language, "language", :string
+      field :will_be_sent, "will_be_sent", :boolean
+      field :not_sent_reason, "not_sent_reason", :string
       field :nodes_to_resubmit, "nodes_to_resubmit", [:array, "SessionsPreviewResubmissionResponseNodesToResubmit"]
       field :requires_user_action, "requires_user_action", :boolean
       field :preview_token, "preview_token", :string
@@ -2069,1659 +1141,6 @@ module Didit
     class SessionsPreviewResubmissionResponseNodesToResubmit < Didit::Model
       field :node_id, "node_id", :string
       field :feature, "feature", :string
-    end
-
-    class SessionsRetrieveDecisionResponse < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_kind, "session_kind", :string
-      field :session_number, "session_number", :integer
-      field :session_url, "session_url", :string
-      field :status, "status", :string
-      field :workflow_id, "workflow_id", :string
-      field :features, "features", [:array, :string]
-      field :vendor_data, "vendor_data", :string
-      field :metadata, "metadata", :any
-      field :expected_details, "expected_details", "SessionsRetrieveDecisionResponseExpectedDetails"
-      field :contact_details, "contact_details", "SessionsRetrieveDecisionResponseContactDetails"
-      field :callback, "callback", :string
-      field :id_verifications, "id_verifications", [:array, "SessionsRetrieveDecisionResponseIdVerifications"]
-      field :nfc_skip_reason, "nfc_skip_reason", :string
-      field :nfc_verifications, "nfc_verifications", [:array, "SessionsRetrieveDecisionResponseNfcVerifications"]
-      field :liveness_checks, "liveness_checks", [:array, "SessionsRetrieveDecisionResponseLivenessChecks"]
-      field :face_matches, "face_matches", [:array, "SessionsRetrieveDecisionResponseFaceMatches"]
-      field :phone_verifications, "phone_verifications", [:array, "SessionsRetrieveDecisionResponsePhoneVerifications"]
-      field :email_verifications, "email_verifications", [:array, "SessionsRetrieveDecisionResponseEmailVerifications"]
-      field :poa_verifications, "poa_verifications", [:array, "SessionsRetrieveDecisionResponsePoaVerifications"]
-      field :document_ai_documents, "document_ai_documents", [:array, "SessionsRetrieveDecisionResponseDocumentAiDocuments"]
-      field :questionnaire_responses, "questionnaire_responses", [:array, "SessionsRetrieveDecisionResponseQuestionnaireResponses"]
-      field :aml_screenings, "aml_screenings", [:array, "SessionsRetrieveDecisionResponseAmlScreenings"]
-      field :ip_analyses, "ip_analyses", [:array, "SessionsRetrieveDecisionResponseIpAnalyses"]
-      field :database_validations, "database_validations", [:array, "SessionsRetrieveDecisionResponseDatabaseValidations"]
-      field :reviews, "reviews", [:array, "SessionsRetrieveDecisionResponseReviews"]
-      field :created_at, "created_at", :datetime
-      field :expires_at, "expires_at", :datetime
-      field :registry_checks, "registry_checks", [:array, "SessionsRetrieveDecisionResponseRegistryChecks"]
-      field :key_people_checks, "key_people_checks", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecks"]
-      field :document_verifications, "document_verifications", [:array, "SessionsRetrieveDecisionResponseDocumentVerifications"]
-      field :environment, "environment", :string
-      field :resubmissions, "resubmissions", [:array, "SessionsRetrieveDecisionResponseResubmissions"]
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreenings < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :total_hits, "total_hits", :integer
-      field :entity_type, "entity_type", :string
-      field :hits, "hits", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHits"]
-      field :score, "score", :float
-      field :screened_data, "screened_data", "SessionsRetrieveDecisionResponseAmlScreeningsScreenedData"
-      field :is_ongoing_monitoring_enabled, "is_ongoing_monitoring_enabled", :boolean
-      field :next_ongoing_monitoring_bill_date, "next_ongoing_monitoring_bill_date", :date
-      field :last_ongoing_screening_at, "last_ongoing_screening_at", :datetime
-      field :last_ongoing_screening_datasets_updated_at, "last_ongoing_screening_datasets_updated_at", :datetime
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsWarnings"]
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHits < Didit::Model
-      field :id, "id", :string
-      field :url, "url", :string
-      field :match, "match", :boolean
-      field :score, "score", :float
-      field :target, "target", :boolean
-      field :caption, "caption", :string
-      field :datasets, "datasets", [:array, :string]
-      field :features, "features", :any
-      field :rca_name, "rca_name", :string
-      field :last_seen, "last_seen", :datetime
-      field :risk_view, "risk_view", "SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskView"
-      field :first_seen, "first_seen", :datetime
-      field :properties, "properties", "SessionsRetrieveDecisionResponseAmlScreeningsHitsProperties"
-      field :match_score, "match_score", :float
-      field :risk_score, "risk_score", :float
-      field :review_status, "review_status", :string
-      field :score_breakdown, "score_breakdown", "SessionsRetrieveDecisionResponseAmlScreeningsHitsScoreBreakdown"
-      field :pep_matches, "pep_matches", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsPepMatches"]
-      field :linked_entities, "linked_entities", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsLinkedEntities"]
-      field :warning_matches, "warning_matches", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatches"]
-      field :sanction_matches, "sanction_matches", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsSanctionMatches"]
-      field :adverse_media_details, "adverse_media_details", "SessionsRetrieveDecisionResponseAmlScreeningsHitsAdverseMediaDetails"
-      field :adverse_media_matches, "adverse_media_matches", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsAdverseMediaMatches"]
-      field :additional_information, "additional_information", :any
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsAdverseMediaDetails < Didit::Model
-      field :sentiment, "sentiment", :string
-      field :entity_type, "entity_type", :string
-      field :sentiment_score, "sentiment_score", :integer
-      field :adverse_keywords, "adverse_keywords", [:map, :integer]
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsAdverseMediaMatches < Didit::Model
-      field :country, "country", :string
-      field :summary, "summary", :string
-      field :headline, "headline", :string
-      field :sentiment, "sentiment", :string
-      field :thumbnail, "thumbnail", :string
-      field :source_url, "source_url", :string
-      field :author_name, "author_name", :string
-      field :other_sources, "other_sources", [:array, :string]
-      field :adverse_keywords, "adverse_keywords", [:array, :string]
-      field :sentiment_score, "sentiment_score", :integer
-      field :publication_date, "publication_date", :datetime
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsLinkedEntities < Didit::Model
-      field :name, "name", [:array, :string]
-      field :active, "active", [:array, :string]
-      field :status, "status", [:array, :string]
-      field :details, "details", [:array, :string]
-      field :relation, "relation", [:array, :string]
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsPepMatches < Didit::Model
-      field :aliases, "aliases", [:array, :string]
-      field :education, "education", [:array, :string]
-      field :list_name, "list_name", :string
-      field :publisher, "publisher", :string
-      field :source_url, "source_url", :string
-      field :description, "description", :string
-      field :matched_name, "matched_name", :string
-      field :pep_position, "pep_position", :string
-      field :date_of_birth, "date_of_birth", :string
-      field :other_sources, "other_sources", [:array, :string]
-      field :place_of_birth, "place_of_birth", :string
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsProperties < Didit::Model
-      field :name, "name", [:array, :string]
-      field :alias, "alias", [:array, :string]
-      field :notes, "notes", [:array, :string]
-      field :title, "title", :string
-      field :gender, "gender", [:array, :string]
-      field :height, "height", :string
-      field :topics, "topics", :string
-      field :weight, "weight", :string
-      field :address, "address", :string
-      field :country, "country", :string
-      field :website, "website", :string
-      field :eye_color, "eyeColor", :string
-      field :keywords, "keywords", :string
-      field :last_name, "lastName", [:array, :string]
-      field :position, "position", :string
-      field :religion, "religion", :string
-      field :birth_date, "birthDate", [:array, :string]
-      field :education, "education", [:array, :string]
-      field :ethnicity, "ethnicity", :string
-      field :first_name, "firstName", [:array, :string]
-      field :hair_color, "hairColor", :string
-      field :weak_alias, "weakAlias", :string
-      field :birth_place, "birthPlace", [:array, :string]
-      field :modified_at, "modifiedAt", :string
-      field :wikidata_id, "wikidataId", :string
-      field :citizenship, "citizenship", :string
-      field :nationality, "nationality", :string
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskView < Didit::Model
-      field :crimes, "crimes", "SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCrimes"
-      field :countries, "countries", "SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCountries"
-      field :categories, "categories", "SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCategories"
-      field :custom_list, "custom_list", :any
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCategories < Didit::Model
-      field :score, "score", :integer
-      field :weightage, "weightage", :integer
-      field :risk_level, "risk_level", :string
-      field :risk_scores, "risk_scores", :any
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCountries < Didit::Model
-      field :score, "score", :integer
-      field :weightage, "weightage", :integer
-      field :risk_level, "risk_level", :string
-      field :risk_scores, "risk_scores", :any
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsRiskViewCrimes < Didit::Model
-      field :score, "score", :integer
-      field :weightage, "weightage", :integer
-      field :risk_level, "risk_level", :string
-      field :risk_scores, "risk_scores", :any
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsSanctionMatches < Didit::Model
-      field :list_name, "list_name", [:array, :string]
-      field :matched_name, "matched_name", :string
-      field :description, "description", :string
-      field :reason, "reason", :string
-      field :source_url, "source_url", :string
-      field :other_sources, "other_sources", [:array, :string]
-      field :details, "details", [:array, :string]
-      field :legal_basis, "legal_basis", [:array, :string]
-      field :listed_on, "listed_on", [:array, :string]
-      field :sanction_list, "sanction_list", [:array, :string]
-      field :sanction_program, "sanction_program", [:array, :string]
-      field :sanctioning_authority, "sanctioning_authority", [:array, :string]
-      field :updated_on, "updated_on", [:array, :string]
-      field :additional_data, "additional_data", :any
-    end
-
-    # Detailed breakdown of how the match_score was calculated.
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsScoreBreakdown < Didit::Model
-      field :name_score, "name_score", :integer
-      field :name_weight, "name_weight", :integer
-      field :name_weight_normalized, "name_weight_normalized", :float
-      field :name_contribution, "name_contribution", :float
-      field :dob_score, "dob_score", :integer
-      field :dob_weight, "dob_weight", :integer
-      field :dob_weight_normalized, "dob_weight_normalized", :float
-      field :dob_contribution, "dob_contribution", :float
-      field :country_score, "country_score", :integer
-      field :country_weight, "country_weight", :integer
-      field :country_weight_normalized, "country_weight_normalized", :float
-      field :country_contribution, "country_contribution", :float
-      field :document_number_match_type, "document_number_match_type", :string
-      field :document_number_effect, "document_number_effect", :string
-      field :total_score, "total_score", :integer
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatches < Didit::Model
-      field :list_name, "list_name", :string
-      field :matched_name, "matched_name", :string
-      field :description, "description", :string
-      field :publisher, "publisher", :string
-      field :source_url, "source_url", :string
-      field :other_sources, "other_sources", [:array, :string]
-      field :countries, "countries", [:array, :string]
-      field :created_at, "created_at", :string
-      field :updated_at, "updated_at", :string
-      field :additional_data, "additional_data", "SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalData"
-    end
-
-    # Additional data from the warning source. May contain a `data` object with `case_details` array.
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalData < Didit::Model
-      field :data, "data", "SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalDataData"
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalDataData < Didit::Model
-      field :case_details, "case_details", [:array, "SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalDataDataCaseDetails"]
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsHitsWarningMatchesAdditionalDataDataCaseDetails < Didit::Model
-      field :case_type, "case_type", :string
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsScreenedData < Didit::Model
-      field :full_name, "full_name", :string
-      field :nationality, "nationality", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :document_number, "document_number", :string
-    end
-
-    class SessionsRetrieveDecisionResponseAmlScreeningsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # Contact details supplied when the session was created (used for notification emails, prefilled phone/email
-    # verification, and communication language). `null` when neither an email nor a phone number was provided.
-    class SessionsRetrieveDecisionResponseContactDetails < Didit::Model
-      field :email, "email", :string
-      field :email_lang, "email_lang", :string
-      field :send_notification_emails, "send_notification_emails", :boolean
-      field :phone, "phone", :string
-    end
-
-    class SessionsRetrieveDecisionResponseDatabaseValidations < Didit::Model
-      field :node_id, "node_id", :string
-      field :issuing_state, "issuing_state", :string
-      field :validation_type, "validation_type", :string
-      field :screened_data, "screened_data", "SessionsRetrieveDecisionResponseDatabaseValidationsScreenedData"
-      field :validations, "validations", [:array, "SessionsRetrieveDecisionResponseDatabaseValidationsValidations"]
-      field :errors, "errors", [:array, "SessionsRetrieveDecisionResponseDatabaseValidationsErrors"]
-      field :match_type, "match_type", :string
-      field :status, "status", :string
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseDatabaseValidationsWarnings"]
-    end
-
-    # The upstream service's error object spread as-is - its keys vary by service (commonly a message/code and any
-    # provider-specific details) - plus `service_id` identifying the service that errored.
-    class SessionsRetrieveDecisionResponseDatabaseValidationsErrors < Didit::Model
-      field :service_id, "service_id", :string
-    end
-
-    # The input data used for validation. Fields vary by country - see the Database Validation docs
-    # (`/core-technology/database-validation/overview`) for country-specific formats.
-    class SessionsRetrieveDecisionResponseDatabaseValidationsScreenedData < Didit::Model
-      field :last_name, "last_name", :string
-      field :first_name, "first_name", :string
-      field :tax_number, "tax_number", :string
-      field :personal_number, "personal_number", :string
-      field :document_number, "document_number", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :document_type, "document_type", :string
-      field :expiration_date, "expiration_date", :date
-    end
-
-    class SessionsRetrieveDecisionResponseDatabaseValidationsValidations < Didit::Model
-      field :service_id, "service_id", :string
-      field :service_name, "service_name", :string
-      field :validation, "validation", "SessionsRetrieveDecisionResponseDatabaseValidationsValidationsValidation"
-      field :outcome_code, "outcome_code", :string
-      field :outcome_detail, "outcome_detail", :string
-      field :source_data, "source_data", :any
-    end
-
-    # The results of the field validations.
-    class SessionsRetrieveDecisionResponseDatabaseValidationsValidationsValidation < Didit::Model
-      field :full_name, "full_name", :string
-      field :date_of_birth, "date_of_birth", :string
-      field :identification_number, "identification_number", :string
-    end
-
-    class SessionsRetrieveDecisionResponseDatabaseValidationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # Document AI results grouped by workflow node.
-    class SessionsRetrieveDecisionResponseDocumentAiDocuments < Didit::Model
-      field :status, "status", :string
-      field :node_id, "node_id", :string
-      field :items, "items", [:array, "SessionsRetrieveDecisionResponseDocumentAiDocumentsItems"]
-      field :warnings, "warnings", [:array, :any]
-    end
-
-    class SessionsRetrieveDecisionResponseDocumentAiDocumentsItems < Didit::Model
-      field :uuid, "uuid", :string
-      field :node_id, "node_id", :string
-      field :document_key, "document_key", :string
-      field :original_filename, "original_filename", :string
-      field :file_size, "file_size", :integer
-      field :file_url, "file_url", :string
-      field :status, "status", :string
-      field :extracted_data, "extracted_data", :any
-      field :detected_codes, "detected_codes", [:array, "DocumentAIDetectedCode"]
-      field :fields, "fields", [:array, "SessionsRetrieveDecisionResponseDocumentAiDocumentsItemsFields"]
-      field :document_metadata, "document_metadata", :any
-      field :cross_check_result, "cross_check_result", :any
-      field :created_at, "created_at", :datetime
-    end
-
-    class SessionsRetrieveDecisionResponseDocumentAiDocumentsItemsFields < Didit::Model
-      field :key, "key", :string
-      field :name, "name", :string
-      field :instruction, "instruction", :string
-      field :type, "type", :string
-      field :required, "required", :boolean
-    end
-
-    # Documents grouped by workflow node. Present only when session_kind = business.
-    class SessionsRetrieveDecisionResponseDocumentVerifications < Didit::Model
-      field :status, "status", :string
-      field :node_id, "node_id", :string
-      field :items, "items", [:array, "SessionsRetrieveDecisionResponseDocumentVerificationsItems"]
-      field :groups, "groups", [:map, "SessionsRetrieveDecisionResponseDocumentVerificationsGroupsValue"]
-      field :required_groups, "required_groups", [:array, :string]
-      field :warnings, "warnings", [:array, :any]
-    end
-
-    class SessionsRetrieveDecisionResponseDocumentVerificationsGroupsValue < Didit::Model
-      field :total, "total", :integer
-      field :approved, "approved", :integer
-      field :pending, "pending", :integer
-      field :declined, "declined", :integer
-      field :in_review, "in_review", :integer
-      field :other, "other", :integer
-      field :missing, "missing", :integer
-    end
-
-    class SessionsRetrieveDecisionResponseDocumentVerificationsItems < Didit::Model
-      field :uuid, "uuid", :string
-      field :document_type, "document_type", :string
-      field :document_subtype, "document_subtype", :string
-      field :document_group, "document_group", :string
-      field :file_url, "file_url", :string
-      field :original_filename, "original_filename", :string
-      field :file_size, "file_size", :integer
-      field :status, "status", :string
-      field :created_at, "created_at", :datetime
-      field :cross_check_result, "cross_check_result", :any
-      field :document_metadata, "document_metadata", "SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadata"
-      field :description, "description", :string
-      field :is_requested, "is_requested", :boolean
-      field :ocr_data, "ocr_data", :any
-      field :is_console_upload, "is_console_upload", :boolean
-      field :is_confirmed, "is_confirmed", :boolean
-    end
-
-    # Metadata extracted from the uploaded corporate document. When metadata extraction succeeded, all 16 keys are
-    # always present (individual values are `null` when not applicable to the file type); the whole object is `null`
-    # when nothing could be extracted. For PDFs, `overlay_manipulation` carries forensic overlay-text analysis.
-    class SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadata < Didit::Model
-      field :file_size, "file_size", :integer
-      field :content_type, "content_type", :string
-      field :creation_date, "creation_date", :string
-      field :modified_date, "modified_date", :string
-      field :creator, "creator", :string
-      field :producer, "producer", :string
-      field :software, "software", :string
-      field :encryption, "encryption", :string
-      field :is_signed, "is_signed", :boolean
-      field :is_tampered, "is_tampered", :boolean
-      field :signature_info, "signature_info", :any
-      field :exif_original_date, "exif_original_date", :string
-      field :exif_digitized_date, "exif_digitized_date", :string
-      field :processed_by_known_editor, "processed_by_known_editor", :boolean
-      field :has_different_creation_mod_date, "has_different_creation_mod_date", :boolean
-      field :overlay_manipulation, "overlay_manipulation", "SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulation"
-    end
-
-    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was
-    # found or the document was not a PDF.
-    class SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulation < Didit::Model
-      field :detected, "detected", :boolean
-      field :analyzed, "analyzed", :boolean
-      field :signals, "signals", [:array, :string]
-      field :manipulated_regions, "manipulated_regions", [:array, "SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulationManipulatedRegions"]
-    end
-
-    class SessionsRetrieveDecisionResponseDocumentVerificationsItemsDocumentMetadataOverlayManipulationManipulatedRegions < Didit::Model
-      field :page, "page", :integer
-      field :x, "x", :float
-      field :y, "y", :float
-      field :width, "width", :float
-      field :height, "height", :float
-      field :page_width, "page_width", :float
-      field :page_height, "page_height", :float
-    end
-
-    class SessionsRetrieveDecisionResponseEmailVerifications < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :email, "email", :string
-      field :is_breached, "is_breached", :boolean
-      field :breaches, "breaches", [:array, "SessionsRetrieveDecisionResponseEmailVerificationsBreaches"]
-      field :is_disposable, "is_disposable", :boolean
-      field :is_undeliverable, "is_undeliverable", :boolean
-      field :verification_attempts, "verification_attempts", :integer
-      field :verified_at, "verified_at", :datetime
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseEmailVerificationsWarnings"]
-      field :lifecycle, "lifecycle", [:array, "SessionsRetrieveDecisionResponseEmailVerificationsLifecycle"]
-      field :matches, "matches", [:array, "SessionsRetrieveDecisionResponseEmailVerificationsMatches"]
-    end
-
-    class SessionsRetrieveDecisionResponseEmailVerificationsBreaches < Didit::Model
-      field :name, "name", :string
-      field :domain, "domain", :string
-      field :logo_path, "logo_path", :string
-      field :breach_date, "breach_date", :date
-      field :description, "description", :string
-      field :is_verified, "is_verified", :boolean
-      field :data_classes, "data_classes", [:array, :string]
-      field :breach_emails_count, "breach_emails_count", :integer
-    end
-
-    class SessionsRetrieveDecisionResponseEmailVerificationsLifecycle < Didit::Model
-      field :type, "type", :string
-      field :timestamp, "timestamp", :datetime
-      field :details, "details", "SessionsRetrieveDecisionResponseEmailVerificationsLifecycleDetails"
-      field :fee, "fee", :float
-    end
-
-    # Event-specific payload. Send events carry `status`, `reason`; code-check events carry `code_tried`, `status`;
-    # final status events carry `reason` - or `null` when there is no reason to report (e.g.
-    # `EMAIL_VERIFICATION_APPROVED`).
-    class SessionsRetrieveDecisionResponseEmailVerificationsLifecycleDetails < Didit::Model
-      field :status, "status", :string
-      field :reason, "reason", :string
-      field :code_tried, "code_tried", :string
-    end
-
-    class SessionsRetrieveDecisionResponseEmailVerificationsMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :vendor_data, "vendor_data", :string
-      field :verification_date, "verification_date", :datetime
-      field :email, "email", :string
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :api_service, "api_service", :string
-      field :source, "source", :string
-    end
-
-    class SessionsRetrieveDecisionResponseEmailVerificationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # Expected details supplied at session creation - used for cross-validation against extracted data (KYC) or to
-    # pre-fill the company registry search (KYB). Echoes back exactly the keys that were provided; `null` when none
-    # were supplied. KYC sessions carry the person fields; Business (KYB) sessions carry `company_name`,
-    # `registry_country` and `registration_number`.
-    class SessionsRetrieveDecisionResponseExpectedDetails < Didit::Model
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :gender, "gender", :string
-      field :nationality, "nationality", :string
-      field :country, "country", :string
-      field :address, "address", :string
-      field :identification_number, "identification_number", :string
-      field :ip_address, "ip_address", :string
-      field :expected_document_types, "expected_document_types", [:array, :string]
-      field :id_country, "id_country", :string
-      field :poa_country, "poa_country", :string
-      field :company_name, "company_name", :string
-      field :registry_country, "registry_country", :string
-      field :registration_number, "registration_number", :string
-    end
-
-    # One face-match report - the full report.
-    class SessionsRetrieveDecisionResponseFaceMatches < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :score, "score", :float
-      field :source_image_session_id, "source_image_session_id", :string
-      field :source_image, "source_image", :string
-      field :target_image, "target_image", :string
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseFaceMatchesWarnings"]
-    end
-
-    class SessionsRetrieveDecisionResponseFaceMatchesWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # One ID verification report - the full report for a single ID Verification step. `verification_method` says which
-    # of the three methods produced it (document capture, non-doc lookup or wallet sign-in) and the method-specific
-    # evidence block is populated accordingly.
-    class SessionsRetrieveDecisionResponseIdVerifications < Didit::Model
-      field :node_id, "node_id", :string
-      field :verification_method, "verification_method", :string
-      field :assurance, "assurance", :string
-      field :wallet_provider, "wallet_provider", :string
-      field :fallback_from, "fallback_from", "SessionsRetrieveDecisionResponseIdVerificationsFallbackFrom"
-      field :id_lookup, "id_lookup", "SessionsRetrieveDecisionResponseIdVerificationsIdLookup"
-      field :wallet_verification, "wallet_verification", "SessionsRetrieveDecisionResponseIdVerificationsWalletVerification"
-      field :status, "status", :string
-      field :document_type, "document_type", :string
-      field :document_subtype, "document_subtype", :string
-      field :document_number, "document_number", :string
-      field :personal_number, "personal_number", :string
-      field :portrait_image, "portrait_image", :string
-      field :front_image, "front_image", :string
-      field :front_video, "front_video", :string
-      field :back_image, "back_image", :string
-      field :back_video, "back_video", :string
-      field :full_front_image, "full_front_image", :string
-      field :full_back_image, "full_back_image", :string
-      field :front_image_camera_front, "front_image_camera_front", :string
-      field :back_image_camera_front, "back_image_camera_front", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :age, "age", :integer
-      field :expiration_date, "expiration_date", :date
-      field :date_of_issue, "date_of_issue", :date
-      field :issuing_state, "issuing_state", :string
-      field :issuing_state_name, "issuing_state_name", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :full_name, "full_name", :string
-      field :gender, "gender", :string
-      field :address, "address", :string
-      field :formatted_address, "formatted_address", :string
-      field :place_of_birth, "place_of_birth", :string
-      field :marital_status, "marital_status", :string
-      field :nationality, "nationality", :string
-      field :extra_fields, "extra_fields", "SessionsRetrieveDecisionResponseIdVerificationsExtraFields"
-      field :mrz, "mrz", "SessionsRetrieveDecisionResponseIdVerificationsMrz"
-      field :parsed_address, "parsed_address", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddress"
-      field :extra_files, "extra_files", [:array, :string]
-      field :front_image_camera_front_face_match_score, "front_image_camera_front_face_match_score", :float
-      field :back_image_camera_front_face_match_score, "back_image_camera_front_face_match_score", :float
-      field :document_selfie_face_matches, "document_selfie_face_matches", [:array, "SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatches"]
-      field :front_image_quality_score, "front_image_quality_score", "SessionsRetrieveDecisionResponseIdVerificationsFrontImageQualityScore"
-      field :back_image_quality_score, "back_image_quality_score", "SessionsRetrieveDecisionResponseIdVerificationsBackImageQualityScore"
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseIdVerificationsWarnings"]
-      field :matches, "matches", [:array, "SessionsRetrieveDecisionResponseIdVerificationsMatches"]
-      field :document_liveness, "document_liveness", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLiveness"
-    end
-
-    # Quality metrics for the back document image. Same structure as front_image_quality_score.
-    class SessionsRetrieveDecisionResponseIdVerificationsBackImageQualityScore < Didit::Model
-      field :focus_score, "focus_score", :float
-      field :brightness_score, "brightness_score", :float
-      field :brightness_issue, "brightness_issue", :string
-      field :is_document_fully_visible, "is_document_fully_visible", :boolean
-      field :resolution_score, "resolution_score", :float
-      field :overall_score, "overall_score", :float
-    end
-
-    # Document-liveness scores per fraud type, reported whether or not a warning fired, so an approved document can
-    # still be audited. `null` when the check did not run.
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentLiveness < Didit::Model
-      field :portrait_replace, "portrait_replace", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPortraitReplace"
-      field :printed_copy, "printed_copy", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPrintedCopy"
-      field :screen_replay, "screen_replay", "SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessScreenReplay"
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPortraitReplace < Didit::Model
-      field :score, "score", :float
-      field :front, "front", :float
-      field :back, "back", :float
-      field :decline_threshold, "decline_threshold", :float
-      field :review_threshold, "review_threshold", :float
-      field :bucket, "bucket", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessPrintedCopy < Didit::Model
-      field :score, "score", :float
-      field :front, "front", :float
-      field :back, "back", :float
-      field :decline_threshold, "decline_threshold", :float
-      field :review_threshold, "review_threshold", :float
-      field :bucket, "bucket", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentLivenessScreenReplay < Didit::Model
-      field :score, "score", :float
-      field :front, "front", :float
-      field :back, "back", :float
-      field :decline_threshold, "decline_threshold", :float
-      field :review_threshold, "review_threshold", :float
-      field :bucket, "bucket", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :similarity_percentage, "similarity_percentage", :float
-      field :vendor_data, "vendor_data", :string
-      field :vendor_user_id, "vendor_user_id", :string
-      field :biometric_template_id, "biometric_template_id", :string
-      field :verification_date, "verification_date", :datetime
-      field :user_details, "user_details", "SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatchesUserDetails"
-      field :match_image_url, "match_image_url", :string
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :is_allowlisted, "is_allowlisted", :boolean
-      field :api_service, "api_service", :string
-      field :source, "source", :string
-    end
-
-    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and
-    # `list_entry` matches.
-    class SessionsRetrieveDecisionResponseIdVerificationsDocumentSelfieFaceMatchesUserDetails < Didit::Model
-      field :full_name, "full_name", :string
-      field :document_type, "document_type", :string
-      field :document_number, "document_number", :string
-    end
-
-    # Additional document fields. Includes document-specific attributes (e.g. `dl_categories`, `blood_group`,
-    # `sponsor`, `employer`, `dl_class_code_b_from`, `dl_class_code_b_to`). Driver license class validity dates are
-    # returned as `dl_class_code_<class>_from` and `dl_class_code_<class>_to`, and per-class restriction/information
-    # codes (e.g. column 12 of UK licences) as `dl_class_code_<class>_notes`. When the document carries names,
-    # address, or place of birth in multiple scripts, this object also includes alternate-script versions of those
-    # fields. The workflow setting `preferred_characters` (`latin` or `non_latin`) controls which script populates the
-    # top-level fields (`first_name`, `last_name`, `full_name`, `address`, `place_of_birth`); the opposite script
-    # lands here as `first_name_non_latin` / `last_name_non_latin` / `full_name_non_latin` / `middle_name_non_latin` /
-    # `address_non_latin` / `place_of_birth_non_latin` (when `preferred_characters` is `latin`) or with a `_latin`
-    # suffix (when `preferred_characters` is `non_latin`). Keys appear only when the OCR actually extracts a real
-    # alternate-script value - a field whose alternate value is in the same script as the preferred set (for example,
-    # a Cyrillic-labelled field whose OCR value came back in Latin homoglyphs) is skipped. When `preferred_characters`
-    # is `latin` but the document only carries non-Latin text, Didit transliterates the extracted values and exposes
-    # `first_name_latin` / `last_name_latin` / etc. as a fallback.
-    class SessionsRetrieveDecisionResponseIdVerificationsExtraFields < Didit::Model
-      field :dl_categories, "dl_categories", [:array, :string]
-      field :blood_group, "blood_group", :string
-      field :first_name_non_latin, "first_name_non_latin", :string
-      field :last_name_non_latin, "last_name_non_latin", :string
-      field :middle_name_non_latin, "middle_name_non_latin", :string
-      field :full_name_non_latin, "full_name_non_latin", :string
-      field :address_non_latin, "address_non_latin", :string
-      field :place_of_birth_non_latin, "place_of_birth_non_latin", :string
-      field :first_name_latin, "first_name_latin", :string
-      field :last_name_latin, "last_name_latin", :string
-      field :middle_name_latin, "middle_name_latin", :string
-      field :full_name_latin, "full_name_latin", :string
-      field :address_latin, "address_latin", :string
-      field :place_of_birth_latin, "place_of_birth_latin", :string
-    end
-
-    # Why a non-document method ended the ID step. Set on the declined report when a lookup or a wallet sign-in failed
-    # and the country's fallback switch was `decline`. `null` otherwise.
-    class SessionsRetrieveDecisionResponseIdVerificationsFallbackFrom < Didit::Model
-      field :method_, "method", :string
-      field :reason, "reason", :string
-      field :action, "action", :string
-    end
-
-    # Quality metrics for the front document image. Each sub-score ranges from 0 to 100.
-    class SessionsRetrieveDecisionResponseIdVerificationsFrontImageQualityScore < Didit::Model
-      field :focus_score, "focus_score", :float
-      field :brightness_score, "brightness_score", :float
-      field :brightness_issue, "brightness_issue", :string
-      field :is_document_fully_visible, "is_document_fully_visible", :boolean
-      field :resolution_score, "resolution_score", :float
-      field :overall_score, "overall_score", :float
-    end
-
-    # Registry evidence. Present only when `verification_method` is `id_lookup`; `null` otherwise.
-    class SessionsRetrieveDecisionResponseIdVerificationsIdLookup < Didit::Model
-      field :source, "source", :string
-      field :checked_at, "checked_at", :datetime
-      field :attempts, "attempts", :integer
-      field :max_attempts, "max_attempts", :integer
-      field :outcome, "outcome", :string
-      field :comparison, "comparison", [:array, "SessionsRetrieveDecisionResponseIdVerificationsIdLookupComparison"]
-      field :registry_portrait, "registry_portrait", :string
-      field :face_match_score, "face_match_score", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsIdLookupComparison < Didit::Model
-      field :field, "field", :string
-      field :label, "label", :string
-      field :provided, "provided", :string
-      field :record, "record", :string
-      field :result, "result", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :vendor_data, "vendor_data", :string
-      field :verification_date, "verification_date", :datetime
-      field :user_details, "user_details", "SessionsRetrieveDecisionResponseIdVerificationsMatchesUserDetails"
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :api_service, "api_service", :string
-      field :front_image_url, "front_image_url", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsMatchesUserDetails < Didit::Model
-      field :name, "name", :string
-      field :document_type, "document_type", :string
-      field :document_number, "document_number", :string
-    end
-
-    # Parsed Machine-Readable Zone (MRZ) fields extracted from the document. `null` if no MRZ was detected.
-    class SessionsRetrieveDecisionResponseIdVerificationsMrz < Didit::Model
-      field :surname, "surname", :string
-      field :name, "name", :string
-      field :country, "country", :string
-      field :nationality, "nationality", :string
-      field :birth_date, "birth_date", :string
-      field :expiry_date, "expiry_date", :string
-      field :sex, "sex", :string
-      field :document_type, "document_type", :string
-      field :document_number, "document_number", :string
-      field :optional_data, "optional_data", :string
-      field :optional_data_2, "optional_data_2", :string
-      field :birth_date_hash, "birth_date_hash", :string
-      field :expiry_date_hash, "expiry_date_hash", :string
-      field :document_number_hash, "document_number_hash", :string
-      field :final_hash, "final_hash", :string
-      field :personal_number, "personal_number", :string
-      field :warnings, "warnings", [:array, :string]
-      field :errors, "errors", [:array, :string]
-      field :mrz_type, "mrz_type", :string
-      field :mrz_string, "mrz_string", :string
-      field :mrz_key, "mrz_key", :string
-    end
-
-    # Structured address details
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddress < Didit::Model
-      field :city, "city", :string
-      field :label, "label", :string
-      field :region, "region", :string
-      field :country, "country", :string
-      field :category, "category", :string
-      field :street_1, "street_1", :string
-      field :street_2, "street_2", :string
-      field :is_verified, "is_verified", :boolean
-      field :postal_code, "postal_code", :string
-      field :raw_results, "raw_results", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResults"
-      field :address_type, "address_type", :string
-      field :document_location, "document_location", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressDocumentLocation"
-      field :formatted_address, "formatted_address", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressDocumentLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResults < Didit::Model
-      field :types, "types", [:array, :string]
-      field :geometry, "geometry", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometry"
-      field :place_id, "place_id", :string
-      field :formatted_address, "formatted_address", :string
-      field :navigation_points, "navigation_points", [:array, "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsNavigationPoints"]
-      field :address_components, "address_components", [:array, "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsAddressComponents"]
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsAddressComponents < Didit::Model
-      field :types, "types", [:array, :string]
-      field :long_name, "long_name", :string
-      field :short_name, "short_name", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometry < Didit::Model
-      field :location, "location", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryLocation"
-      field :viewport, "viewport", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewport"
-      field :location_type, "location_type", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryLocation < Didit::Model
-      field :lat, "lat", :float
-      field :lng, "lng", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewport < Didit::Model
-      field :northeast, "northeast", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewportNortheast"
-      field :southwest, "southwest", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewportSouthwest"
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewportNortheast < Didit::Model
-      field :lat, "lat", :float
-      field :lng, "lng", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsGeometryViewportSouthwest < Didit::Model
-      field :lat, "lat", :float
-      field :lng, "lng", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsNavigationPoints < Didit::Model
-      field :location, "location", "SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsNavigationPointsLocation"
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsParsedAddressRawResultsNavigationPointsLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    # Credential evidence. Present only when `verification_method` is `wallet`; `null` otherwise.
-    class SessionsRetrieveDecisionResponseIdVerificationsWalletVerification < Didit::Model
-      field :provider, "provider", :string
-      field :provider_name, "provider_name", :string
-      field :issuing_authority, "issuing_authority", :string
-      field :issuing_country, "issuing_country", :string
-      field :credential_type, "credential_type", :string
-      field :level_of_assurance, "level_of_assurance", :string
-      field :verified_at, "verified_at", :datetime
-      field :signature_valid, "signature_valid", :boolean
-      field :attributes, "attributes", :any
-      field :portrait, "portrait", :string
-      field :face_match_score, "face_match_score", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIdVerificationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    class SessionsRetrieveDecisionResponseIpAnalyses < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :device_brand, "device_brand", :string
-      field :device_model, "device_model", :string
-      field :browser_family, "browser_family", :string
-      field :os_family, "os_family", :string
-      field :platform, "platform", :string
-      field :device_fingerprint, "device_fingerprint", :string
-      field :ip_country, "ip_country", :string
-      field :ip_country_code, "ip_country_code", :string
-      field :ip_state, "ip_state", :string
-      field :ip_city, "ip_city", :string
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-      field :ip_address, "ip_address", :string
-      field :isp, "isp", :string
-      field :organization, "organization", :string
-      field :is_vpn_or_tor, "is_vpn_or_tor", :boolean
-      field :is_data_center, "is_data_center", :boolean
-      field :time_zone, "time_zone", :string
-      field :time_zone_offset, "time_zone_offset", :string
-      field :ip, "ip", "SessionsRetrieveDecisionResponseIpAnalysesIp"
-      field :id_document, "id_document", "SessionsRetrieveDecisionResponseIpAnalysesIdDocument"
-      field :poa_document, "poa_document", "SessionsRetrieveDecisionResponseIpAnalysesPoaDocument"
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseIpAnalysesWarnings"]
-      field :matches, "matches", [:array, "SessionsRetrieveDecisionResponseIpAnalysesMatches"]
-    end
-
-    # Location extracted from the ID document address plus distances (km) to the IP geolocation and the POA document
-    # address. `location` is `null` when no document address could be geocoded.
-    class SessionsRetrieveDecisionResponseIpAnalysesIdDocument < Didit::Model
-      field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesIdDocumentLocation"
-      field :distance_from_ip, "distance_from_ip", :float
-      field :distance_from_poa_document, "distance_from_poa_document", :float
-    end
-
-    # Coordinates, or `null` when unavailable.
-    class SessionsRetrieveDecisionResponseIpAnalysesIdDocumentLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    # IP geolocation of this entry plus great-circle distances (km) to the ID document address and the POA document
-    # address. Distances are `null` when either side has no resolvable location.
-    class SessionsRetrieveDecisionResponseIpAnalysesIp < Didit::Model
-      field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesIpLocation"
-      field :distance_from_id_document, "distance_from_id_document", :float
-      field :distance_from_poa_document, "distance_from_poa_document", :float
-    end
-
-    # Coordinates, or `null` when unavailable.
-    class SessionsRetrieveDecisionResponseIpAnalysesIpLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIpAnalysesMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :vendor_data, "vendor_data", :string
-      field :verification_date, "verification_date", :datetime
-      field :match_type, "match_type", :string
-      field :match_source, "match_source", :string
-      field :matched_value, "matched_value", :string
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :api_service, "api_service", :string
-      field :source, "source", :string
-      field :device_info, "device_info", "SessionsRetrieveDecisionResponseIpAnalysesMatchesDeviceInfo"
-      field :location_info, "location_info", "SessionsRetrieveDecisionResponseIpAnalysesMatchesLocationInfo"
-      field :confidence, "confidence", :float
-      field :match_mode, "match_mode", :string
-      field :recovery_similarity, "recovery_similarity", :float
-      field :tls_ja4_corroborated, "tls_ja4_corroborated", :boolean
-      field :recovery_gate_reason, "recovery_gate_reason", :string
-    end
-
-    # Device details observed on the matching session.
-    class SessionsRetrieveDecisionResponseIpAnalysesMatchesDeviceInfo < Didit::Model
-      field :device_brand, "device_brand", :string
-      field :device_model, "device_model", :string
-      field :browser_family, "browser_family", :string
-      field :os_family, "os_family", :string
-      field :platform, "platform", :string
-      field :device_fingerprint, "device_fingerprint", :string
-    end
-
-    # Network and geolocation details observed on the matching session.
-    class SessionsRetrieveDecisionResponseIpAnalysesMatchesLocationInfo < Didit::Model
-      field :ip_address, "ip_address", :string
-      field :ip_country, "ip_country", :string
-      field :ip_country_code, "ip_country_code", :string
-      field :ip_state, "ip_state", :string
-      field :ip_city, "ip_city", :string
-      field :is_vpn_or_tor, "is_vpn_or_tor", :boolean
-      field :is_data_center, "is_data_center", :boolean
-    end
-
-    # Location extracted from the Proof of Address document plus distances (km) to the IP geolocation and the ID
-    # document address. `location` is `null` when the session has no POA step or the address could not be geocoded.
-    class SessionsRetrieveDecisionResponseIpAnalysesPoaDocument < Didit::Model
-      field :location, "location", "SessionsRetrieveDecisionResponseIpAnalysesPoaDocumentLocation"
-      field :distance_from_ip, "distance_from_ip", :float
-      field :distance_from_id_document, "distance_from_id_document", :float
-    end
-
-    # Coordinates, or `null` when unavailable.
-    class SessionsRetrieveDecisionResponseIpAnalysesPoaDocumentLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    class SessionsRetrieveDecisionResponseIpAnalysesWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # Aggregate check over the company's officers + UBOs. Uses the `registry` / `submitted` shape. Present only when
-    # session_kind = business.
-    class SessionsRetrieveDecisionResponseKeyPeopleChecks < Didit::Model
-      field :status, "status", :string
-      field :node_id, "node_id", :string
-      field :registry, "registry", "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistry"
-      field :submitted, "submitted", "SessionsRetrieveDecisionResponseKeyPeopleChecksSubmitted"
-      field :ubo_kyc_summary, "ubo_kyc_summary", "SessionsRetrieveDecisionResponseKeyPeopleChecksUboKycSummary"
-      field :warnings, "warnings", [:array, :any]
-    end
-
-    # Parties discovered via the registry check.
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistry < Didit::Model
-      field :officers, "officers", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficers"]
-      field :beneficial_owners, "beneficial_owners", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwners"]
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwners < Didit::Model
-      field :uuid, "uuid", :string
-      field :name, "name", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :country_of_birth, "country_of_birth", :string
-      field :email, "email", :string
-      field :company_name, "company_name", :string
-      field :registration_number, "registration_number", :string
-      field :entity_type, "entity_type", :string
-      field :nationality, "nationality", :string
-      field :designation, "designation", :string
-      field :roles, "roles", [:array, :string]
-      field :ownership_min_shares, "ownership_min_shares", :string
-      field :ownership_max_shares, "ownership_max_shares", :string
-      field :is_active, "is_active", :boolean
-      field :aml_status, "aml_status", :string
-      field :kyc_status, "kyc_status", :string
-      field :kyc_session_url, "kyc_session_url", :string
-      field :kyc_session_id, "kyc_session_id", :string
-      field :verification_workflow_type, "verification_workflow_type", :string
-      field :verification_workflow_id, "verification_workflow_id", :string
-      field :verification_workflow_label, "verification_workflow_label", :string
-      field :verification_workflow_features, "verification_workflow_features", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersVerificationWorkflowFeatures"]
-      field :didit_internal_id, "didit_internal_id", :string
-      field :kyc_document_type, "kyc_document_type", :string
-      field :kyc_nationality, "kyc_nationality", :string
-      field :kyc_liveness_passed, "kyc_liveness_passed", :boolean
-      field :kyc_verified_at, "kyc_verified_at", :datetime
-      field :kyc_aml_categories, "kyc_aml_categories", "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategories"
-      field :kyc_notification_sent_at, "kyc_notification_sent_at", :string
-      field :child_beneficial_owners, "child_beneficial_owners", [:array, :any]
-      field :effective_ownership_percent, "effective_ownership_percent", :float
-      field :voting_min_shares, "voting_min_shares", :string
-      field :voting_max_shares, "voting_max_shares", :string
-      field :appointment_date, "appointment_date", :date
-    end
-
-    # Per-category summary derived from the person's AML hits. `null` when there are no hits.
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersKycAmlCategories < Didit::Model
-      field :sanctions, "sanctions", :string
-      field :pep, "pep", :string
-      field :adverse_media, "adverse_media", :string
-      field :warnings, "warnings", :string
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryBeneficialOwnersVerificationWorkflowFeatures < Didit::Model
-      field :feature, "feature", :string
-      field :status, "status", :string
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficers < Didit::Model
-      field :uuid, "uuid", :string
-      field :name, "name", :string
-      field :designation, "designation", :string
-      field :role, "role", :string
-      field :nationality, "nationality", :string
-      field :appointment_date, "appointment_date", :date
-      field :termination_date, "termination_date", :date
-      field :is_active, "is_active", :boolean
-      field :address, "address", :string
-      field :aml_status, "aml_status", :string
-      field :kyc_status, "kyc_status", :string
-      field :kyc_session_url, "kyc_session_url", :string
-      field :kyc_session_id, "kyc_session_id", :string
-      field :verification_workflow_type, "verification_workflow_type", :string
-      field :verification_workflow_id, "verification_workflow_id", :string
-      field :verification_workflow_label, "verification_workflow_label", :string
-      field :verification_workflow_features, "verification_workflow_features", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersVerificationWorkflowFeatures"]
-      field :didit_internal_id, "didit_internal_id", :string
-      field :kyc_document_type, "kyc_document_type", :string
-      field :kyc_nationality, "kyc_nationality", :string
-      field :kyc_liveness_passed, "kyc_liveness_passed", :boolean
-      field :kyc_verified_at, "kyc_verified_at", :datetime
-      field :kyc_aml_categories, "kyc_aml_categories", "SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategories"
-      field :kyc_notification_sent_at, "kyc_notification_sent_at", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :date_of_birth_year, "date_of_birth_year", :integer
-      field :date_of_birth_month, "date_of_birth_month", :integer
-    end
-
-    # Per-category summary derived from the person's AML hits. `null` when there are no hits.
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersKycAmlCategories < Didit::Model
-      field :sanctions, "sanctions", :string
-      field :pep, "pep", :string
-      field :adverse_media, "adverse_media", :string
-      field :warnings, "warnings", :string
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksRegistryOfficersVerificationWorkflowFeatures < Didit::Model
-      field :feature, "feature", :string
-      field :status, "status", :string
-    end
-
-    # Parties submitted by the business admin during the Key People flow (BusinessParty rows where source=USER).
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksSubmitted < Didit::Model
-      field :parties, "parties", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedParties"]
-    end
-
-    # Party submitted by the business admin via the Key People flow (source=USER).
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedParties < Didit::Model
-      field :uuid, "uuid", :string
-      field :entity_type, "entity_type", :string
-      field :source, "source", :string
-      field :name, "name", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :company_name, "company_name", :string
-      field :registration_number, "registration_number", :string
-      field :email, "email", :string
-      field :nationality, "nationality", :string
-      field :phone_number, "phone_number", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :position, "position", :string
-      field :custom_fields, "custom_fields", :any
-      field :is_active, "is_active", :boolean
-      field :is_skipped, "is_skipped", :boolean
-      field :requires_verification, "requires_verification", :boolean
-      field :roles, "roles", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesRoles"]
-      field :kyc_session_id, "kyc_session_id", :string
-      field :kyc_session_status, "kyc_session_status", :string
-      field :kyc_session_url, "kyc_session_url", :string
-      field :kyb_sub_session_id, "kyb_sub_session_id", :string
-      field :kyb_sub_session_status, "kyb_sub_session_status", :string
-      field :kyb_sub_session_url, "kyb_sub_session_url", :string
-      field :verification_workflow_type, "verification_workflow_type", :string
-      field :verification_workflow_id, "verification_workflow_id", :string
-      field :verification_workflow_label, "verification_workflow_label", :string
-      field :verification_workflow_features, "verification_workflow_features", [:array, "SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesVerificationWorkflowFeatures"]
-      field :didit_internal_id, "didit_internal_id", :string
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesRoles < Didit::Model
-      field :role, "role", :string
-      field :ownership_percent, "ownership_percent", :float
-      field :voting_percent, "voting_percent", :float
-    end
-
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksSubmittedPartiesVerificationWorkflowFeatures < Didit::Model
-      field :feature, "feature", :string
-      field :status, "status", :string
-    end
-
-    # Aggregate UBO KYC progress, or null when no UBOs have linked KYC sessions.
-    class SessionsRetrieveDecisionResponseKeyPeopleChecksUboKycSummary < Didit::Model
-      field :total, "total", :integer
-      field :approved, "approved", :integer
-      field :flagged, "flagged", :integer
-      field :pending, "pending", :integer
-    end
-
-    # One liveness report - the full report for a single liveness pass.
-    class SessionsRetrieveDecisionResponseLivenessChecks < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :method_, "method", :string
-      field :score, "score", :float
-      field :reference_image, "reference_image", :string
-      field :video_url, "video_url", :string
-      field :age_estimation, "age_estimation", :float
-      field :matches, "matches", [:array, "SessionsRetrieveDecisionResponseLivenessChecksMatches"]
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseLivenessChecksWarnings"]
-      field :face_quality, "face_quality", :float
-      field :face_luminance, "face_luminance", :float
-    end
-
-    class SessionsRetrieveDecisionResponseLivenessChecksMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :similarity_percentage, "similarity_percentage", :float
-      field :vendor_data, "vendor_data", :string
-      field :vendor_user_id, "vendor_user_id", :string
-      field :biometric_template_id, "biometric_template_id", :string
-      field :verification_date, "verification_date", :datetime
-      field :user_details, "user_details", "SessionsRetrieveDecisionResponseLivenessChecksMatchesUserDetails"
-      field :match_image_url, "match_image_url", :string
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :is_allowlisted, "is_allowlisted", :boolean
-      field :api_service, "api_service", :string
-      field :source, "source", :string
-    end
-
-    # Identity data from the matching session or imported User profile. Always `null` for `retained_template` and
-    # `list_entry` matches.
-    class SessionsRetrieveDecisionResponseLivenessChecksMatchesUserDetails < Didit::Model
-      field :full_name, "full_name", :string
-      field :document_type, "document_type", :string
-      field :document_number, "document_number", :string
-    end
-
-    class SessionsRetrieveDecisionResponseLivenessChecksWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    # One NFC report - the full report for a single ePassport chip read.
-    class SessionsRetrieveDecisionResponseNfcVerifications < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :is_nfc_skipped, "is_nfc_skipped", :boolean
-      field :skip_reason, "skip_reason", :string
-      field :portrait_image, "portrait_image", :string
-      field :signature_image, "signature_image", :string
-      field :chip_data, "chip_data", "SessionsRetrieveDecisionResponseNfcVerificationsChipData"
-      field :authenticity, "authenticity", "SessionsRetrieveDecisionResponseNfcVerificationsAuthenticity"
-      field :certificate_summary, "certificate_summary", "SessionsRetrieveDecisionResponseNfcVerificationsCertificateSummary"
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponseNfcVerificationsWarnings"]
-    end
-
-    class SessionsRetrieveDecisionResponseNfcVerificationsAuthenticity < Didit::Model
-      field :sod_integrity, "sod_integrity", :boolean
-      field :dg_integrity, "dg_integrity", :boolean
-    end
-
-    class SessionsRetrieveDecisionResponseNfcVerificationsCertificateSummary < Didit::Model
-      field :issuer, "issuer", :string
-      field :subject, "subject", :string
-      field :serial_number, "serial_number", :string
-      field :not_valid_after, "not_valid_after", :datetime
-      field :not_valid_before, "not_valid_before", :datetime
-    end
-
-    class SessionsRetrieveDecisionResponseNfcVerificationsChipData < Didit::Model
-      field :document_type, "document_type", :string
-      field :issuing_country, "issuing_country", :string
-      field :document_number, "document_number", :string
-      field :expiration_date, "expiration_date", :date
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :birth_date, "birth_date", :date
-      field :gender, "gender", :string
-      field :nationality, "nationality", :string
-      field :address, "address", :string
-      field :place_of_birth, "place_of_birth", :string
-    end
-
-    class SessionsRetrieveDecisionResponseNfcVerificationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    class SessionsRetrieveDecisionResponsePhoneVerifications < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :phone_number_prefix, "phone_number_prefix", :string
-      field :phone_number, "phone_number", :string
-      field :full_number, "full_number", :string
-      field :country_code, "country_code", :string
-      field :country_name, "country_name", :string
-      field :carrier, "carrier", "SessionsRetrieveDecisionResponsePhoneVerificationsCarrier"
-      field :is_disposable, "is_disposable", :boolean
-      field :is_virtual, "is_virtual", :boolean
-      field :verification_method, "verification_method", :string
-      field :verification_attempts, "verification_attempts", :integer
-      field :verified_at, "verified_at", :datetime
-      field :lifecycle, "lifecycle", [:array, "SessionsRetrieveDecisionResponsePhoneVerificationsLifecycle"]
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponsePhoneVerificationsWarnings"]
-      field :matches, "matches", [:array, "SessionsRetrieveDecisionResponsePhoneVerificationsMatches"]
-    end
-
-    class SessionsRetrieveDecisionResponsePhoneVerificationsCarrier < Didit::Model
-      field :name, "name", :string
-      field :type, "type", :string
-    end
-
-    class SessionsRetrieveDecisionResponsePhoneVerificationsLifecycle < Didit::Model
-      field :type, "type", :string
-      field :timestamp, "timestamp", :datetime
-      field :details, "details", "SessionsRetrieveDecisionResponsePhoneVerificationsLifecycleDetails"
-      field :fee, "fee", :float
-    end
-
-    # Event-specific payload. Send events carry `status`, `reason`, `channel`, `actual_channel`; delivery events carry
-    # `channel`, `status`; code-check events carry `code_tried`, `status`; final status events carry `reason` - or
-    # `null` when there is no reason to report (e.g. `PHONE_VERIFICATION_APPROVED`).
-    class SessionsRetrieveDecisionResponsePhoneVerificationsLifecycleDetails < Didit::Model
-      field :status, "status", :string
-      field :reason, "reason", :string
-      field :channel, "channel", :string
-      field :actual_channel, "actual_channel", :string
-      field :code_tried, "code_tried", :string
-    end
-
-    class SessionsRetrieveDecisionResponsePhoneVerificationsMatches < Didit::Model
-      field :session_id, "session_id", :string
-      field :session_number, "session_number", :integer
-      field :vendor_data, "vendor_data", :string
-      field :verification_date, "verification_date", :datetime
-      field :phone_number, "phone_number", :string
-      field :status, "status", :string
-      field :is_blocklisted, "is_blocklisted", :boolean
-      field :api_service, "api_service", :string
-      field :source, "source", :string
-    end
-
-    class SessionsRetrieveDecisionResponsePhoneVerificationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    class SessionsRetrieveDecisionResponsePoaVerifications < Didit::Model
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :document_file, "document_file", :string
-      field :issuing_state, "issuing_state", :string
-      field :document_type, "document_type", :string
-      field :document_subtype, "document_subtype", :string
-      field :document_language, "document_language", :string
-      field :document_metadata, "document_metadata", "SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadata"
-      field :issuer, "issuer", :string
-      field :issue_date, "issue_date", :date
-      field :expiration_date, "expiration_date", :date
-      field :poa_address, "poa_address", :string
-      field :poa_formatted_address, "poa_formatted_address", :string
-      field :poa_parsed_address, "poa_parsed_address", "SessionsRetrieveDecisionResponsePoaVerificationsPoaParsedAddress"
-      field :name_on_document, "name_on_document", :string
-      field :name_match_score_expected_details, "name_match_score_expected_details", :float
-      field :name_match_score_id_verification, "name_match_score_id_verification", :float
-      field :expected_details_address, "expected_details_address", :string
-      field :expected_details_formatted_address, "expected_details_formatted_address", :string
-      field :expected_details_parsed_address, "expected_details_parsed_address", :any
-      field :extra_fields, "extra_fields", "SessionsRetrieveDecisionResponsePoaVerificationsExtraFields"
-      field :extra_files, "extra_files", [:array, :string]
-      field :warnings, "warnings", [:array, "SessionsRetrieveDecisionResponsePoaVerificationsWarnings"]
-      field :detected_codes, "detected_codes", [:array, "DocumentAIDetectedCode"]
-    end
-
-    # File-forensics metadata extracted from the uploaded POA document. Always contains the keys below (values are
-    # `null` when not applicable, e.g. EXIF dates for PDFs). `null` when no metadata could be extracted.
-    class SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadata < Didit::Model
-      field :file_size, "file_size", :integer
-      field :content_type, "content_type", :string
-      field :creation_date, "creation_date", :date
-      field :modified_date, "modified_date", :date
-      field :overlay_manipulation, "overlay_manipulation", "SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadataOverlayManipulation"
-      field :creator, "creator", :string
-      field :producer, "producer", :string
-      field :software, "software", :string
-      field :encryption, "encryption", :string
-      field :is_signed, "is_signed", :boolean
-      field :is_tampered, "is_tampered", :boolean
-      field :signature_info, "signature_info", :any
-      field :exif_original_date, "exif_original_date", :string
-      field :exif_digitized_date, "exif_digitized_date", :string
-      field :processed_by_known_editor, "processed_by_known_editor", :boolean
-      field :has_different_creation_mod_date, "has_different_creation_mod_date", :boolean
-    end
-
-    # PDF forensic analysis for suspected overlay-text manipulation. Null when no overlay manipulation evidence was
-    # found or the document was not a PDF.
-    class SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadataOverlayManipulation < Didit::Model
-      field :detected, "detected", :boolean
-      field :analyzed, "analyzed", :boolean
-      field :signals, "signals", [:array, :string]
-      field :manipulated_regions, "manipulated_regions", [:array, "SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadataOverlayManipulationManipulatedRegions"]
-    end
-
-    class SessionsRetrieveDecisionResponsePoaVerificationsDocumentMetadataOverlayManipulationManipulatedRegions < Didit::Model
-      field :page, "page", :integer
-      field :x, "x", :float
-      field :y, "y", :float
-      field :width, "width", :float
-      field :height, "height", :float
-      field :page_width, "page_width", :float
-      field :page_height, "page_height", :float
-    end
-
-    # Additional banking and contact details extracted from the document.
-    class SessionsRetrieveDecisionResponsePoaVerificationsExtraFields < Didit::Model
-      field :bank_account_number, "bank_account_number", :string
-      field :bank_iban, "bank_iban", :string
-      field :bank_sort_code, "bank_sort_code", :string
-      field :bank_routing_number, "bank_routing_number", :string
-      field :bank_swift_bic, "bank_swift_bic", :string
-      field :bank_branch_name, "bank_branch_name", :string
-      field :bank_branch_address, "bank_branch_address", :string
-      field :document_phone_number, "document_phone_number", :string
-      field :additional_names, "additional_names", [:array, :string]
-    end
-
-    class SessionsRetrieveDecisionResponsePoaVerificationsPoaParsedAddress < Didit::Model
-      field :address_type, "address_type", :string
-      field :street_1, "street_1", :string
-      field :street_2, "street_2", :string
-      field :city, "city", :string
-      field :region, "region", :string
-      field :country, "country", :string
-      field :postal_code, "postal_code", :string
-      field :document_location, "document_location", "SessionsRetrieveDecisionResponsePoaVerificationsPoaParsedAddressDocumentLocation"
-    end
-
-    class SessionsRetrieveDecisionResponsePoaVerificationsPoaParsedAddressDocumentLocation < Didit::Model
-      field :latitude, "latitude", :float
-      field :longitude, "longitude", :float
-    end
-
-    class SessionsRetrieveDecisionResponsePoaVerificationsWarnings < Didit::Model
-      field :feature, "feature", :string
-      field :risk, "risk", :string
-      field :additional_data, "additional_data", :any
-      field :log_type, "log_type", :string
-      field :short_description, "short_description", :string
-      field :long_description, "long_description", :string
-      field :node_id, "node_id", :string
-    end
-
-    class SessionsRetrieveDecisionResponseQuestionnaireResponses < Didit::Model
-      field :node_id, "node_id", :string
-      field :questionnaire_id, "questionnaire_id", :string
-      field :title, "title", :string
-      field :description, "description", :string
-      field :languages, "languages", [:array, :string]
-      field :default_language, "default_language", :string
-      field :is_active, "is_active", :boolean
-      field :is_simple_questionnaire, "is_simple_questionnaire", :boolean
-      field :questionnaire_group_id, "questionnaire_group_id", :string
-      field :version, "version", :integer
-      field :published_at, "published_at", :datetime
-      field :sections, "sections", [:array, "SessionsRetrieveDecisionResponseQuestionnaireResponsesSections"]
-      field :status, "status", :string
-    end
-
-    class SessionsRetrieveDecisionResponseQuestionnaireResponsesSections < Didit::Model
-      field :title, "title", :string
-      field :description, "description", :string
-      field :items, "items", [:array, "SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItems"]
-    end
-
-    class SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItems < Didit::Model
-      field :uuid, "uuid", :string
-      field :value, "value", :string
-      field :element_type, "element_type", :string
-      field :is_required, "is_required", :boolean
-      field :title, "title", :string
-      field :description, "description", :string
-      field :placeholder, "placeholder", :string
-      field :choices, "choices", [:array, "SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItemsChoices"]
-      field :max_files, "max_files", :integer
-      field :answer, "answer", "SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItemsAnswer"
-      field :required_if, "required_if", :any
-      field :repeatable_config, "repeatable_config", :any
-    end
-
-    # Answer provided for the item
-    class SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItemsAnswer < Didit::Model
-      field :value, "value", :string
-      field :text, "text", :string
-      field :files, "files", [:array, :string]
-    end
-
-    class SessionsRetrieveDecisionResponseQuestionnaireResponsesSectionsItemsChoices < Didit::Model
-      field :label, "label", :string
-      field :value, "value", :string
-      field :requires_text_input, "requires_text_input", :boolean
-    end
-
-    # One company registry check - the full company-registry payload enriched with ownership structure and warnings.
-    # Present only when `session_kind = business`.
-    class SessionsRetrieveDecisionResponseRegistryChecks < Didit::Model
-      field :status, "status", :string
-      field :node_id, "node_id", :string
-      field :data_resolved, "data_resolved", :boolean
-      field :company, "company", "SessionsRetrieveDecisionResponseRegistryChecksCompany"
-      field :ownership_structure, "ownership_structure", :any
-      field :warnings, "warnings", [:array, :any]
-    end
-
-    # Full registry payload for the company (registry record merged with any user-provided or console-edited data).
-    class SessionsRetrieveDecisionResponseRegistryChecksCompany < Didit::Model
-      field :uuid, "uuid", :string
-      field :node_id, "node_id", :string
-      field :status, "status", :string
-      field :registry_status, "registry_status", :string
-      field :data_resolved, "data_resolved", :boolean
-      field :company_name, "company_name", :string
-      field :registration_number, "registration_number", :string
-      field :country_code, "country_code", :string
-      field :region, "region", :string
-      field :company_type, "company_type", :string
-      field :incorporation_date, "incorporation_date", :date
-      field :registered_address, "registered_address", :string
-      field :tax_number, "tax_number", :string
-      field :risk_level, "risk_level", :string
-      field :verification_status, "verification_status", :string
-      field :is_from_registry, "is_from_registry", :boolean
-      field :fetch_status, "fetch_status", :string
-      field :alternative_names, "alternative_names", :string
-      field :nature_of_business, "nature_of_business", :string
-      field :registered_capital, "registered_capital", :string
-      field :registered_capital_amount, "registered_capital_amount", :string
-      field :registered_capital_currency, "registered_capital_currency", :string
-      field :website, "website", :string
-      field :email, "email", :string
-      field :phone, "phone", :string
-      field :legal_entity_identifier, "legal_entity_identifier", :string
-      field :location_of_registration, "location_of_registration", :string
-      field :vat_number, "vat_number", :string
-      field :vat_validation_status, "vat_validation_status", :string
-      field :vat_validated_number, "vat_validated_number", :string
-      field :vat_validation_source, "vat_validation_source", :string
-      field :vat_validated_name, "vat_validated_name", :string
-      field :vat_validated_address, "vat_validated_address", :string
-      field :vat_checked_at, "vat_checked_at", :datetime
-      field :financial_summary, "financial_summary", :any
-      field :officers, "officers", [:array, "SessionsRetrieveDecisionResponseRegistryChecksCompanyOfficers"]
-      field :beneficial_owners, "beneficial_owners", [:array, "SessionsRetrieveDecisionResponseRegistryChecksCompanyBeneficialOwners"]
-      field :addresses, "addresses", [:array, "KYBRegistryAddress"]
-      field :industries, "industries", [:array, "KYBRegistryIndustry"]
-      field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
-      field :user_provided_data, "user_provided_data", :any
-      field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
-      field :last_console_edit_at, "last_console_edit_at", :datetime
-      field :is_editable, "is_editable", :boolean
-      field :ownership, "ownership", "KYBRegistryOwnership"
-      field :registry_tier, "registry_tier", :string
-      field :registry_tier_delivered, "registry_tier_delivered", :string
-      field :registry_ownership_status, "registry_ownership_status", :string
-    end
-
-    class SessionsRetrieveDecisionResponseRegistryChecksCompanyBeneficialOwners < Didit::Model
-      field :uuid, "uuid", :string
-      field :name, "name", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :entity_type, "entity_type", :string
-      field :roles, "roles", [:array, :string]
-      field :ownership_min_shares, "ownership_min_shares", :string
-      field :ownership_max_shares, "ownership_max_shares", :string
-      field :is_active, "is_active", :boolean
-      field :kyc_status, "kyc_status", :string
-      field :kyc_session_url, "kyc_session_url", :string
-      field :effective_ownership_percent, "effective_ownership_percent", :float
-      field :company_name, "company_name", :string
-      field :registration_number, "registration_number", :string
-      field :country_of_birth, "country_of_birth", :string
-      field :email, "email", :string
-      field :nationality, "nationality", :string
-      field :designation, "designation", :string
-      field :voting_min_shares, "voting_min_shares", :string
-      field :voting_max_shares, "voting_max_shares", :string
-      field :date_of_birth, "date_of_birth", :date
-      field :appointment_date, "appointment_date", :date
-      field :shareholding, "shareholding", "KYBRegistryShareholding"
-    end
-
-    class SessionsRetrieveDecisionResponseRegistryChecksCompanyOfficers < Didit::Model
-      field :uuid, "uuid", :string
-      field :name, "name", :string
-      field :designation, "designation", :string
-      field :role, "role", :string
-      field :nationality, "nationality", :string
-      field :is_active, "is_active", :boolean
-      field :kyc_status, "kyc_status", :string
-      field :kyc_session_url, "kyc_session_url", :string
-      field :first_name, "first_name", :string
-      field :last_name, "last_name", :string
-      field :address, "address", :string
-      field :appointment_date, "appointment_date", :date
-      field :termination_date, "termination_date", :date
-      field :date_of_birth, "date_of_birth", :date
-      field :date_of_birth_year, "date_of_birth_year", :integer
-      field :date_of_birth_month, "date_of_birth_month", :integer
-    end
-
-    class SessionsRetrieveDecisionResponseResubmissions < Didit::Model
-      field :number, "number", :integer
-      field :created_at, "created_at", :datetime
-      field :previous_status, "previous_status", :string
-      field :nodes, "nodes", [:array, "SessionsRetrieveDecisionResponseResubmissionsNodes"]
-      field :reasons, "reasons", [:map, :string]
-      field :requested_by, "requested_by", "SessionsRetrieveDecisionResponseResubmissionsRequestedBy"
-      field :results, "results", :any
-    end
-
-    class SessionsRetrieveDecisionResponseResubmissionsNodes < Didit::Model
-      field :node_id, "node_id", :string
-      field :feature, "feature", :string
-    end
-
-    # Who requested the resubmission.
-    class SessionsRetrieveDecisionResponseResubmissionsRequestedBy < Didit::Model
-      field :name, "name", :string
-      field :email, "email", :string
-      field :type, "type", :string
-    end
-
-    class SessionsRetrieveDecisionResponseReviews < Didit::Model
-      field :user, "user", :string
-      field :new_status, "new_status", :string
-      field :comment, "comment", :string
-      field :created_at, "created_at", :datetime
-    end
-
-    # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it
-    # deleted.
-    class SessionsRetrieveDeletionJobResponse < Didit::Model
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "SessionsRetrieveDeletionJobResponseOutcomes"
-      field :deleted_child_verifications, "deleted_child_verifications", :integer
-      field :error, "error", :string
-      field :created_at, "created_at", :datetime
-      field :completed_at, "completed_at", :datetime
-    end
-
-    # How many sessions ended in each outcome. Every key is always present.
-    class SessionsRetrieveDeletionJobResponseOutcomes < Didit::Model
-      field :deleted, "deleted", :integer
-      field :none, "none", :integer
-      field :retained_with_user, "retained_with_user", :integer
-      field :ineligible_no_vendor_user, "ineligible_no_vendor_user", :integer
-      field :failed_retryable, "failed_retryable", :integer
-      field :already_deleted, "already_deleted", :integer
     end
 
     class SessionsReviewsCreateResponse < Didit::Model
@@ -3742,6 +1161,22 @@ module Didit
       field :share_token, "share_token", :string
       field :for_application_id, "for_application_id", :string
       field :session_kind, "session_kind", :string
+    end
+
+    class SessionsSignaturesValidateResponse < Didit::Model
+      field :signatures, "signatures", [:array, "SignatureResult"]
+    end
+
+    class SessionsUpdateAmlHitStatusResponse < Didit::Model
+      field :message, "message", :string
+      field :hit_id, "hit_id", :string
+      field :review_status, "review_status", :string
+    end
+
+    class SessionsUpdateAmlStatusResponse < Didit::Model
+      field :message, "message", :string
+      field :status, "status", :string
+      field :previous_status, "previous_status", :string
     end
 
     class SessionsUpdateDataResponse < Didit::Model
@@ -3777,11 +1212,21 @@ module Didit
       field :formatted_address, "formatted_address", :string
     end
 
+    class SessionsUpdateDocumentAiDataResponse < Didit::Model
+      field :uuid, "uuid", :string
+      field :document_key, "document_key", :string
+      field :original_filename, "original_filename", :string
+      field :file_url, "file_url", :string
+      field :status, "status", :string
+      field :extracted_data, "extracted_data", :any
+    end
+
     class SessionsUpdateFeatureStatusResponse < Didit::Model
       field :session_id, "session_id", :string
       field :node_id, "node_id", :string
       field :feature_type, "feature_type", :string
       field :new_status, "new_status", :string
+      field :override, "override", "FeatureStatusOverride"
     end
 
     # Full KYB company record - the same shape as the `company` object inside `registry_checks[]` on the business

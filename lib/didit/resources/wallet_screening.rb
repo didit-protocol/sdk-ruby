@@ -20,7 +20,8 @@ module Didit
       # @param blockchain [String] Network identifier. Managed screening supports BTC, ETH, LTC, XRP, BCH, DOGE, TRX,
       #   SOL, MATIC, BNB, BASE (Base), OP (Optimism), and ARB (Arbitrum One). USDT and USDC are legacy Ethereum
       #   aliases, not multi-network searches. Connected-provider coverage varies. LIGHTNING requires a supported
-      #   connected provider. Celo, Mode and Plume are not currently supported. Alias: `currency`.
+      #   connected provider. CELO (Celo), MODE (Mode) and PLUME (Plume) are screened through a connected TRM Labs
+      #   acco...
       # @param direction [String] Optional. Whether the address is being screened as an inbound (deposit) or outbound
       #   (withdrawal) counterparty. Accepts `inbound`, `outbound`, `deposit`, or `withdrawal`. Defaults to a neutral
       #   pre-transfer screen when omitted. This is passed to the provider as context only; it does not change the

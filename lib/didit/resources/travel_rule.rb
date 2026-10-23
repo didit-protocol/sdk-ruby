@@ -5,9 +5,45 @@ module Didit
   module Resources
     # The +travel_rule+ resource.
     class TravelRule < Didit::Resource
+      # @return [Didit::Resources::TravelRule::CounterpartyContacts]
+      def counterparty_contacts
+        @counterparty_contacts ||= CounterpartyContacts.new(@client)
+      end
+
+      # @return [Didit::Resources::TravelRule::Transfers]
+      def transfers
+        @transfers ||= Transfers.new(@client)
+      end
+
       # @return [Didit::Resources::TravelRule::WalletAddresses]
       def wallet_addresses
         @wallet_addresses ||= WalletAddresses.new(@client)
+      end
+
+      # @return [Didit::Resources::TravelRule::Workspace]
+      def workspace
+        @workspace ||= Workspace.new(@client)
+      end
+
+      # Clear your decision on a VASP
+      #
+      # Clear your application's own decision on a counterparty. The response shows the decision that applies
+      # afterwards: null, or for an entity of a brand the brand's decision, which the entity follows again.
+      #
+      # +DELETE /v3/travel-rule/vasps/{vasp_id}/decision/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyDecisionResponse]
+      def clear_vasp_decision(vasp_id, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/travel-rule/vasps/{vasp_id}/decision/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::TravelRuleCounterpartyDecisionResponse,
+          request_options: request_options
+        )
       end
 
       # Mint a wallet-ownership widget session
@@ -18,23 +54,26 @@ module Didit
       #
       # +POST /v3/travel-rule/widget-session/+
       #
-      # @param wallet_address [String] The wallet address to verify.
-      # @param chain [String] Chain identifier for the address, e.g. "ethereum", "bitcoin", "solana".
+      # @param wallet_address [String] The wallet address to verify. Optional; when empty, the address must be
+      #   supplied when a proof is started.
+      # @param chain [String] Chain token for the address, for example `ETH`, `BTC` or `SOL`. Use the same token as in
+      #   your wallet address book. Message signing and the Satoshi test are offered only for a supported chain.
       # @param holder_name [String] Name of the wallet holder, used for the beneficiary name match.
       # @param vendor_data [String] Your internal identifier for the holder, carried onto the created address-book
       #   entry.
-      # @param transaction_id [String] Optional. Didit transaction UUID of a Travel Rule transfer to advance when the
-      #   proof verifies.
+      # @param transaction_id [String, nil] Optional. Didit transaction UUID of a Travel Rule transfer to advance when
+      #   the proof verifies.
       # @param satoshi_deposit_address [String] Optional. A deposit address you control; supplying it enables the
       #   SATOSHI_TEST proof method.
-      # @param callback_url [String] Optional. Where the widget returns the customer after completion.
+      # @param callback_url [String] Optional. Absolute http(s) URL where the widget returns the customer after
+      #   completion.
       # @param expires_in_minutes [Integer] Optional. Lifetime of the minted link, in minutes. Automatically extended
       #   to cover the Satoshi test window when SATOSHI_TEST is offered.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleWidgetSessionResponse]
       def create_widget_session(
-        wallet_address:,
-        chain:,
+        wallet_address: OMIT,
+        chain: OMIT,
         holder_name: OMIT,
         vendor_data: OMIT,
         transaction_id: OMIT,
@@ -61,24 +100,75 @@ module Didit
         )
       end
 
+      # List due-diligence questionnaires with a VASP
+      #
+      # Every due-diligence questionnaire your application sent the counterparty, newest first, with its status and,
+      # once answered, the answers. Private to your application.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/questionnaires/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyQuestionnaireList]
+      def list_vasp_questionnaires(vasp_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/questionnaires/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::TravelRuleCounterpartyQuestionnaireList,
+          request_options: request_options
+        )
+      end
+
       # Search the VASP directory
       #
-      # Paginated search across discoverable Didit customers with Travel Rule enabled, plus VASPs catalogued in the
-      # internal counterparty registry. Excludes your own application's profile.
+      # Paginated, name-sorted search of the VASP directory: the shared directory entries, which Didit builds from the
+      # ESMA interim MiCA register, the public TRISA directory, the global LEI register and its own curation, plus the
+      # members of the Didit network. Each row carries the routes your application has to it today. Your own
+      # application's profile is never listed. Rows also carry the shared due-diligence assessment and your
+      # application's own decision, entity screening and questionnaires.
       #
       # +GET /v3/travel-rule/vasps/+
       #
-      # @param search [String] Case-insensitive substring match on VASP name.
+      # @param search [String] A name or alias fragment (case-insensitive), an exact LEI, or a domain (example.com or
+      #   a URL on it). Didit network members match on their legal name, LEI or the domain of their compliance email.
+      # @param network [String] Only directory entries a network's member directory currently lists.
+      # @param jurisdiction [String] ISO 3166 alpha-2 or alpha-3 country code. 400 for anything else.
+      # @param reachable [Boolean] true: only VASPs your application has an available route to (Didit network members
+      #   included). false: only directory entries it cannot reach today.
+      # @param kind [String] Only directory entries, or only Didit network members.
+      # @param risk [String] Only directory entries whose risk_level is this band. Didit network members, which are
+      #   not scored, never match.
+      # @param responsiveness [String] Only directory entries whose responsiveness.status is this value. Didit network
+      #   members never match.
       # @param limit [Integer]
       # @param offset [Integer]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::VaspDirectoryEntry>]
-      def list_vasps(search: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+      def list_vasps(
+        search: OMIT,
+        network: OMIT,
+        jurisdiction: OMIT,
+        reachable: OMIT,
+        kind: OMIT,
+        risk: OMIT,
+        responsiveness: OMIT,
+        limit: OMIT,
+        offset: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/travel-rule/vasps/",
           query: {
             "search" => search,
+            "network" => network,
+            "jurisdiction" => jurisdiction,
+            "reachable" => reachable,
+            "kind" => kind,
+            "risk" => risk,
+            "responsiveness" => responsiveness,
             "limit" => limit,
             "offset" => offset
           },
@@ -91,18 +181,32 @@ module Didit
       #
       # Register Travel Rule data for a crypto deposit that already settled on-chain before any exchange took place.
       # Creates an inbound travelRule transaction (or reuses an unclaimed deposit) and resolves the transfer against
-      # your wallet address book. A transaction.created webhook fires for newly-created transactions.
+      # your wallet address book. For a newly created transaction, Didit sends transaction.created first and the
+      # travel_rule.status.updated webhooks after it.
       #
       # +POST /v3/travel-rule/inbound/+
       #
-      # @param chain [String] Chain the deposit settled on, e.g. "ethereum".
+      # @param chain [String] Chain the deposit settled on, for example `ETH`. Stored lowercase and compared
+      #   case-insensitively with your wallet address book entries, so use the same chain token there.
       # @param txid [String] On-chain transaction hash. Deduped together with wallet_address.
-      # @param wallet_address [String] The destination wallet you received the deposit on.
-      # @param amount [String] Deposit amount as a decimal string.
+      # @param wallet_address [String] The destination wallet you received the deposit on. An XRP X-address is split
+      #   into its classic address and tag.
+      # @param amount [String] Deposit amount as a decimal string, zero or greater, with up to 18 decimal places.
       # @param currency [String] Deposit asset, e.g. "USDC".
-      # @param originator_data [Hash] IVMS-101 originator payload from the sending VASP, if known.
-      # @param beneficiary_data [Hash] IVMS-101 beneficiary payload (your customer).
-      # @param originating_vasp [Hash] Optional description of the sending VASP.
+      # @param originator_data [Hash] Originator details from the sending VASP, if known, as a flat object such as
+      #   `{"name": "..."}`. Didit reads name (or full_name), first_name, last_name and vendor_data from it.
+      # @param beneficiary_data [Hash] Beneficiary details (your customer), as a flat object such as `{"name":
+      #   "..."}`. Didit matches name against the holder_name of the matched address book entry, and sets wallet_address
+      #   and chain from the request.
+      # @param originating_vasp [Hash] Optional description of the sending VASP. It stays on this transfer only
+      #   (`metadata.originating_vasp`, and the transfer's originator VASP in GET /v3/travel-rule/transfers/); it never
+      #   creates, edits or links a shared VASP directory entry.
+      # @param memo [String] Optional. The deposit's destination tag or memo on a memo network: on a shared deposit
+      #   address it is what tells your customers apart, and the address-book entry for that memo is matched. XRP: a
+      #   destination tag, a whole number from 0 to 4294967295 (a JSON number is accepted). XLM: a text memo of up to 28
+      #   bytes, a 64-bit id or a 32-byte hash in hex. EOS: up to 256 bytes. ATOM: up to 256 characters....
+      # @param utxo [Hash] Optional, UTXO chains only. The deposit transaction's inputs and outputs: the sender's
+      #   wallet is the declared `originator_data.wallet_address`, else the largest input.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleInboundResponse]
       def register_inbound(
@@ -114,6 +218,8 @@ module Didit
         originator_data: OMIT,
         beneficiary_data: OMIT,
         originating_vasp: OMIT,
+        memo: OMIT,
+        utxo: OMIT,
         request_options: nil
       )
         @client.request(
@@ -127,7 +233,9 @@ module Didit
             "currency" => currency,
             "originator_data" => originator_data,
             "beneficiary_data" => beneficiary_data,
-            "originating_vasp" => originating_vasp
+            "originating_vasp" => originating_vasp,
+            "memo" => memo,
+            "utxo" => utxo
           },
           response: Types::TravelRuleInboundResponse,
           request_options: request_options
@@ -152,6 +260,148 @@ module Didit
         )
       end
 
+      # Get a VASP directory entry
+      #
+      # One directory entry or Didit network member by the id the search returned, with the same fields and the routes
+      # your application has to it.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::VaspDirectoryEntry]
+      def retrieve_vasp(vasp_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::VaspDirectoryEntry,
+          request_options: request_options
+        )
+      end
+
+      # Get your decision on a VASP
+      #
+      # Your application's decision on a counterparty (a directory entry or a Didit network member): approved,
+      # restricted or blocked. An entity of a brand with no decision of its own follows the brand's decision, named in
+      # inherited_from. Private to your application.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/decision/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyDecisionResponse]
+      def retrieve_vasp_decision(vasp_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/decision/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::TravelRuleCounterpartyDecisionResponse,
+          request_options: request_options
+        )
+      end
+
+      # Get a VASP's entity screening
+      #
+      # Whether counterparty screening is on for your application, what one screening costs your organization, how
+      # long a result stays fresh, and your latest sanctions and adverse-media screening of the counterparty. Reading
+      # it is free.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/screening/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyScreeningStatus]
+      def retrieve_vasp_screening(vasp_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/screening/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::TravelRuleCounterpartyScreeningStatus,
+          request_options: request_options
+        )
+      end
+
+      # Screen a VASP
+      #
+      # Screen the counterparty entity against sanctions and adverse media for your application. Opt-in:
+      # counterparty_screening_enabled must be on in your Travel Rule settings. Each new screening is billed at your
+      # organization's Company AML Screening price; a screening younger than 30 days is returned instead (200, not
+      # billed) unless you send refresh: true. One screening of a counterparty runs at a time per application. The
+      # result is private to your application. Sandbox applications are never screened.
+      #
+      # +POST /v3/travel-rule/vasps/{vasp_id}/screening/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param refresh [Boolean] true screens again (and bills again) even when a fresh screening exists.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyScreeningResult]
+      def screen_vasp(vasp_id, refresh: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/vasps/{vasp_id}/screening/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "refresh" => refresh
+          },
+          response: Types::TravelRuleCounterpartyScreeningResult,
+          request_options: request_options
+        )
+      end
+
+      # Send the compliance email confirmation
+      #
+      # Emails a single-use confirmation link to your VASP profile's compliance_email. Opening the link and pressing
+      # its confirm button confirms the address, which the Didit network needs before it lists your profile. A new
+      # request replaces the previous link; the link stops working when the compliance email changes. One email per
+      # minute per address.
+      #
+      # +POST /v3/travel-rule/settings/compliance-email/confirmation/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse]
+      def send_compliance_email_confirmation(request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/settings/compliance-email/confirmation/",
+          response: Types::TravelRuleSendComplianceEmailConfirmationResponse,
+          request_options: request_options
+        )
+      end
+
+      # Send a due-diligence questionnaire to a VASP
+      #
+      # Email Didit's standard due-diligence questionnaire to a compliance address on record for the counterparty,
+      # with a single-use answer link. The counterparty has 30 days to answer every question; the answers stay current
+      # for 365 days. A new send replaces your earlier unanswered questionnaire to the same counterparty, whose link
+      # stops working. One email per minute per address.
+      #
+      # +POST /v3/travel-rule/vasps/{vasp_id}/questionnaires/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param sent_to [String] Optional. A compliance address on record for the counterparty: for a directory entry
+      #   its compliance address or a contact your application sees, for a Didit network member its confirmed compliance
+      #   email. Default: the address a Travel Rule email to the counterparty goes to (your own contact first, then a
+      #   platform contact, then the entry's compliance address).
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyQuestionnaire]
+      def send_vasp_questionnaire(vasp_id, sent_to: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/vasps/{vasp_id}/questionnaires/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "sent_to" => sent_to
+          },
+          response: Types::TravelRuleCounterpartyQuestionnaire,
+          request_options: request_options
+        )
+      end
+
       # Update Travel Rule settings
       #
       # Upsert the application's Travel Rule settings and VASP profile. Partial update - only send the fields you want
@@ -164,18 +414,39 @@ module Didit
       # @param legal_name [String]
       # @param lei [String]
       # @param jurisdiction [String]
-      # @param name_matching_strictness [String]
+      # @param name_matching_strictness [String] `CONTAINS` accepts one name whose words all appear in the other.
       # @param confirmation_timeout_hours [Integer]
       # @param timeout_outcome [String]
-      # @param compliance_email [String]
-      # @param is_discoverable [Boolean]
-      # @param threshold_amount [String] Decimal string. Minimum transfer amount that triggers a managed exchange.
+      # @param compliance_email [String] Compliance contact email for your VASP profile. The Didit network lists your
+      #   profile only once this address is confirmed through an emailed link (POST
+      #   /v3/travel-rule/settings/compliance-email/confirmation/); changing it needs a new confirmation.
+      # @param is_discoverable [Boolean] Whether your VASP profile can be listed in the Didit network: found in GET
+      #   /v3/travel-rule/vasps/ by other Didit customers and reached on the INTERNAL rail. Listing also needs a live
+      #   application, Travel Rule on, a legal name and a confirmed compliance email; didit_network says which are
+      #   missing. Default true.
+      # @param threshold_amount [String] Decimal string, zero or greater, in your application's default currency.
+      #   Minimum transfer amount that triggers a managed exchange.
+      # @param ownership_validation_mode [String] See the response field of the same name.
+      # @param simplified_validation_threshold [String] Decimal string, 0 or more.
+      # @param data_sharing_fields [Hash] Merged per entity type: an entity type you leave out keeps its current
+      #   choice. A choice that cannot meet the originator obligations of your `jurisdiction` regime (EU TFR or FATF
+      #   Recommendation 16), an empty list included, is refused with `400`.
+      # @param matching_rules [Hash] Merged per entity type, and per field inside it. A field that entity type does
+      #   not compare (for example `date_of_birth` for `company`) is refused with `400`.
       # @param inbound_auto_accept [Boolean]
       # @param allow_self_declaration [Boolean]
       # @param allow_screenshot_proof [Boolean] When true, the wallet-ownership widget offers screenshot upload as an
       #   ownership evidence method. Default true.
       # @param auto_wallet_verification [Boolean]
       # @param vasp_attribution_enabled [Boolean]
+      # @param counterparty_screening_enabled [Boolean] Opt-in sanctions and adverse-media screening of counterparty
+      #   VASPs, billed per screening at the Company AML Screening price. When on, Didit screens the counterparty an
+      #   outbound exchange reaches (reusing a screening younger than 30 days) and you can screen one with POST
+      #   /v3/travel-rule/vasps/{vasp_id}/screening/. Default false: nothing is screened or billed.
+      # @param sunrise_policy [String] HOLD, REJECT, PROCEED, or empty to follow timeout_outcome. See the response
+      #   field of the same name.
+      # @param non_responsive_policy [String] HOLD, REJECT, PROCEED, or empty to follow timeout_outcome. See the
+      #   response field of the same name.
       # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your
       #   connected own memberships or provision unavailable networks.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -191,11 +462,18 @@ module Didit
         compliance_email: OMIT,
         is_discoverable: OMIT,
         threshold_amount: OMIT,
+        ownership_validation_mode: OMIT,
+        simplified_validation_threshold: OMIT,
+        data_sharing_fields: OMIT,
+        matching_rules: OMIT,
         inbound_auto_accept: OMIT,
         allow_self_declaration: OMIT,
         allow_screenshot_proof: OMIT,
         auto_wallet_verification: OMIT,
         vasp_attribution_enabled: OMIT,
+        counterparty_screening_enabled: OMIT,
+        sunrise_policy: OMIT,
+        non_responsive_policy: OMIT,
         disabled_networks: OMIT,
         request_options: nil
       )
@@ -213,11 +491,18 @@ module Didit
             "compliance_email" => compliance_email,
             "is_discoverable" => is_discoverable,
             "threshold_amount" => threshold_amount,
+            "ownership_validation_mode" => ownership_validation_mode,
+            "simplified_validation_threshold" => simplified_validation_threshold,
+            "data_sharing_fields" => data_sharing_fields,
+            "matching_rules" => matching_rules,
             "inbound_auto_accept" => inbound_auto_accept,
             "allow_self_declaration" => allow_self_declaration,
             "allow_screenshot_proof" => allow_screenshot_proof,
             "auto_wallet_verification" => auto_wallet_verification,
             "vasp_attribution_enabled" => vasp_attribution_enabled,
+            "counterparty_screening_enabled" => counterparty_screening_enabled,
+            "sunrise_policy" => sunrise_policy,
+            "non_responsive_policy" => non_responsive_policy,
             "disabled_networks" => disabled_networks
           },
           response: Types::TravelRuleSettingsDetail,
@@ -225,8 +510,198 @@ module Didit
         )
       end
 
+      # Set your decision on a VASP
+      #
+      # Make or change your application's decision on a counterparty: APPROVED, RESTRICTED or BLOCKED, with an
+      # optional reason. It never changes the shared directory entry and acts only through your transaction rules
+      # (counterparty_dd_status). A decision on a brand also covers each of its entities that has no decision of its
+      # own.
+      #
+      # +PUT /v3/travel-rule/vasps/{vasp_id}/decision/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param decision [String]
+      # @param reason [String] Optional. Replaces the previous reason; omit it to clear it.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleCounterpartyDecisionResponse]
+      def update_vasp_decision(vasp_id, decision:, reason: OMIT, request_options: nil)
+        @client.request(
+          :put,
+          "/v3/travel-rule/vasps/{vasp_id}/decision/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "decision" => decision,
+            "reason" => reason
+          },
+          response: Types::TravelRuleCounterpartyDecisionResponse,
+          request_options: request_options
+        )
+      end
+
+      # The +travel_rule.counterparty_contacts+ resource.
+      class CounterpartyContacts < Didit::Resource
+        # Add a counterparty contact
+        #
+        # Adds a private compliance address for one directory entry. Only your application sees and uses it, and the
+        # EMAIL rail writes to it before any platform contact. Adding an address the entry already has among your own
+        # contacts returns that contact.
+        #
+        # +POST /v3/travel-rule/counterparty-contacts/+
+        #
+        # @param counterparty [String] The directory entry's `id`.
+        # @param email [String]
+        # @param name [String] Optional label.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleCounterpartyContact]
+        def create(counterparty:, email:, name: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/counterparty-contacts/",
+            body: {
+              "counterparty" => counterparty,
+              "email" => email,
+              "name" => name
+            },
+            response: Types::TravelRuleCounterpartyContact,
+            request_options: request_options
+          )
+        end
+
+        # Delete a counterparty contact
+        #
+        # Deletes one of your application's own contacts. The EMAIL rail stops writing to it at once. Platform
+        # contacts cannot be deleted.
+        #
+        # +DELETE /v3/travel-rule/counterparty-contacts/{contact_uuid}/+
+        #
+        # @param contact_uuid [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(contact_uuid, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/travel-rule/counterparty-contacts/{contact_uuid}/",
+            path_params: { "contact_uuid" => contact_uuid },
+            request_options: request_options
+          )
+        end
+
+        # List counterparty contacts
+        #
+        # The compliance addresses the EMAIL rail may write to for your application: Didit's platform contacts plus
+        # your application's own private ones, bounced ones included, newest first. Paginated with `limit` (default
+        # 50) and `offset`; `count` stops at 100, so 100 means 100 or more.
+        #
+        # +GET /v3/travel-rule/counterparty-contacts/+
+        #
+        # @param counterparty [String] Only the contacts of this directory entry. Must be a UUID; an empty value means
+        #   no filter.
+        # @param limit [Integer] Page size, default 50.
+        # @param offset [Integer] Rows to skip.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleCounterpartyContact>]
+        def list(counterparty: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/counterparty-contacts/",
+            query: {
+              "counterparty" => counterparty,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleCounterpartyContact,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +travel_rule.transfers+ resource.
+      class Transfers < Didit::Resource
+        # List Travel Rule transfers
+        #
+        # Your application's Travel Rule transfers, newest first, paginated with `limit` (default 50) and `offset`.
+        # Rows carry VASP names, wallets and memos only, never person data. Comma-separated values select several. An
+        # unknown value answers 400 naming the parameter, for example `{"direction": ["Unknown value(s): inbound."]}`.
+        #
+        # +GET /v3/travel-rule/transfers/+
+        #
+        # @param direction [String] INBOUND, OUTBOUND, or both comma-separated. Case-sensitive.
+        # @param status [String] One or more transfer statuses, comma-separated.
+        # @param rail [String] One or more of INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, TEST_VASP,
+        #   comma-separated.
+        # @param kind [String] withdrawal, deposit or message, comma-separated.
+        # @param currency [String] The transaction's currency, case-insensitive.
+        # @param start_date [Date, String] Transfers created on or after this day (UTC), YYYY-MM-DD.
+        # @param end_date [Date, String] Transfers created on or before this day (UTC), YYYY-MM-DD.
+        # @param counterparty [String] The `id` of a directory entry or Didit network member from GET
+        #   /v3/travel-rule/vasps/: your transfers with that counterparty. A value that is not a valid id answers 400.
+        # @param limit [Integer] Page size, default 50.
+        # @param offset [Integer] Rows to skip.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleTransferRow>]
+        def list(
+          direction: OMIT,
+          status: OMIT,
+          rail: OMIT,
+          kind: OMIT,
+          currency: OMIT,
+          start_date: OMIT,
+          end_date: OMIT,
+          counterparty: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/travel-rule/transfers/",
+            query: {
+              "direction" => direction,
+              "status" => status,
+              "rail" => rail,
+              "kind" => kind,
+              "currency" => currency,
+              "start_date" => start_date,
+              "end_date" => end_date,
+              "counterparty" => counterparty,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleTransferRow,
+            request_options: request_options
+          )
+        end
+      end
+
       # The +travel_rule.wallet_addresses+ resource.
       class WalletAddresses < Didit::Resource
+        # Import wallet addresses in bulk
+        #
+        # Add up to 10,000 wallets to your Travel Rule address book in one call, as JSON or as a CSV file. A wallet
+        # can be sent by its address, by the SHA-256 of its lowercased address (`address_hash`) to keep the address
+        # private, or both. The import is idempotent: a wallet already in the book is reported as `existing` and left
+        # untouched, so the same file can be sent again. Each row is validated on its own, so one bad row never fails
+        # the others. A wallet imported by its hash only matches transfers to that address and can be proven with the
+        # wallet-ownership widget like any other entry.
+        #
+        # +POST /v3/travel-rule/wallet-addresses/import/+
+        #
+        # @param body [Hash, Array<Hash>]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::WalletAddressImportReport]
+        def bulk_import(body:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/wallet-addresses/import/",
+            body: body,
+            encoding: :auto,
+            file_fields: %w[file],
+            response: Types::WalletAddressImportReport,
+            request_options: request_options
+          )
+        end
+
         # Register a wallet address
         #
         # Add an entry to your Travel Rule wallet address book so inbound INTERNAL-rail transfers can resolve against
@@ -234,15 +709,25 @@ module Didit
         #
         # +POST /v3/travel-rule/wallet-addresses/+
         #
-        # @param address [String]
-        # @param chain [String]
+        # @param address [String] The wallet address. An XRP X-address is stored as its classic address and its tag,
+        #   so it matches transfers that name either form.
+        # @param chain [String] Chain token for the address, for example `ETH` or `BTC`. When Didit routes or
+        #   registers a transfer, it matches address book entries on the wallet address and, when the transfer carries a
+        #   chain, on this value too, ignoring case. A transfer's chain is `beneficiary_data.chain`, filled from the
+        #   transaction's crypto chain or currency symbol (for example `ETH`) when you do not send it, or the `chain`
+        #   o...
         # @param holder_vendor_data [String]
         # @param holder_name [String]
         # @param entity_type [String]
         # @param self_declared [Boolean] Write-only. When true, the entry is created already ownership-verified via a
-        #   SELF_DECLARATION proof.
+        #   SELF_DECLARATION proof. Returns 400 when `allow_self_declaration` is off in your Travel Rule settings.
         # @param travel_address [String] Optional. The counterparty VASP's travel address for this wallet, enabling
-        #   TRP routing.
+        #   TRP routing for the assets TRP carries (BTC, ETH, and USDC on a named network). An invalid travel address
+        #   returns 400.
+        # @param memo [String] Optional. The destination tag or memo that is part of the wallet. XRP: a destination
+        #   tag, a whole number from 0 to 4294967295 (a JSON number is accepted). XLM: a text memo of up to 28 bytes, a
+        #   64-bit id or a 32-byte hash in hex. EOS: up to 256 bytes. ATOM: up to 256 characters. HBAR: up to 100 bytes.
+        #   Bitcoin, EVM, Solana, Tron, Litecoin, Bitcoin Cash, Dogecoin and Lightning wallets take no memo:...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntry]
         def create(
@@ -253,6 +738,7 @@ module Didit
           entity_type: OMIT,
           self_declared: OMIT,
           travel_address: OMIT,
+          memo: OMIT,
           request_options: nil
         )
           @client.request(
@@ -265,7 +751,8 @@ module Didit
               "holder_name" => holder_name,
               "entity_type" => entity_type,
               "self_declared" => self_declared,
-              "travel_address" => travel_address
+              "travel_address" => travel_address,
+              "memo" => memo
             },
             response: Types::WalletAddressEntry,
             request_options: request_options
@@ -274,8 +761,9 @@ module Didit
 
         # Delete a wallet address
         #
-        # Deletes the entry. It stops matching new transfers immediately and the address is freed up for
-        # re-registration.
+        # Deletes the entry together with its ownership proofs and the screenshots they stored. It stops matching new
+        # transfers immediately and the address is freed up for re-registration. Transfers that already used the
+        # wallet keep their own record of it and read the same. Deletion is irreversible.
         #
         # +DELETE /v3/travel-rule/wallet-addresses/{entry_uuid}/+
         #
@@ -348,6 +836,132 @@ module Didit
               "travel_address" => travel_address
             },
             response: Types::WalletAddressEntryUpdate,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +travel_rule.workspace+ resource.
+      class Workspace < Didit::Resource
+        # Claim a directory entry
+        #
+        # Claims the directory entry this workspace is. When the work email is at a domain the entry lists, the claim
+        # is proved and applies at once: the VASP profile and Travel Rule settings are filled from the entry and
+        # Travel Rule is turned on, so the next transfer to it routes over the Didit network. Otherwise the claim
+        # waits for review (`pending_review`).
+        #
+        # +POST /v3/travel-rule/workspace/claim/+
+        #
+        # @param vasp_id [String] The directory entry this workspace is. Read ids from `GET /v3/travel-rule/vasps/`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspace]
+        def claim(vasp_id:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/workspace/claim/",
+            body: {
+              "vasp_id" => vasp_id
+            },
+            response: Types::TravelRuleWorkspace,
+            request_options: request_options
+          )
+        end
+
+        # Confirm the domain verification code
+        #
+        # Spends the emailed code and marks the email domain verified.
+        #
+        # +POST /v3/travel-rule/workspace/domain/confirm/+
+        #
+        # @param code [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspace]
+        def confirm_domain(code:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/workspace/domain/confirm/",
+            body: {
+              "code" => code
+            },
+            response: Types::TravelRuleWorkspace,
+            request_options: request_options
+          )
+        end
+
+        # Enable outbound billing
+        #
+        # Turns outbound Travel Rule billing on for the workspace. Receiving stays free. This cannot be turned back
+        # off through the API: contact Didit support.
+        #
+        # +POST /v3/travel-rule/workspace/billing/+
+        #
+        # @param enabled [Boolean] Only `true` is accepted: outbound billing cannot be turned back off through the
+        #   API.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspace]
+        def enable_billing(enabled: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/workspace/billing/",
+            body: {
+              "enabled" => enabled
+            },
+            response: Types::TravelRuleWorkspace,
+            request_options: request_options
+          )
+        end
+
+        # Get the free Travel Rule workspace
+        #
+        # Reads the free workspace of an application that joined free: directory claim, domain proof, billing and
+        # Didit network listing.
+        #
+        # +GET /v3/travel-rule/workspace/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspace]
+        def get(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/workspace/",
+            response: Types::TravelRuleWorkspace,
+            request_options: request_options
+          )
+        end
+
+        # Email a domain verification code
+        #
+        # Emails a single-use code to the workspace's work address to prove it controls the email domain. Throttled,
+        # and a limited number of wrong attempts is accepted per code. Also returns the TXT record for the DNS
+        # alternative.
+        #
+        # +POST /v3/travel-rule/workspace/domain/code/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspaceDomainCodeResponse]
+        def send_domain_code(request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/workspace/domain/code/",
+            response: Types::TravelRuleWorkspaceDomainCodeResponse,
+            request_options: request_options
+          )
+        end
+
+        # Verify the domain from its TXT record
+        #
+        # Checks for the `didit-tr-verify.<domain>` TXT record returned by the code endpoint and marks the domain
+        # verified when it matches. One of the two proofs, the emailed code or the TXT record, is enough.
+        #
+        # +POST /v3/travel-rule/workspace/domain/dns/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWorkspace]
+        def verify_domain_dns(request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/workspace/domain/dns/",
+            response: Types::TravelRuleWorkspace,
             request_options: request_options
           )
         end

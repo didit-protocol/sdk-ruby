@@ -28,7 +28,7 @@ module Didit
       def workflow_version: () -> untyped
       def vendor_data: () -> String?
       def metadata: () -> untyped
-      def decision: () -> Didit::Types::SessionsRetrieveDecisionResponse?
+      def decision: () -> Didit::Types::SessionDecision?
       def resubmit_info: () -> untyped
     end
 

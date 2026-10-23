@@ -2,6 +2,28 @@
 
 module Didit
   module Types
+    module NetworksListParamsScope
+      IDENTITY: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module NetworksListResponseCrossOrgUnavailableReason
+      PLAN: String
+      SHARING_MODE: String
+
+      VALUES: Array[String]
+    end
+
+    module NetworksListResponseSharingMode
+      OFF: String
+      PRIVATE: String
+      GLOBAL: String
+
+      VALUES: Array[String]
+    end
+
     module NetworksRetrieveGraphParamsDepth
       V_1: String
       V_2: String
@@ -19,16 +41,43 @@ module Didit
       VALUES: Array[String]
     end
 
+    module NetworksRetrieveTimelineParamsContract
+      V_2: String
+
+      VALUES: Array[String]
+    end
+
+    module NetworksRetrieveTimelineParamsEventType
+      NETWORK_DETECTED: String
+      SIGNAL_OBSERVED: String
+      NETWORK_ACTIVE: String
+      NETWORK_IN_REVIEW: String
+      NETWORK_RESOLVED: String
+      NETWORK_DISMISSED: String
+      VERIFICATION_ATTEMPT: String
+      TRANSACTION: String
+      LOGIN: String
+      RULE_HIT: String
+      CASE_LINKED: String
+      NOTE_ADDED: String
+
+      VALUES: Array[String]
+    end
+
     class NetworksListMembersResponse < Didit::Model
       def results: () -> Array[Didit::Types::NetworkMember]?
     end
 
     class NetworksListResponse < Didit::Model
-      def count: () -> Integer?
+      def count: () -> Integer
       def `next`: () -> Integer?
       def previous: () -> Integer?
-      def results: () -> Array[Didit::Types::NetworkListItem]?
+      def results: () -> Array[Didit::Types::NetworkListItem]
       def kpis: () -> Didit::Types::NetworksListResponseKpis?
+      def counts: () -> Didit::Types::NetworkListCounts?
+      def sharing_mode: () -> String
+      def cross_org_available: () -> bool
+      def cross_org_unavailable_reason: () -> String?
     end
 
     class NetworksListResponseKpis < Didit::Model
@@ -52,8 +101,13 @@ module Didit
 
     class NetworksRetrieveTimelineResponse < Didit::Model
       def results: () -> Array[Didit::Types::NetworkTimelineEvent]?
+      def next_cursor: () -> String?
     end
 
+    type networks_add_tag_params = { tag_uuid: String }
+
     type networks_notes_create_params = { comment: String, client_reference: String }
+
+    type networks_remove_tag_params = { tag_uuid: String }
   end
 end

@@ -11,7 +11,7 @@ module WebhookSpecs
     end
 
     def types_available?
-      Didit::Types.const_get(:SessionsRetrieveDecisionResponse, false)
+      Didit::Types.const_get(:SessionDecision, false)
       true
     rescue NameError, LoadError
       false
@@ -71,7 +71,7 @@ module WebhookSpecs
       expect(event.to_h[:decision]).to eq({ session_id: "s-1", status: "Approved", id_verifications: [] })
       skip "Didit::Types is not generated yet" unless types_available?
 
-      expect(event.decision).to be_a(Didit::Types::SessionsRetrieveDecisionResponse)
+      expect(event.decision).to be_a(Didit::Types::SessionDecision)
       expect(event.decision[:status]).to eq("Approved")
     end
 

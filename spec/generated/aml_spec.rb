@@ -6,6 +6,46 @@ RSpec.describe Didit::Resources::Aml do
 
   let(:client) { generated_test_client }
 
+  it "aml.retrieve_dataset_freshness sends GET /v3/aml/dataset-freshness/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "dataset_freshness": {
+          "captured_at": "2026-10-17T06:00:12.345678+00:00",
+          "provider": "aml_data_source",
+          "catalog_version": "20261017054500-abc",
+          "sources": {
+            "sanctions": {
+              "last_updated_at": "2026-10-17T04:10:00+00:00",
+              "oldest_updated_at": "2026-10-15T22:30:00+00:00",
+              "dataset_count": 48,
+              "dated_dataset_count": 48
+            },
+            "pep": {
+              "last_updated_at": "2026-10-16T23:05:00+00:00",
+              "oldest_updated_at": null,
+              "dataset_count": 12,
+              "dated_dataset_count": 11
+            }
+          }
+        },
+        "availability": "available"
+      }
+    JSON
+    result = client.aml.retrieve_dataset_freshness
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/aml/dataset-freshness/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::AmlRetrieveDatasetFreshnessResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "aml.screen sends POST /v3/aml/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {

@@ -64,7 +64,8 @@ RSpec.describe Didit::Resources::Users do
         "tags": [],
         "comments": [],
         "created_at": "2025-06-15T10:30:00Z",
-        "updated_at": "2025-06-15T10:30:00Z"
+        "updated_at": "2025-06-15T10:30:00Z",
+        "verification_link": null
       }
     JSON
     result = client.users.create(
@@ -83,7 +84,7 @@ RSpec.describe Didit::Resources::Users do
       "vendor_data" => "user-abc-123",
       "full_name" => "John Doe"
     })
-    expect(result).to be_a(Didit::Types::UserDetailItem)
+    expect(result).to be_a(Didit::Types::UsersCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -270,7 +271,7 @@ RSpec.describe Didit::Resources::Users do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::UsersListNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -430,7 +431,7 @@ RSpec.describe Didit::Resources::Users do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::UsersRetrieveOngoingMonitoringJobResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -476,7 +477,7 @@ RSpec.describe Didit::Resources::Users do
         "user-456"
       ]
     })
-    expect(result).to be_a(Didit::Types::UsersSetAmlMonitoringResponse)
+    expect(result).to be_a(Didit::Types::AMLMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -509,7 +510,7 @@ RSpec.describe Didit::Resources::Users do
     expect_json_body(request, {
       "is_enabled" => true
     })
-    expect(result).to be_a(Didit::Types::UsersSetOngoingMonitoringResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -686,7 +687,7 @@ RSpec.describe Didit::Resources::Users do
           {
             "uuid": "c1111111-2222-4333-8444-555555555555",
             "comment_type": "STATUS_CHANGED",
-            "comment": null,
+            "comment": "Chargeback fraud pattern confirmed",
             "actor_email": null,
             "actor_name": null,
             "previous_status": "ACTIVE",

@@ -404,7 +404,7 @@ module DiditCodegen
     def enum(schema, hint, group)
       values = schema["enum"].compact
       if !values.empty? && values.all?(String)
-        @registry.add_enum(EnumDef.new(name: hint, group: group, description: description(schema),
+        @registry.add_enum(EnumDef.new(name: enum_name(schema, hint), group: group, description: description(schema),
                                        choices: values.uniq))
         return TypeRef.scalar(:string)
       end
@@ -413,6 +413,17 @@ module DiditCodegen
       return TypeRef.scalar(:float) if schema["type"] == "number"
 
       TypeRef.scalar(:any)
+    end
+
+    # An inline enum is named after its parent plus the property. When another component already has that
+    # name (TravelRuleCounterpartyScreening.status vs the TravelRuleCounterpartyScreeningStatus component)
+    # the enum module takes a Values suffix; the property stays a plain string either way. A component
+    # that is itself an enum keeps its own name.
+    def enum_name(schema, hint)
+      taken = @documents.each_value.any? do |document|
+        document.components.any? { |name, other| component_name(document, name) == hint && !other.equal?(schema) }
+      end
+      taken ? "#{hint}Values" : hint
     end
 
     def model(document, schema, name, group)

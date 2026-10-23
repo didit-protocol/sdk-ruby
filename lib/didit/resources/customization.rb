@@ -58,11 +58,17 @@ module Didit
       # @param callback_seconds [Integer] Delay (seconds) before redirecting to the callback URL.
       # @param delete_logo_square [Boolean] When `true`, removes the current square logo.
       # @param delete_logo_rectangular [Boolean] When `true`, removes the current rectangular logo.
+      # @param delete_logo_rectangular_dark [Boolean] When `true`, removes the current dark-mode logo, and
+      #   `logo_rectangular_dark` then reads `null`. If the same multipart request also uploads
+      #   `image_rectangular_dark`, the upload wins.
       # @param delete_favicon [Boolean] When `true`, removes the current favicon.
-      # @param image_square [Pathname, IO, String, Didit::FilePart] Square logo (1:1 aspect ratio). Max **1 MB**.
-      #   Allowed: `png`, `jpg`, `jpeg`, `webp`.
-      # @param image_rectangular [Pathname, IO, String, Didit::FilePart] Rectangular logo (2:1 aspect ratio). Max **1
-      #   MB**. Allowed: `png`, `jpg`, `jpeg`, `webp`.
+      # @param image_square [Pathname, IO, String, Didit::FilePart] Square logo (1:1 aspect ratio). PNG, JPG or WebP,
+      #   at least 512 px on the long side, at most **1 MB**.
+      # @param image_rectangular [Pathname, IO, String, Didit::FilePart] Rectangular logo (2:1 aspect ratio). PNG, JPG
+      #   or WebP, at least 512 px on the long side, at most **1 MB**.
+      # @param image_rectangular_dark [Pathname, IO, String, Didit::FilePart] Rectangular logo for dark mode (2:1
+      #   aspect ratio), shown on a dark background. PNG, JPG or WebP, at least 512 px on the long side, at most **1
+      #   MB**. Returned as `logo_rectangular_dark`.
       # @param image_favicon [Pathname, IO, String, Didit::FilePart] Favicon image. Max **500 KB**.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BrandingCustomization]
@@ -92,9 +98,11 @@ module Didit
         callback_seconds: OMIT,
         delete_logo_square: OMIT,
         delete_logo_rectangular: OMIT,
+        delete_logo_rectangular_dark: OMIT,
         delete_favicon: OMIT,
         image_square: OMIT,
         image_rectangular: OMIT,
+        image_rectangular_dark: OMIT,
         image_favicon: OMIT,
         request_options: nil
       )
@@ -127,13 +135,15 @@ module Didit
             "callback_seconds" => callback_seconds,
             "delete_logo_square" => delete_logo_square,
             "delete_logo_rectangular" => delete_logo_rectangular,
+            "delete_logo_rectangular_dark" => delete_logo_rectangular_dark,
             "delete_favicon" => delete_favicon,
             "image_square" => image_square,
             "image_rectangular" => image_rectangular,
+            "image_rectangular_dark" => image_rectangular_dark,
             "image_favicon" => image_favicon
           },
           encoding: :auto,
-          file_fields: %w[image_favicon image_rectangular image_square],
+          file_fields: %w[image_favicon image_rectangular image_rectangular_dark image_square],
           response: Types::BrandingCustomization,
           request_options: request_options
         )

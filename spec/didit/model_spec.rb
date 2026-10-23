@@ -112,17 +112,17 @@ RSpec.describe Didit::Model do
   end
 
   it "resolves type names under Didit::Types" do
-    value = described_class.coerce({ "session_id" => "s" }, "SessionsRetrieveDecisionResponse")
-    expect(value).to be_a(Didit::Types::SessionsRetrieveDecisionResponse)
+    value = described_class.coerce({ "session_id" => "s" }, "SessionDecision")
+    expect(value).to be_a(Didit::Types::SessionDecision)
     expect(described_class.from_json({ "a" => 1 })).to be_a(described_class)
     expect(described_class.from_json([1])).to eq([1])
   end
 
   it "makes enums open: known values are frozen string constants and others pass through" do
-    expect(Didit::Types::SessionsRetrieveDecisionResponseStatus::APPROVED).to eq("Approved")
-    expect(Didit::Types::SessionsRetrieveDecisionResponseStatus::VALUES).to include("Approved", "Declined")
-    expect(Didit::Types::SessionsRetrieveDecisionResponseStatus::VALUES).to be_frozen
-    decision = Didit::Types::SessionsRetrieveDecisionResponse.new("status" => "Some Future Status")
+    expect(Didit::Types::SessionDecisionStatus::APPROVED).to eq("Approved")
+    expect(Didit::Types::SessionDecisionStatus::VALUES).to include("Approved", "Declined")
+    expect(Didit::Types::SessionDecisionStatus::VALUES).to be_frozen
+    decision = Didit::Types::SessionDecision.new("status" => "Some Future Status")
     expect(decision.status).to eq("Some Future Status")
   end
 end

@@ -3,6 +3,9 @@
 
 module Didit
   module Types
-
+    class AccountResendOtpResponse < Didit::Model
+      field :message, "message", :string
+      field :email, "email", :string
+    end
   end
 end

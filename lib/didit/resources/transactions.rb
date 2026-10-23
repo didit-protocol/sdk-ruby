@@ -5,6 +5,11 @@ module Didit
   module Resources
     # The +transactions+ resource.
     class Transactions < Didit::Resource
+      # @return [Didit::Resources::Transactions::Notes]
+      def notes
+        @notes ||= Notes.new(@client)
+      end
+
       # @return [Didit::Resources::Transactions::Rules]
       def rules
         @rules ||= Rules.new(@client)
@@ -20,8 +25,15 @@ module Didit
       # Submit a transaction for synchronous AML/risk monitoring. The transaction is created `APPROVED`, then your
       # rules (and crypto screening, when applicable) run inline and may flip the returned `status` to `IN_REVIEW` or
       # `DECLINED`. **`transaction_id` is your idempotency key** (max 128 chars, unique per app); reusing it returns
-      # 400. A `transaction.created` webhook is dispatched on success (sandbox applications are not billed and do not
-      # emit webhooks).
+      # 400. A `transaction.created` webhook is dispatched on success for live applications. Sandbox applications are
+      # not billed and do not emit `transaction.created` or `transaction.status.updated` webhooks. Sandbox Travel Rule
+      # exchanges do emit `travel_rule.status.updated` webhooks with `environment: sandbox`. A Travel Rule transfer is
+      # stored and returned before any counterparty is contacted: `travel_rule.status` comes back
+      # `AWAITING_COUNTERPARTY` (or `NOT_APPLICABLE` below your threshold, `UNCONFIRMED_OWNERSHIP` for a declared
+      # self-hosted wallet, `COMPLETED` when the other wallet is your own verified wallet) and `travel_rule.protocol`
+      # is null. Didit then chooses the rail and sends the exchange, and every later status change of the transfer,
+      # including `COUNTERPARTY_VASP_NOT_FOUND` when no rail reaches the counterparty, arrives as a
+      # `travel_rule.status.updated` webhook. Your rules run again when the rail or the status changes.
       #
       # +POST /v3/transactions/+
       #
@@ -36,7 +48,10 @@ module Didit
       # @param counterparty [Hash] The counterparty of the transaction (optional).
       # @param custom_properties [Hash] Arbitrary key-value pairs attached to the transaction. Each key can be
       #   referenced in rule conditions with the field path `custom_values.<key>`.
-      # @param travel_rule_details [Hash] Travel Rule compliance metadata.
+      # @param travel_rule_details [Hash] Travel Rule data. When Travel Rule is enabled and transaction_category is
+      #   travel_rule, Didit runs the exchange itself: it ignores status, protocol, required and obligations_count, and
+      #   uses originator_data, beneficiary_data and metadata. Otherwise Didit stores these values as a passive Travel
+      #   Rule record. While Travel Rule is on, an outbound transfer at or above your threshold must carry what its...
       # @param network_snapshot [Hash] Pre-computed network graph snapshot.
       # @param include_crypto_screening [Boolean, nil] Per-transaction override for crypto blockchain analytics
       #   screening. When `true`, crypto screening is performed regardless of the application default. When `false`,
@@ -112,6 +127,41 @@ module Didit
         )
       end
 
+      # Download a transaction PDF report
+      #
+      # Render one monitored transaction as a PDF report: overview and verdict, parties and payment methods, custom
+      # properties, alerts and rule runs, screening and Travel Rule results, the network summary, the cost breakdown,
+      # up to 50 related transactions and the 20 most recent activity entries. The body is the PDF itself
+      # (`application/pdf`), not JSON.
+      #
+      # The report is rendered from the transaction's current data on every call, so request it again after a status
+      # change. Nothing is stored and nothing is billed. Rendering can take a few seconds, so use a generous client
+      # timeout.
+      #
+      # This endpoint lives on an application-scoped path: put your organization ID and the ID of the application your
+      # API key belongs to in the URL ([find your organization
+      # ID](https://docs.didit.me/getting-started/api-authentication#find-your-organization-id)). A PDF report counts
+      # as media: a scoped API key needs `media: read` and `transactions: read`, and a key limited to some workflows
+      # or to approved sessions cannot call it.
+      #
+      # +GET /v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/pdf/+
+      #
+      # @param transaction_uuid [String] Didit transaction UUID: the `uuid` returned by `POST /v3/transactions/` and
+      #   `GET /v3/transactions/`. Your own `txn_id` is not accepted.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [String, nil] the body bytes, or nil when a block receives the chunks
+      def generate_pdf(transaction_uuid, request_options: nil, &block)
+        @client.request(
+          :get,
+          "/v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/pdf/",
+          path_params: { "transaction_uuid" => transaction_uuid },
+          scope: :application,
+          response: :binary,
+          accept: "application/pdf, application/json",
+          request_options: request_options, &block
+        )
+      end
+
       # List transactions
       #
       # Paginated list of monitored transactions, newest first (`txn_date` desc). `count` is capped at 100; use
@@ -123,15 +173,19 @@ module Didit
       #   small for latency.
       # @param offset [Integer] Zero-based offset of the first record to return. Prefer following the `next` URL from
       #   the previous page.
+      # @param travel_rule_status [String] Return only transactions whose Travel Rule transfer is in this exact status
+      #   (for example `ON_HOLD` or `AWAITING_COUNTERPARTY`). `count` follows this filter; `total_transactions` still
+      #   counts every transaction in the application.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::TransactionsListResponseResults>]
-      def list(limit: OMIT, offset: OMIT, request_options: nil)
+      def list(limit: OMIT, offset: OMIT, travel_rule_status: OMIT, request_options: nil)
         @client.request(
           :get,
           "/v3/transactions/",
           query: {
             "limit" => limit,
-            "offset" => offset
+            "offset" => offset,
+            "travel_rule_status" => travel_rule_status
           },
           page: Types::TransactionsListResponseResults,
           request_options: request_options
@@ -147,14 +201,14 @@ module Didit
       #
       # @param transaction_uuid [String] Transaction UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::TransactionsListNetworksResponse]
+      # @return [Didit::Types::EntityNetworkMembershipList]
       def list_networks(transaction_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/networks/",
           path_params: { "transaction_uuid" => transaction_uuid },
           scope: :application,
-          response: Types::TransactionsListNetworksResponse,
+          response: Types::EntityNetworkMembershipList,
           request_options: request_options
         )
       end
@@ -169,14 +223,54 @@ module Didit
       # @param transaction_uuid [String] Transaction UUID.
       # @param transaction_party_uuid [String] Transaction party UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::TransactionsListPartyNetworksResponse]
+      # @return [Didit::Types::EntityNetworkMembershipList]
       def list_party_networks(transaction_uuid, transaction_party_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/transactions/{transaction_uuid}/parties/{transaction_party_uuid}/networks/",
           path_params: { "transaction_uuid" => transaction_uuid, "transaction_party_uuid" => transaction_party_uuid },
           scope: :application,
-          response: Types::TransactionsListPartyNetworksResponse,
+          response: Types::EntityNetworkMembershipList,
+          request_options: request_options
+        )
+      end
+
+      # List related transactions
+      #
+      # List the other transactions in your application that involve the same people or companies as this one. A
+      # transaction is related when any of its parties, in any role, has the same `vendor_data` as one of this
+      # transaction's parties. The transaction itself is never returned, and parties without `vendor_data` are
+      # ignored: when none of this transaction's parties has one, the result is always empty.
+      #
+      # Results use the summary shape of `GET /v3/transactions/`, newest first (`txn_date`, then `created_at`).
+      # Paginated with `limit` and `offset`; `count` is exact up to 100 and capped at 100 above that, so follow `next`
+      # until it is `null`.
+      #
+      # A scoped API key needs `transactions: read`; a key limited to some workflows or to approved sessions cannot
+      # call this endpoint. Send the same `vendor_data` for the same person or company on every
+      # [transaction](https://docs.didit.me/transaction-monitoring/transactions#subject-and-counterparty) to make this
+      # list complete.
+      #
+      # +GET /v3/transactions/{transaction_id}/related/+
+      #
+      # @param transaction_id [String] Didit transaction UUID: the `uuid` returned by `POST /v3/transactions/` and
+      #   `GET /v3/transactions/`. Your own `txn_id` is not accepted.
+      # @param limit [Integer] Number of transactions per page. Defaults to 50. A value that is not a positive integer
+      #   falls back to 50; a value above 1000000 returns `400`.
+      # @param offset [Integer] Zero-based position of the first transaction to return. Prefer following `next`. A
+      #   value that is not a whole number falls back to 0; a value above 1000000 returns `400`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Page<Didit::Types::TransactionSummary>]
+      def list_related(transaction_id, limit: OMIT, offset: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/transactions/{transaction_id}/related/",
+          path_params: { "transaction_id" => transaction_id },
+          query: {
+            "limit" => limit,
+            "offset" => offset
+          },
+          page: Types::TransactionSummary,
           request_options: request_options
         )
       end
@@ -200,6 +294,86 @@ module Didit
           response: Types::TransactionDetail,
           request_options: request_options
         )
+      end
+
+      # The +transactions.notes+ resource.
+      class Notes < Didit::Resource
+        # Create transaction note
+        #
+        # Add a plain-text note to a monitored transaction's review timeline, where Console reviewers see it. A note
+        # is context, not a decision: the transaction's `status`, `score` and alerts do not change, no webhook is
+        # sent, and nothing is billed. The transaction's `activities` gain a `TRANSACTION_NOTE_ADDED` entry.
+        #
+        # Notes created with an API key have no author: `actor_email` and `actor_name` are `null`, so put the author
+        # in the text if you need it. Every address in `mentioned_emails` must belong to a member of your
+        # organization, otherwise the whole request fails with `400`; mentions are stored lower-cased and
+        # de-duplicated, and this endpoint does not notify the mentioned members.
+        #
+        # Each call creates a new note, so retrying a timed-out request can add it twice: list the notes before
+        # retrying. There is no API endpoint to edit or remove a note. A scoped API key needs `transactions: write`; a
+        # key limited to some workflows or to approved sessions cannot call this endpoint.
+        #
+        # +POST /v3/transactions/{transaction_id}/notes/+
+        #
+        # @param transaction_id [String] Didit transaction UUID: the `uuid` returned by `POST /v3/transactions/` and
+        #   `GET /v3/transactions/`. Your own `txn_id` is not accepted.
+        # @param note [String] Plain-text note. Leading and trailing whitespace is trimmed and a blank note is
+        #   rejected. No length limit.
+        # @param mentioned_emails [Array<String>] Emails of members of your organization to mention. Each must be a
+        #   valid email of an organization member.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TransactionNote]
+        def create(transaction_id, note:, mentioned_emails: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/transactions/{transaction_id}/notes/",
+            path_params: { "transaction_id" => transaction_id },
+            body: {
+              "note" => note,
+              "mentioned_emails" => mentioned_emails
+            },
+            response: Types::TransactionNote,
+            request_options: request_options
+          )
+        end
+
+        # List transaction notes
+        #
+        # List the notes on one monitored transaction, newest first (`created_at` descending): notes you add through
+        # the API, notes and status changes reviewers make in the Console, and notes Didit adds automatically (a
+        # rule's `add_note` action, or a problem creating the user-action verification session), which carry
+        # `actor_name` `Rule Engine`. `metadata` tells the note types apart.
+        #
+        # Paginated with `limit` and `offset`. `count` is exact up to 100 and capped at 100 above that, so follow
+        # `next` until it is `null` instead of computing pages from `count`. This is a read with no side effects.
+        #
+        # A scoped API key needs `transactions: read`; a key limited to some workflows or to approved sessions cannot
+        # call this endpoint. Reviewers see the same list under **Notes** on the [transaction
+        # detail](https://docs.didit.me/transaction-monitoring/console#transaction-detail).
+        #
+        # +GET /v3/transactions/{transaction_id}/notes/+
+        #
+        # @param transaction_id [String] Didit transaction UUID: the `uuid` returned by `POST /v3/transactions/` and
+        #   `GET /v3/transactions/`. Your own `txn_id` is not accepted.
+        # @param limit [Integer] Number of notes per page. Defaults to 50. A value that is not a positive integer
+        #   falls back to 50; a value above 1000000 returns `400`.
+        # @param offset [Integer] Zero-based position of the first note to return. Prefer following `next`. A value
+        #   that is not a whole number falls back to 0; a value above 1000000 returns `400`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TransactionNote>]
+        def list(transaction_id, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/transactions/{transaction_id}/notes/",
+            path_params: { "transaction_id" => transaction_id },
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TransactionNote,
+            request_options: request_options
+          )
+        end
       end
 
       # The +transactions.rules+ resource.
@@ -323,8 +497,13 @@ module Didit
 
         # Install library rules
         #
-        # Install one or more presets onto the application, by `library_keys` or a whole `bundle`. Installed presets
-        # evaluate immediately in their default mode; already-installed keys are skipped.
+        # Install one or more presets onto the application, by `library_keys` or a whole `bundle`. An installed preset
+        # is active at once while transaction monitoring is on, and disabled otherwise; already-installed keys are
+        # skipped. A library rule whose conditions read data the rules engine cannot evaluate yet is withheld until it
+        # can run. A request that names one in `library_keys` answers 400 and installs nothing ("These library rules
+        # cannot run yet: their conditions read data the rules engine cannot evaluate." followed by the keys), and a
+        # `bundle` install skips it. A withheld rule comes back on its own once its conditions can be evaluated. A
+        # `library_keys` entry that is not in the library is skipped, not refused.
         #
         # +POST /v3/transactions/rules/install/+
         #
@@ -396,7 +575,9 @@ module Didit
         # List rule library
         #
         # Browse the full preset rule library (150+ rules) with each entry's complete configuration and an
-        # `is_installed` flag for this application. Filter by bundle, category, or free-text search.
+        # `is_installed` flag for this application. Filter by bundle, category, or free-text search. A library rule
+        # whose conditions read data the rules engine cannot evaluate yet is withheld until it can run. Withheld rules
+        # are not listed.
         #
         # +GET /v3/transactions/rules/library/+
         #
@@ -469,7 +650,9 @@ module Didit
         # Update rule
         #
         # Partially update a rule. Custom rules accept every configuration field. Library (PRESET) rules accept only
-        # `mode` - use it to activate, disable, or switch a preset to TEST; any other field returns 400.
+        # `mode` - use it to activate, disable, or switch a preset to TEST; any other field returns 400. An installed
+        # copy of a withheld library rule is switched off: setting its `mode` to anything but `DISABLED` answers 400
+        # ("This library rule cannot run yet: its conditions read data the rules engine cannot evaluate.").
         #
         # +PATCH /v3/transactions/rules/{rule_uuid}/+
         #
@@ -530,37 +713,187 @@ module Didit
       class TravelRule < Didit::Resource
         # Confirm or deny wallet ownership
         #
-        # Called by the beneficiary's application when its INTERNAL-rail transfer is UNCONFIRMED_OWNERSHIP. Confirming
-        # marks the matching wallet address book entry as ownership-verified and runs the beneficiary name match on
-        # both sides of the transfer; denying declines both sides.
+        # Resolve a transfer that waits on wallet ownership: call it on your own side of the transfer when it is
+        # UNCONFIRMED_OWNERSHIP, or when it is an inbound transfer in ON_HOLD. Confirming marks the matching wallet
+        # address book entry as ownership-verified (for an inbound ON_HOLD transfer with no entry, Didit creates one
+        # from beneficiary_data.wallet_address) and runs the beneficiary name match on both sides of the transfer;
+        # denying declines both sides. An inbound transfer whose deposit already settled moves on to FINISHED when the
+        # match succeeds. When the counterparty wallet was declared self-hosted
+        # (counterparty.payment_method.method_type: unhosted_wallet), confirming records that the customer verified
+        # who controls that wallet and completes the transfer (COMPLETED) in both directions, or FINISHED for an
+        # inbound deposit whose on-chain hash is already known. The wallet verified is the counterparty's: the
+        # destination of an outbound withdrawal, or the source (originator's wallet) of an inbound deposit. If it is
+        # not in your wallet address book yet, Didit adds it as ownership-verified under the counterparty's name; if
+        # the book already holds it under a different holder name, the transfer moves to COUNTERPARTY_MISMATCHED_DATA.
+        # For an inbound TRP transfer in UNCONFIRMED_OWNERSHIP, ON_HOLD or COUNTERPARTY_MISMATCHED_DATA, Didit sends
+        # your decision to the originating VASP instead: approving returns the payment address (wallet_address, or the
+        # matched entry's address) and moves the transfer to COMPLETED, and denying declines it. The same call also
+        # decides an inbound transfer that a GTR or Sygna Bridge counterparty sent and that waits for your review
+        # (`UNCONFIRMED_OWNERSHIP`, `ON_HOLD` or `COUNTERPARTY_MISMATCHED_DATA`): `confirmed: true` approves it (pass
+        # `wallet_address` when the transfer names none) and `confirmed: false` declines it, and the network is
+        # answered after the response, with retries. VerifyVASP takes its answer when it asks, so a VerifyVASP
+        # transfer that would need your review is declined at once and cannot be decided later.
         #
         # +POST /v3/transactions/{transaction_id}/travel-rule/ownership/+
         #
-        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer (the beneficiary side's
-        #   transaction).
-        # @param confirmed [Boolean]
+        # @param transaction_id [String] Didit-stable UUID of the transaction your application holds for this
+        #   transfer: the beneficiary side's transaction on an INTERNAL-rail transfer, or the transaction you created
+        #   (outbound or inbound) when the counterparty wallet was declared self-hosted.
+        # @param confirmed [Boolean] true to confirm ownership, false to deny it.
+        # @param wallet_address [String] Inbound TRP transfers: the payment address Didit returns to the originating
+        #   VASP when you approve. Defaults to the matched address book entry's address, then
+        #   beneficiary_data.wallet_address. On a declared self-hosted wallet transfer that names no counterparty
+        #   wallet, the wallet whose ownership you verified; without it the request is rejected with 400. Ignored for
+        #   other transfers.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
-        def confirm_ownership(transaction_id, confirmed:, request_options: nil)
+        def confirm_ownership(transaction_id, confirmed:, wallet_address: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/transactions/{transaction_id}/travel-rule/ownership/",
             path_params: { "transaction_id" => transaction_id },
             body: {
-              "confirmed" => confirmed
+              "confirmed" => confirmed,
+              "wallet_address" => wallet_address
             },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options
           )
         end
 
-        # Finish, cancel, or resend a Travel Rule transfer
+        # Send a Travel Rule message or document request
+        #
+        # Sends a message or a document request to the counterparty VASP. Works on INTERNAL transfers (the other Didit
+        # customer sees it on its side of the pair) and EMAIL transfers (the counterparty is emailed and answers in
+        # the pickup portal). A transfer over TRP, GTR, TRUST, VerifyVASP or Sygna carries no messages, because those
+        # protocols have none. Limits: 100 messages per transfer, 5000 characters per body, 10 requested documents, 5
+        # files of 10 MB each.
+        #
+        # +POST /v3/transactions/{transaction_id}/travel-rule/messages/+
+        #
+        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
+        # @param kind [String]
+        # @param body [String] Required for a MESSAGE unless a file is attached.
+        # @param requested_documents [Array<String>] Required (at least one) for a DOCUMENT_REQUEST, and only allowed
+        #   there.
+        # @param reply_to [String, nil] A message of the same transfer. A reply that carries a document fulfils the
+        #   document request it answers.
+        # @param files [Array<Pathname, IO, String, Didit::FilePart>] Multipart only. Up to 5 files of 10 MB each.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleMessage]
+        def create_message(
+          transaction_id,
+          kind: OMIT,
+          body: OMIT,
+          requested_documents: OMIT,
+          reply_to: OMIT,
+          files: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/transactions/{transaction_id}/travel-rule/messages/",
+            path_params: { "transaction_id" => transaction_id },
+            body: {
+              "kind" => kind,
+              "body" => body,
+              "requested_documents" => requested_documents,
+              "reply_to" => reply_to,
+              "files" => files
+            },
+            response: Types::TravelRuleMessage,
+            request_options: request_options
+          )
+        end
+
+        # List Travel Rule messages
+        #
+        # Messages and document requests exchanged with the counterparty VASP about this transfer.
+        #
+        # +GET /v3/transactions/{transaction_id}/travel-rule/messages/+
+        #
+        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Array<Didit::Types::TravelRuleMessage>]
+        def list_messages(transaction_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/transactions/{transaction_id}/travel-rule/messages/",
+            path_params: { "transaction_id" => transaction_id },
+            response: [:array, Types::TravelRuleMessage],
+            request_options: request_options
+          )
+        end
+
+        # Trigger an inbound transfer from the Didit Test VASP (sandbox)
+        #
+        # Sandbox applications only. The Didit Test VASP sends your application an inbound Travel Rule transfer, so
+        # you can exercise the receiving side of an exchange end to end before going live. The transfer is booked and
+        # decided by the same logic a real inbound transfer from a network runs against your wallet address book, so
+        # the inbox, the decision and the wallet ownership flow behave as they do live. Nothing leaves Didit. A live
+        # application receives 400. Send the same `reference` again to get the transfer the first call booked instead
+        # of a second one.
+        #
+        # +POST /v3/travel-rule/test-vasp/inbound/+
+        #
+        # @param beneficiary_wallet_address [String] The destination wallet address. The Didit Test VASP sends to it,
+        #   matched against your wallet address book on the chain of the asset. A wallet with no matching entry is
+        #   accepted and the inbound transaction is booked ON_HOLD.
+        # @param scenario [String] What the Didit Test VASP declares the beneficiary to be. `accept` declares the
+        #   holder's own name; `name_mismatch` declares a name no holder agrees with. The decision itself is always
+        #   yours.
+        # @param chain [String] Chain of the asset.
+        # @param amount [String] Amount as a decimal string.
+        # @param currency [String] Asset code.
+        # @param reference [String] Optional idempotency key. A repeat with the same value returns the transfer the
+        #   first call booked.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleTestVaspInboundResponse]
+        def trigger_test_vasp_inbound(
+          beneficiary_wallet_address:,
+          scenario: OMIT,
+          chain: OMIT,
+          amount: OMIT,
+          currency: OMIT,
+          reference: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/travel-rule/test-vasp/inbound/",
+            body: {
+              "beneficiary_wallet_address" => beneficiary_wallet_address,
+              "scenario" => scenario,
+              "chain" => chain,
+              "amount" => amount,
+              "currency" => currency,
+              "reference" => reference
+            },
+            response: Types::TravelRuleTestVaspInboundResponse,
+            request_options: request_options
+          )
+        end
+
+        # Finish, cancel, resend, or update the originator wallet of a Travel Rule transfer
         #
         # Provide `payment_txn_id` to report the on-chain hash and move an outbound COMPLETED transfer to FINISHED
         # (its INTERNAL-rail counterpart also moves to FINISHED), `{"action": "cancel"}` to cancel a non-terminal
-        # transfer, or `{"action": "resend"}` to re-run routing for an outbound transfer stuck in
-        # COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA (improve the
-        # counterparty data first, e.g. add a travel_address to the destination wallet entry).
+        # transfer, or `{"action": "resend"}` to route an outbound transfer stuck in COUNTERPARTY_VASP_NOT_FOUND,
+        # COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA again (improve the counterparty data first,
+        # e.g. add a travel_address to the destination wallet entry). resend applies to outbound transfers only.
+        # `{"action": "update_compliance_email", "compliance_email": "desk@example.com"}` replaces the compliance
+        # email of an outbound transfer in one of those three statuses, the fix for `reason: email_undeliverable`: the
+        # status does not change, and the next `resend` sends the request to that address. A resend is queued, not run
+        # inside the request: the response shows the transfer back in AWAITING_COUNTERPARTY with a `resend queued`
+        # timeline entry and a queued `delivery`, and where it went arrives as a `travel_rule.status.updated` webhook.
+        # When the transfer went over GTR, VerifyVASP or Sygna Bridge, the network learns the on-chain hash or the
+        # cancellation after the response, with retries; `delivery` shows how that message stands. `{"action":
+        # "update_originator_wallet", "wallet_address": "..."}` records the wallet the funds actually left from on an
+        # outbound transfer, for example the address a UTXO withdrawal was broadcast from rather than the main wallet
+        # you declared. It changes the record only: nothing is sent to the counterparty again and the status stays.
+        # The originator becomes `chain_details.originator` with `source: updated`, the change is added to the
+        # `timeline` with the previous and the new wallet, and the INTERNAL-rail counterpart of the transfer is
+        # updated the same way.
         #
         # +PATCH /v3/transactions/{transaction_id}/travel-rule/+
         #
@@ -569,17 +902,37 @@ module Didit
         #   transfer in COMPLETED status.
         # @param action [String] "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound
         #   transfer stuck in COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or
-        #   NOT_ENOUGH_COUNTERPARTY_DATA.
+        #   NOT_ENOUGH_COUNTERPARTY_DATA. "update_compliance_email" replaces the compliance email the request goes to,
+        #   on an outbound transfer in one of those three statuses; send "resend" afterwards. "update_originator_wallet"
+        #   records the walle...
+        # @param compliance_email [String] Required with `action: update_compliance_email`. Kept as this transfer's
+        #   `beneficiary_data.counterparty_vasp_email`: it belongs to this transfer only and joins no directory entry
+        #   and no contact list.
+        # @param wallet_address [String] With `action: update_originator_wallet`: the wallet the funds left from. When
+        #   the transfer's UTXO inputs are known it must be one of them.
+        # @param memo [String] With `action: update_originator_wallet`: the wallet's memo or tag on a memo network.
+        #   Optional.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
-        def update_transfer(transaction_id, payment_txn_id: OMIT, action: OMIT, request_options: nil)
+        def update_transfer(
+          transaction_id,
+          payment_txn_id: OMIT,
+          action: OMIT,
+          compliance_email: OMIT,
+          wallet_address: OMIT,
+          memo: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/transactions/{transaction_id}/travel-rule/",
             path_params: { "transaction_id" => transaction_id },
             body: {
               "payment_txn_id" => payment_txn_id,
-              "action" => action
+              "action" => action,
+              "compliance_email" => compliance_email,
+              "wallet_address" => wallet_address,
+              "memo" => memo
             },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options

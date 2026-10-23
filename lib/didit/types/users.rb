@@ -13,103 +13,55 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
-    module UsersRetrieveOngoingMonitoringJobResponseStatus
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
+    module UsersCreateResponseCommentsCommentType
+      COMMENT = "COMMENT"
+      STATUS_CHANGED = "STATUS_CHANGED"
+      METADATA_UPDATED = "METADATA_UPDATED"
+      TAG_ADDED = "TAG_ADDED"
+      TAG_REMOVED = "TAG_REMOVED"
+      PROFILE_UPDATED = "PROFILE_UPDATED"
 
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
+      VALUES = [COMMENT, STATUS_CHANGED, METADATA_UPDATED, TAG_ADDED, TAG_REMOVED, PROFILE_UPDATED].freeze
     end
 
     # Known values of an open enum: the API may send others.
-    module UsersSetAmlMonitoringResponse202ResultsOutcome
-      ENABLED = "enabled"
-      SCREENED_AND_ENABLED = "screened_and_enabled"
-      ALREADY_ENABLED = "already_enabled"
-      DISABLED = "disabled"
-      SKIPPED_NO_IDENTITY_DATA = "skipped_no_identity_data"
-      SKIPPED_BLOCKED = "skipped_blocked"
-      SKIPPED_SANDBOX = "skipped_sandbox"
-      FAILED_PROVIDER = "failed_provider"
-      FAILED_INSUFFICIENT_BALANCE = "failed_insufficient_balance"
+    module UsersCreateResponseCommentsNewStatus
+      ACTIVE = "ACTIVE"
+      FLAGGED = "FLAGGED"
+      BLOCKED = "BLOCKED"
 
-      VALUES = [ENABLED, SCREENED_AND_ENABLED, ALREADY_ENABLED, DISABLED, SKIPPED_NO_IDENTITY_DATA, SKIPPED_BLOCKED, SKIPPED_SANDBOX, FAILED_PROVIDER, FAILED_INSUFFICIENT_BALANCE].freeze
+      VALUES = [ACTIVE, FLAGGED, BLOCKED].freeze
     end
 
     # Known values of an open enum: the API may send others.
-    module UsersSetAmlMonitoringResponse202Status
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
+    module UsersCreateResponseCommentsPreviousStatus
+      ACTIVE = "ACTIVE"
+      FLAGGED = "FLAGGED"
+      BLOCKED = "BLOCKED"
 
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
+      VALUES = [ACTIVE, FLAGGED, BLOCKED].freeze
     end
 
-    # Which profile family the job toggles.
-    module UsersSetAmlMonitoringResponse202TargetType
-      USER = "user"
-      BUSINESS = "business"
+    # Lifecycle status of the user record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks the user
+    # for manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
+    module UsersCreateResponseStatus
+      ACTIVE = "ACTIVE"
+      FLAGGED = "FLAGGED"
+      BLOCKED = "BLOCKED"
 
-      VALUES = [USER, BUSINESS].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module UsersSetAmlMonitoringResponseResultsOutcome
-      ENABLED = "enabled"
-      SCREENED_AND_ENABLED = "screened_and_enabled"
-      ALREADY_ENABLED = "already_enabled"
-      DISABLED = "disabled"
-      SKIPPED_NO_IDENTITY_DATA = "skipped_no_identity_data"
-      SKIPPED_BLOCKED = "skipped_blocked"
-      SKIPPED_SANDBOX = "skipped_sandbox"
-      FAILED_PROVIDER = "failed_provider"
-      FAILED_INSUFFICIENT_BALANCE = "failed_insufficient_balance"
-
-      VALUES = [ENABLED, SCREENED_AND_ENABLED, ALREADY_ENABLED, DISABLED, SKIPPED_NO_IDENTITY_DATA, SKIPPED_BLOCKED, SKIPPED_SANDBOX, FAILED_PROVIDER, FAILED_INSUFFICIENT_BALANCE].freeze
+      VALUES = [ACTIVE, FLAGGED, BLOCKED].freeze
     end
 
     # Known values of an open enum: the API may send others.
-    module UsersSetAmlMonitoringResponseStatus
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
+    module UsersCreateResponseTagsTagSource
+      DIDIT = "didit"
+      CUSTOM = "custom"
 
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
+      VALUES = [DIDIT, CUSTOM].freeze
     end
 
-    # Which profile family the job toggles.
-    module UsersSetAmlMonitoringResponseTargetType
-      USER = "user"
-      BUSINESS = "business"
-
-      VALUES = [USER, BUSINESS].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module UsersSetOngoingMonitoringResponse202Status
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
-
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module UsersSetOngoingMonitoringResponseStatus
-      PENDING = "PENDING"
-      PROCESSING = "PROCESSING"
-      COMPLETED = "COMPLETED"
-      FAILED = "FAILED"
-
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
-    end
-
-    # User lifecycle status. Changing it via this generic PATCH does NOT sync the system blocklist or record a
-    # status-change activity; prefer the update-status endpoint.
+    # User lifecycle status. A change is recorded as a `STATUS_CHANGED` activity, and `BLOCKED` adds the `vendor_data`
+    # to the system blocklist (moving away from `BLOCKED` removes that entry).
     module UsersUpdateParamsStatus
       ACTIVE = "ACTIVE"
       FLAGGED = "FLAGGED"
@@ -131,8 +83,83 @@ module Didit
       field :deleted, "deleted", :integer
     end
 
-    class UsersListNetworksResponse < Didit::Model
-      field :results, "results", [:array, "EntityNetworkMembership"]
+    class UsersCreateResponse < Didit::Model
+      field :didit_internal_id, "didit_internal_id", :string
+      field :vendor_data, "vendor_data", :string
+      field :display_name, "display_name", :string
+      field :full_name, "full_name", :string
+      field :date_of_birth, "date_of_birth", :date
+      field :effective_name, "effective_name", :string
+      field :status, "status", :string
+      field :portrait_image_url, "portrait_image_url", :string
+      field :session_count, "session_count", :integer
+      field :approved_count, "approved_count", :integer
+      field :declined_count, "declined_count", :integer
+      field :in_review_count, "in_review_count", :integer
+      field :issuing_states, "issuing_states", [:array, :string]
+      field :approved_emails, "approved_emails", [:array, :string]
+      field :approved_phones, "approved_phones", [:array, :string]
+      field :features, "features", :any
+      field :features_list, "features_list", [:array, "UsersCreateResponseFeaturesList"]
+      field :last_session_at, "last_session_at", :datetime
+      field :first_session_at, "first_session_at", :datetime
+      field :last_activity_at, "last_activity_at", :datetime
+      field :tags, "tags", [:array, "UsersCreateResponseTags"]
+      field :created_at, "created_at", :datetime
+      field :metadata, "metadata", :any
+      field :comments, "comments", [:array, "UsersCreateResponseComments"]
+      field :updated_at, "updated_at", :datetime
+      field :verification_link, "verification_link", "UsersCreateResponseVerificationLink"
+    end
+
+    class UsersCreateResponseComments < Didit::Model
+      field :uuid, "uuid", :string
+      field :comment_type, "comment_type", :string
+      field :comment, "comment", :string
+      field :actor_email, "actor_email", :string
+      field :actor_name, "actor_name", :string
+      field :previous_status, "previous_status", :string
+      field :new_status, "new_status", :string
+      field :previous_value, "previous_value", :any
+      field :new_value, "new_value", :any
+      field :changed_fields, "changed_fields", [:array, :string]
+      field :metadata, "metadata", :any
+      field :mentioned_emails, "mentioned_emails", [:array, :string]
+      field :created_at, "created_at", :datetime
+    end
+
+    class UsersCreateResponseFeaturesList < Didit::Model
+      field :feature, "feature", :string
+      field :status, "status", :string
+    end
+
+    class UsersCreateResponseTags < Didit::Model
+      field :uuid, "uuid", :string
+      field :tag, "tag", "UsersCreateResponseTagsTag"
+      field :added_by_email, "added_by_email", :string
+      field :added_by_name, "added_by_name", :string
+      field :created_at, "created_at", :datetime
+    end
+
+    class UsersCreateResponseTagsTag < Didit::Model
+      field :uuid, "uuid", :string
+      field :name, "name", :string
+      field :color, "color", :string
+      field :description, "description", :string
+      field :source, "source", :string
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # The verification session Didit created and emailed to the person. Always present: `null` when
+    # `send_verification_link` was not `true`.
+    class UsersCreateResponseVerificationLink < Didit::Model
+      field :session_id, "session_id", :string
+      field :session_number, "session_number", :integer
+      field :status, "status", :string
+      field :url, "url", :string
+      field :workflow_id, "workflow_id", :string
+      field :email, "email", :string
     end
 
     class UsersListResponse < Didit::Model
@@ -140,236 +167,6 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "UserListItem"]
-    end
-
-    class UsersRetrieveOngoingMonitoringJobResponse < Didit::Model
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :is_enabled, "is_enabled", :boolean
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "UsersRetrieveOngoingMonitoringJobResponseOutcomes"
-      field :error, "error", :string
-      field :estimate, "estimate", "UsersRetrieveOngoingMonitoringJobResponseEstimate"
-    end
-
-    # Cost preview. Returned directly when estimate_only is true (no writes are performed).
-    class UsersRetrieveOngoingMonitoringJobResponseEstimate < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-    end
-
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
-    # counter.
-    class UsersRetrieveOngoingMonitoringJobResponseOutcomes < Didit::Model
-      field :enabled, "enabled", :integer
-      field :screened_and_enabled, "screened_and_enabled", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :disabled, "disabled", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :skipped_sandbox, "skipped_sandbox", :integer
-      field :failed_provider, "failed_provider", :integer
-      field :failed_insufficient_balance, "failed_insufficient_balance", :integer
-    end
-
-    class UsersSetAmlMonitoringResponse < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-      field :unmatched, "unmatched", [:array, :string]
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :is_enabled, "is_enabled", :boolean
-      field :target_type, "target_type", :string
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "UsersSetAmlMonitoringResponseOutcomes"
-      field :results, "results", [:array, "UsersSetAmlMonitoringResponseResults"]
-      field :error, "error", :string
-      field :created_at, "created_at", :datetime
-      field :completed_at, "completed_at", :datetime
-      field :estimate, "estimate", "UsersSetAmlMonitoringResponseEstimate"
-    end
-
-    class UsersSetAmlMonitoringResponse202 < Didit::Model
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :is_enabled, "is_enabled", :boolean
-      field :target_type, "target_type", :string
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "UsersSetAmlMonitoringResponse202Outcomes"
-      field :results, "results", [:array, "UsersSetAmlMonitoringResponse202Results"]
-      field :error, "error", :string
-      field :created_at, "created_at", :datetime
-      field :completed_at, "completed_at", :datetime
-      field :estimate, "estimate", "UsersSetAmlMonitoringResponse202Estimate"
-      field :unmatched, "unmatched", [:array, :string]
-    end
-
-    # Cost preview. Returned directly when estimate_only is true (nothing is written).
-    class UsersSetAmlMonitoringResponse202Estimate < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-    end
-
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
-    # skipped.
-    class UsersSetAmlMonitoringResponse202Outcomes < Didit::Model
-      field :enabled, "enabled", :integer
-      field :screened_and_enabled, "screened_and_enabled", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :disabled, "disabled", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :skipped_sandbox, "skipped_sandbox", :integer
-      field :failed_provider, "failed_provider", :integer
-      field :failed_insufficient_balance, "failed_insufficient_balance", :integer
-    end
-
-    class UsersSetAmlMonitoringResponse202Results < Didit::Model
-      field :didit_internal_id, "didit_internal_id", :string
-      field :vendor_data, "vendor_data", :string
-      field :outcome, "outcome", :string
-    end
-
-    # Cost preview. Returned directly when estimate_only is true (nothing is written).
-    class UsersSetAmlMonitoringResponseEstimate < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-    end
-
-    # Per-record outcome counters. Every selected profile resolves to exactly one counter; nothing is silently
-    # skipped.
-    class UsersSetAmlMonitoringResponseOutcomes < Didit::Model
-      field :enabled, "enabled", :integer
-      field :screened_and_enabled, "screened_and_enabled", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :disabled, "disabled", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :skipped_sandbox, "skipped_sandbox", :integer
-      field :failed_provider, "failed_provider", :integer
-      field :failed_insufficient_balance, "failed_insufficient_balance", :integer
-    end
-
-    class UsersSetAmlMonitoringResponseResults < Didit::Model
-      field :didit_internal_id, "didit_internal_id", :string
-      field :vendor_data, "vendor_data", :string
-      field :outcome, "outcome", :string
-    end
-
-    class UsersSetOngoingMonitoringResponse < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :is_enabled, "is_enabled", :boolean
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "UsersSetOngoingMonitoringResponseOutcomes"
-      field :error, "error", :string
-      field :estimate, "estimate", "UsersSetOngoingMonitoringResponseEstimate"
-    end
-
-    class UsersSetOngoingMonitoringResponse202 < Didit::Model
-      field :job_id, "job_id", :string
-      field :status, "status", :string
-      field :is_enabled, "is_enabled", :boolean
-      field :total, "total", :integer
-      field :processed, "processed", :integer
-      field :outcomes, "outcomes", "UsersSetOngoingMonitoringResponse202Outcomes"
-      field :error, "error", :string
-      field :estimate, "estimate", "UsersSetOngoingMonitoringResponse202Estimate"
-    end
-
-    # Cost preview. Returned directly when estimate_only is true (no writes are performed).
-    class UsersSetOngoingMonitoringResponse202Estimate < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-    end
-
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
-    # counter.
-    class UsersSetOngoingMonitoringResponse202Outcomes < Didit::Model
-      field :enabled, "enabled", :integer
-      field :screened_and_enabled, "screened_and_enabled", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :disabled, "disabled", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :skipped_sandbox, "skipped_sandbox", :integer
-      field :failed_provider, "failed_provider", :integer
-      field :failed_insufficient_balance, "failed_insufficient_balance", :integer
-    end
-
-    # Cost preview. Returned directly when estimate_only is true (no writes are performed).
-    class UsersSetOngoingMonitoringResponseEstimate < Didit::Model
-      field :users_total, "users_total", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :with_existing_aml, "with_existing_aml", :integer
-      field :needing_screening, "needing_screening", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :estimated_screening_cost_usd, "estimated_screening_cost_usd", :float
-      field :estimated_annual_monitoring_cost_usd, "estimated_annual_monitoring_cost_usd", :float
-      field :balance_sufficient, "balance_sufficient", :boolean
-    end
-
-    # Per-entity outcome counters. Nothing is silently skipped: every requested entity resolves to exactly one
-    # counter.
-    class UsersSetOngoingMonitoringResponseOutcomes < Didit::Model
-      field :enabled, "enabled", :integer
-      field :screened_and_enabled, "screened_and_enabled", :integer
-      field :already_enabled, "already_enabled", :integer
-      field :disabled, "disabled", :integer
-      field :skipped_no_identity_data, "skipped_no_identity_data", :integer
-      field :skipped_blocked, "skipped_blocked", :integer
-      field :skipped_sandbox, "skipped_sandbox", :integer
-      field :failed_provider, "failed_provider", :integer
-      field :failed_insufficient_balance, "failed_insufficient_balance", :integer
     end
 
     class UsersUploadFaceResponse < Didit::Model

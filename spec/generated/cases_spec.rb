@@ -73,7 +73,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -81,6 +83,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -89,8 +95,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -261,7 +273,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -269,6 +283,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -277,8 +295,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -466,7 +490,7 @@ RSpec.describe Didit::Resources::Cases do
       ],
       "assignee_user_id" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
-    expect(result).to be_a(Didit::Types::CasesBulkAssignResponse)
+    expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -503,7 +527,7 @@ RSpec.describe Didit::Resources::Cases do
       ],
       "status" => "OPEN"
     })
-    expect(result).to be_a(Didit::Types::CasesBulkUpdateStatusResponse)
+    expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -526,7 +550,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -534,6 +560,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -542,8 +572,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -733,7 +769,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -741,6 +779,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -749,8 +791,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -948,6 +996,20 @@ RSpec.describe Didit::Resources::Cases do
             "title": "title-value",
             "status": "OPEN",
             "resolution": "FALSE_POSITIVE",
+            "pending_resolution": {
+              "resolution": "FALSE_POSITIVE",
+              "resolution_notes": "resolution_notes-value",
+              "maker_email": "user@example.com",
+              "maker_name": "maker_name-value",
+              "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "staged_at": "2026-01-02T03:04:05Z"
+            },
+            "checker": {
+              "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "name": "name-value",
+              "email": "user@example.com"
+            },
             "priority": "LOW",
             "source": "MANUAL",
             "tags": [
@@ -957,7 +1019,9 @@ RSpec.describe Didit::Resources::Cases do
               "type": "user",
               "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
               "name": "name-value",
-              "external_id": "external_id-value"
+              "external_id": "external_id-value",
+              "country": "ESP",
+              "portrait": "https://example.com/callback"
             },
             "assigned_to": {
               "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -965,6 +1029,10 @@ RSpec.describe Didit::Resources::Cases do
               "email": "user@example.com"
             },
             "assigned_at": "2026-01-02T03:04:05Z",
+            "team": {
+              "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "name": "name-value"
+            },
             "due_at": "2026-01-02T03:04:05Z",
             "resolved_at": "2026-01-02T03:04:05Z",
             "created_by_email": "created_by_email-value",
@@ -1042,7 +1110,128 @@ RSpec.describe Didit::Resources::Cases do
   it "cases.list_aml_hits sends GET /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/aml/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       [
-        {}
+        {
+          "node_id": "node_id-value",
+          "status": "Not Finished",
+          "total_hits": 1,
+          "entity_type": "entity_type-value",
+          "hits": [
+            {
+              "id": "id-value",
+              "url": "https://example.com/callback",
+              "match": true,
+              "score": 1.5,
+              "target": true,
+              "caption": "caption-value",
+              "datasets": [
+                "example"
+              ],
+              "features": {},
+              "rca_name": "rca_name-value",
+              "last_seen": "2026-01-02T03:04:05Z",
+              "risk_view": {
+                "crimes": "example",
+                "countries": "example",
+                "categories": "example",
+                "custom_list": "example"
+              },
+              "first_seen": "2026-01-02T03:04:05Z",
+              "properties": {
+                "name": "example",
+                "alias": "example",
+                "notes": "example",
+                "title": "example",
+                "gender": "example",
+                "height": "example",
+                "topics": "example",
+                "weight": "example",
+                "address": "example",
+                "country": "example",
+                "website": "example",
+                "eyeColor": "example",
+                "keywords": "example",
+                "lastName": "example",
+                "position": "example",
+                "religion": "example",
+                "birthDate": "example",
+                "education": "example",
+                "ethnicity": "example",
+                "firstName": "example",
+                "hairColor": "example",
+                "weakAlias": "example",
+                "birthPlace": "example",
+                "modifiedAt": "example",
+                "wikidataId": "example",
+                "citizenship": "example",
+                "nationality": "example"
+              },
+              "match_score": 1.5,
+              "risk_score": 1.5,
+              "review_status": "Unreviewed",
+              "score_breakdown": {
+                "name_score": "example",
+                "name_weight": "example",
+                "name_weight_normalized": "example",
+                "name_contribution": "example",
+                "dob_score": "example",
+                "dob_weight": "example",
+                "dob_weight_normalized": "example",
+                "dob_contribution": "example",
+                "country_score": "example",
+                "country_weight": "example",
+                "country_weight_normalized": "example",
+                "country_contribution": "example",
+                "document_number_match_type": "example",
+                "document_number_effect": "example",
+                "total_score": "example"
+              },
+              "pep_matches": [
+                "example"
+              ],
+              "linked_entities": [
+                "example"
+              ],
+              "warning_matches": [
+                "example"
+              ],
+              "sanction_matches": [
+                "example"
+              ],
+              "adverse_media_details": {
+                "sentiment": "example",
+                "entity_type": "example",
+                "sentiment_score": "example",
+                "adverse_keywords": "example"
+              },
+              "adverse_media_matches": [
+                "example"
+              ],
+              "additional_information": {}
+            }
+          ],
+          "score": 1.5,
+          "screened_data": {
+            "full_name": "full_name-value",
+            "nationality": "nationality-value",
+            "date_of_birth": "2026-01-02",
+            "document_number": "document_number-value"
+          },
+          "is_ongoing_monitoring_enabled": true,
+          "next_ongoing_monitoring_bill_date": "2026-01-02",
+          "last_ongoing_screening_at": "2026-01-02T03:04:05Z",
+          "last_ongoing_screening_datasets_updated_at": "2026-01-02T03:04:05Z",
+          "warnings": [
+            {
+              "feature": "ID_VERIFICATION",
+              "risk": "risk-value",
+              "additional_data": {},
+              "log_type": "log_type-value",
+              "short_description": "short_description-value",
+              "long_description": "long_description-value",
+              "node_id": "node_id-value"
+            }
+          ]
+        }
       ]
     JSON
     result = client.cases.list_aml_hits(
@@ -1058,6 +1247,7 @@ RSpec.describe Didit::Resources::Cases do
     )
     expect_no_body(request)
     expect(result).to be_a(Array)
+    expect(result).to all(be_a(Didit::Types::AMLScreening))
     exercise_readers(result)
   end
 
@@ -1167,7 +1357,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -1175,6 +1367,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -1183,8 +1379,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -1355,7 +1557,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -1363,6 +1567,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -1371,8 +1579,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -1543,7 +1757,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -1551,6 +1767,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -1559,8 +1779,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -1731,7 +1957,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -1739,6 +1967,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -1747,8 +1979,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -1886,7 +2124,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.resolve(
       "c1a5e000-0000-4000-8000-000000000001",
-      resolution: "FALSE_POSITIVE"
+      resolution: "FALSE_POSITIVE",
+      note: "Confirmed legitimate activity after reviewing documents."
     )
     request = expect_api_request(
       calls,
@@ -1897,7 +2136,8 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "resolution" => "FALSE_POSITIVE"
+      "resolution" => "FALSE_POSITIVE",
+      "note" => "Confirmed legitimate activity after reviewing documents."
     })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -1922,7 +2162,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -1930,6 +2172,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -1938,8 +2184,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -2253,7 +2505,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -2261,6 +2515,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -2269,8 +2527,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -2444,7 +2708,9 @@ RSpec.describe Didit::Resources::Cases do
           "type": "user",
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
-          "external_id": "external_id-value"
+          "external_id": "external_id-value",
+          "country": "ESP",
+          "portrait": "https://example.com/callback"
         },
         "assigned_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -2452,6 +2718,10 @@ RSpec.describe Didit::Resources::Cases do
           "email": "user@example.com"
         },
         "assigned_at": "2026-01-02T03:04:05Z",
+        "team": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value"
+        },
         "due_at": "2026-01-02T03:04:05Z",
         "resolved_at": "2026-01-02T03:04:05Z",
         "resolved_by_email": "resolved_by_email-value",
@@ -2460,8 +2730,14 @@ RSpec.describe Didit::Resources::Cases do
           "resolution_notes": "resolution_notes-value",
           "maker_email": "user@example.com",
           "maker_name": "maker_name-value",
+          "maker_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "maker_blueprint_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "staged_at": "2026-01-02T03:04:05Z"
+        },
+        "checker": {
+          "member_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "name": "name-value",
+          "email": "user@example.com"
         },
         "metadata": {},
         "blueprint": {
@@ -2598,7 +2874,9 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.update(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      priority: "HIGH",
+      due_at: "2026-11-01T00:00:00Z"
     )
     request = expect_api_request(
       calls,
@@ -2608,7 +2886,10 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "priority" => "HIGH",
+      "due_at" => "2026-11-01T00:00:00Z"
+    })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2774,7 +3055,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {})
-    expect(result).to be_a(Didit::Types::CasesBlueprintsInstallPresetsResponse)
+    expect(result).to be_a(Didit::Types::CaseBlueprintPresetInstallResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -3891,6 +4172,47 @@ RSpec.describe Didit::Resources::Cases do
       "purpose" => "identity_document"
     })
     expect(result).to be_a(Didit::Types::CustomerMessagingCaseRequestPreviewResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "cases.requests.remind sends POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/{request_uuid}/remind/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "request": {
+          "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "purpose": "confirm_details",
+          "language": "en",
+          "recipient": "customer@example.com",
+          "expires_at": "2026-10-20T09:00:00Z",
+          "actor_email": "reviewer@example.com",
+          "delivery_status": "SENT",
+          "delivered_at": "2026-10-13T09:00:04Z",
+          "cancelled_at": null,
+          "responded_at": null,
+          "response": null,
+          "has_attachment": false,
+          "created_at": "2026-10-13T09:00:00Z"
+        },
+        "reminded_at": "2026-10-14T10:30:00Z",
+        "delivery_status": "SENT",
+        "next_reminder_at": "2026-10-15T10:30:00Z"
+      }
+    JSON
+    result = client.cases.requests.remind(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/cases/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/requests/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/remind/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::CasesRequestsRemindResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

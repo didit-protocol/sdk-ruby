@@ -6,6 +6,45 @@ RSpec.describe Didit::Resources::Sessions do
 
   let(:client) { generated_test_client }
 
+  it "sessions.add_images sends PATCH /v3/session/{sessionId}/add-images/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "extra_files": [
+          "https://media.example.com/session/11111111-2222-3333-4444-555555555555/kyc-extra-files/66666666-7777-8888-9999-000000000000.jpg?expires=1789383731&signature=abc123"
+        ]
+      }
+    JSON
+    result = client.sessions.add_images(
+      "11111111-2222-3333-4444-555555555555",
+      model_type: "kyc",
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/add-images/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_multipart_body(
+      request,
+      fields: {
+        "model_type" => "kyc"
+      },
+      files: {
+        "file" => [
+          "file.jpg",
+          "image/jpeg",
+          "fake-file-bytes"
+        ]
+      }
+    )
+    expect(result).to be_a(Didit::Types::SessionsAddImagesResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.batch_delete sends POST /v3/sessions/delete/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -113,7 +152,49 @@ RSpec.describe Didit::Resources::Sessions do
         }
       ]
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::SessionsBulkUpdateAmlHitStatusResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.cancel_feature_override sends POST /v3/session/{sessionId}/features/overrides/{overrideId}/cancel/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "id": "9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3",
+        "node_id": "feature_liveness_1",
+        "feature_type": "",
+        "feature_model": "Face",
+        "previous_status": "Declined",
+        "new_status": "Approved",
+        "state": "cancelled",
+        "forced": false,
+        "reason": "Liveness retried with a reviewer present.",
+        "requested_by": {
+          "email": "reviewer@example.com",
+          "name": "Alex Reviewer",
+          "type": "CONSOLE_USER"
+        },
+        "requested_at": "2026-10-13T09:15:00Z",
+        "applied_at": null,
+        "cancelled_at": "2026-10-13T09:20:00Z",
+        "cancel_reason": "cancelled_by_reviewer"
+      }
+    JSON
+    result = client.sessions.cancel_feature_override(
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/3fa85f64-5717-4562-b3fc-2c963f66afa6/features/overrides/9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3/cancel/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::FeatureStatusOverride)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
@@ -239,6 +320,29 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.export_aml_screening_history sends GET /v3/session/{sessionId}/aml-screening-history/export/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "text/csv")
+    result = client.sessions.export_aml_screening_history(
+      "11111111-2222-3333-4444-555555555555",
+      node_id: "feature_aml_1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/aml-screening-history/export/",
+      query: [
+        [
+          "node_id",
+          "feature_aml_1"
+        ]
+      ],
+      auth: :api_key,
+      accept: "text/csv, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
   it "sessions.generate_pdf sends GET /v3/session/{sessionId}/generate-pdf/" do
     calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
     result = client.sessions.generate_pdf(
@@ -291,7 +395,8 @@ RSpec.describe Didit::Resources::Sessions do
       "workflow_id" => "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
       "vendor_data" => "user-1"
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::SessionDecision)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
@@ -530,6 +635,264 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result.results)
   end
 
+  it "sessions.list_aml_screening_history sends GET /v3/session/{sessionId}/aml-screening-history/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 2,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "dddddddd-1111-2222-3333-444444444444",
+            "completed_at": "2026-09-14T04:12:33.481207Z",
+            "started_at": "2026-09-14T04:00:01.002311Z",
+            "outcome": "NO_CHANGE",
+            "trigger": "ONGOING_MONITORING",
+            "provider": "aml_data_source",
+            "status": "Approved",
+            "score": 0.0,
+            "total_hits": 0,
+            "dataset_freshness": {
+              "captured_at": "2026-09-14T03:58:02.114820+00:00",
+              "provider": "aml_data_source",
+              "catalog_version": "2026-09-13",
+              "sources": {
+                "sanctions": {
+                  "last_updated_at": "2026-09-13T21:10:00+00:00",
+                  "oldest_updated_at": "2026-09-11T06:00:00+00:00",
+                  "dataset_count": 120,
+                  "dated_dataset_count": 120
+                },
+                "pep": {
+                  "last_updated_at": "2026-09-13T08:00:00+00:00",
+                  "oldest_updated_at": null,
+                  "dataset_count": 45,
+                  "dated_dataset_count": 44
+                },
+                "warnings": {
+                  "last_updated_at": "2026-09-12T18:45:00+00:00",
+                  "oldest_updated_at": "2026-09-01T00:00:00+00:00",
+                  "dataset_count": 30,
+                  "dated_dataset_count": 30
+                }
+              }
+            }
+          },
+          {
+            "uuid": "eeeeeeee-1111-2222-3333-444444444444",
+            "completed_at": "2026-09-13T04:11:58.020914Z",
+            "started_at": "2026-09-13T04:00:00.871022Z",
+            "outcome": "FAILED",
+            "trigger": "ONGOING_MONITORING",
+            "provider": "aml_data_source",
+            "status": "Approved",
+            "score": 0.0,
+            "total_hits": 0,
+            "dataset_freshness": null
+          }
+        ]
+      }
+    JSON
+    result = client.sessions.list_aml_screening_history(
+      "11111111-2222-3333-4444-555555555555",
+      node_id: "feature_aml_1",
+      limit: 50,
+      offset: 0,
+      ordering: "completed_at"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/aml-screening-history/",
+      query: [
+        [
+          "node_id",
+          "feature_aml_1"
+        ],
+        [
+          "limit",
+          "50"
+        ],
+        [
+          "offset",
+          "0"
+        ],
+        [
+          "ordering",
+          "completed_at"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::AMLScreeningRun))
+    exercise_readers(result.results)
+  end
+
+  it "sessions.list_events sends GET /v3/session/{sessionId}/events/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 3,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "aaaaaaaa-1111-2222-3333-444444444444",
+            "event_type": "SESSION_STATUS_CHANGED",
+            "created_at": "2026-09-14T10:02:13.904512Z",
+            "component": null,
+            "feature_step": null,
+            "step": null,
+            "details": {
+              "old_status": "In Progress",
+              "current_status": "Approved"
+            },
+            "ip_address": null,
+            "user_agent": null,
+            "device_info": null,
+            "file_url": null,
+            "sent_at": 1789380131482
+          },
+          {
+            "uuid": "bbbbbbbb-1111-2222-3333-444444444444",
+            "event_type": "FEATURE_STEP_CHANGED",
+            "created_at": "2026-09-14T10:01:49.210377Z",
+            "component": null,
+            "feature_step": null,
+            "step": null,
+            "details": {
+              "old_feature_step": "OCR",
+              "current_feature_step": "LIVENESS"
+            },
+            "ip_address": null,
+            "user_agent": null,
+            "device_info": null,
+            "file_url": null,
+            "sent_at": 1789380107103
+          },
+          {
+            "uuid": "cccccccc-1111-2222-3333-444444444444",
+            "event_type": "STEP_RENDERED",
+            "created_at": "2026-09-14T10:01:00.581930Z",
+            "component": "DocumentCapture",
+            "feature_step": "OCR",
+            "step": "DOCUMENT_CAPTURE_FRONT",
+            "details": {},
+            "ip_address": "203.0.113.24",
+            "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
+            "device_info": {
+              "device_model": "iPhone"
+            },
+            "file_url": null,
+            "sent_at": 1789380058776
+          }
+        ]
+      }
+    JSON
+    result = client.sessions.list_events(
+      "11111111-2222-3333-4444-555555555555",
+      limit: 50,
+      offset: 0,
+      ordering: "sent_at"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/events/",
+      query: [
+        [
+          "limit",
+          "50"
+        ],
+        [
+          "offset",
+          "0"
+        ],
+        [
+          "ordering",
+          "sent_at"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::SessionEvent))
+    exercise_readers(result.results)
+  end
+
+  it "sessions.list_feature_overrides sends GET /v3/session/{sessionId}/features/overrides/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "session_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "person_in_flow": true,
+        "flow_finished_at": null,
+        "overrides": [
+          {
+            "id": "9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3",
+            "node_id": "feature_liveness_1",
+            "feature_type": "",
+            "feature_model": "Face",
+            "previous_status": "Declined",
+            "new_status": "Approved",
+            "state": "pending_until_flow_finishes",
+            "forced": false,
+            "reason": "Liveness retried with a reviewer present.",
+            "requested_by": {
+              "email": "reviewer@example.com",
+              "name": "Alex Reviewer",
+              "type": "CONSOLE_USER"
+            },
+            "requested_at": "2026-10-13T09:15:00Z",
+            "applied_at": null,
+            "cancelled_at": null,
+            "cancel_reason": null
+          },
+          {
+            "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+            "node_id": "feature_ocr_1",
+            "feature_type": "",
+            "feature_model": "KYC",
+            "previous_status": "In Review",
+            "new_status": "Approved",
+            "state": "applied",
+            "forced": true,
+            "reason": "Document manually verified by compliance.",
+            "requested_by": {
+              "email": "reviewer@example.com",
+              "name": "Alex Reviewer",
+              "type": "CONSOLE_USER"
+            },
+            "requested_at": "2026-10-13T09:15:00Z",
+            "applied_at": "2026-10-13T09:15:00Z",
+            "cancelled_at": null,
+            "cancel_reason": null
+          }
+        ]
+      }
+    JSON
+    result = client.sessions.list_feature_overrides(
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/3fa85f64-5717-4562-b3fc-2c963f66afa6/features/overrides/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsListFeatureOverridesResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.list_networks sends GET /v3/organization/{organization_id}/application/{application_id}/sessions/{session_id}/networks/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -580,7 +943,44 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::SessionsListNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.preview_decision_email sends POST /v3/session/{sessionId}/decision-email-preview/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "recipient": "person@example.com",
+        "recipient_source": "email_verification",
+        "sender": "Example App <no-reply@mail.example.com>",
+        "sender_name": "Example App",
+        "sender_email": "no-reply@mail.example.com",
+        "sender_kind": "customer",
+        "subject": "Your verification has been approved in Example App",
+        "html": "<!DOCTYPE html><html><body>...</body></html>",
+        "language": "en",
+        "will_be_sent": true,
+        "not_sent_reason": null,
+        "preview_token": "redacted-preview_token"
+      }
+    JSON
+    result = client.sessions.preview_decision_email(
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      new_status: "Approved"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/3fa85f64-5717-4562-b3fc-2c963f66afa6/decision-email-preview/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "new_status" => "Approved"
+    })
+    expect(result).to be_a(Didit::Types::SessionsPreviewDecisionEmailResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -588,23 +988,36 @@ RSpec.describe Didit::Resources::Sessions do
   it "sessions.preview_resubmission sends POST /v3/session/{sessionId}/resubmission-preview/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
-        "recipient": "user@example.com",
-        "sender": "sender-value",
-        "subject": "subject-value",
-        "html": "html-value",
+        "recipient": "person@example.com",
+        "recipient_source": "email_verification",
+        "sender": "Example App <no-reply@mail.example.com>",
+        "sender_name": "Example App",
+        "sender_email": "no-reply@mail.example.com",
+        "sender_kind": "customer",
+        "subject": "Action Required: Complete your verification in Example App",
+        "html": "<!DOCTYPE html><html><body>...</body></html>",
+        "language": "en",
+        "will_be_sent": true,
+        "not_sent_reason": null,
         "nodes_to_resubmit": [
           {
-            "node_id": "feature_ocr",
-            "feature": "OCR"
+            "node_id": "feature_poa_1",
+            "feature": "PROOF_OF_ADDRESS"
           }
         ],
         "requires_user_action": true,
-        "preview_token": "preview_token-value"
+        "preview_token": "redacted-preview_token"
       }
     JSON
     result = client.sessions.preview_resubmission(
       "11111111-2222-3333-4444-555555555555",
-      email_address: "user@example.com"
+      nodes_to_resubmit: [
+        {
+          node_id: "feature_poa_1",
+          feature: "POA"
+        }
+      ],
+      email_language: "en"
     )
     request = expect_api_request(
       calls,
@@ -615,9 +1028,88 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "email_address" => "user@example.com"
+      "nodes_to_resubmit" => [
+        {
+          "node_id" => "feature_poa_1",
+          "feature" => "POA"
+        }
+      ],
+      "email_language" => "en"
     })
     expect(result).to be_a(Didit::Types::SessionsPreviewResubmissionResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.regenerate_kyb_party sends POST /v3/session/{sessionId}/kyb/parties/{partyUuid}/regenerate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41",
+        "entity_type": "person",
+        "source": "USER",
+        "name": "Jane Smith",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "company_name": null,
+        "registration_number": null,
+        "email": "user@example.com",
+        "nationality": "GB",
+        "phone_number": null,
+        "date_of_birth": "1980-05-04",
+        "position": "Director",
+        "custom_fields": {},
+        "is_active": true,
+        "is_skipped": false,
+        "requires_verification": true,
+        "roles": [
+          {
+            "role": "director",
+            "ownership_percent": null,
+            "voting_percent": null
+          }
+        ],
+        "kyc_session_id": "55555555-6666-7777-8888-999999999999",
+        "kyc_session_status": "Not Started",
+        "kyc_session_url": "https://verify.didit.me/session/abc123def456",
+        "kyc_session_deleted": false,
+        "kyb_sub_session_id": null,
+        "kyb_sub_session_status": null,
+        "kyb_sub_session_url": null,
+        "kyb_sub_session_deleted": false,
+        "verification_workflow_type": "kyc",
+        "verification_workflow_id": "12121212-3434-5656-7878-909090909090",
+        "verification_workflow_label": "Key People KYC",
+        "verification_workflow_features": [
+          {
+            "feature": "ID_VERIFICATION",
+            "status": "Not Finished"
+          },
+          {
+            "feature": "LIVENESS",
+            "status": "Not Finished"
+          },
+          {
+            "feature": "AML",
+            "status": "Not Finished"
+          }
+        ],
+        "didit_internal_id": null
+      }
+    JSON
+    result = client.sessions.regenerate_kyb_party(
+      "33333333-4444-5555-6666-777777777777",
+      "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41/regenerate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::KYBKeyPeopleParty)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -1013,6 +1505,8 @@ RSpec.describe Didit::Resources::Sessions do
             "status": "In Review",
             "is_nfc_skipped": false,
             "skip_reason": null,
+            "chip_protocol": "icao",
+            "jpki": null,
             "portrait_image": "https://<media-host>/portrait.jpg",
             "signature_image": "https://<media-host>/signature.jpg",
             "chip_data": {
@@ -2359,7 +2853,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::SessionsRetrieveDecisionResponse)
+    expect(result).to be_a(Didit::Types::SessionDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -2397,7 +2891,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::SessionsRetrieveDeletionJobResponse)
+    expect(result).to be_a(Didit::Types::SessionDeletionJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -2428,6 +2922,39 @@ RSpec.describe Didit::Resources::Sessions do
       "ttl_in_seconds" => 7200
     })
     expect(result).to be_a(Didit::Types::SessionsShareResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.simulate sends POST /v3/session/{sessionId}/simulate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "session_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "previous_status": "In Progress",
+        "status": "Declined",
+        "scenario": "decline_aml_hit",
+        "risk": "POSSIBLE_MATCH_FOUND",
+        "send_webhooks": false
+      }
+    JSON
+    result = client.sessions.simulate(
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      scenario: "decline_aml_hit",
+      send_webhooks: false
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/3fa85f64-5717-4562-b3fc-2c963f66afa6/simulate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "scenario" => "decline_aml_hit",
+      "send_webhooks" => false
+    })
+    expect(result).to be_a(Didit::Types::SandboxSimulateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -2463,7 +2990,42 @@ RSpec.describe Didit::Resources::Sessions do
       "hit_id" => "abc123",
       "review_status" => "Unreviewed"
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::SessionsUpdateAmlHitStatusResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.update_aml_status sends PATCH /v3/session/{sessionId}/update-aml-status/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "message": "AML status updated successfully",
+        "status": "Approved",
+        "previous_status": "In Review"
+      }
+    JSON
+    result = client.sessions.update_aml_status(
+      "11111111-2222-3333-4444-555555555555",
+      status: "Approved",
+      node_id_query: "feature_aml_1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/update-aml-status/",
+      query: [
+        [
+          "node_id",
+          "feature_aml_1"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "status" => "Approved"
+    })
+    expect(result).to be_a(Didit::Types::SessionsUpdateAmlStatusResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
@@ -2550,19 +3112,82 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.update_document_ai_data sends PATCH /v3/document-ai/{sessionId}/documents/{documentUuid}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "44444444-5555-6666-7777-888888888888",
+        "document_key": "invoice",
+        "original_filename": "invoice-2026-09.pdf",
+        "file_url": "document_ai/11111111-2222-3333-4444-555555555555-66666666-7777-8888-9999-000000000000.pdf",
+        "status": "Approved",
+        "extracted_data": {
+          "invoice_number": "INV-2026-0042",
+          "total_amount": 1250.0,
+          "issue_date": "2026-09-01"
+        }
+      }
+    JSON
+    result = client.sessions.update_document_ai_data(
+      "11111111-2222-3333-4444-555555555555",
+      "44444444-5555-6666-7777-888888888888",
+      extracted_data: {
+        invoice_number: "INV-2026-0042"
+      },
+      status: "Approved"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/document-ai/11111111-2222-3333-4444-555555555555/documents/44444444-5555-6666-7777-888888888888/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "extracted_data" => {
+        "invoice_number" => "INV-2026-0042"
+      },
+      "status" => "Approved"
+    })
+    expect(result).to be_a(Didit::Types::SessionsUpdateDocumentAiDataResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.update_feature_status sends PATCH /v3/session/{sessionId}/features/{nodeId}/update-status/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
-        "session_id": "11111111-2222-3333-4444-555555555555",
+        "session_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "node_id": "feature_ocr_1",
         "feature_type": "KYC",
-        "new_status": "Approved"
+        "new_status": "Approved",
+        "override": {
+          "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "node_id": "feature_ocr_1",
+          "feature_type": "",
+          "feature_model": "KYC",
+          "previous_status": "In Review",
+          "new_status": "Approved",
+          "state": "applied",
+          "forced": false,
+          "reason": "Document manually verified by compliance.",
+          "requested_by": {
+            "email": "reviewer@example.com",
+            "name": "Alex Reviewer",
+            "type": "CONSOLE_USER"
+          },
+          "requested_at": "2026-10-13T09:15:00Z",
+          "applied_at": "2026-10-13T09:15:00Z",
+          "cancelled_at": null,
+          "cancel_reason": null
+        }
       }
     JSON
     result = client.sessions.update_feature_status(
       "11111111-2222-3333-4444-555555555555",
       "feature_ocr_1",
-      new_status: "Approved"
+      new_status: "Approved",
+      comment: "Document manually verified by compliance."
     )
     request = expect_api_request(
       calls,
@@ -2573,7 +3198,8 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "new_status" => "Approved"
+      "new_status" => "Approved",
+      "comment" => "Document manually verified by compliance."
     })
     expect(result).to be_a(Didit::Types::SessionsUpdateFeatureStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3118,5 +3744,293 @@ RSpec.describe Didit::Resources::Sessions do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     expect(result.results).to all(be_a(Didit::Types::ReviewItem))
     exercise_readers(result.results)
+  end
+
+  it "sessions.signatures.download_document sends GET /v3/session/{sessionId}/signatures/{nodeId}/documents/{documentId}/file/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
+    result = client.sessions.signatures.download_document(
+      "11111111-2222-3333-4444-555555555555",
+      "feature_signature",
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/signatures/feature_signature/documents/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/file/",
+      query: [],
+      auth: :api_key,
+      accept: "application/pdf, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.signatures.download_evidence sends GET /v3/session/{sessionId}/signatures/{nodeId}/evidence/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
+    result = client.sessions.signatures.download_evidence(
+      "11111111-2222-3333-4444-555555555555",
+      "feature_signature"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/signatures/feature_signature/evidence/",
+      query: [],
+      auth: :api_key,
+      accept: "application/pdf, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.signatures.download_field_image sends GET /v3/session/{sessionId}/signatures/{nodeId}/fields/{fieldId}/image/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "image/png")
+    result = client.sessions.signatures.download_field_image(
+      "11111111-2222-3333-4444-555555555555",
+      "feature_signature",
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/signatures/feature_signature/fields/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/image/",
+      query: [],
+      auth: :api_key,
+      accept: "image/png, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.signatures.validate sends POST /v3/session/{sessionId}/signatures/{nodeId}/validate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "signatures": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "node_id": "node_id-value",
+            "status": "intro",
+            "verdict": "Not Finished",
+            "level": "aes",
+            "format": "pades",
+            "profile": "profile-value",
+            "signer": {
+              "name": "name-value",
+              "capacity": "self",
+              "company": "company-value",
+              "role": "role-value",
+              "roles": [
+                "example"
+              ],
+              "identity_session_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+            },
+            "identity_used": {
+              "session_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "kyc_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "verified": true,
+              "expected_name": "expected_name-value"
+            },
+            "certificate": {
+              "issuer": "issuer-value",
+              "issued_to": "issued_to-value",
+              "serial": "serial-value",
+              "valid_from": "2026-01-02T03:04:05Z",
+              "valid_until": "2026-01-02T03:04:05Z"
+            },
+            "confirmation": {
+              "channel": "email",
+              "destination": "destination-value",
+              "confirmed_at": "2026-01-02T03:04:05Z",
+              "attempts": 1
+            },
+            "timestamp": {
+              "time": "2026-01-02T03:04:05Z",
+              "qualified": true,
+              "valid": true
+            },
+            "documents": [
+              {
+                "id": "example",
+                "uuid": "example",
+                "title": "example",
+                "file_name": "example",
+                "pages": "example",
+                "size_bytes": "example",
+                "sha256_original": "example",
+                "sha256_signed": "example",
+                "status": "example",
+                "opened_at": "example",
+                "read_at": "example",
+                "read_to_end": "example",
+                "consented_at": "example",
+                "consent": "example",
+                "signed_file": "example",
+                "mode": "example",
+                "source_format": "example",
+                "conversion": "example",
+                "fields": "example"
+              }
+            ],
+            "adopted_signature": {
+              "method": "typed",
+              "font": "font-value",
+              "adopted_at": "2026-01-02T03:04:05Z"
+            },
+            "electronic_signature_consent_at": "2026-01-02T03:04:05Z",
+            "evidence_file": "evidence_file-value",
+            "warnings": [
+              {
+                "code": "example",
+                "node_id": "example"
+              }
+            ],
+            "validation": {
+              "valid": true,
+              "reason": "reason-value",
+              "checked_at": "2026-01-02T03:04:05Z",
+              "documents": [
+                "example"
+              ]
+            },
+            "declined_at": "2026-01-02T03:04:05Z",
+            "declined_action": "DECLINE",
+            "signed_at": "2026-01-02T03:04:05Z",
+            "expires_at": "2026-01-02T03:04:05Z",
+            "email_sent_at": "2026-01-02T03:04:05Z",
+            "email_unavailable_reason": "email_unavailable_reason-value",
+            "ip_address": "ip_address-value",
+            "place": "place-value",
+            "place_unavailable_reason": "not_collected"
+          }
+        ]
+      }
+    JSON
+    result = client.sessions.signatures.validate(
+      "11111111-2222-3333-4444-555555555555",
+      "feature_signature",
+      signature_id: "0e6c2a8e-6c2f-4b8e-9a51-3f2f6a7d9b10"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/signatures/feature_signature/validate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "signature_id" => "0e6c2a8e-6c2f-4b8e-9a51-3f2f6a7d9b10"
+    })
+    expect(result).to be_a(Didit::Types::SessionsSignaturesValidateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.webhooks.list sends GET /v3/session/{sessionId}/webhooks/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      [
+        {
+          "uuid": "66666666-7777-8888-9999-000000000002",
+          "session_id": "22222222-3333-4444-5555-666666666666",
+          "request_url": "https://yourapp.com/webhooks/didit",
+          "response_status": 200,
+          "status": "In Progress",
+          "webhook_type": "status.updated",
+          "request_header": "{\"Content-Type\": \"application/json\", \"X-Signature\": \"9188851d160b5b3aacfc946e4dde1f061b7e568662518942c927ddaf507f533d\", \"X-Signature-V2\": \"381236af514d3fb538579365ac5a24f2464ce1b8224c6e770c60d8201c43ecc5\", \"X-Signature-Simple\": \"4740131dc38f29e78a8508371979be74967d5307464494bd3148a03b4d6c8716\", \"X-Timestamp\": \"1792056139\", \"User-Agent\": \"DiditWebhook/2.0 +https://didit.me\"}",
+          "request_body": "{\"application_id\":\"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\",\"created_at\":1792056057,\"environment\":\"live\",\"event_id\":\"33333333-4444-5555-6666-777777777777\",\"sandbox_scenario\":null,\"session_id\":\"22222222-3333-4444-5555-666666666666\",\"status\":\"In Progress\",\"timestamp\":1792056139,\"vendor_data\":\"user-123\",\"webhook_type\":\"status.updated\",\"workflow_id\":\"44444444-5555-6666-7777-888888888888\",\"workflow_version\":3}",
+          "created_at": "2026-10-15T09:22:19.104233Z"
+        },
+        {
+          "uuid": "66666666-7777-8888-9999-000000000001",
+          "session_id": "22222222-3333-4444-5555-666666666666",
+          "request_url": "https://yourapp.com/webhooks/didit",
+          "response_status": 503,
+          "status": "In Progress",
+          "webhook_type": "status.updated",
+          "request_header": "{\"Content-Type\": \"application/json\", \"X-Signature\": \"a5e02a03404e1337a0198e6be15d34abbd053c658a0e51e5d0e78554213ef29b\", \"X-Signature-V2\": \"927e7cb770c94ce745939bff73f04aa200015f3bc64795ba46c2aaf78a6cedc5\", \"X-Signature-Simple\": \"e37b0d4c716c72bb5ae7127b9cc455d28ab4686e9e22312b4ec2327409a73302\", \"X-Timestamp\": \"1792056078\", \"User-Agent\": \"DiditWebhook/2.0 +https://didit.me\"}",
+          "request_body": "{\"application_id\":\"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\",\"created_at\":1792056057,\"environment\":\"live\",\"event_id\":\"33333333-4444-5555-6666-777777777777\",\"sandbox_scenario\":null,\"session_id\":\"22222222-3333-4444-5555-666666666666\",\"status\":\"In Progress\",\"timestamp\":1792056078,\"vendor_data\":\"user-123\",\"webhook_type\":\"status.updated\",\"workflow_id\":\"44444444-5555-6666-7777-888888888888\",\"workflow_version\":3}",
+          "created_at": "2026-10-15T09:21:18.412345Z"
+        }
+      ]
+    JSON
+    result = client.sessions.webhooks.list(
+      "22222222-3333-4444-5555-666666666666"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/22222222-3333-4444-5555-666666666666/webhooks/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Array)
+    expect(result).to all(be_a(Didit::Types::SessionWebhookDelivery))
+    exercise_readers(result)
+  end
+
+  it "sessions.webhooks.resend sends POST /v3/session/{sessionId}/webhook/{webhook_uuid}/resend" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "66666666-7777-8888-9999-000000000004",
+        "session_id": "22222222-3333-4444-5555-666666666666",
+        "request_url": "https://yourapp.com/webhooks/didit",
+        "response_status": 200,
+        "status": "In Progress",
+        "webhook_type": "status.updated",
+        "request_header": "{\"Content-Type\": \"application/json\", \"X-Signature\": \"b8eb1e376517ee0cad8ba98ff7f8fd35fc72eca231000963a96a335f82328835\", \"X-Signature-V2\": \"9efd2ce9ed1303e1d05273ef9608a59363ed9789a05253db4748b3e8e50cb109\", \"X-Signature-Simple\": \"bf3a9dc04b2c20ab539203b0cd5cca2a10f630bf62d8feb6d68d82af80f64774\", \"X-Timestamp\": \"1792159542\", \"User-Agent\": \"DiditWebhook/2.0 +https://didit.me\"}",
+        "request_body": "{\"application_id\":\"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\",\"created_at\":1792056057,\"environment\":\"live\",\"event_id\":\"33333333-4444-5555-6666-777777777777\",\"sandbox_scenario\":null,\"session_id\":\"22222222-3333-4444-5555-666666666666\",\"status\":\"In Progress\",\"timestamp\":1792159542,\"vendor_data\":\"user-123\",\"webhook_type\":\"status.updated\",\"workflow_id\":\"44444444-5555-6666-7777-888888888888\",\"workflow_version\":3}",
+        "created_at": "2026-10-16T14:05:42.330981Z"
+      }
+    JSON
+    result = client.sessions.webhooks.resend(
+      "22222222-3333-4444-5555-666666666666",
+      "66666666-7777-8888-9999-000000000001"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/22222222-3333-4444-5555-666666666666/webhook/66666666-7777-8888-9999-000000000001/resend",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionWebhookDelivery)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.webhooks.retrieve sends GET /v3/session/{sessionId}/webhook/{webhook_uuid}" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "66666666-7777-8888-9999-000000000001",
+        "session_id": "22222222-3333-4444-5555-666666666666",
+        "request_url": "https://yourapp.com/webhooks/didit",
+        "response_status": 503,
+        "status": "In Progress",
+        "webhook_type": "status.updated",
+        "request_header": "{\"Content-Type\": \"application/json\", \"X-Signature\": \"a5e02a03404e1337a0198e6be15d34abbd053c658a0e51e5d0e78554213ef29b\", \"X-Signature-V2\": \"927e7cb770c94ce745939bff73f04aa200015f3bc64795ba46c2aaf78a6cedc5\", \"X-Signature-Simple\": \"e37b0d4c716c72bb5ae7127b9cc455d28ab4686e9e22312b4ec2327409a73302\", \"X-Timestamp\": \"1792056078\", \"User-Agent\": \"DiditWebhook/2.0 +https://didit.me\"}",
+        "request_body": "{\"application_id\":\"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\",\"created_at\":1792056057,\"environment\":\"live\",\"event_id\":\"33333333-4444-5555-6666-777777777777\",\"sandbox_scenario\":null,\"session_id\":\"22222222-3333-4444-5555-666666666666\",\"status\":\"In Progress\",\"timestamp\":1792056078,\"vendor_data\":\"user-123\",\"webhook_type\":\"status.updated\",\"workflow_id\":\"44444444-5555-6666-7777-888888888888\",\"workflow_version\":3}",
+        "created_at": "2026-10-15T09:21:18.412345Z"
+      }
+    JSON
+    result = client.sessions.webhooks.retrieve(
+      "22222222-3333-4444-5555-666666666666",
+      "66666666-7777-8888-9999-000000000001"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/22222222-3333-4444-5555-666666666666/webhook/66666666-7777-8888-9999-000000000001",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionWebhookDelivery)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 end

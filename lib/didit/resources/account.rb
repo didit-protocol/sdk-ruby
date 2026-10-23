@@ -84,7 +84,7 @@ module Didit
       # @param email [String] Email of the pending (unverified) account.
       # @param password [String] Password chosen at registration.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Object]
+      # @return [Didit::Types::AccountResendOtpResponse]
       def resend_otp(email:, password:, request_options: nil)
         @client.request(
           :post,
@@ -95,7 +95,7 @@ module Didit
           },
           auth: :none,
           api: :account,
-          response: :any,
+          response: Types::AccountResendOtpResponse,
           request_options: request_options
         )
       end
@@ -176,23 +176,29 @@ module Didit
 
         # List the organization's applications
         #
-        # List every application in the organization. Use this to discover `app_id` values when recovering credentials
-        # from a new machine - follow with `GET /organizations/me/{org_id}/applications/{app_id}/` for the API key.
-        # Requires an owner or admin Bearer token.
+        # List the organization's applications, 50 per page by default. Use this to discover `app_id` values when
+        # recovering credentials from a new machine, then call `GET /organizations/me/{org_id}/applications/{app_id}/`
+        # for the API key. Requires an owner or admin Bearer token.
         #
         # +GET /organizations/me/{org_id}/applications/+
         #
         # @param org_id [String] UUID of the organization. Look it up with `GET /organizations/me/`.
+        # @param limit [Integer] Number of applications per page. Defaults to 50.
+        # @param offset [Integer] Number of applications to skip before the page starts. Defaults to 0.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Object]
-        def list(org_id, request_options: nil)
+        # @return [Didit::Page<Didit::Types::Application>]
+        def list(org_id, limit: OMIT, offset: OMIT, request_options: nil)
           @client.request(
             :get,
             "/organizations/me/{org_id}/applications/",
             path_params: { "org_id" => org_id },
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
             auth: :account_token,
             api: :account,
-            response: :any,
+            page: Types::Application,
             request_options: request_options
           )
         end
@@ -223,7 +229,7 @@ module Didit
         # Update Application
         #
         # Update application metadata (name, URLs, redirect URIs). `api_key` and `client_id` are never rotated.
-        # Requires owner/admin JWT.
+        # `products` is read-only: a `products` key in the body is ignored. Requires owner/admin JWT.
         #
         # +PATCH /organizations/me/{org_id}/applications/{app_id}/+
         #
@@ -277,15 +283,21 @@ module Didit
         #
         # +GET /organizations/me/+
         #
+        # @param limit [Integer] Page size. Defaults to 50.
+        # @param offset [Integer] Zero-based offset of the first result.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Array<Didit::Types::Organization>]
-        def list(request_options: nil)
+        # @return [Didit::Page<Didit::Types::Organization>]
+        def list(limit: OMIT, offset: OMIT, request_options: nil)
           @client.request(
             :get,
             "/organizations/me/",
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
             auth: :account_token,
             api: :account,
-            response: [:array, Types::Organization],
+            page: Types::Organization,
             request_options: request_options
           )
         end

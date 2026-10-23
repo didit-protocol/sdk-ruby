@@ -93,8 +93,9 @@ module Didit
 
       # Approve staged resolution (4-eyes)
       #
-      # Apply a resolution staged by resolve on a maker blueprint. The caller must be a different user than the one
-      # who submitted it, otherwise 403.
+      # Apply a resolution staged by resolve on a four-eyes blueprint. The caller must be a different officer than the
+      # one who submitted it, otherwise 403. When the resolution names a checker (the case's `checker`), only that
+      # member can approve it: any other caller, including an API key, gets 403.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/approve/+
       #
@@ -153,7 +154,7 @@ module Didit
       # @param assignee_email [String, nil]
       # @param assignee_name [String, nil]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::CasesBulkAssignResponse]
+      # @return [Didit::Types::CaseBulkUpdateResult]
       def bulk_assign(case_uuids:, assignee_user_id:, assignee_email: OMIT, assignee_name: OMIT, request_options: nil)
         @client.request(
           :post,
@@ -165,7 +166,7 @@ module Didit
             "assignee_name" => assignee_name
           },
           scope: :application,
-          response: Types::CasesBulkAssignResponse,
+          response: Types::CaseBulkUpdateResult,
           request_options: request_options
         )
       end
@@ -183,7 +184,7 @@ module Didit
       # @param resolution [String] Required when status is RESOLVED.
       # @param note [String, nil]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::CasesBulkUpdateStatusResponse]
+      # @return [Didit::Types::CaseBulkUpdateResult]
       def bulk_update_status(case_uuids:, status:, resolution: OMIT, note: OMIT, request_options: nil)
         @client.request(
           :post,
@@ -195,7 +196,7 @@ module Didit
             "note" => note
           },
           scope: :application,
-          response: Types::CasesBulkUpdateStatusResponse,
+          response: Types::CaseBulkUpdateResult,
           request_options: request_options
         )
       end
@@ -425,14 +426,14 @@ module Didit
       #
       # @param case_uuid [String] Case UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Array<Hash>]
+      # @return [Array<Didit::Types::AMLScreening>]
       def list_aml_hits(case_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/aml/",
           path_params: { "case_uuid" => case_uuid },
           scope: :application,
-          response: [:array, :any],
+          response: [:array, Types::AMLScreening],
           request_options: request_options
         )
       end
@@ -506,7 +507,8 @@ module Didit
       # Reject staged resolution (4-eyes)
       #
       # Reject a resolution staged by resolve and return the case to its maker blueprint. The caller must be a
-      # different user than the one who submitted it, otherwise 403.
+      # different officer than the one who submitted it, otherwise 403. When the resolution names a checker (the
+      # case's `checker`), only that member can reject it: any other caller, including an API key, gets 403.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reject-approval/+
       #
@@ -572,27 +574,38 @@ module Didit
 
       # Resolve case
       #
-      # Resolve the case as false_positive or valid_threat. Blocked with 400 if the blueprint's checklist is not
-      # optional and items remain incomplete, or if the blueprint requires a resolution note and none is given. When
-      # the case's blueprint has a four_eyes_checker_blueprint configured, the resolution is staged
-      # (case.pending_resolution) and the case moves to the checker blueprint instead of resolving immediately; a
-      # different user must call approve or reject-approval.
+      # Resolve the case with one of five resolutions: FALSE_POSITIVE (no concern found), VALID_THREAT (concern
+      # confirmed), INCONCLUSIVE, REQUIREMENTS_NOT_MET or REQUIREMENTS_SATISFIED. Blocked with 400 if the blueprint's
+      # checklist is not optional and items remain incomplete, or if the blueprint requires a resolution note and none
+      # is given. When the case's blueprint has a four-eyes checker step (four_eyes_checker_blueprint), the resolution
+      # is staged (case.pending_resolution) and the case moves to the checker blueprint instead of resolving
+      # immediately; a different officer must call approve or reject-approval. Submit a four-eyes resolution as a
+      # console member: a resolution an API key submits has no recorded maker, so approve and reject-approval return
+      # 403 for every caller. On a four-eyes blueprint you can name the member who must approve with `checker`: then
+      # only that member can approve or reject the resolution, and the response's `checker` names them. Without
+      # `checker`, the resolution waits on the checker blueprint's queue. Sending `checker` for a blueprint without a
+      # checker step returns 400.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/resolve/+
       #
       # @param case_uuid [String] Case UUID.
       # @param resolution [String]
       # @param note [String, nil] Required when the blueprint sets require_resolution_note.
+      # @param checker [String, nil] Four-eyes blueprints only. The user uuid of the member who must approve this
+      #   resolution (the same id as `assigned_to.uuid` on a case, or `members[].user_id` on a review team). The member
+      #   must have case access to this application and cannot be the officer who submits the resolution. Omit it or
+      #   send null to leave the resolution to the checker queue.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def resolve(case_uuid, resolution:, note: OMIT, request_options: nil)
+      def resolve(case_uuid, resolution:, note: OMIT, checker: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/resolve/",
           path_params: { "case_uuid" => case_uuid },
           body: {
             "resolution" => resolution,
-            "note" => note
+            "note" => note,
+            "checker" => checker
           },
           scope: :application,
           response: Types::CaseDetail,
@@ -714,19 +727,25 @@ module Didit
 
       # Update case
       #
-      # Update the case's title, priority, due date, or tags. Logs
-      # PRIORITY_CHANGED/DUE_DATE_CHANGED/TAG_ADDED/TAG_REMOVED events as applicable.
+      # Update the case's title, priority, due date, tags, or owning review team. Send only the fields you want to
+      # change; fields you omit keep their value. `tags` replaces the whole tag list. `team` takes the uuid of an
+      # active review team of this application (list them with `GET .../cases/teams/`), or null to clear the team.
+      # Requires a full-access API key, or `write:cases` for a console member: a key with restricted access gets 403.
+      # Logs PRIORITY_CHANGED, DUE_DATE_CHANGED, TAG_ADDED, TAG_REMOVED and TEAM_CHANGED events as applicable; a title
+      # change is saved without a timeline event. Returns the updated case.
       #
       # +PATCH /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/+
       #
       # @param case_uuid [String] Case UUID.
-      # @param title [String]
+      # @param title [String] New case title.
       # @param priority [String]
-      # @param due_at [Time, String, nil]
-      # @param tags [Array<String>]
+      # @param due_at [Time, String, nil] New deadline. Send null to clear it.
+      # @param tags [Array<String>] The complete tag list. It replaces the current tags.
+      # @param team [String, nil] UUID of the review team that owns the case. It must be an active team of this
+      #   application. Send null to clear the team.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def update(case_uuid, title: OMIT, priority: OMIT, due_at: OMIT, tags: OMIT, request_options: nil)
+      def update(case_uuid, title: OMIT, priority: OMIT, due_at: OMIT, tags: OMIT, team: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/",
@@ -735,7 +754,8 @@ module Didit
             "title" => title,
             "priority" => priority,
             "due_at" => due_at,
-            "tags" => tags
+            "tags" => tags,
+            "team" => team
           },
           scope: :application,
           response: Types::CaseDetail,
@@ -872,7 +892,7 @@ module Didit
         # @param preset_keys [Array<String>, nil] Subset of screening_hit, aml_investigation, suspicious_activity,
         #   kyc. Omit to install all.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::CasesBlueprintsInstallPresetsResponse]
+        # @return [Didit::Types::CaseBlueprintPresetInstallResult]
         def install_presets(preset_keys: OMIT, request_options: nil)
           @client.request(
             :post,
@@ -881,7 +901,7 @@ module Didit
               "preset_keys" => preset_keys
             },
             scope: :application,
-            response: Types::CasesBlueprintsInstallPresetsResponse,
+            response: Types::CaseBlueprintPresetInstallResult,
             request_options: request_options
           )
         end
@@ -1624,6 +1644,34 @@ module Didit
             },
             scope: :application,
             response: Types::CustomerMessagingCaseRequestPreviewResponse,
+            request_options: request_options
+          )
+        end
+
+        # Remind the customer of a request
+        #
+        # Send a waiting customer request's email again, to the same verified recipient, with the same content. You
+        # can remind a request at most once every 24 hours. A reminder changes nothing else: the request keeps its
+        # deadline and the case keeps its status. Each reminder is logged on the case as a CUSTOMER_REQUEST event with
+        # action `reminded`. The response's `delivery_status` is how this reminder's delivery ended: SENT, SIMULATED
+        # (the email was not sent), or UNKNOWN (the email might have been accepted; it is not sent again
+        # automatically). `next_reminder_at` is when you can remind this request again. Returns 409 with a `reason`
+        # when the customer no longer has the request to answer, and 429 with `retry_at` and a `Retry-After` header
+        # when the request was reminded in the last 24 hours. Requires `write:cases`.
+        #
+        # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/{request_uuid}/remind/+
+        #
+        # @param case_uuid [String] Case UUID.
+        # @param request_uuid [String] Customer request UUID, from the case's request list.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::CasesRequestsRemindResponse]
+        def remind(case_uuid, request_uuid, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/{request_uuid}/remind/",
+            path_params: { "case_uuid" => case_uuid, "request_uuid" => request_uuid },
+            scope: :application,
+            response: Types::CasesRequestsRemindResponse,
             request_options: request_options
           )
         end

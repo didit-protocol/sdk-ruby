@@ -10,89 +10,44 @@ module Didit
       VALUES: Array[String]
     end
 
-    module UsersRetrieveOngoingMonitoringJobResponseStatus
-      PENDING: String
-      PROCESSING: String
-      COMPLETED: String
-      FAILED: String
+    module UsersCreateResponseCommentsCommentType
+      COMMENT: String
+      STATUS_CHANGED: String
+      METADATA_UPDATED: String
+      TAG_ADDED: String
+      TAG_REMOVED: String
+      PROFILE_UPDATED: String
 
       VALUES: Array[String]
     end
 
-    module UsersSetAmlMonitoringResponse202ResultsOutcome
-      ENABLED: String
-      SCREENED_AND_ENABLED: String
-      ALREADY_ENABLED: String
-      DISABLED: String
-      SKIPPED_NO_IDENTITY_DATA: String
-      SKIPPED_BLOCKED: String
-      SKIPPED_SANDBOX: String
-      FAILED_PROVIDER: String
-      FAILED_INSUFFICIENT_BALANCE: String
+    module UsersCreateResponseCommentsNewStatus
+      ACTIVE: String
+      FLAGGED: String
+      BLOCKED: String
 
       VALUES: Array[String]
     end
 
-    module UsersSetAmlMonitoringResponse202Status
-      PENDING: String
-      PROCESSING: String
-      COMPLETED: String
-      FAILED: String
+    module UsersCreateResponseCommentsPreviousStatus
+      ACTIVE: String
+      FLAGGED: String
+      BLOCKED: String
 
       VALUES: Array[String]
     end
 
-    module UsersSetAmlMonitoringResponse202TargetType
-      USER: String
-      BUSINESS: String
+    module UsersCreateResponseStatus
+      ACTIVE: String
+      FLAGGED: String
+      BLOCKED: String
 
       VALUES: Array[String]
     end
 
-    module UsersSetAmlMonitoringResponseResultsOutcome
-      ENABLED: String
-      SCREENED_AND_ENABLED: String
-      ALREADY_ENABLED: String
-      DISABLED: String
-      SKIPPED_NO_IDENTITY_DATA: String
-      SKIPPED_BLOCKED: String
-      SKIPPED_SANDBOX: String
-      FAILED_PROVIDER: String
-      FAILED_INSUFFICIENT_BALANCE: String
-
-      VALUES: Array[String]
-    end
-
-    module UsersSetAmlMonitoringResponseStatus
-      PENDING: String
-      PROCESSING: String
-      COMPLETED: String
-      FAILED: String
-
-      VALUES: Array[String]
-    end
-
-    module UsersSetAmlMonitoringResponseTargetType
-      USER: String
-      BUSINESS: String
-
-      VALUES: Array[String]
-    end
-
-    module UsersSetOngoingMonitoringResponse202Status
-      PENDING: String
-      PROCESSING: String
-      COMPLETED: String
-      FAILED: String
-
-      VALUES: Array[String]
-    end
-
-    module UsersSetOngoingMonitoringResponseStatus
-      PENDING: String
-      PROCESSING: String
-      COMPLETED: String
-      FAILED: String
+    module UsersCreateResponseTagsTagSource
+      DIDIT: String
+      CUSTOM: String
 
       VALUES: Array[String]
     end
@@ -117,8 +72,81 @@ module Didit
       def deleted: () -> Integer?
     end
 
-    class UsersListNetworksResponse < Didit::Model
-      def results: () -> Array[Didit::Types::EntityNetworkMembership]?
+    class UsersCreateResponse < Didit::Model
+      def didit_internal_id: () -> String?
+      def vendor_data: () -> String?
+      def display_name: () -> String?
+      def full_name: () -> String?
+      def date_of_birth: () -> Date?
+      def effective_name: () -> String?
+      def status: () -> String?
+      def portrait_image_url: () -> String?
+      def session_count: () -> Integer?
+      def approved_count: () -> Integer?
+      def declined_count: () -> Integer?
+      def in_review_count: () -> Integer?
+      def issuing_states: () -> Array[String]?
+      def approved_emails: () -> Array[String]?
+      def approved_phones: () -> Array[String]?
+      def features: () -> Hash[String, untyped]?
+      def features_list: () -> Array[Didit::Types::UsersCreateResponseFeaturesList]?
+      def last_session_at: () -> Time?
+      def first_session_at: () -> Time?
+      def last_activity_at: () -> Time?
+      def tags: () -> Array[Didit::Types::UsersCreateResponseTags]?
+      def created_at: () -> Time?
+      def metadata: () -> Hash[String, untyped]?
+      def comments: () -> Array[Didit::Types::UsersCreateResponseComments]?
+      def updated_at: () -> Time?
+      def verification_link: () -> Didit::Types::UsersCreateResponseVerificationLink?
+    end
+
+    class UsersCreateResponseComments < Didit::Model
+      def uuid: () -> String?
+      def comment_type: () -> String?
+      def comment: () -> String?
+      def actor_email: () -> String?
+      def actor_name: () -> String?
+      def previous_status: () -> String?
+      def new_status: () -> String?
+      def previous_value: () -> Hash[String, untyped]?
+      def new_value: () -> Hash[String, untyped]?
+      def changed_fields: () -> Array[String]?
+      def metadata: () -> Hash[String, untyped]?
+      def mentioned_emails: () -> Array[String]?
+      def created_at: () -> Time?
+    end
+
+    class UsersCreateResponseFeaturesList < Didit::Model
+      def feature: () -> String?
+      def status: () -> String?
+    end
+
+    class UsersCreateResponseTags < Didit::Model
+      def uuid: () -> String?
+      def tag: () -> Didit::Types::UsersCreateResponseTagsTag?
+      def added_by_email: () -> String?
+      def added_by_name: () -> String?
+      def created_at: () -> Time?
+    end
+
+    class UsersCreateResponseTagsTag < Didit::Model
+      def uuid: () -> String?
+      def name: () -> String?
+      def color: () -> String?
+      def description: () -> String?
+      def source: () -> String?
+      def created_at: () -> Time?
+      def updated_at: () -> Time?
+    end
+
+    class UsersCreateResponseVerificationLink < Didit::Model
+      def session_id: () -> String
+      def session_number: () -> Integer
+      def status: () -> String
+      def url: () -> String
+      def workflow_id: () -> String?
+      def email: () -> String
     end
 
     class UsersListResponse < Didit::Model
@@ -126,221 +154,6 @@ module Didit
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::UserListItem]?
-    end
-
-    class UsersRetrieveOngoingMonitoringJobResponse < Didit::Model
-      def job_id: () -> String?
-      def status: () -> String?
-      def is_enabled: () -> bool?
-      def total: () -> Integer?
-      def processed: () -> Integer?
-      def outcomes: () -> Didit::Types::UsersRetrieveOngoingMonitoringJobResponseOutcomes?
-      def error: () -> String?
-      def estimate: () -> Didit::Types::UsersRetrieveOngoingMonitoringJobResponseEstimate?
-    end
-
-    class UsersRetrieveOngoingMonitoringJobResponseEstimate < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-    end
-
-    class UsersRetrieveOngoingMonitoringJobResponseOutcomes < Didit::Model
-      def enabled: () -> Integer?
-      def screened_and_enabled: () -> Integer?
-      def already_enabled: () -> Integer?
-      def disabled: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def skipped_sandbox: () -> Integer?
-      def failed_provider: () -> Integer?
-      def failed_insufficient_balance: () -> Integer?
-    end
-
-    class UsersSetAmlMonitoringResponse < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-      def unmatched: () -> Array[String]
-      def job_id: () -> String?
-      def status: () -> String?
-      def is_enabled: () -> bool?
-      def target_type: () -> String?
-      def total: () -> Integer?
-      def processed: () -> Integer?
-      def outcomes: () -> Didit::Types::UsersSetAmlMonitoringResponseOutcomes?
-      def results: () -> Array[Didit::Types::UsersSetAmlMonitoringResponseResults]?
-      def error: () -> String?
-      def created_at: () -> Time?
-      def completed_at: () -> Time?
-      def estimate: () -> Didit::Types::UsersSetAmlMonitoringResponseEstimate?
-    end
-
-    class UsersSetAmlMonitoringResponse202 < Didit::Model
-      def job_id: () -> String?
-      def status: () -> String?
-      def is_enabled: () -> bool?
-      def target_type: () -> String?
-      def total: () -> Integer?
-      def processed: () -> Integer?
-      def outcomes: () -> Didit::Types::UsersSetAmlMonitoringResponse202Outcomes?
-      def results: () -> Array[Didit::Types::UsersSetAmlMonitoringResponse202Results]?
-      def error: () -> String?
-      def created_at: () -> Time?
-      def completed_at: () -> Time?
-      def estimate: () -> Didit::Types::UsersSetAmlMonitoringResponse202Estimate?
-      def unmatched: () -> Array[String]?
-    end
-
-    class UsersSetAmlMonitoringResponse202Estimate < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-    end
-
-    class UsersSetAmlMonitoringResponse202Outcomes < Didit::Model
-      def enabled: () -> Integer?
-      def screened_and_enabled: () -> Integer?
-      def already_enabled: () -> Integer?
-      def disabled: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def skipped_sandbox: () -> Integer?
-      def failed_provider: () -> Integer?
-      def failed_insufficient_balance: () -> Integer?
-    end
-
-    class UsersSetAmlMonitoringResponse202Results < Didit::Model
-      def didit_internal_id: () -> String?
-      def vendor_data: () -> String?
-      def outcome: () -> String?
-    end
-
-    class UsersSetAmlMonitoringResponseEstimate < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-    end
-
-    class UsersSetAmlMonitoringResponseOutcomes < Didit::Model
-      def enabled: () -> Integer?
-      def screened_and_enabled: () -> Integer?
-      def already_enabled: () -> Integer?
-      def disabled: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def skipped_sandbox: () -> Integer?
-      def failed_provider: () -> Integer?
-      def failed_insufficient_balance: () -> Integer?
-    end
-
-    class UsersSetAmlMonitoringResponseResults < Didit::Model
-      def didit_internal_id: () -> String?
-      def vendor_data: () -> String?
-      def outcome: () -> String?
-    end
-
-    class UsersSetOngoingMonitoringResponse < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-      def job_id: () -> String?
-      def status: () -> String?
-      def is_enabled: () -> bool?
-      def total: () -> Integer?
-      def processed: () -> Integer?
-      def outcomes: () -> Didit::Types::UsersSetOngoingMonitoringResponseOutcomes?
-      def error: () -> String?
-      def estimate: () -> Didit::Types::UsersSetOngoingMonitoringResponseEstimate?
-    end
-
-    class UsersSetOngoingMonitoringResponse202 < Didit::Model
-      def job_id: () -> String?
-      def status: () -> String?
-      def is_enabled: () -> bool?
-      def total: () -> Integer?
-      def processed: () -> Integer?
-      def outcomes: () -> Didit::Types::UsersSetOngoingMonitoringResponse202Outcomes?
-      def error: () -> String?
-      def estimate: () -> Didit::Types::UsersSetOngoingMonitoringResponse202Estimate?
-    end
-
-    class UsersSetOngoingMonitoringResponse202Estimate < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-    end
-
-    class UsersSetOngoingMonitoringResponse202Outcomes < Didit::Model
-      def enabled: () -> Integer?
-      def screened_and_enabled: () -> Integer?
-      def already_enabled: () -> Integer?
-      def disabled: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def skipped_sandbox: () -> Integer?
-      def failed_provider: () -> Integer?
-      def failed_insufficient_balance: () -> Integer?
-    end
-
-    class UsersSetOngoingMonitoringResponseEstimate < Didit::Model
-      def users_total: () -> Integer?
-      def already_enabled: () -> Integer?
-      def with_existing_aml: () -> Integer?
-      def needing_screening: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def estimated_screening_cost_usd: () -> Float?
-      def estimated_annual_monitoring_cost_usd: () -> Float?
-      def balance_sufficient: () -> bool?
-    end
-
-    class UsersSetOngoingMonitoringResponseOutcomes < Didit::Model
-      def enabled: () -> Integer?
-      def screened_and_enabled: () -> Integer?
-      def already_enabled: () -> Integer?
-      def disabled: () -> Integer?
-      def skipped_no_identity_data: () -> Integer?
-      def skipped_blocked: () -> Integer?
-      def skipped_sandbox: () -> Integer?
-      def failed_provider: () -> Integer?
-      def failed_insufficient_balance: () -> Integer?
     end
 
     class UsersUploadFaceResponse < Didit::Model
@@ -353,15 +166,15 @@ module Didit
 
     type users_batch_delete_params = { ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool }
 
-    type users_create_params = { vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String] }
+    type users_create_params = { vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?first_name: String, ?last_name: String, ?email: String, ?phone_number: String, ?country: String, ?send_verification_link: bool, ?workflow_id: String, ?language: String }
 
     type users_set_aml_monitoring_params = { is_enabled: bool, ?estimate_only: bool, ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String] }
 
     type users_set_ongoing_monitoring_params = { is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?didit_internal_id_list: Array[String] }
 
-    type users_update_params = { ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String] }
+    type users_update_params = { ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?reason: String? }
 
-    type users_update_status_params = { status: String }
+    type users_update_status_params = { status: String, ?reason: String? }
 
     type users_upload_face_params = { image: String, ?comment: String }
   end

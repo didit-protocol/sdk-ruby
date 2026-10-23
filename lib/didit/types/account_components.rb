@@ -3,6 +3,26 @@
 
 module Didit
   module Types
+    # `identity` (Identity verification), `transactions` (Transaction monitoring) or `authentication`
+    # (Authentication).
+    module ApplicationProductProduct
+      IDENTITY = "identity"
+      TRANSACTIONS = "transactions"
+      AUTHENTICATION = "authentication"
+
+      VALUES = [IDENTITY, TRANSACTIONS, AUTHENTICATION].freeze
+    end
+
+    # Whether the product is on for this application. `early_access` applies only to `authentication`, which Didit
+    # turns on for you.
+    module ApplicationProductStatus
+      ENABLED = "enabled"
+      EARLY_ACCESS = "early_access"
+      DISABLED = "disabled"
+
+      VALUES = [ENABLED, EARLY_ACCESS, DISABLED].freeze
+    end
+
     # Full application record. `uuid`, `client_id`, and `api_key` never change after creation.
     class Application < Didit::Model
       field :uuid, "uuid", :string
@@ -15,6 +35,7 @@ module Didit
       field :privacy_url, "privacy_url", :string
       field :description, "description", :string
       field :created_at, "created_at", :datetime
+      field :products, "products", [:array, "ApplicationProduct"]
     end
 
     # Minimal application shape returned inline by `POST /programmatic/verify-email/`. Persist the `api_key`
@@ -24,6 +45,14 @@ module Didit
       field :name, "name", :string
       field :client_id, "client_id", :string
       field :api_key, "api_key", :string
+    end
+
+    # One product of an application and its state. Read-only: the application endpoints return it and ignore it in a
+    # request body.
+    class ApplicationProduct < Didit::Model
+      field :product, "product", :string
+      field :status, "status", :string
+      field :modules, "modules", [:map, :boolean]
     end
 
     class LoginResponse < Didit::Model
@@ -44,6 +73,20 @@ module Didit
     class OrganizationSummary < Didit::Model
       field :uuid, "uuid", :string
       field :name, "name", :string
+    end
+
+    class PaginatedApplicationList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "Application"]
+    end
+
+    class PaginatedOrganizationList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "Organization"]
     end
 
     class RegisterResponse < Didit::Model

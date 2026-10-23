@@ -129,6 +129,18 @@ module Didit
       # **`kyb_response_id` is ephemeral.** It is a per-search handle, not a stable company id. Select promptly after
       # searching and re-search to get a fresh handle instead of storing it.
       #
+      # **`tier` picks the provider chain.** `tier` names the registry tier the search runs on: `basic` (the default,
+      # the Lite chain), `shareholders` or `ubo`. The search uses the provider chain that serves that tier, and it is
+      # not always the same chain the Lite search reads, so an empty Lite search is not proof that the registry does
+      # not hold the company - search again at the tier you need. A country that does not offer the tier you name is
+      # searched at the highest tier it offers up to that one. Retrieve the candidate from the endpoint that sells
+      # that tier: `POST /v3/kyb/select/` (Lite), `POST /v3/kyb/shareholders/` or `POST /v3/kyb/ubo/`.
+      #
+      # **Authentication.** `POST /v3/kyb/search/` (and `/v2/`) takes your application's API key in the `x-api-key`
+      # header. The hosted `POST /v1/kyb/search/` is the session-authenticated route a hosted verification flow calls:
+      # it answers `403` to an API key and takes no `tier` - the workflow's KYB registry configuration picks the
+      # chain.
+      #
       # **Two modes.**
       # - *Synchronous (default):* the API polls the registry until the search resolves and returns the final
       #   candidate list (`search_resolved: true`).
@@ -154,7 +166,13 @@ module Didit
       # @param name [String] Company name to search for. Either `name` or `registration_number` is required.
       # @param registration_number [String] Registry registration number to search for. Either `name` or
       #   `registration_number` is required.
-      # @param search_type [String] Name-matching strategy applied by the registry search.
+      # @param tier [String] Registry tier whose provider chain this search runs on. `basic` (default) searches the
+      #   country's Lite chain; `shareholders` and `ubo` search that tier's ownership chain, which can be a different
+      #   source, so an empty Lite search does not prove the registry lacks the company. A country that does not offer
+      #   the named tier is searched at the highest tier it offers up to that one. Retrieve the candidate...
+      # @param search_type [String] Name-matching strategy applied by the registry search. `contains` is the only
+      #   accepted value: no registry source behind the search offers a prefix or fuzzy mode, so `start_with` and
+      #   `fuzzy` are rejected with `400` (`not a valid choice`).
       # @param vendor_data [String] Your identifier for this lookup; echoed back and included in the webhook callback.
       # @param metadata [Hash, nil] Free-form JSON; echoed back and included in the webhook callback.
       # @param webhook_url [String] Switches the search to asynchronous mode: the API returns immediately and POSTs an
@@ -165,6 +183,7 @@ module Didit
         country_code:,
         name: OMIT,
         registration_number: OMIT,
+        tier: OMIT,
         search_type: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
@@ -178,6 +197,7 @@ module Didit
             "country_code" => country_code,
             "name" => name,
             "registration_number" => registration_number,
+            "tier" => tier,
             "search_type" => search_type,
             "vendor_data" => vendor_data,
             "metadata" => metadata,

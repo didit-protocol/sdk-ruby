@@ -33,8 +33,11 @@ module Didit
     module CasesBulkUpdateStatusParamsResolution
       FALSE_POSITIVE = "FALSE_POSITIVE"
       VALID_THREAT = "VALID_THREAT"
+      INCONCLUSIVE = "INCONCLUSIVE"
+      REQUIREMENTS_NOT_MET = "REQUIREMENTS_NOT_MET"
+      REQUIREMENTS_SATISFIED = "REQUIREMENTS_SATISFIED"
 
-      VALUES = [FALSE_POSITIVE, VALID_THREAT].freeze
+      VALUES = [FALSE_POSITIVE, VALID_THREAT, INCONCLUSIVE, REQUIREMENTS_NOT_MET, REQUIREMENTS_SATISFIED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -104,12 +107,25 @@ module Didit
       VALUES = [E, M].freeze
     end
 
+    # How this reminder's delivery ended. SIMULATED: the email was not sent. UNKNOWN: the email might have been
+    # accepted; it is not sent again automatically.
+    module CasesRequestsRemindResponseDeliveryStatus
+      SENT = "SENT"
+      SIMULATED = "SIMULATED"
+      UNKNOWN = "UNKNOWN"
+
+      VALUES = [SENT, SIMULATED, UNKNOWN].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module CasesResolveParamsResolution
       FALSE_POSITIVE = "FALSE_POSITIVE"
       VALID_THREAT = "VALID_THREAT"
+      INCONCLUSIVE = "INCONCLUSIVE"
+      REQUIREMENTS_NOT_MET = "REQUIREMENTS_NOT_MET"
+      REQUIREMENTS_SATISFIED = "REQUIREMENTS_SATISFIED"
 
-      VALUES = [FALSE_POSITIVE, VALID_THREAT].freeze
+      VALUES = [FALSE_POSITIVE, VALID_THREAT, INCONCLUSIVE, REQUIREMENTS_NOT_MET, REQUIREMENTS_SATISFIED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -168,10 +184,6 @@ module Didit
       VALUES = [LOW, MEDIUM, HIGH].freeze
     end
 
-    class CasesBlueprintsInstallPresetsResponse < Didit::Model
-      field :created, "created", [:array, :string]
-    end
-
     class CasesBlueprintsListPresetsResponse < Didit::Model
       field :results, "results", [:array, "CasesBlueprintsListPresetsResponseResults"]
     end
@@ -189,26 +201,6 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "CaseBlueprintListItem"]
-    end
-
-    class CasesBulkAssignResponse < Didit::Model
-      field :updated, "updated", :integer
-      field :failures, "failures", [:array, "CasesBulkAssignResponseFailures"]
-    end
-
-    class CasesBulkAssignResponseFailures < Didit::Model
-      field :case_uuid, "case_uuid", :string
-      field :detail, "detail", :string
-    end
-
-    class CasesBulkUpdateStatusResponse < Didit::Model
-      field :updated, "updated", :integer
-      field :failures, "failures", [:array, "CasesBulkUpdateStatusResponseFailures"]
-    end
-
-    class CasesBulkUpdateStatusResponseFailures < Didit::Model
-      field :case_uuid, "case_uuid", :string
-      field :detail, "detail", :string
     end
 
     class CasesListEventsResponse < Didit::Model
@@ -252,11 +244,11 @@ module Didit
       field :url, "url", :string
     end
 
-    class CasesRegulatoryReportsListResponse < Didit::Model
-      field :count, "count", :integer
-      field :next, "next", :string
-      field :previous, "previous", :string
-      field :results, "results", [:array, "RegulatoryReportDetail"]
+    class CasesRequestsRemindResponse < Didit::Model
+      field :request, "request", "CustomerMessagingCaseRequest"
+      field :reminded_at, "reminded_at", :datetime
+      field :delivery_status, "delivery_status", :string
+      field :next_reminder_at, "next_reminder_at", :datetime
     end
 
     class CasesRetrieveStatisticsResponse < Didit::Model

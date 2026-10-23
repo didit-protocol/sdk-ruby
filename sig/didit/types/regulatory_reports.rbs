@@ -72,13 +72,6 @@ module Didit
       VALUES: Array[String]
     end
 
-    class RegulatoryReportsListResponse < Didit::Model
-      def count: () -> Integer?
-      def `next`: () -> String?
-      def previous: () -> String?
-      def results: () -> Array[Didit::Types::RegulatoryReportDetail]?
-    end
-
     class RegulatoryReportsRetrieveDownloadUrlResponse < Didit::Model
       def download_url: () -> String?
       def file: () -> String?

@@ -3,28 +3,39 @@
 module Didit
   module Resources
     class Transactions < Didit::Resource
+      def notes: () -> Didit::Resources::Transactions::Notes
       def rules: () -> Didit::Resources::Transactions::Rules
       def travel_rule: () -> Didit::Resources::Transactions::TravelRule
       def create: (transaction_id: String, transaction_category: String, transaction_details: Didit::Types::transactions_create_params_transaction_details, subject: Didit::Types::transactions_create_params_subject, ?transaction_at: Time | String, ?time_zone: String, ?counterparty: Didit::Types::transactions_create_params_counterparty, ?custom_properties: Hash[String | Symbol, untyped], ?travel_rule_details: Didit::Types::transactions_create_params_travel_rule_details, ?network_snapshot: Didit::Types::transactions_create_params_network_snapshot, ?include_crypto_screening: bool?, ?request_options: Didit::request_options?) -> Didit::Types::TransactionDetail
       def create_sdk_token: (vendor_data: String, ?ttl_seconds: Integer, ?max_uses: Integer?, ?request_options: Didit::request_options?) -> Didit::Types::TransactionsCreateSdkTokenResponse
-      def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionsListResponseResults]
-      def list_networks: (String transaction_uuid, ?request_options: Didit::request_options?) -> Didit::Types::TransactionsListNetworksResponse
-      def list_party_networks: (String transaction_uuid, String transaction_party_uuid, ?request_options: Didit::request_options?) -> Didit::Types::TransactionsListPartyNetworksResponse
+      def generate_pdf: (String transaction_uuid, ?request_options: Didit::request_options?) -> String
+                      | (String transaction_uuid, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
+      def list: (?limit: Integer, ?offset: Integer, ?travel_rule_status: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionsListResponseResults]
+      def list_networks: (String transaction_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
+      def list_party_networks: (String transaction_uuid, String transaction_party_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
+      def list_related: (String transaction_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionSummary]
       def retrieve: (String transaction_id, ?request_options: Didit::request_options?) -> Didit::Types::TransactionDetail
+      class Notes < Didit::Resource
+        def create: (String transaction_id, note: String, ?mentioned_emails: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::TransactionNote
+        def list: (String transaction_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionNote]
+      end
       class Rules < Didit::Resource
         def backtest: (?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?period_days: Integer, ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleBacktestResult
-        def create: (title: String, category: String, mode: String, ?description: String?, ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?actions: Array[(Didit::Types::transaction_rule_action_variant1 | Didit::Types::transaction_rule_action_variant2 | Didit::Types::transaction_rule_action_variant3 | Didit::Types::transaction_rule_action_variant4 | Didit::Types::transaction_rule_action_variant5 | Didit::Types::transaction_rule_action_variant6)], ?metadata: Hash[String | Symbol, untyped], ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleDetail
+        def create: (title: String, category: String, mode: String, ?description: String?, ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?actions: Array[(Didit::Types::transaction_rule_action_add_score | Didit::Types::transaction_rule_action_change_status | Didit::Types::transaction_rule_action_add_tags | Didit::Types::transaction_rule_action_add_note | Didit::Types::transaction_rule_action_add_to_list | Didit::Types::transaction_rule_action_open_case)], ?metadata: Hash[String | Symbol, untyped], ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleDetail
         def delete: (String rule_uuid, ?request_options: Didit::request_options?) -> nil
         def install_library: (?library_keys: Array[String], ?bundle: String, ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleInstallResult
         def list: (?source: String, ?category: String, ?mode: String, ?bundle: String, ?search: String, ?ordering: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionRuleDetail]
         def list_library: (?bundle: String, ?category: String, ?search: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionRuleLibraryEntry]
         def retrieve: (String rule_uuid, ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleDetail
         def uninstall_library: (?library_keys: Array[String], ?bundle: String, ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleInstallResult
-        def update: (String rule_uuid, ?title: String, ?description: String?, ?category: String, ?mode: String, ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?actions: Array[(Didit::Types::transaction_rule_action_variant1 | Didit::Types::transaction_rule_action_variant2 | Didit::Types::transaction_rule_action_variant3 | Didit::Types::transaction_rule_action_variant4 | Didit::Types::transaction_rule_action_variant5 | Didit::Types::transaction_rule_action_variant6)], ?metadata: Hash[String | Symbol, untyped], ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleDetail
+        def update: (String rule_uuid, ?title: String, ?description: String?, ?category: String, ?mode: String, ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?actions: Array[(Didit::Types::transaction_rule_action_add_score | Didit::Types::transaction_rule_action_change_status | Didit::Types::transaction_rule_action_add_tags | Didit::Types::transaction_rule_action_add_note | Didit::Types::transaction_rule_action_add_to_list | Didit::Types::transaction_rule_action_open_case)], ?metadata: Hash[String | Symbol, untyped], ?request_options: Didit::request_options?) -> Didit::Types::TransactionRuleDetail
       end
       class TravelRule < Didit::Resource
-        def confirm_ownership: (String transaction_id, confirmed: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
-        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
+        def confirm_ownership: (String transaction_id, confirmed: bool, ?wallet_address: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
+        def create_message: (String transaction_id, ?kind: String, ?body: String, ?requested_documents: Array[String], ?reply_to: String?, ?files: Array[Didit::upload], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleMessage
+        def list_messages: (String transaction_id, ?request_options: Didit::request_options?) -> Array[Didit::Types::TravelRuleMessage]
+        def trigger_test_vasp_inbound: (beneficiary_wallet_address: String, ?scenario: String, ?chain: String, ?amount: String, ?currency: String, ?reference: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTestVaspInboundResponse
+        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
       end
     end
   end

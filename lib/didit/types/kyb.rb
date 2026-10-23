@@ -645,21 +645,26 @@ module Didit
       VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
-    # Name-matching strategy applied by the registry search.
+    # Name-matching strategy applied by the registry search. `contains` is the only accepted value: no registry source
+    # behind the search offers a prefix or fuzzy mode, so `start_with` and `fuzzy` are rejected with `400` (`not a
+    # valid choice`).
     module KybSearchParamsSearchType
       CONTAINS = "contains"
-      START_WITH = "start_with"
-      FUZZY = "fuzzy"
 
-      VALUES = [CONTAINS, START_WITH, FUZZY].freeze
+      VALUES = [CONTAINS].freeze
     end
 
-    # Registry search lifecycle status.
-    module KybSearchResponseKybRegistrySearchStatus
-      PENDING = "pending"
-      RESOLVED = "resolved"
+    # Registry tier whose provider chain this search runs on. `basic` (default) searches the country's Lite chain;
+    # `shareholders` and `ubo` search that tier's ownership chain, which can be a different source, so an empty Lite
+    # search does not prove the registry lacks the company. A country that does not offer the named tier is searched
+    # at the highest tier it offers up to that one. Retrieve the candidate from the endpoint that sells the tier you
+    # searched: `POST /v3/kyb/select/` (Lite), `POST /v3/kyb/shareholders/` or `POST /v3/kyb/ubo/`.
+    module KybSearchParamsTier
+      BASIC = "basic"
+      SHAREHOLDERS = "shareholders"
+      UBO = "ubo"
 
-      VALUES = [PENDING, RESOLVED].freeze
+      VALUES = [BASIC, SHAREHOLDERS, UBO].freeze
     end
 
     # Whether the owner is a natural person or a corporate entity.
@@ -1254,33 +1259,10 @@ module Didit
 
     class KybSearchResponse < Didit::Model
       field :request_id, "request_id", :string
-      field :kyb_registry, "kyb_registry", "KybSearchResponseKybRegistry"
+      field :kyb_registry, "kyb_registry", "KYBRegistrySearchResults"
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
       field :created_at, "created_at", :datetime
-    end
-
-    class KybSearchResponseKybRegistry < Didit::Model
-      field :companies, "companies", [:array, "KybSearchResponseKybRegistryCompanies"]
-      field :pagination, "pagination", "KybSearchResponseKybRegistryPagination"
-      field :search_status, "search_status", :string
-      field :search_resolved, "search_resolved", :boolean
-    end
-
-    class KybSearchResponseKybRegistryCompanies < Didit::Model
-      field :kyb_response_id, "kyb_response_id", :string
-      field :name, "name", :string
-      field :registration_number, "registration_number", :string
-      field :status, "status", :string
-      field :type, "type", :string
-      field :risk_level, "risk_level", :string
-      field :fetch_status, "fetch_status", :string
-    end
-
-    class KybSearchResponseKybRegistryPagination < Didit::Model
-      field :total, "total", :integer
-      field :page, "page", :integer
-      field :per_page, "per_page", :integer
     end
 
     class KybSelectResponse < Didit::Model

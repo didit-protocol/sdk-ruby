@@ -15,6 +15,58 @@ module Didit
         @reviews ||= Reviews.new(@client)
       end
 
+      # @return [Didit::Resources::Sessions::Signatures]
+      def signatures
+        @signatures ||= Signatures.new(@client)
+      end
+
+      # @return [Didit::Resources::Sessions::Webhooks]
+      def webhooks
+        @webhooks ||= Webhooks.new(@client)
+      end
+
+      # Add an image to a session
+      #
+      # Attach one extra image or PDF to the ID verification (`model_type=kyc`) or Proof of Address (`model_type=poa`)
+      # result of a finished User Verification (KYC) session, for example evidence collected outside the flow. The
+      # session must be `Approved`, `Declined`, `In Review` or `Kyc Expired` and carry the result named by
+      # `model_type`; Business Verification (KYB) sessions are not supported. Each call appends one file (to the most
+      # recent result when the step ran more than once), keeps the existing files and records a `FILE_ADDED` entry in
+      # the session activity log; the upload sends no webhook and does not change the session status. The file is
+      # compressed on upload and is returned in `extra_files` of the session decision. This endpoint is limited to 10
+      # requests per minute per API key. A scoped API key needs `sessions: write`, and without `media: read` it
+      # receives the `extra_files` links as `null`.
+      #
+      # +PATCH /v3/session/{sessionId}/add-images/+
+      #
+      # @param session_id [String] UUID of the User Verification (KYC) session to add the file to (the `session_id`
+      #   returned by `POST /v3/session/`). A Business Verification (KYB) session ID returns `404`.
+      # @param file [Pathname, IO, String, Didit::FilePart] The image or PDF. Allowed extensions: `jpg`, `jpeg`,
+      #   `png`, `webp`, `tiff`, `pdf`. At most 15 MB as uploaded; the file is then compressed and rejected with `400`
+      #   if it is still larger than 2 MB (2,097,152 bytes). Empty files are rejected.
+      # @param model_type [String] `kyc` adds the file to the ID verification result, `poa` to the Proof of Address
+      #   result.
+      # @param file_password [String] Password of an encrypted PDF. Without it, or with a wrong one, an encrypted PDF
+      #   returns `400`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsAddImagesResponse]
+      def add_images(session_id, file:, model_type:, file_password: OMIT, request_options: nil)
+        @client.request(
+          :patch,
+          "/v3/session/{sessionId}/add-images/",
+          path_params: { "sessionId" => session_id },
+          body: {
+            "file" => file,
+            "model_type" => model_type,
+            "file_password" => file_password
+          },
+          encoding: :multipart,
+          file_fields: %w[file],
+          response: Types::SessionsAddImagesResponse,
+          request_options: request_options
+        )
+      end
+
       # Bulk delete KYC sessions by session_number
       #
       # Bulk delete User Verification (KYC) sessions by their numeric `session_number`, or every KYC session in your
@@ -44,6 +96,14 @@ module Didit
       # permanent and irreversible.
       #
       # **Selection semantics:**
+      # - With `delete_all: true` you can narrow the selection with the filters of `GET /v3/sessions/`, each prefixed
+      #   with `filter_` (for example `filter_status`, `filter_workflow_id`, `filter_date_from`). Filters that take
+      #   several values in List Sessions (`status`, `workflow_id`, `country`, `region`, `document_type`,
+      #   `document_name`, `session_type`, `warning`, `organization_name`) accept a comma-separated string or an
+      #   array; the others take one value. An empty value is ignored. Filters apply only together with `delete_all`,
+      #   and a deletion job applies the same filters.
+      # - An unknown `filter_*` key, or a filter value that cannot be read, rejects the whole request with `400`
+      #   before anything is deleted, so a mistyped filter never widens the deletion to every session.
       # - Entries in `session_numbers` that do not match a live KYC session in your application (unknown numbers,
       #   already-deleted sessions, or sessions owned by another application) are **silently skipped**: they do not
       #   appear in `results` and are not counted in a job's `total`.
@@ -89,8 +149,9 @@ module Didit
       #   `true`, in which case validation is skipped and the entries are ignored). Numbers that do not match a live
       #   session in...
       # @param delete_all [Boolean] When `true`, every remaining KYC session in the calling application is deleted and
-      #   `session_numbers` is ignored. More than 20 matching sessions run as a deletion job (`202`) that covers only
-      #   the sessions created before the request. Defaults to `false`. Irreversible; there is no confirmation step.
+      #   `session_numbers` is ignored, unless you narrow the selection with `filter_*` keys. More than 20 matching
+      #   sessions run as a deletion job (`202`) that covers only the sessions created before the request. Defaults to
+      #   `false`. Irreversible; there is no confirmation step.
       # @param retain_face_embeddings [Boolean, nil] Override the application's `face_retention_policy` for this
       #   deletion. `true` keeps one image-free face biometric template anchored to the session's User after the session
       #   is deleted; `false` deletes the face embedding with the session; omit or `null` to follow the application
@@ -108,8 +169,77 @@ module Didit
       #   true` (`...
       # @param instruction_id [String] Your durable reference for this deletion instruction (for example an
       #   erasure-ticket id). Recorded on the audit trail and on any retained template. Generated by Didit when omitted.
+      # @param filter_status [String, Array<String>] Narrows a `delete_all` to the sessions that match the `status`
+      #   filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated string or an
+      #   array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_vendor_data [String] Narrows a `delete_all` to the sessions that match the `vendor_data` filter
+      #   of [List Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array is
+      #   joined into one comma-separated text, so several values are not matched as alternatives. Ignored without
+      #   `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_search [String] Narrows a `delete_all` to the sessions that match the `search` filter of [List
+      #   Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array is joined into
+      #   one comma-separated text, so several values are not matched as alternatives. Ignored without `delete_all`. An
+      #   empty value is ignored and does not narrow the selection.
+      # @param filter_workflow_id [String, Array<String>] Narrows a `delete_all` to the sessions that match the
+      #   `workflow_id` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated
+      #   string or an array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_date_from [Date, String] Narrows a `delete_all` to the sessions that match the `date_from`
+      #   filter of [List Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array
+      #   is joined into one comma-separated value, so several values are refused with `400`. Ignored without
+      #   `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_date_to [Date, String] Narrows a `delete_all` to the sessions that match the `date_to` filter of
+      #   [List Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array is joined
+      #   into one comma-separated value, so several values are refused with `400`. Ignored without `delete_all`. An
+      #   empty value is ignored and does not narrow the selection.
+      # @param filter_country [String, Array<String>] Narrows a `delete_all` to the sessions that match the `country`
+      #   filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated string or an
+      #   array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_document_type [String, Array<String>] Narrows a `delete_all` to the sessions that match the
+      #   `document_type` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A
+      #   comma-separated string or an array. Ignored without `delete_all`. An empty value is ignored and does not
+      #   narrow the selection.
+      # @param filter_document_name [String, Array<String>] Narrows a `delete_all` to the sessions that match the
+      #   `document_name` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A
+      #   comma-separated string or an array. Ignored without `delete_all`. An empty value is ignored and does not
+      #   narrow the selection.
+      # @param filter_region [String, Array<String>] Narrows a `delete_all` to the sessions that match the `region`
+      #   filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated string or an
+      #   array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_didit_internal_id [String] Narrows a `delete_all` to the sessions that match the
+      #   `didit_internal_id` filter of [List Sessions](/sessions-api/list-sessions), with the same value. One value,
+      #   not a list: an array is joined into one comma-separated value, so several values are refused with `400`.
+      #   Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_session_type [String, Array<String>] Narrows a `delete_all` to the sessions that match the
+      #   `session_type` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated
+      #   string or an array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_api_service [String] Narrows a `delete_all` to the sessions that match the `api_service` filter
+      #   of [List Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array is
+      #   joined into one comma-separated value, so several values are refused with `400`. Ignored without `delete_all`.
+      #   An empty value is ignored and does not narrow the selection.
+      # @param filter_screened_full_name [String] Narrows a `delete_all` to the sessions that match the
+      #   `screened_full_name` filter of [List Sessions](/sessions-api/list-sessions), with the same value. One value,
+      #   not a list: an array is joined into one comma-separated text, so several values are not matched as
+      #   alternatives. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_warning [String, Array<String>] Narrows a `delete_all` to the sessions that match the `warning`
+      #   filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated string or an
+      #   array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_status_initialized_as_in_review [Boolean] Narrows a `delete_all` to the sessions that match the
+      #   `status_initialized_as_in_review` filter of [List Sessions](/sessions-api/list-sessions), with the same
+      #   values. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_is_kyc_to_be_reviewed [Boolean] Narrows a `delete_all` to the sessions that match the
+      #   `is_kyc_to_be_reviewed` filter of [List Sessions](/sessions-api/list-sessions), with the same values. Ignored
+      #   without `delete_all`. An empty value is ignored and does not narrow the selection.
+      # @param filter_euuid [String] Narrows a `delete_all` to the sessions that match the `euuid` filter of [List
+      #   Sessions](/sessions-api/list-sessions), with the same value. One value, not a list: an array is joined into
+      #   one comma-separated value, so several values are refused with `400`. Ignored without `delete_all`. An empty
+      #   value is ignored and does not narrow the selection.
+      # @param filter_organization_name [String, Array<String>] Narrows a `delete_all` to the sessions that match the
+      #   `organization_name` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A
+      #   comma-separated string or an array. With an API key it can only match your own organization's name, so it
+      #   selects all of your sessions or none. Ignored without `delete_all`. An empty value is ignored and does not
+      #   narrow the selection.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::SessionsBatchDeleteResponse, Didit::Types::SessionsBatchDeleteResponse202]
+      # @return [Didit::Types::SessionsBatchDeleteResponse, Didit::Types::SessionDeletionJob]
       def batch_delete(
         session_numbers: OMIT,
         delete_all: OMIT,
@@ -118,6 +248,25 @@ module Didit
         face_retention_deadline: OMIT,
         deletion_instruction: OMIT,
         instruction_id: OMIT,
+        filter_status: OMIT,
+        filter_vendor_data: OMIT,
+        filter_search: OMIT,
+        filter_workflow_id: OMIT,
+        filter_date_from: OMIT,
+        filter_date_to: OMIT,
+        filter_country: OMIT,
+        filter_document_type: OMIT,
+        filter_document_name: OMIT,
+        filter_region: OMIT,
+        filter_didit_internal_id: OMIT,
+        filter_session_type: OMIT,
+        filter_api_service: OMIT,
+        filter_screened_full_name: OMIT,
+        filter_warning: OMIT,
+        filter_status_initialized_as_in_review: OMIT,
+        filter_is_kyc_to_be_reviewed: OMIT,
+        filter_euuid: OMIT,
+        filter_organization_name: OMIT,
         request_options: nil
       )
         @client.request(
@@ -130,9 +279,28 @@ module Didit
             "face_retention_days" => face_retention_days,
             "face_retention_deadline" => face_retention_deadline,
             "deletion_instruction" => deletion_instruction,
-            "instruction_id" => instruction_id
+            "instruction_id" => instruction_id,
+            "filter_status" => filter_status,
+            "filter_vendor_data" => filter_vendor_data,
+            "filter_search" => filter_search,
+            "filter_workflow_id" => filter_workflow_id,
+            "filter_date_from" => filter_date_from,
+            "filter_date_to" => filter_date_to,
+            "filter_country" => filter_country,
+            "filter_document_type" => filter_document_type,
+            "filter_document_name" => filter_document_name,
+            "filter_region" => filter_region,
+            "filter_didit_internal_id" => filter_didit_internal_id,
+            "filter_session_type" => filter_session_type,
+            "filter_api_service" => filter_api_service,
+            "filter_screened_full_name" => filter_screened_full_name,
+            "filter_warning" => filter_warning,
+            "filter_status_initialized_as_in_review" => filter_status_initialized_as_in_review,
+            "filter_is_kyc_to_be_reviewed" => filter_is_kyc_to_be_reviewed,
+            "filter_euuid" => filter_euuid,
+            "filter_organization_name" => filter_organization_name
           },
-          response: { 200 => Types::SessionsBatchDeleteResponse, 202 => Types::SessionsBatchDeleteResponse202 },
+          response: { 200 => Types::SessionsBatchDeleteResponse, 202 => Types::SessionDeletionJob },
           request_options: request_options
         )
       end
@@ -160,7 +328,7 @@ module Didit
       # @param node_id_query [String] Workflow graph node ID. Required only when the session has multiple AML checks
       #   (one per node); omit it for single-AML sessions.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Object]
+      # @return [Didit::Types::SessionsBulkUpdateAmlHitStatusResponse]
       def bulk_update_aml_hit_status(session_id, hit_updates:, node_id: OMIT, node_id_query: OMIT, request_options: nil)
         @client.request(
           :patch,
@@ -173,7 +341,37 @@ module Didit
             "hit_updates" => hit_updates,
             "node_id" => node_id
           },
-          response: :any,
+          response: Types::SessionsBulkUpdateAmlHitStatusResponse,
+          request_options: request_options
+        )
+      end
+
+      # Cancel a check override that waits for the flow to finish
+      #
+      # Cancel an override of a feature (step) status that is still `pending_until_flow_finishes`, so it never
+      # applies. The check keeps its status, the cancellation is recorded in the session's activity as
+      # `FEATURE_OVERRIDE_CANCELLED`, and no webhook is sent. The response is the override with `state: cancelled` and
+      # `cancel_reason: cancelled_by_reviewer`.
+      #
+      # An override that already applied or was cancelled returns `409` with the code `feature_override_not_pending`.
+      # Find override IDs with `GET /v3/session/{sessionId}/features/overrides/` or in the `override` returned by the
+      # feature status update.
+      #
+      # Requires the `write:sessions` privilege; a scoped API key needs write access to decisions.
+      #
+      # +POST /v3/session/{sessionId}/features/overrides/{overrideId}/cancel/+
+      #
+      # @param session_id [String] UUID of the verification session. Accepts both user (KYC) and business (KYB)
+      #   session IDs.
+      # @param override_id [String] The `id` of the override to cancel.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::FeatureStatusOverride]
+      def cancel_feature_override(session_id, override_id, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/features/overrides/{overrideId}/cancel/",
+          path_params: { "sessionId" => session_id, "overrideId" => override_id },
+          response: Types::FeatureStatusOverride,
           request_options: request_options
         )
       end
@@ -215,7 +413,7 @@ module Didit
       # @param callback [String] URL to redirect the user to after verification completes. Didit automatically appends
       #   `verificationSessionId` and `status` (Approved, Declined, In Review) as query parameters. Custom URL schemes
       #   (e.g. `myapp://`) are supported for mobile callbacks. If omitted, the workflow's default `callback_url` is
-      #   used.
+      #   used. When the application has allowed domains (`allowed_domains` on `PATCH /v3/webhook/`), an `h...
       # @param callback_method [String] Determines which device should handle the redirect to the provided callback
       #   URL. Use `initiator` to redirect only the device that started the flow, `completer` for the device that
       #   finishes it, or `both` to allow either device to trigger the callback. If you ever notice the callback not
@@ -243,6 +441,10 @@ module Didit
       #   bundled magic values onto the session's input fields (contact_details, expected_details) so the mocked
       #   providers reproduce the scenario's outcome through the real workflow pipeline. See the scenario catalog at GET
       #   /v1/san...
+      # @param sign [Hash] Electronic Signature input for this session. `documents` are the documents to sign, for a
+      #   workflow whose Electronic Signature step takes documents from the session (`signature_documents_source`
+      #   `session` or `both`): up to 20 documents and 50 MB in total. `field_values` fills the fields whose `prefill`
+      #   is `api.<key>`, on workflow and session documents alike. Creating a session again for the same `...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsCreateResponse]
       def create(
@@ -256,6 +458,7 @@ module Didit
         expected_details: OMIT,
         portrait_image: OMIT,
         sandbox_scenario: OMIT,
+        sign: OMIT,
         request_options: nil
       )
         @client.request(
@@ -271,7 +474,8 @@ module Didit
             "contact_details" => contact_details,
             "expected_details" => expected_details,
             "portrait_image" => portrait_image,
-            "sandbox_scenario" => sandbox_scenario
+            "sandbox_scenario" => sandbox_scenario,
+            "sign" => sign
           },
           response: Types::SessionsCreateResponse,
           request_options: request_options
@@ -291,8 +495,9 @@ module Didit
       # - All stored files owned by the session: document front/back photos (full, cropped, and privacy-blurred
       #   variants), document-capture videos, portrait crops, NFC chip portrait and signature images, face reference
       #   images, liveness videos, face-match source/target images, Proof of Address documents, and any extra uploaded
-      #   files (KYC); uploaded company documents and extra files (KYB). Previously issued media URLs
-      #   (`https://<media-host>/...`) stop resolving.
+      #   files (KYC); uploaded company documents and extra files (KYB). Electronic Signature documents, signed PDFs,
+      #   evidence PDFs and signature images (KYC and KYB): their download paths stop working. Previously issued media
+      #   URLs (`https://<media-host>/...`) stop resolving.
       # - The session's face data. Its face embedding is deleted too, unless you choose to keep an image-free template
       #   (see **Face biometric data**).
       # - Webhook deliveries still queued for the session, and their retries. Webhooks already delivered are not
@@ -397,6 +602,40 @@ module Didit
         )
       end
 
+      # Export AML screening history as CSV
+      #
+      # Download the same ongoing-monitoring history as `GET /v3/session/{sessionId}/aml-screening-history/` as a CSV
+      # file, one line per completed re-screen, newest first, ready to hand to an auditor. The file is streamed whole
+      # (no pagination) and starts with a header line; an empty cell means unknown, dataset dates are never estimated,
+      # and a value that would start a spreadsheet formula is prefixed with an apostrophe. Works for KYC and KYB
+      # session IDs; pass `node_id` when the session ran more than one AML step. Errors are returned as JSON, not CSV.
+      # A scoped API key needs `decisions: read` and `media: read`: the response is a file, so a key without `media:
+      # read` gets `403`.
+      #
+      # +GET /v3/session/{sessionId}/aml-screening-history/export/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs: the server
+      #   resolves the ID across both session types. Must be a well-formed UUID; a malformed value does not match the
+      #   route and returns an HTML `404`.
+      # @param node_id [String] Workflow graph node ID of the AML check. Needed only when the session ran more than
+      #   one AML step; without it the most recent AML check is used. An unknown node returns `404`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [String, nil] the body bytes, or nil when a block receives the chunks
+      def export_aml_screening_history(session_id, node_id: OMIT, request_options: nil, &block)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/aml-screening-history/export/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          response: :binary,
+          accept: "text/csv, application/json",
+          request_options: request_options, &block
+        )
+      end
+
       # Download a PDF report for a verification session
       #
       # Render and download a compliance-ready PDF report for a finished verification session. The same path serves
@@ -476,7 +715,7 @@ module Didit
       #   with `404`.
       # @param vendor_data [String, nil] Optional override for the cloned session's `vendor_data`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Object]
+      # @return [Didit::Types::SessionDecision]
       def import_shared(share_token:, trust_review:, workflow_id:, vendor_data: OMIT, request_options: nil)
         @client.request(
           :post,
@@ -487,7 +726,7 @@ module Didit
             "workflow_id" => workflow_id,
             "vendor_data" => vendor_data
           },
-          response: :any,
+          response: Types::SessionDecision,
           request_options: request_options
         )
       end
@@ -659,6 +898,129 @@ module Didit
         )
       end
 
+      # List AML screening history
+      #
+      # List every completed ongoing-monitoring re-screen of a session's AML check, newest first by `completed_at`,
+      # including the runs where nothing changed: alerts, activity entries and webhooks fire only when a result moves,
+      # so this history is the evidence that a clean subject was still being screened. Works for KYC and KYB session
+      # IDs; pass `node_id` when the session ran more than one AML step. Only ongoing-monitoring re-screens are listed
+      # (the first screening is part of the session decision) and runs from before this history existed are not
+      # reconstructed, so a session without ongoing monitoring returns an empty list. `count` is exact up to 100 and
+      # capped at 100 above that, so follow `next` until it is `null`. A scoped API key needs `decisions: read`; see
+      # [Continuous AML
+      # monitoring](https://docs.didit.me/core-technology/aml-screening/continuous-monitoring-aml-screening).
+      #
+      # +GET /v3/session/{sessionId}/aml-screening-history/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs: the server
+      #   resolves the ID across both session types. Must be a well-formed UUID; a malformed value does not match the
+      #   route and returns an HTML `404`.
+      # @param node_id [String] Workflow graph node ID of the AML check. Needed only when the session ran more than
+      #   one AML step; without it the most recent AML check is used. An unknown node returns `404`.
+      # @param limit [Integer] Maximum number of screening runs per page. Defaults to 50. A value below 1 or a
+      #   non-numeric value falls back to 50; a value above 1,000,000 returns `400`.
+      # @param offset [Integer] Number of results to skip before the first returned one. Defaults to 0; a negative or
+      #   non-numeric value falls back to 0, a value above 1,000,000 returns `400`. Prefer following the `next` and
+      #   `previous` URLs.
+      # @param ordering [String] Optional sort override. The default order is `-completed_at`. Pass a result field
+      #   name (for example `completed_at`, `started_at`, `outcome` or `score`) to sort ascending, prefix it with `-` to
+      #   sort descending, and separate several fields with commas. Unknown fields are ignored.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Page<Didit::Types::AMLScreeningRun>]
+      def list_aml_screening_history(
+        session_id,
+        node_id: OMIT,
+        limit: OMIT,
+        offset: OMIT,
+        ordering: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/aml-screening-history/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id,
+            "limit" => limit,
+            "offset" => offset,
+            "ordering" => ordering
+          },
+          page: Types::AMLScreeningRun,
+          request_options: request_options
+        )
+      end
+
+      # List session events
+      #
+      # Read the event timeline of one verification session, newest first by `sent_at`: the screens the user saw,
+      # buttons and uploads, failed attempts, status and feature-step changes, and the workflow routing trace. Works
+      # for User Verification (KYC) and Business Verification (KYB) session IDs. Events are stored asynchronously, so
+      # a new event can take a few seconds to appear. Results are paginated with `limit` and `offset`; follow `next`
+      # until it is `null`. A scoped API key needs `sessions: read` and `decisions: read`, and without `media: read`
+      # it receives `file_url` as `null`. The routing events are described in [Retrieve
+      # session](https://docs.didit.me/sessions-api/retrieve-session).
+      #
+      # +GET /v3/session/{sessionId}/events/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs: the server
+      #   resolves the ID across both session types. Must be a well-formed UUID; a malformed value does not match the
+      #   route and returns an HTML `404`.
+      # @param limit [Integer] Maximum number of events per page. Defaults to 50. A value below 1 or a non-numeric
+      #   value falls back to 50; a value above 1,000,000 returns `400`.
+      # @param offset [Integer] Number of results to skip before the first returned one. Defaults to 0; a negative or
+      #   non-numeric value falls back to 0, a value above 1,000,000 returns `400`. Prefer following the `next` and
+      #   `previous` URLs.
+      # @param ordering [String] Optional sort override. The default order is `-sent_at`. Pass a result field name
+      #   (for example `sent_at`, `created_at`, `event_type`, `feature_step` or `step`) to sort ascending, prefix it
+      #   with `-` to sort descending, and separate several fields with commas. Unknown fields are ignored.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Page<Didit::Types::SessionEvent>]
+      def list_events(session_id, limit: OMIT, offset: OMIT, ordering: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/events/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "limit" => limit,
+            "offset" => offset,
+            "ordering" => ordering
+          },
+          page: Types::SessionEvent,
+          request_options: request_options
+        )
+      end
+
+      # List a session's check overrides
+      #
+      # Every override of an individual feature (step) status on a User Verification (KYC) or Business Verification
+      # (KYB) session, newest first and not paginated: applied ones, ones waiting for the person to finish the flow
+      # (`pending_until_flow_finishes`) and cancelled ones, each with who asked, their reason, and whether it applied
+      # while the person was still in the flow (`forced`).
+      #
+      # `person_in_flow` tells you whether a new override with `defer_until_flow_finishes: true` would wait.
+      # `flow_finished_at` is when the person last finished the flow; it is `null` while they are still in it (a
+      # resubmission included) and when the session closed before they finished.
+      #
+      # Requires the `read:sessions` privilege; a scoped API key needs read access to decisions.
+      #
+      # +GET /v3/session/{sessionId}/features/overrides/+
+      #
+      # @param session_id [String] UUID of the verification session. Accepts both user (KYC) and business (KYB)
+      #   session IDs.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsListFeatureOverridesResponse]
+      def list_feature_overrides(session_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/features/overrides/",
+          path_params: { "sessionId" => session_id },
+          response: Types::SessionsListFeatureOverridesResponse,
+          request_options: request_options
+        )
+      end
+
       # List networks for a session
       #
       # List the networks the session's vendor user belongs to. Resolves through the session's vendor_data-linked
@@ -668,14 +1030,60 @@ module Didit
       #
       # @param session_id [String] Session UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::SessionsListNetworksResponse]
+      # @return [Didit::Types::EntityNetworkMembershipList]
       def list_networks(session_id, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/sessions/{session_id}/networks/",
           path_params: { "session_id" => session_id },
           scope: :application,
-          response: Types::SessionsListNetworksResponse,
+          response: Types::EntityNetworkMembershipList,
+          request_options: request_options
+        )
+      end
+
+      # Preview a session's decision email
+      #
+      # Render the email the person receives when you set a session to `Approved` or `Declined` with `send_email:
+      # true`, without changing the session or sending anything. The response shows the subject and HTML exactly as
+      # they are sent, the recipient, the sender, the language, and whether confirming the change sends the email at
+      # all (`will_be_sent`, `not_sent_reason`).
+      #
+      # The recipient is the person's own address: the one they verified in an email verification step of the flow,
+      # else the one given in `contact_details` when the session was created. The sender is your application's
+      # verified sender domain when white label applies (`sender_kind: customer`), else Didit's sender (`sender_kind:
+      # didit`).
+      #
+      # To send exactly what you previewed, call [Update Session Status](/sessions-api/update-status) with the same
+      # `new_status`, `send_email: true`, `email_address` set to `recipient`, `email_language` set to `language` and
+      # `email_preview_token` set to `preview_token`. The receipt expires after 15 minutes. When the recipient,
+      # language, session status, sender or email changed since the preview, the update returns `409` before anything
+      # changes; preview again and confirm with the new receipt.
+      #
+      # Works for User Verification (KYC) and Business Verification (KYB) sessions in `Approved`, `Declined`, `In
+      # Review`, `Kyc Expired`, `Abandoned` or `Resubmitted` status. The status check runs before body validation.
+      # Requires the `write:sessions` privilege; a scoped API key needs write access to decisions. Responses use
+      # `Cache-Control: no-store`: treat them as sensitive verification content.
+      #
+      # +POST /v3/session/{sessionId}/decision-email-preview/+
+      #
+      # @param session_id [String] UUID of the verification session. Accepts both user (KYC) and business (KYB)
+      #   session IDs.
+      # @param new_status [String] The decision whose email you want to preview.
+      # @param email_language [String] Language of the email, the same default as Update Session Status. A language
+      #   that is not offered falls back to English; `language` in the response says which one is used.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsPreviewDecisionEmailResponse]
+      def preview_decision_email(session_id, new_status:, email_language: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/decision-email-preview/",
+          path_params: { "sessionId" => session_id },
+          body: {
+            "new_status" => new_status,
+            "email_language" => email_language
+          },
+          response: Types::SessionsPreviewDecisionEmailResponse,
           request_options: request_options
         )
       end
@@ -683,39 +1091,48 @@ module Didit
       # Preview a resubmission email
       #
       # Render the email that would accompany a KYC or KYB resubmission without changing the session, resetting
-      # checks, extending its expiry, running checks or sending mail. Requires write:sessions and an
-      # application-scoped session in Approved, Declined, In Review, Kyc Expired or Abandoned status. The server
-      # validates the selected workflow steps and renders its fixed translated template with the applicable verified
-      # white-label sender and branding. The request cannot set a subject, message body or action URL.
+      # checks, extending its expiry, running checks or sending mail. Requires the `write:sessions` privilege (a
+      # scoped API key needs write access to decisions) and a session in `Approved`, `Declined`, `In Review`, `Kyc
+      # Expired` or `Abandoned` status. The server validates the selected workflow steps and renders its fixed
+      # translated template with the applicable verified white-label sender and branding. The request cannot set a
+      # subject, message body or action URL.
       #
-      # The response includes the recipient, sender, subject, HTML, resolved steps and a signed preview_token.
-      # requires_user_action describes whether the selected steps include an interactive check. Email delivery remains
-      # conditional: if automatic checks finalize the verification during the subsequent resubmission, no
-      # action-request email is sent.
+      # `email_address` is optional. Without it, the email goes to the person's own address: the one they verified in
+      # an email verification step of the flow, else the one given in `contact_details` when the session was created.
+      # An address you pass wins (`recipient_source: request`). When no address is known and you pass none,
+      # `recipient` and `preview_token` are empty strings and no email can be sent.
       #
-      # This preview does not reserve session state or authorize delivery. After reviewing it, call Update Session
-      # Status with new_status=Resubmitted, the same selection, recipient and language, and email_preview_token set to
-      # the returned preview_token. The receipt expires after 15 minutes. When a receipt is supplied, changed inputs,
-      # message content, sender or session state return 409 before any mutation or send. Existing integrations may
-      # omit the receipt. Regenerate the preview after a conflict. Treat the response as sensitive verification
-      # content; responses use Cache-Control: no-store. Render HTML in a sandboxed frame, never directly in your
-      # application DOM.
+      # The response includes the recipient and where it comes from, the sender, subject, HTML, language, resolved
+      # steps, whether confirming sends the email (`will_be_sent`, `not_sent_reason`) and a signed `preview_token`.
+      # `requires_user_action` is `false` when every selected step runs without the person: the resubmission then
+      # finishes on its own and no email goes out (`not_sent_reason: no_user_action`).
+      #
+      # This preview does not reserve session state or authorize delivery. After reviewing it, call [Update Session
+      # Status](/sessions-api/update-status) with `new_status: Resubmitted`, the same `nodes_to_resubmit` and
+      # `email_language` you previewed, `send_email: true`, `email_address` set to `recipient` and
+      # `email_preview_token` set to `preview_token`. The receipt expires after 15 minutes. When a receipt is
+      # supplied, changed inputs, message content, sender or session state return `409` before any mutation or send.
+      # Existing integrations may omit the receipt. Regenerate the preview after a conflict. Treat the response as
+      # sensitive verification content; responses use `Cache-Control: no-store`. Render HTML in a sandboxed frame,
+      # never directly in your application DOM.
       #
       # +POST /v3/session/{sessionId}/resubmission-preview/+
       #
       # @param session_id [String] UUID of the verification session to update. Accepts both user (KYC) and business
       #   (KYB) session IDs - the service resolves the ID across both session types.
-      # @param email_address [String] Recipient shown in the preview. No email is sent.
       # @param nodes_to_resubmit [Array<Hash>] Steps to preview, using the same validation, selection and workflow
       #   ordering as a resubmission. Omit to auto-select recorded attempts needing resubmission.
+      # @param email_address [String] Optional. Send the email to this address instead of the person's own. Without
+      #   it, the recipient is the address the person verified in the flow, else the one given in `contact_details`. No
+      #   email is sent by this call.
       # @param email_language [String] Language for the notification email. Accepts any string at schema level;
       #   unsupported codes silently fall back to English (`en`).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsPreviewResubmissionResponse]
       def preview_resubmission(
         session_id,
-        email_address:,
         nodes_to_resubmit: OMIT,
+        email_address: OMIT,
         email_language: OMIT,
         request_options: nil
       )
@@ -724,11 +1141,42 @@ module Didit
           "/v3/session/{sessionId}/resubmission-preview/",
           path_params: { "sessionId" => session_id },
           body: {
-            "email_address" => email_address,
             "nodes_to_resubmit" => nodes_to_resubmit,
+            "email_address" => email_address,
             "email_language" => email_language
           },
           response: Types::SessionsPreviewResubmissionResponse,
+          request_options: request_options
+        )
+      end
+
+      # Regenerate a Key People party's KYC session
+      #
+      # Give a Key People party of a Business Verification (KYB) session a new individual KYC session after its
+      # previous one was deleted, so the Key People check can finish again; send no request body. It works only when
+      # the party's KYC session was deleted (`kyc_session_deleted: true`): a party whose KYC session still exists (in
+      # any status), a party that never had one, or a company party returns `409`. Didit creates a new hosted KYC
+      # session with the workflow the deleted one ran (its latest published version) or, when that is no longer known,
+      # the workflow your Key People settings assign to the party's role, emails the link to the party when an email
+      # is on file, clears `is_skipped`, and recomputes the Key People check and the business session status. It then
+      # sends a `data.updated` [webhook](https://docs.didit.me/integration/webhooks) for the business session with
+      # trigger `console_key_people_regenerate`; to exempt the party instead, use `PATCH
+      # /v3/session/{sessionId}/kyb/parties/{partyUuid}/`. A scoped API key needs `decisions: write`, and without
+      # `sessions: write` it receives `kyc_session_url` as `null`.
+      #
+      # +POST /v3/session/{sessionId}/kyb/parties/{partyUuid}/regenerate/+
+      #
+      # @param session_id [String] UUID of the parent Business Verification (KYB) session.
+      # @param party_uuid [String] UUID of the Key People party (`key_people_checks[].submitted.parties[].uuid` on the
+      #   business session decision). Must belong to the session referenced by `sessionId`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::KYBKeyPeopleParty]
+      def regenerate_kyb_party(session_id, party_uuid, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/kyb/parties/{partyUuid}/regenerate/",
+          path_params: { "sessionId" => session_id, "partyUuid" => party_uuid },
+          response: Types::KYBKeyPeopleParty,
           request_options: request_options
         )
       end
@@ -746,7 +1194,8 @@ module Didit
       # `ip_analyses`, `database_validations`, `questionnaire_responses`) is a JSON array whose items each carry a
       # `node_id` identifying the workflow graph node that produced them. Read NFC as `response.nfc_verifications[0]`
       # - never as a singular `nfc` field. A block is `null` until the workflow has run that feature at least once;
-      # features the workflow does not include never appear with data.
+      # features the workflow does not include never appear with data. Electronic Signature results are in
+      # `signatures`, which is present only when the workflow has an Electronic Signature step.
       #
       # **When to call.** The recommended pattern is event-driven: wait for the `status.updated` webhook that fires
       # when the session reaches a decision (`Approved`, `Declined`, `In Review`), then call this endpoint once to
@@ -782,7 +1231,7 @@ module Didit
       #   `WORKFLOW_STATUS_NODE_REACHED` routing events described on the Retrieve Session page), the full activity
       #   log...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::SessionsRetrieveDecisionResponse]
+      # @return [Didit::Types::SessionDecision]
       def retrieve_decision(session_id, include: OMIT, request_options: nil)
         @client.request(
           :get,
@@ -791,7 +1240,7 @@ module Didit
           query: {
             "include" => include
           },
-          response: Types::SessionsRetrieveDecisionResponse,
+          response: Types::SessionDecision,
           request_options: request_options
         )
       end
@@ -814,13 +1263,13 @@ module Didit
       #
       # @param job_id [String] The `job_id` returned with the `202` from `POST /v3/sessions/delete/`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::SessionsRetrieveDeletionJobResponse]
+      # @return [Didit::Types::SessionDeletionJob]
       def retrieve_deletion_job(job_id, request_options: nil)
         @client.request(
           :get,
           "/v3/sessions/delete/{job_id}/",
           path_params: { "job_id" => job_id },
-          response: Types::SessionsRetrieveDeletionJobResponse,
+          response: Types::SessionDeletionJob,
           request_options: request_options
         )
       end
@@ -854,6 +1303,73 @@ module Didit
         )
       end
 
+      # Simulate a sandbox session's status
+      #
+      # Force a terminal status on a sandbox session after the fact, from your backend, without running the flow.
+      # Sandbox applications only: a live session returns `404`. Works for User Verification (KYC) and Business
+      # Verification (KYB) sessions.
+      #
+      # Set `new_status`, or let `scenario` or `risk` supply it. `risk` (or the first risk the scenario's magic values
+      # carry) adds that warning to the session. The change is recorded in the session's activity.
+      #
+      # `send_webhooks` (default `true`) sends exactly the webhooks a real status change sends. With `false` the
+      # status still changes and the console still updates live, but no webhook is logged or sent, the missed-webhook
+      # recovery never re-sends that decision, and the next status change sends webhooks as usual. The response echoes
+      # the value applied.
+      #
+      # Requires the `write:sessions` privilege; a scoped API key needs write access to sessions. An unknown
+      # `session_id` returns `404` and another application's session returns `403`, both before the body is read; a
+      # live session returns `404` only after the body is validated. To simulate from the hosted flow with the
+      # session's own token, use `POST /v3/session/{sessionId}/sandbox/simulate/`. See [Sandbox & Test
+      # Data](/integration/sandbox-testing) for the scenario catalog.
+      #
+      # +POST /v3/session/{sessionId}/simulate/+
+      #
+      # @param session_id [String] UUID of the sandbox verification session. Accepts both user (KYC) and business
+      #   (KYB) session IDs.
+      # @param new_status [String] The status to set. When you leave it out, it defaults to the default status of the
+      #   risk case (`risk`, or the first risk the scenario's magic values carry), else to the scenario's default
+      #   status.
+      # @param comment [String] Note added to the activity entry the status change records.
+      # @param scenario [String] A scenario slug from the catalog (`GET /v1/sandbox/scenarios/`). It supplies the
+      #   default status and, without `risk`, the warning its magic values carry. An unknown slug returns `400`.
+      # @param risk [String] A risk case from the catalog. Its warning is added to the session, with a log type that
+      #   follows `new_status`. An unknown value returns `400`.
+      # @param node_id [String] Workflow node the risk warning is attached to. Defaults to the session's current node.
+      # @param send_webhooks [Boolean] `true` sends exactly the webhooks a real status change sends to the sandbox
+      #   application's destinations: `status.updated`, plus the `user.status.updated` / `user.data.updated` (or
+      #   `business.status.updated` / `business.data.updated`) events the change causes, for destinations subscribed to
+      #   them. `false` changes the status without logging or sending any webhook: the missed-webhook recovery never
+      #   re-...
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SandboxSimulateResponse]
+      def simulate(
+        session_id,
+        new_status: OMIT,
+        comment: OMIT,
+        scenario: OMIT,
+        risk: OMIT,
+        node_id: OMIT,
+        send_webhooks: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/simulate/",
+          path_params: { "sessionId" => session_id },
+          body: {
+            "new_status" => new_status,
+            "comment" => comment,
+            "scenario" => scenario,
+            "risk" => risk,
+            "node_id" => node_id,
+            "send_webhooks" => send_webhooks
+          },
+          response: Types::SandboxSimulateResponse,
+          request_options: request_options
+        )
+      end
+
       # Update an AML hit review status
       #
       # Set the review status of a **single AML hit** (a potential sanction / PEP / watchlist / adverse-media match)
@@ -882,7 +1398,7 @@ module Didit
       # @param node_id_query [String] Workflow graph node ID. Required only when the session has multiple AML checks
       #   (one per node); omit it for single-AML sessions.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Object]
+      # @return [Didit::Types::SessionsUpdateAmlHitStatusResponse]
       def update_aml_hit_status(
         session_id,
         hit_id:,
@@ -903,7 +1419,47 @@ module Didit
             "review_status" => review_status,
             "node_id" => node_id
           },
-          response: :any,
+          response: Types::SessionsUpdateAmlHitStatusResponse,
+          request_options: request_options
+        )
+      end
+
+      # Update an AML check status
+      #
+      # Set the status of a session's AML screening check as a whole (the `status` of an `aml_screenings[]` entry in
+      # the session decision), for example `Approved` after your team cleared every hit. Works for KYC and KYB session
+      # IDs; pass `node_id` (query parameter or body field) when the session ran more than one AML step, otherwise the
+      # most recent AML check is updated. When the status actually changes, an `AML_STATUS_UPDATED` activity entry is
+      # recorded and a `data.updated` [webhook](https://docs.didit.me/integration/webhooks) is sent; sending the
+      # current status returns `200` and changes nothing. The session status is not recomputed: use `PATCH
+      # /v3/session/{sessionId}/update-status/` for the session decision and `PATCH
+      # /v3/session/{sessionId}/update-aml-hit-status/` for single hits. A scoped API key needs `decisions: write`.
+      #
+      # +PATCH /v3/session/{sessionId}/update-aml-status/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs: the server
+      #   resolves the ID across both session types. Must be a well-formed UUID; a malformed value does not match the
+      #   route and returns an HTML `404`.
+      # @param status [String] New status of the AML check.
+      # @param node_id [String] Workflow graph node ID of the AML check, as an alternative to the query parameter.
+      # @param node_id_query [String] Workflow graph node ID of the AML check to update. Needed only when the session
+      #   ran more than one AML step. Takes precedence over `node_id` in the body.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsUpdateAmlStatusResponse]
+      def update_aml_status(session_id, status:, node_id: OMIT, node_id_query: OMIT, request_options: nil)
+        @client.request(
+          :patch,
+          "/v3/session/{sessionId}/update-aml-status/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id_query
+          },
+          body: {
+            "status" => status,
+            "node_id" => node_id
+          },
+          response: Types::SessionsUpdateAmlStatusResponse,
           request_options: request_options
         )
       end
@@ -1044,23 +1600,81 @@ module Didit
         )
       end
 
+      # Update a Document AI document
+      #
+      # Correct the fields Document AI extracted from one uploaded document, set its review status, or both, on a KYC
+      # or KYB session. `extracted_data` must be a JSON object and is merged key by key: a key you send replaces the
+      # stored value (a key sent as `null` is stored as `null`) and keys you leave out keep their values. The document
+      # status feeds the Document AI result of its workflow node in the session decision; the session status itself is
+      # not recomputed. Every successful call, including one that changes nothing, sends a `data.updated`
+      # [webhook](https://docs.didit.me/integration/webhooks) with trigger `manual_review`. A scoped API key needs
+      # `decisions: write`; see [Document AI](https://docs.didit.me/core-technology/document-ai/overview).
+      #
+      # +PATCH /v3/document-ai/{sessionId}/documents/{documentUuid}/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs: the server
+      #   resolves the ID across both session types. Must be a well-formed UUID; a malformed value does not match the
+      #   route and returns an HTML `404`.
+      # @param document_uuid [String] UUID of the Document AI document (`document_ai_documents[].items[].uuid` in `GET
+      #   /v3/session/{sessionId}/decision/`). It must belong to the session in the path.
+      # @param extracted_data [Hash] Field keys (the keys you configured for the document) and their corrected values.
+      #   Must be a JSON object; merged key by key into the stored data. Leave it out rather than sending `null`, which
+      #   returns `400`.
+      # @param status [String] New review status of the document.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsUpdateDocumentAiDataResponse]
+      def update_document_ai_data(session_id, document_uuid, extracted_data: OMIT, status: OMIT, request_options: nil)
+        @client.request(
+          :patch,
+          "/v3/document-ai/{sessionId}/documents/{documentUuid}/",
+          path_params: { "sessionId" => session_id, "documentUuid" => document_uuid },
+          body: {
+            "extracted_data" => extracted_data,
+            "status" => status
+          },
+          response: Types::SessionsUpdateDocumentAiDataResponse,
+          request_options: request_options
+        )
+      end
+
       # Update an individual feature (step) status
       #
-      # Set the status of a single verification feature (step) within a session **without changing the overall session
-      # decision**. Target the feature by its workflow graph `nodeId` (use `default` for non-graph workflows where the
-      # step has no node).
+      # Set the status of a single verification feature (step) within a session. Target the feature by its workflow
+      # graph `nodeId`. On non-graph workflows, whose steps have no node, use `default` and also pass `feature_type`
+      # to say which step you mean.
       #
-      # Works for both User Verification (KYC) and Business Verification (KYB) sessions and every step type - ID/OCR,
+      # Works for both User Verification (KYC) and Business Verification (KYB) sessions and every step type: ID/OCR,
       # Liveness, Face Match, NFC, AML, Proof of Address, Phone, Email, Database Validation, Questionnaire, and the
-      # KYB registry / documents / key-people checks.
-      #
-      # `new_status` must be one of `Approved`, `Declined`, or `In Review`, and must differ from the feature's current
-      # status. A successful call fires a `data.updated` webhook and appends an activity entry (with actor
-      # attribution) to the session's review trail. This endpoint is **not** available for standalone API sessions
+      # KYB registry / documents / key-people checks. This endpoint is **not** available for standalone API sessions
       # (`session_type = API`).
       #
-      # Authenticate with your API key (`x-api-key`) or a user authorization header - either must carry the
-      # `write:sessions` privilege.
+      # `new_status` must be one of `Approved`, `Declined`, or `In Review`, and must differ from the feature's current
+      # status.
+      #
+      # **When the override applies.** Without `defer_until_flow_finishes` (or with `false`) the override applies at
+      # once, as it always did; when the person is still in the flow it is recorded as `forced`. With
+      # `defer_until_flow_finishes: true` while the person is still in the flow (the session is `Not Started`, `In
+      # Progress` or `Resubmitted` and has not finished), the override is stored as `pending_until_flow_finishes` and
+      # applies when the flow finishes, after the flow reaches its own decision. On a session whose flow already ended
+      # it applies at once either way. A waiting override is cancelled instead when the person redoes its step before
+      # finishing, when a newer override on the same check replaces it, when the session leaves the flow unfinished
+      # (abandoned, expired, or decided mid-flow), or when you cancel it with `POST
+      # /v3/session/{sessionId}/features/overrides/{overrideId}/cancel/`. List a session's overrides with `GET
+      # /v3/session/{sessionId}/features/overrides/`.
+      #
+      # **Effect on the session.** A session that already has a decision keeps it: only the check changes. When the
+      # session has no decision yet and its workflow is waiting on exactly this step, applying the override completes
+      # the step: the workflow moves on, later steps run, and a status node can set the session decision and fire
+      # `status.updated`.
+      #
+      # **Webhooks and activity.** A `data.updated` webhook fires when the override applies (at once, or when the flow
+      # finishes), never while it waits or when it is cancelled. Every override is recorded in the session's activity
+      # as `FEATURE_OVERRIDE_PENDING`, `FEATURE_OVERRIDE_APPLIED` or `FEATURE_OVERRIDE_CANCELLED`, with who made it;
+      # the request's entry carries your `comment`.
+      #
+      # Authenticate with your API key (`x-api-key`) or a user authorization header carrying the `write:sessions`
+      # privilege; a scoped API key needs write access to decisions.
       #
       # +PATCH /v3/session/{sessionId}/features/{nodeId}/update-status/+
       #
@@ -1071,16 +1685,31 @@ module Didit
       # @param new_status [String] Target status for this feature. Must differ from the current value.
       # @param comment [String] Optional free-text note recorded on the session's review trail for this feature
       #   change.
+      # @param feature_type [String] Which kind of step to target. Needed on non-graph workflows (`nodeId` =
+      #   `default`), where every step shares no node; optional otherwise. An unknown value returns `400`.
+      # @param defer_until_flow_finishes [Boolean] While the person is still in the flow, store the override as
+      #   `pending_until_flow_finishes` and apply it when the flow finishes, instead of at once. Omitted or `false`, the
+      #   override applies at once. On a session whose flow already ended it applies at once either way.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateFeatureStatusResponse]
-      def update_feature_status(session_id, node_id, new_status:, comment: OMIT, request_options: nil)
+      def update_feature_status(
+        session_id,
+        node_id,
+        new_status:,
+        comment: OMIT,
+        feature_type: OMIT,
+        defer_until_flow_finishes: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/features/{nodeId}/update-status/",
           path_params: { "sessionId" => session_id, "nodeId" => node_id },
           body: {
             "new_status" => new_status,
-            "comment" => comment
+            "comment" => comment,
+            "feature_type" => feature_type,
+            "defer_until_flow_finishes" => defer_until_flow_finishes
           },
           response: Types::SessionsUpdateFeatureStatusResponse,
           request_options: request_options
@@ -1399,35 +2028,40 @@ module Didit
       #
       # Call it once a session has reached a reviewable state: the current status must be `Approved`, `Declined`, `In
       # Review`, `Kyc Expired`, `Abandoned`, or `Resubmitted`. Sessions that are still `Not Started`, `In Progress`,
-      # or `Awaiting User`, or that ended as `Expired`, return `400`. The new status must differ from the current one,
-      # and your API key's organization needs the `write:sessions` permission. The eligible-state check runs before
-      # body validation, so an ineligible session returns the `Wrong Current Status` error even when the payload is
-      # also invalid.
+      # or `Awaiting User`, or that ended as `Expired`, return `400`. Your API key needs the `write:sessions`
+      # permission (a scoped API key needs write access to decisions). The eligible-state check runs before body
+      # validation, so an ineligible session returns the `Wrong Current Status` error even when the payload is also
+      # invalid.
       #
       # For `Resubmitted`, pass `nodes_to_resubmit` to choose which workflow steps the user must redo, or omit it to
       # auto-select existing feature attempts in a resubmittable state (`Declined`, `In Review`, `Not Finished`,
-      # `Expired`). Never-attempted features are not auto-selected - list them explicitly in `nodes_to_resubmit`, or
-      # the request returns `400` when no recorded attempt needs resubmission. Captured data for the selected steps is
-      # deleted, the steps are reordered to match the workflow graph, the session's expiration window restarts, and
-      # the original verification URL becomes usable again. Backend-only steps (`AML`, `DATABASE_VALIDATION`,
-      # `IP_ANALYSIS`) at the head of the list run immediately without user interaction; if every resubmitted step is
-      # backend-only, the session re-finalizes within the same request. `KYB_REGISTRY` and `KYB_KEY_PEOPLE` cannot be
-      # resubmitted directly - resubmit the relevant child KYC sessions instead and the parent business session
-      # recomputes automatically.
+      # `Expired`). Never-attempted features are not auto-selected: list them explicitly in `nodes_to_resubmit`, or
+      # the request returns `400` when no recorded attempt needs resubmission. The selected steps' previous results
+      # move to the resubmission's history (returned by Get Decision with `include=resubmissions`), the steps are
+      # reordered to match the workflow graph, the session's expiration window restarts, and the original verification
+      # URL becomes usable again. Backend-only steps (`AML`, `DATABASE_VALIDATION`, `IP_ANALYSIS`) at the head of the
+      # list run immediately without user interaction; if every resubmitted step is backend-only, the session
+      # re-finalizes within the same request. `KYB_REGISTRY` and `KYB_KEY_PEOPLE` cannot be resubmitted directly:
+      # resubmit the relevant child KYC sessions instead and the parent business session recomputes automatically.
       #
-      # Every successful call fires the `status.updated` [webhook](/integration/webhooks) once the change commits and
-      # appends an activity entry - with actor attribution and your `comment` - to the session's `reviews`, visible in
-      # [Get Decision](#get-/v3/session/-sessionId-/decision/) and in the console activity timeline. The user-profile
-      # aggregates linked to the session's `vendor_data` update as well. Declining disables ongoing AML monitoring for
-      # the session; re-approving re-enables it (from `Resubmitted`, `Declined`, or `Kyc Expired`) when the workflow
-      # has monitoring turned on. Approving or declining a child KYC that belongs to a KYB key-people check recomputes
-      # the parent business session's status. Set `send_email: true` (with `email_address`) to notify the user: a
-      # status notice for `Approved`/`Declined`, or a resubmission email containing the verification link and per-step
-      # reasons for `Resubmitted`.
+      # Every call that changes the status fires the `status.updated` [webhook](/integration/webhooks) once the change
+      # commits and appends an activity entry (with actor attribution and your `comment`) to the session's `reviews`,
+      # visible in [Get Decision](#get-/v3/session/-sessionId-/decision/) and in the console activity timeline. The
+      # user-profile aggregates linked to the session's `vendor_data` update as well. Declining disables ongoing AML
+      # monitoring for the session; re-approving re-enables it (from `Resubmitted`, `Declined`, or `Kyc Expired`) when
+      # the workflow has monitoring turned on. Approving or declining a child KYC that belongs to a KYB key-people
+      # check recomputes the parent business session's status. Set `send_email: true` (with `email_address`) to notify
+      # the user: a status notice for `Approved`/`Declined`, or a resubmission email containing the verification link
+      # and per-step reasons for `Resubmitted`. To check the email first, preview it with [Preview Decision
+      # Email](/sessions-api/preview-decision-email) (`Approved`, `Declined`) or [Preview Resubmission
+      # Email](/sessions-api/preview-resubmission) (`Resubmitted`) and pass its `preview_token` as
+      # `email_preview_token`: the update then sends exactly the previewed email, or returns `409` before changing
+      # anything when the email or the session changed since the preview or the receipt is older than 15 minutes.
       #
-      # The operation is intentionally not repeatable with the same value: re-sending the current status returns `400`
-      # (`The new status is the same as the current status.`), so accidental double-submissions are harmless.
-      # Authentication and permission failures both return `403` - this API never responds `401`.
+      # Repeating `Approved` or `Declined` on a session that already has that status changes nothing and returns
+      # `200`: no webhook, no activity entry and no email. Repeating `Resubmitted` returns `400` (`The new status is
+      # the same as the current status.`). Missing or invalid credentials and missing permissions return `403`; an
+      # expired scoped API key returns `401`.
       #
       # +PATCH /v3/session/{sessionId}/update-status/+
       #
@@ -1450,10 +2084,11 @@ module Didit
       #   omitting it returns `400`.
       # @param email_language [String] Language for the notification email. Accepts any string at schema level;
       #   unsupported codes silently fall back to English (`en`).
-      # @param email_preview_token [String] Optional signed receipt from Preview Resubmission Email. When supplied
-      #   with send_email=true and new_status=Resubmitted, the recipient, language, checks, current session state,
-      #   sender and message must still match the preview. A changed or expired receipt returns 409 before changing the
-      #   session or sending email. Existing integrations may omit this field.
+      # @param email_preview_token [String] Optional receipt from [Preview Decision
+      #   Email](/sessions-api/preview-decision-email) (for `Approved` and `Declined`) or [Preview Resubmission
+      #   Email](/sessions-api/preview-resubmission) (for `Resubmitted`): its `preview_token`. Valid only with
+      #   `send_email: true`; without it the request returns `400`. The recipient, language, session status, sender and
+      #   email (and, for a resubmission, the selected s...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateStatusResponse]
       def update_status(
@@ -1687,6 +2322,216 @@ module Didit
               "ordering" => ordering
             },
             page: Types::ReviewItem,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +sessions.signatures+ resource.
+      class Signatures < Didit::Resource
+        # Download a signed document
+        #
+        # Download the signed PDF of one document of an Electronic Signature step. Use the `signed_file` path of
+        # `signatures[].documents[]` in the decision. The PDF holds the document the signer was shown with their field
+        # values stamped, the evidence page (unless `signature_evidence_page` is off) and the PAdES signature with its
+        # timestamp. Didit checks the file against `sha256_signed` before returning it.
+        #
+        # Works for User Verification (KYC) and Business Verification (KYB) sessions. Needs `read:sessions`; your API
+        # key works. See the [Electronic Signature
+        # report](/core-technology/electronic-signature/report-electronic-signature#download-the-signed-documents).
+        #
+        # +GET /v3/session/{sessionId}/signatures/{nodeId}/documents/{documentId}/file/+
+        #
+        # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
+        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param document_id [String] `id` of the document in `signatures[].documents[]`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [String, nil] the body bytes, or nil when a block receives the chunks
+        def download_document(session_id, node_id, document_id, request_options: nil, &block)
+          @client.request(
+            :get,
+            "/v3/session/{sessionId}/signatures/{nodeId}/documents/{documentId}/file/",
+            path_params: { "sessionId" => session_id, "nodeId" => node_id, "documentId" => document_id },
+            response: :binary,
+            accept: "application/pdf, application/json",
+            request_options: request_options, &block
+          )
+        end
+
+        # Download the signature evidence
+        #
+        # Download a signer's evidence PDF: the level and format, the signer and their verified identity session, the
+        # code confirmation, the IP address, each document with its original SHA-256 and field values, the
+        # certificate, the timestamp and the SHA-256 of every signed file. Use the `evidence_file` path of the
+        # signer's item in `signatures[]`.
+        #
+        # Always pass `signature_id` when a Business Verification step has several signers: without it, the route
+        # picks one of the step's signers. Needs `read:sessions`; your API key works.
+        #
+        # +GET /v3/session/{sessionId}/signatures/{nodeId}/evidence/+
+        #
+        # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
+        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param signature_id [String] `id` of the signer's item in `signatures[]`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [String, nil] the body bytes, or nil when a block receives the chunks
+        def download_evidence(session_id, node_id, signature_id: OMIT, request_options: nil, &block)
+          @client.request(
+            :get,
+            "/v3/session/{sessionId}/signatures/{nodeId}/evidence/",
+            path_params: { "sessionId" => session_id, "nodeId" => node_id },
+            query: {
+              "signature_id" => signature_id
+            },
+            response: :binary,
+            accept: "application/pdf, application/json",
+            request_options: request_options, &block
+          )
+        end
+
+        # Download a signature image
+        #
+        # Download the signature or initials a signer applied to a field, as PNG. Use the `image_url` of the field in
+        # `signatures[].documents[].fields[]`. Needs `read:sessions`; your API key works.
+        #
+        # +GET /v3/session/{sessionId}/signatures/{nodeId}/fields/{fieldId}/image/+
+        #
+        # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
+        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param field_id [String] The field on this signer's copy, as in the field's `image_url`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [String, nil] the body bytes, or nil when a block receives the chunks
+        def download_field_image(session_id, node_id, field_id, request_options: nil, &block)
+          @client.request(
+            :get,
+            "/v3/session/{sessionId}/signatures/{nodeId}/fields/{fieldId}/image/",
+            path_params: { "sessionId" => session_id, "nodeId" => node_id, "fieldId" => field_id },
+            response: :binary,
+            accept: "image/png, application/json",
+            request_options: request_options, &block
+          )
+        end
+
+        # Validate signatures again
+        #
+        # Re-check the signed documents of an Electronic Signature step. Didit re-reads every signed PDF, checks its
+        # SHA-256 and validates the PAdES signature, the certificate, the revocation data and the timestamp, then
+        # saves the result in each signer's `validation` and returns the updated items. Nothing is signed again. Send
+        # `signature_id` to check one signer; without it, every signer of the step is checked, and the call fails if
+        # any of them hasn't signed.
+        #
+        # Needs `write:sessions`; your API key works. In the console it's the **Validate again** button.
+        #
+        # +POST /v3/session/{sessionId}/signatures/{nodeId}/validate/+
+        #
+        # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
+        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param signature_id [String] `id` of one signer's item in `signatures[]`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionsSignaturesValidateResponse]
+        def validate(session_id, node_id, signature_id: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/{sessionId}/signatures/{nodeId}/validate/",
+            path_params: { "sessionId" => session_id, "nodeId" => node_id },
+            body: {
+              "signature_id" => signature_id
+            },
+            response: Types::SessionsSignaturesValidateResponse,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +sessions.webhooks+ resource.
+      class Webhooks < Didit::Resource
+        # List session webhook deliveries
+        #
+        # List every webhook delivery Didit recorded for one verification session, user (KYC) or business (KYB),
+        # newest first, as a plain JSON array (not paginated). Each entry is one attempt to one destination: the first
+        # send, each automatic [retry](https://docs.didit.me/integration/webhooks#retry-policy) and each resend are
+        # separate entries with their own `uuid`, and retries and resends keep the payload's `event_id`.
+        # `request_header` and `request_body` are JSON text; parse them to read the signatures and the payload.
+        # Delivery records are available for about 30 days, so an empty array means no webhook has been sent for the
+        # session yet or every delivery is older than that. A scoped API key needs `sessions: read` and `decisions:
+        # read`.
+        #
+        # +GET /v3/session/{sessionId}/webhooks/+
+        #
+        # @param session_id [String] UUID of the verification session, user (KYC) or business (KYB): the `session_id`
+        #   returned by `POST /v3/session/`. The server resolves it against both session types. **Must be a valid
+        #   UUID.** The route only matches well-formed UUIDs, so a malformed value is rejected by the URL router before
+        #   any application code runs and the response is a `404` **HTML** page rather than the JSON `{"detail": ...}`
+        #   e...
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Array<Didit::Types::SessionWebhookDelivery>]
+        def list(session_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/session/{sessionId}/webhooks/",
+            path_params: { "sessionId" => session_id },
+            response: [:array, Types::SessionWebhookDelivery],
+            request_options: request_options
+          )
+        end
+
+        # Resend session webhook delivery
+        #
+        # Send a recorded session webhook again to the URL it first went to, with the same payload and `event_id` and
+        # a fresh `timestamp`, `X-Timestamp` header and signatures. Didit signs it with the current secret of the
+        # destination the delivery belongs to (or the application-level secret for a delivery to the legacy webhook
+        # URL), waits up to 5 seconds for your endpoint, records the attempt as a new delivery and returns it with
+        # `200` whatever your endpoint answered: read `response_status`. A resend is not retried automatically, and
+        # every call sends again, so make your endpoint idempotent on `event_id`. The path has no trailing slash and
+        # the request has no body. A scoped API key needs `webhooks: write` and `decisions: read`.
+        #
+        # +POST /v3/session/{sessionId}/webhook/{webhook_uuid}/resend+
+        #
+        # @param session_id [String] UUID of the verification session, user (KYC) or business (KYB): the `session_id`
+        #   returned by `POST /v3/session/`. The server resolves it against both session types. **Must be a valid
+        #   UUID.** The route only matches well-formed UUIDs, so a malformed value is rejected by the URL router before
+        #   any application code runs and the response is a `404` **HTML** page rather than the JSON `{"detail": ...}`
+        #   e...
+        # @param webhook_uuid [String] UUID of the delivery to resend: the `uuid` of an entry returned by `GET
+        #   /v3/session/{sessionId}/webhooks/`. It must belong to the session in the path.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionWebhookDelivery]
+        def resend(session_id, webhook_uuid, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/{sessionId}/webhook/{webhook_uuid}/resend",
+            path_params: { "sessionId" => session_id, "webhook_uuid" => webhook_uuid },
+            response: Types::SessionWebhookDelivery,
+            request_options: request_options
+          )
+        end
+
+        # Get session webhook delivery
+        #
+        # Retrieve one webhook delivery of a verification session: the URL it went to, the HTTP status your endpoint
+        # returned, and the exact headers and JSON body Didit sent. `request_header` and `request_body` are JSON text;
+        # to check your [signature verification](https://docs.didit.me/integration/webhooks#signature-verification),
+        # recompute `X-Signature-V2` from the parsed body with the secret of the destination it was sent to (or the
+        # application-level secret for a delivery to the legacy webhook URL). The path has no trailing slash: with one
+        # it returns `404`. A scoped API key needs `sessions: read` and `decisions: read`.
+        #
+        # +GET /v3/session/{sessionId}/webhook/{webhook_uuid}+
+        #
+        # @param session_id [String] UUID of the verification session, user (KYC) or business (KYB): the `session_id`
+        #   returned by `POST /v3/session/`. The server resolves it against both session types. **Must be a valid
+        #   UUID.** The route only matches well-formed UUIDs, so a malformed value is rejected by the URL router before
+        #   any application code runs and the response is a `404` **HTML** page rather than the JSON `{"detail": ...}`
+        #   e...
+        # @param webhook_uuid [String] UUID of the delivery: the `uuid` of an entry returned by `GET
+        #   /v3/session/{sessionId}/webhooks/`. It must belong to the session in the path.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionWebhookDelivery]
+        def retrieve(session_id, webhook_uuid, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/session/{sessionId}/webhook/{webhook_uuid}",
+            path_params: { "sessionId" => session_id, "webhook_uuid" => webhook_uuid },
+            response: Types::SessionWebhookDelivery,
             request_options: request_options
           )
         end

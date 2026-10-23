@@ -79,7 +79,7 @@ module Didit
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
       # The session decision, the shape +sessions.retrieve_decision+ returns.
-      field :decision, "decision", "SessionsRetrieveDecisionResponse"
+      field :decision, "decision", "SessionDecision"
       # The steps the user must redo and why, when status is Resubmitted.
       field :resubmit_info, "resubmit_info", :any
     end

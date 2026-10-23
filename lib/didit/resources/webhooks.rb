@@ -12,6 +12,93 @@ module Didit
         @destinations ||= Destinations.new(@client)
       end
 
+      # Get webhook configuration
+      #
+      # Return the application's webhook settings in one call: every [webhook
+      # destination](https://docs.didit.me/management-api/webhook/list-destinations) with its signing secret, the
+      # event types a destination can subscribe to, the application-level (legacy) webhook URL, version and secret,
+      # the data and biometric-template retention policy, and the Digital ID wallet return hosts. Didit delivers
+      # webhooks to destinations, each signed with its own `secret_shared_key`; the top-level `webhook_url`,
+      # `webhook_version` and `secret_shared_key` are used only while no destination is enabled, and then only for
+      # `status.updated` and `data.updated`. The response contains signing secrets, so keep it out of logs and
+      # client-side code. A scoped API key needs `webhooks: read`.
+      #
+      # +GET /v3/webhook/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::WebhookConfig]
+      def retrieve_config(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/webhook/",
+          response: Types::WebhookConfig,
+          request_options: request_options
+        )
+      end
+
+      # Update webhook configuration
+      #
+      # Partially update application-level settings: the legacy webhook URL, version and secret, the data and
+      # biometric-template retention policy, and the Digital ID wallet return hosts. Send only the fields to change;
+      # the response is the full configuration, the same shape as `GET /v3/webhook/`. Destinations are not managed
+      # here: create, update and delete them with the `/v3/webhook/destinations/` endpoints, and do not send an
+      # `endpoints` field to this endpoint. A `data_retention_months` change also applies to existing sessions, and
+      # sessions it deletes cannot be restored; read [Data retention](https://docs.didit.me/console/data-retention)
+      # first. A scoped API key needs `webhooks: write`.
+      #
+      # +PATCH /v3/webhook/+
+      #
+      # @param webhook_url [String, nil] Legacy application-level webhook URL. Didit uses it only while the
+      #   application has no enabled destination, and then only for `status.updated` and `data.updated`. It does not
+      #   create a destination, and the next create, update or delete of a destination replaces it. To receive webhooks,
+      #   create a destination with `POST /v3/webhook/destinations/` instead.
+      # @param webhook_version [String] Payload version of the legacy `webhook_url`.
+      # @param rotate_secret_key [Boolean] `true` replaces the application-level `secret_shared_key` with a new random
+      #   value at once; the new value is in the response. Destination secrets are not changed. Every call with `true`
+      #   generates a new secret, so it is not idempotent.
+      # @param capture_method [String] Legacy application setting. The verification flow does not read it.
+      # @param data_retention_months [Integer, nil] Automatic deletion window in months (a month counts as 30 days),
+      #   or `null` for no automatic deletion. A change applies to existing sessions too: every user verification
+      #   session older than the new window is deleted automatically, and that deletion is irreversible.
+      # @param face_retention_policy [String] What happens to a session's face embedding when the session is deleted.
+      #   `retain_until_user_deleted` needs `face_retention_days` in the same request or already set. A change applies
+      #   to session deletions from then on; it creates or purges no existing biometric template.
+      # @param face_retention_days [Integer, nil] Retention period, in days, of biometric templates under
+      #   `retain_until_user_deleted`.
+      # @param allowed_return_hosts [Array<String>] Replaces the whole list of Digital ID wallet return hosts. Bare
+      #   hostnames only, such as `shop.example.com`: no scheme, port, path or wildcard. Values are lowercased and
+      #   duplicates are dropped. Send `[]` to clear the list.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::WebhookConfig]
+      def update_config(
+        webhook_url: OMIT,
+        webhook_version: OMIT,
+        rotate_secret_key: OMIT,
+        capture_method: OMIT,
+        data_retention_months: OMIT,
+        face_retention_policy: OMIT,
+        face_retention_days: OMIT,
+        allowed_return_hosts: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :patch,
+          "/v3/webhook/",
+          body: {
+            "webhook_url" => webhook_url,
+            "webhook_version" => webhook_version,
+            "rotate_secret_key" => rotate_secret_key,
+            "capture_method" => capture_method,
+            "data_retention_months" => data_retention_months,
+            "face_retention_policy" => face_retention_policy,
+            "face_retention_days" => face_retention_days,
+            "allowed_return_hosts" => allowed_return_hosts
+          },
+          response: Types::WebhookConfig,
+          request_options: request_options
+        )
+      end
+
       # The +webhooks.destinations+ resource.
       class Destinations < Didit::Resource
         # Create webhook destination
@@ -20,15 +107,14 @@ module Didit
         # secret (also readable later via `GET /v3/webhook/destinations/{destination_uuid}/`). Always send
         # `subscribed_events` with at least one event (no wildcards): an explicit empty list is rejected with 400, and
         # omitting the field creates a destination subscribed to nothing, which never receives a webhook. The
-        # `(application, url)` pair must be unique among non-deleted destinations.
+        # `(application, url)` pair must be unique among the application's destinations.
         #
         # +POST /v3/webhook/destinations/+
         #
         # @param label [String] Human-readable name displayed in Console → Webhooks. Helps distinguish destinations
         #   when you have several (e.g. "Prod", "Staging mirror").
-        # @param url [String] HTTPS URL that will receive `POST` requests. Must be unique per application among
-        #   non-deleted destinations. Use a stable, hardened endpoint - Didit retries failed deliveries on a backoff
-        #   schedule.
+        # @param url [String] HTTPS URL that will receive `POST` requests. Must be unique among the application's
+        #   destinations. Use a stable, hardened endpoint: Didit retries failed deliveries on a backoff schedule.
         # @param enabled [Boolean] When `false`, the destination is saved but Didit will not push any webhooks to it.
         #   Useful for staging configs you want to keep parked.
         # @param webhook_version [String] Payload schema version Didit will send. `v3` is the current/recommended
@@ -55,9 +141,13 @@ module Didit
 
         # Delete webhook destination
         #
-        # Delete a webhook destination. Future events stop being pushed to its URL. Past delivery records are not
-        # affected and stay queryable from the Business Console, so deleting a destination is not a way to remove your
-        # delivery history. Calling again returns 404.
+        # Permanently delete a webhook destination, its signing secret and its entire delivery log. This cannot be
+        # undone. No new webhook is sent to the destination's URL; other destinations subscribed to the same events
+        # keep receiving them. Afterwards the destination no longer appears in `GET /v3/webhook/destinations/`, and
+        # every route under `/v3/webhook/destinations/{destination_uuid}/`, including its deliveries, a delivery's
+        # detail and its resend, answers 404. The application's legacy `webhook_url` is set to the URL of the oldest
+        # remaining enabled destination, or cleared when no enabled destination is left. Calling DELETE again returns
+        # 404.
         #
         # +DELETE /v3/webhook/destinations/{destination_uuid}/+
         #
@@ -75,9 +165,11 @@ module Didit
 
         # List webhook destinations
         #
-        # List all webhook destinations (unpaginated array, oldest first). Each row includes URL, subscribed events,
-        # and delivery health metrics. The signing secret is NOT included in the list - fetch a single destination
-        # (`GET /v3/webhook/destinations/{destination_uuid}/`) to read `secret_shared_key`.
+        # List all webhook destinations (unpaginated array, oldest first). Each item carries the destination's
+        # configuration, its delivery metrics for the last 30 days (`metrics_window_days`) with one `daily_points`
+        # entry per day, and its health (`health_status`, `failing_streak`, `failing_since`, `last_success_at`). The
+        # list has no `summary` object and never includes the signing secret: each item shows only `secret_last4`.
+        # Fetch a single destination (`GET /v3/webhook/destinations/{destination_uuid}/`) to read `secret_shared_key`.
         #
         # +GET /v3/webhook/destinations/+
         #
@@ -92,11 +184,86 @@ module Didit
           )
         end
 
+        # List webhook destination deliveries
+        #
+        # Page through every delivery attempt to one webhook destination, newest first. The first send of each event,
+        # each automatic [retry](https://docs.didit.me/integration/webhooks#retry-policy) and each resend are separate
+        # entries. Entries carry the HTTP status and response time but not the payload: fetch one delivery to read its
+        # headers and body. `count` is exact up to 100 and reads 100 above that, so follow `next` until it is `null`.
+        # Delivery records are available for about 30 days. A scoped API key needs `webhooks: read` and `decisions:
+        # read`; a key limited to some workflows or to approved sessions cannot use this endpoint.
+        #
+        # +GET /v3/webhook/destinations/{destination_uuid}/deliveries/+
+        #
+        # @param destination_uuid [String] UUID of the destination (the `uuid` returned by `GET
+        #   /v3/webhook/destinations/`).
+        # @param limit [Integer] Maximum number of deliveries per page. Defaults to 50. A value that is not a positive
+        #   integer falls back to 50; a value above 1000000 returns `400`.
+        # @param offset [Integer] Number of deliveries to skip. Defaults to 0. Prefer following the `next` and
+        #   `previous` URLs from the response.
+        # @param date_from [Date, String] First UTC day to include, as `YYYY-MM-DD` (inclusive). Omit to start from
+        #   the oldest delivery available. `dateFrom` is accepted as an alias.
+        # @param date_to [Date, String] Last UTC day to include, as `YYYY-MM-DD` (inclusive). Must not be earlier than
+        #   `date_from`. `dateTo` is accepted as an alias.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::WebhookDestinationDelivery>]
+        def list_deliveries(
+          destination_uuid,
+          limit: OMIT,
+          offset: OMIT,
+          date_from: OMIT,
+          date_to: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/webhook/destinations/{destination_uuid}/deliveries/",
+            path_params: { "destination_uuid" => destination_uuid },
+            query: {
+              "limit" => limit,
+              "offset" => offset,
+              "date_from" => date_from,
+              "date_to" => date_to
+            },
+            page: Types::WebhookDestinationDelivery,
+            request_options: request_options
+          )
+        end
+
+        # Resend webhook destination delivery
+        #
+        # Send a past delivery again, for example after your endpoint was down. Didit takes the stored payload, sets a
+        # fresh `timestamp`, signs it again with the destination's current `secret_shared_key` (`X-Signature`,
+        # `X-Signature-V2`, `X-Signature-Simple` and `X-Timestamp`) and posts it to the delivery's `request_url`, even
+        # if the destination's URL has changed since or the destination is disabled. `event_id` and the rest of the
+        # payload are unchanged, so deduplicate on `event_id`. The call waits up to 5 seconds for your endpoint and
+        # returns the new delivery with `200` whatever your endpoint answered: read `response_status`. A resend is not
+        # retried automatically, every call sends again and creates a new delivery, and the request has no body. A
+        # scoped API key needs `webhooks: write` and `decisions: read`; a key limited to some workflows or to approved
+        # sessions cannot use this endpoint.
+        #
+        # +POST /v3/webhook/destinations/{destination_uuid}/deliveries/{delivery_uuid}/resend/+
+        #
+        # @param destination_uuid [String] UUID of the destination the delivery was sent to.
+        # @param delivery_uuid [String] UUID of the delivery to resend: the `uuid` of an entry returned by `GET
+        #   /v3/webhook/destinations/{destination_uuid}/deliveries/`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::WebhookDestinationDeliveryDetail]
+        def resend_delivery(destination_uuid, delivery_uuid, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/webhook/destinations/{destination_uuid}/deliveries/{delivery_uuid}/resend/",
+            path_params: { "destination_uuid" => destination_uuid, "delivery_uuid" => delivery_uuid },
+            response: Types::WebhookDestinationDeliveryDetail,
+            request_options: request_options
+          )
+        end
+
         # Get webhook destination
         #
-        # Retrieve one webhook destination with its `secret_shared_key` signing secret and delivery health summary.
-        # API-key callers always receive the secret in full; Console users without `read:webhooks` see an empty
-        # string.
+        # Retrieve one webhook destination with its `secret_shared_key` signing secret, its health (`health_status`,
+        # `failing_streak`, `failing_since`, `last_success_at`) and a delivery `summary` for the last 30 days. API-key
+        # callers always receive the secret in full; Console users without `read:webhooks` see an empty string.
         #
         # +GET /v3/webhook/destinations/{destination_uuid}/+
         #
@@ -113,10 +280,70 @@ module Didit
           )
         end
 
+        # Get webhook destination analytics
+        #
+        # Delivery totals, failure rate and response times for one webhook destination, over the whole range
+        # (`summary`) and per UTC day (`points`). Every attempt counts as a delivery: the first send of an event, each
+        # automatic [retry](https://docs.didit.me/integration/webhooks#retry-policy) and each resend. A delivery is
+        # failed when its recorded HTTP status is 400 or above, so timeouts (recorded as `504`) and connection
+        # failures (`503`) count as failed; a delivery still queued counts in `total_deliveries` only. Delivery
+        # records are available for about 30 days. A scoped API key needs `webhooks: read`.
+        #
+        # +GET /v3/webhook/destinations/{destination_uuid}/analytics/+
+        #
+        # @param destination_uuid [String] UUID of the destination (the `uuid` returned by `GET
+        #   /v3/webhook/destinations/`).
+        # @param date_from [Date, String] First UTC day to include, as `YYYY-MM-DD` (inclusive). Omit to start from
+        #   the oldest delivery available. `dateFrom` is accepted as an alias.
+        # @param date_to [Date, String] Last UTC day to include, as `YYYY-MM-DD` (inclusive). Must not be earlier than
+        #   `date_from`. `dateTo` is accepted as an alias.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::WebhooksDestinationsRetrieveAnalyticsResponse]
+        def retrieve_analytics(destination_uuid, date_from: OMIT, date_to: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/webhook/destinations/{destination_uuid}/analytics/",
+            path_params: { "destination_uuid" => destination_uuid },
+            query: {
+              "date_from" => date_from,
+              "date_to" => date_to
+            },
+            response: Types::WebhooksDestinationsRetrieveAnalyticsResponse,
+            request_options: request_options
+          )
+        end
+
+        # Get webhook destination delivery
+        #
+        # Retrieve one delivery attempt to a webhook destination with the exact request headers and JSON body Didit
+        # sent, the HTTP status your endpoint returned and the response time. `request_header` and `request_body` are
+        # JSON text: parse them to read the signature headers and the payload, for example to check your [signature
+        # verification](https://docs.didit.me/integration/webhooks#signature-verification) against the destination's
+        # `secret_shared_key`. A delivery never contains the signing secret, and Didit does not record your endpoint's
+        # response body. A scoped API key needs `webhooks: read` and `decisions: read`; a key limited to some
+        # workflows or to approved sessions cannot use this endpoint.
+        #
+        # +GET /v3/webhook/destinations/{destination_uuid}/deliveries/{delivery_uuid}/+
+        #
+        # @param destination_uuid [String] UUID of the destination the delivery was sent to.
+        # @param delivery_uuid [String] UUID of the delivery: the `uuid` of an entry returned by `GET
+        #   /v3/webhook/destinations/{destination_uuid}/deliveries/`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::WebhookDestinationDeliveryDetail]
+        def retrieve_delivery(destination_uuid, delivery_uuid, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/webhook/destinations/{destination_uuid}/deliveries/{delivery_uuid}/",
+            path_params: { "destination_uuid" => destination_uuid, "delivery_uuid" => delivery_uuid },
+            response: Types::WebhookDestinationDeliveryDetail,
+            request_options: request_options
+          )
+        end
+
         # Update webhook destination
         #
-        # Update a webhook destination. **`subscribed_events` is REPLACED wholesale, not merged** - fetch first,
-        # append, resend. Secret is not rotated.
+        # Update a webhook destination. **`subscribed_events` is REPLACED wholesale, not merged**: fetch first,
+        # append, resend. Secret is not rotated. A `uuid` in the body is ignored: the path names the destination.
         #
         # +PATCH /v3/webhook/destinations/{destination_uuid}/+
         #

@@ -5,16 +5,18 @@ module Didit
     class Businesses < Didit::Resource
       def batch_delete: (?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool, ?request_options: Didit::request_options?) -> Didit::Types::BusinessesBatchDeleteResponse
       def create: (?vendor_data: String?, ?display_name: String?, ?legal_name: String?, ?registration_number: String?, ?country_code: String?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
+      def generate_session_pdf: (String business_session_id, ?request_options: Didit::request_options?) -> String
+                              | (String business_session_id, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
       def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::BusinessListItem]
-      def list_networks: (String vendor_business_uuid, ?request_options: Didit::request_options?) -> Didit::Types::BusinessesListNetworksResponse
+      def list_networks: (String vendor_business_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
       def retrieve: (String vendor_data, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
-      def retrieve_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::BusinessesRetrieveOngoingMonitoringJobResponse
-      def retrieve_session_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::BusinessesRetrieveSessionOngoingMonitoringJobResponse
-      def set_aml_monitoring: (is_enabled: bool, ?estimate_only: bool, ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::BusinessesSetAmlMonitoringResponse | Didit::Types::BusinessesSetAmlMonitoringResponse202)
-      def set_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::BusinessesSetOngoingMonitoringResponse | Didit::Types::BusinessesSetOngoingMonitoringResponse202)
-      def set_session_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?session_numbers: Array[String], ?toggle_all: bool, ?filter_workflow_id: String, ?request_options: Didit::request_options?) -> (Didit::Types::BusinessesSetSessionOngoingMonitoringResponse | Didit::Types::BusinessesSetSessionOngoingMonitoringResponse202)
-      def update: (String vendor_data, ?display_name: String?, ?legal_name: String?, ?registration_number: String?, ?country_code: String?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
-      def update_status: (String vendor_data, status: String, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
+      def retrieve_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::OngoingMonitoringJob
+      def retrieve_session_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::OngoingMonitoringJob
+      def set_aml_monitoring: (is_enabled: bool, ?estimate_only: bool, ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::AMLMonitoringToggleResult | Didit::Types::AMLMonitoringJob)
+      def set_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::OngoingMonitoringToggleResult | Didit::Types::OngoingMonitoringJob)
+      def set_session_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?session_numbers: Array[String], ?toggle_all: bool, ?filter_workflow_id: String, ?request_options: Didit::request_options?) -> (Didit::Types::OngoingMonitoringToggleResult | Didit::Types::OngoingMonitoringJob)
+      def update: (String vendor_data, ?display_name: String?, ?legal_name: String?, ?registration_number: String?, ?country_code: String?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?reason: String?, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
+      def update_status: (String vendor_data, status: String, ?reason: String?, ?request_options: Didit::request_options?) -> Didit::Types::BusinessDetailItem
     end
   end
 end

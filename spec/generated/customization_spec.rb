@@ -29,6 +29,7 @@ RSpec.describe Didit::Resources::Customization do
         "font_url": "https://fonts.googleapis.com/css2?family=Inter",
         "logo_square": null,
         "logo_rectangular": null,
+        "logo_rectangular_dark": null,
         "favicon": null,
         "app_public_name": "Acme Verify",
         "privacy_policy_url": "https://acme.com/privacy",
@@ -76,6 +77,7 @@ RSpec.describe Didit::Resources::Customization do
         "font_url": "https://fonts.googleapis.com/css2?family=AR+One+Sans",
         "logo_square": null,
         "logo_rectangular": "https://cdn.didit.me/white_label/logo_rectangular/...",
+        "logo_rectangular_dark": null,
         "favicon": null,
         "app_public_name": "Acme Verify",
         "privacy_policy_url": "https://acme.com/privacy",
@@ -92,6 +94,7 @@ RSpec.describe Didit::Resources::Customization do
       border_radius_buttons: 16,
       image_favicon: Didit::FilePart.new("fake-image_favicon-bytes", filename: "image_favicon.jpg", content_type: "image/jpeg"),
       image_rectangular: Didit::FilePart.new("fake-image_rectangular-bytes", filename: "image_rectangular.jpg", content_type: "image/jpeg"),
+      image_rectangular_dark: Didit::FilePart.new("fake-image_rectangular_dark-bytes", filename: "image_rectangular_dark.jpg", content_type: "image/jpeg"),
       image_square: Didit::FilePart.new("fake-image_square-bytes", filename: "image_square.jpg", content_type: "image/jpeg")
     )
     request = expect_api_request(
@@ -120,6 +123,11 @@ RSpec.describe Didit::Resources::Customization do
           "image_rectangular.jpg",
           "image/jpeg",
           "fake-image_rectangular-bytes"
+        ],
+        "image_rectangular_dark" => [
+          "image_rectangular_dark.jpg",
+          "image/jpeg",
+          "fake-image_rectangular_dark-bytes"
         ],
         "image_square" => [
           "image_square.jpg",

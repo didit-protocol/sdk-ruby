@@ -4,6 +4,35 @@
 module Didit
   module Types
     # Known values of an open enum: the API may send others.
+    module NetworksListParamsScope
+      IDENTITY = "identity"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [IDENTITY, TRANSACTIONS].freeze
+    end
+
+    # Why cross-organization signals do not apply, checked in this order. `plan`: the organization's Identity plan
+    # does not include the cross-organization fraud network (it needs Identity Enterprise), whatever the sharing mode.
+    # `sharing_mode`: the plan includes it, but the sharing mode is `private` or `off`. Null when
+    # `cross_org_available` is `true`.
+    module NetworksListResponseCrossOrgUnavailableReason
+      PLAN = "plan"
+      SHARING_MODE = "sharing_mode"
+
+      VALUES = [PLAN, SHARING_MODE].freeze
+    end
+
+    # The organization's cross-organization sharing mode. Only `global` compares networks across organizations;
+    # `private` and `off` keep them to the organization's own history.
+    module NetworksListResponseSharingMode
+      OFF = "off"
+      PRIVATE = "private"
+      GLOBAL = "global"
+
+      VALUES = [OFF, PRIVATE, GLOBAL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module NetworksRetrieveGraphParamsDepth
       V_1 = "1"
       V_2 = "2"
@@ -22,6 +51,31 @@ module Didit
       VALUES = [VENDOR_USER, VENDOR_BUSINESS, TRANSACTION_PARTY].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module NetworksRetrieveTimelineParamsContract
+      V_2 = "2"
+
+      VALUES = [V_2].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module NetworksRetrieveTimelineParamsEventType
+      NETWORK_DETECTED = "network_detected"
+      SIGNAL_OBSERVED = "signal_observed"
+      NETWORK_ACTIVE = "network_active"
+      NETWORK_IN_REVIEW = "network_in_review"
+      NETWORK_RESOLVED = "network_resolved"
+      NETWORK_DISMISSED = "network_dismissed"
+      VERIFICATION_ATTEMPT = "verification_attempt"
+      TRANSACTION = "transaction"
+      LOGIN = "login"
+      RULE_HIT = "rule_hit"
+      CASE_LINKED = "case_linked"
+      NOTE_ADDED = "note_added"
+
+      VALUES = [NETWORK_DETECTED, SIGNAL_OBSERVED, NETWORK_ACTIVE, NETWORK_IN_REVIEW, NETWORK_RESOLVED, NETWORK_DISMISSED, VERIFICATION_ATTEMPT, TRANSACTION, LOGIN, RULE_HIT, CASE_LINKED, NOTE_ADDED].freeze
+    end
+
     class NetworksListMembersResponse < Didit::Model
       field :results, "results", [:array, "NetworkMember"]
     end
@@ -32,9 +86,13 @@ module Didit
       field :previous, "previous", :integer
       field :results, "results", [:array, "NetworkListItem"]
       field :kpis, "kpis", "NetworksListResponseKpis"
+      field :counts, "counts", "NetworkListCounts"
+      field :sharing_mode, "sharing_mode", :string
+      field :cross_org_available, "cross_org_available", :boolean
+      field :cross_org_unavailable_reason, "cross_org_unavailable_reason", :string
     end
 
-    # Each key is {value, delta} over the results matching the current filters.
+    # Each key is {value, delta} over the results matching the current filters. Omitted when `summary=false`.
     class NetworksListResponseKpis < Didit::Model
       field :active, "active", :any
       field :in_review, "in_review", :any
@@ -56,6 +114,7 @@ module Didit
 
     class NetworksRetrieveTimelineResponse < Didit::Model
       field :results, "results", [:array, "NetworkTimelineEvent"]
+      field :next_cursor, "next_cursor", :string
     end
   end
 end

@@ -10,6 +10,33 @@ module Didit
         @notes ||= Notes.new(@client)
       end
 
+      # Add a tag to a network
+      #
+      # Put one of your application's tags on the network. Returns the network detail, whose `tags` lists your
+      # application's tags on the network, with `201` when the tag was added and `200` when it was already on the
+      # network. A tag that belongs to another application, or does not exist, returns 404 `Tag not found.`. Requires
+      # a full-access API key, or `write:networks` for a console member.
+      #
+      # +POST /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/add/+
+      #
+      # @param network_uuid [String] Network UUID.
+      # @param tag_uuid [String] UUID of one of your application's tags.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::NetworkDetailResponse]
+      def add_tag(network_uuid, tag_uuid:, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/add/",
+          path_params: { "network_uuid" => network_uuid },
+          body: {
+            "tag_uuid" => tag_uuid
+          },
+          scope: :application,
+          response: Types::NetworkDetailResponse,
+          request_options: request_options
+        )
+      end
+
       # Download a network evidence report
       #
       # Download a PDF of the current organization network, its observed account connections, signal references and
@@ -36,20 +63,36 @@ module Didit
 
       # List networks
       #
-      # List fraud networks detected within this application's organization, newest activity first by default. By
-      # default dismissed networks are excluded; pass status to include them. Sandbox applications never have networks
-      # - clustering excludes sandbox data entirely.
+      # List fraud networks detected within this application's organization, highest risk first by default. By default
+      # dismissed networks are excluded; pass status to include them. Sandbox applications never have networks:
+      # clustering excludes sandbox data entirely. Every response carries the organization's `sharing_mode` and
+      # whether cross-organization signals apply to it (`cross_org_available`, `cross_org_unavailable_reason`). `kpis`
+      # aggregate the networks that match your filters and `counts` aggregate every network the application can see;
+      # pass `summary=false` to skip both when you only need the page. Requires a full-access API key, or
+      # `list:networks` for a console member.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/+
       #
       # @param status [String] Comma-separated statuses to include: active,in_review,resolved,dismissed. Omit to
       #   exclude dismissed.
+      # @param scope [String] `transactions` keeps networks whose members are all transaction parties; `identity`
+      #   keeps every other network. Omit for both. It also narrows `counts.views` and `counts.facets`. Any other value
+      #   returns 400.
       # @param signal_type [String] Comma-separated signal types:
       #   ip_address,device,face,document_number,phone,email,address.
       # @param pattern_type [String] Comma-separated pattern types, e.g. exact_same_device,same_email.
       # @param risk_band [String] Comma-separated bands: low,medium,high.
       # @param min_size [Integer] Minimum member count.
       # @param max_size [Integer] Maximum member count.
+      # @param assignee [String] Comma-separated assignees: `unassigned`, member emails (matched case-insensitively),
+      #   or `me` for the calling console member. A network matches any value. `me` needs a console member token: an API
+      #   key gets 400 `{"assignee": ["\"me\" needs a user token; an API key has no assignee identity."]}`.
+      # @param priority [String] Comma-separated priorities: `low`, `medium`, `high`, or `none` for networks without a
+      #   priority. Any other value returns 400 `{"priority": "Unknown priority: <values>."}`.
+      # @param risk_min [Integer] Minimum risk score, a whole number from 0 to 100. A value that is not a whole number
+      #   returns 400 `{"risk_min": "Use a whole number from 0 to 100."}`.
+      # @param has_case [Boolean] `true` keeps the networks your application opened a case for, `false` the others.
+      #   Any other value is ignored.
       # @param date_from [Date, String] Lower bound on last_activity_at (ISO 8601 date or datetime).
       # @param date_to [Date, String] Upper bound on first_activity_at (ISO 8601 date or datetime).
       # @param q [String] Free-text search across network name, member names, the network_id (N-0001), and exact
@@ -59,21 +102,29 @@ module Didit
       #   -risk_score,-last_activity_at.
       # @param limit [Integer] Page size, 1-500. Defaults to 100.
       # @param offset [Integer] Zero-based offset of the first record.
+      # @param summary [Boolean] `false` returns the page and its `count` only, without `kpis` and `counts`. Defaults
+      #   to `true`. Any value other than `true` or `false` returns 400.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::NetworkListItem>]
       def list(
         status: OMIT,
+        scope: OMIT,
         signal_type: OMIT,
         pattern_type: OMIT,
         risk_band: OMIT,
         min_size: OMIT,
         max_size: OMIT,
+        assignee: OMIT,
+        priority: OMIT,
+        risk_min: OMIT,
+        has_case: OMIT,
         date_from: OMIT,
         date_to: OMIT,
         q: OMIT,
         ordering: OMIT,
         limit: OMIT,
         offset: OMIT,
+        summary: OMIT,
         request_options: nil
       )
         @client.request(
@@ -81,17 +132,23 @@ module Didit
           "/v3/organization/{organization_id}/application/{application_id}/networks/",
           query: {
             "status" => status,
+            "scope" => scope,
             "signal_type" => signal_type,
             "pattern_type" => pattern_type,
             "risk_band" => risk_band,
             "min_size" => min_size,
             "max_size" => max_size,
+            "assignee" => assignee,
+            "priority" => priority,
+            "risk_min" => risk_min,
+            "has_case" => has_case,
             "date_from" => date_from,
             "date_to" => date_to,
             "q" => q,
             "ordering" => ordering,
             "limit" => limit,
-            "offset" => offset
+            "offset" => offset,
+            "summary" => summary
           },
           scope: :application,
           page: Types::NetworkListItem,
@@ -140,22 +197,51 @@ module Didit
         )
       end
 
+      # Remove a tag from a network
+      #
+      # Remove one of your application's tags from the network. Returns the network detail. 404 when the tag is not on
+      # the network, or does not belong to your application. Requires a full-access API key, or `write:networks` for a
+      # console member.
+      #
+      # +POST /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/remove/+
+      #
+      # @param network_uuid [String] Network UUID.
+      # @param tag_uuid [String] UUID of one of your application's tags.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::NetworkDetailResponse]
+      def remove_tag(network_uuid, tag_uuid:, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/remove/",
+          path_params: { "network_uuid" => network_uuid },
+          body: {
+            "tag_uuid" => tag_uuid
+          },
+          scope: :application,
+          response: Types::NetworkDetailResponse,
+          request_options: request_options
+        )
+      end
+
       # Get network
       #
-      # Retrieve a single network's full detail, including stats, fraud tags, and risk signals.
+      # Retrieve a single network's full detail: stats, fraud tags and risk signals, plus the organization's
+      # `sharing_mode` and cross-organization availability, your application's `tags` on the network, member
+      # `outcomes` and pattern scores (`patterns`). Requires a full-access API key, or `read:networks` for a console
+      # member.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/+
       #
       # @param network_uuid [String] Network UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::NetworkDetail]
+      # @return [Didit::Types::NetworkDetailResponse]
       def retrieve(network_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/",
           path_params: { "network_uuid" => network_uuid },
           scope: :application,
-          response: Types::NetworkDetail,
+          response: Types::NetworkDetailResponse,
           request_options: request_options
         )
       end
@@ -214,18 +300,43 @@ module Didit
 
       # Get network timeline
       #
-      # Chronological events for this network: detection, each signal's observation, and lifecycle status changes.
+      # Without `contract`: the network's own events (detection, each signal's latest observation and its review),
+      # oldest first and not paginated. `limit`, `cursor` and `event_type` are ignored. With `contract=2`: the typed
+      # timeline, newest first and paginated by cursor. It adds what the member accounts did (verification attempts,
+      # transactions, sign-ins you post through the events API and the live rules they hit) and the cases opened for
+      # the network. `note_added` events are returned to console members only, never to an API key. Requires a
+      # full-access API key, or `read:networks` for a console member.
       #
       # +GET /v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/timeline/+
       #
       # @param network_uuid [String] Network UUID.
+      # @param contract [String] `2` returns the typed timeline. Omit it for the default timeline. Any other value
+      #   returns 400.
+      # @param limit [Integer] Typed timeline only. Events per page, 1 to 500. Defaults to 100.
+      # @param cursor [String] Typed timeline only. The previous page's `next_cursor`. An invalid or empty cursor
+      #   returns 400.
+      # @param event_type [Array<String>] Typed timeline only. Event types to keep, repeated or comma-separated, at
+      #   most 20 values. Defaults to every type.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::NetworksRetrieveTimelineResponse]
-      def retrieve_timeline(network_uuid, request_options: nil)
+      def retrieve_timeline(
+        network_uuid,
+        contract: OMIT,
+        limit: OMIT,
+        cursor: OMIT,
+        event_type: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/timeline/",
           path_params: { "network_uuid" => network_uuid },
+          query: {
+            "contract" => contract,
+            "limit" => limit,
+            "cursor" => cursor,
+            "event_type" => event_type
+          },
           scope: :application,
           response: Types::NetworksRetrieveTimelineResponse,
           request_options: request_options

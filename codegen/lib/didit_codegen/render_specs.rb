@@ -8,6 +8,8 @@ module DiditCodegen
   class SpecRenderer
     BASE_URLS = { "verification" => "https://verification.didit.me",
                   "account" => "https://apx.didit.me/auth/v2" }.freeze
+    # The key of an operation's whole body (an argument with no wire name) in the request values.
+    WHOLE_BODY = ""
     ORGANIZATION_ID = "org-7f3a"
     APPLICATION_ID = "app-91c2"
     SAFE_SEGMENT = /\A[A-Za-z0-9_~-]+\z/
@@ -116,6 +118,8 @@ module DiditCodegen
       return nil if meth.body_args.empty? && meth.whole_body.nil?
 
       document = meth.op.document
+      return { WHOLE_BODY => whole_body_value(meth, document) } if meth.whole_body
+
       raw = if meth.has_body_example && body_example_fits?(meth)
               Samples.scrub(meth.body_example)
             else
@@ -126,6 +130,14 @@ module DiditCodegen
       raw = raw.except(*meth.file_fields)
       meth.file_fields.each { |f| raw[f] = :file } if %i[multipart auto].include?(meth.encoding)
       raw
+    end
+
+    # An operation whose JSON body is not a property map (a oneOf, an array) takes it whole as +body:+. The
+    # example is sent as JSON even when a multipart alternative exists.
+    def whole_body_value(meth, document)
+      return Samples.scrub(meth.body_example) if meth.has_body_example
+
+      Samples.synthesize(document, meth.whole_body.schema, name: "body")
     end
 
     def body_example_fits?(meth)
@@ -140,6 +152,7 @@ module DiditCodegen
     def call_lines(meth, path_values, query, body, indent)
       args = meth.path_args.map { |a| path_values[a.wire].inspect }
       by_wire = meth.body_args.to_h { |a| [a.wire, a] }
+      by_wire[WHOLE_BODY] = meth.whole_body if meth.whole_body
       (body || {}).each do |wire, value|
         literal = value == :file ? file_literal(wire) : Samples.literal(value, "#{indent}  ", symbols: true)
         args << "#{by_wire.fetch(wire).name}: #{literal}"
@@ -182,6 +195,10 @@ module DiditCodegen
     def body_assertions(meth, body, indent)
       return ["#{indent}expect_no_body(request)"] if body.nil? && !meth.op.op["requestBody"]
       return ["#{indent}expect_json_body(request, {})"] if body.nil?
+      if body.key?(WHOLE_BODY)
+        return ["#{indent}expect_json_body(request, #{Samples.literal(body[WHOLE_BODY],
+                                                                      indent)})"]
+      end
 
       if %i[multipart auto].include?(meth.encoding) && !meth.file_fields.empty?
         fields = body.reject { |_, v| v == :file }.transform_values { |v| multipart_text(v) }
