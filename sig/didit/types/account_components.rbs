@@ -2,6 +2,22 @@
 
 module Didit
   module Types
+    module ApplicationProductProduct
+      IDENTITY: String
+      TRANSACTIONS: String
+      AUTHENTICATION: String
+
+      VALUES: Array[String]
+    end
+
+    module ApplicationProductStatus
+      ENABLED: String
+      EARLY_ACCESS: String
+      DISABLED: String
+
+      VALUES: Array[String]
+    end
+
     class Application < Didit::Model
       def uuid: () -> String?
       def name: () -> String?
@@ -13,6 +29,7 @@ module Didit
       def privacy_url: () -> String?
       def description: () -> String?
       def created_at: () -> Time?
+      def products: () -> Array[Didit::Types::ApplicationProduct]?
     end
 
     class ApplicationCredentialsSummary < Didit::Model
@@ -20,6 +37,12 @@ module Didit
       def name: () -> String?
       def client_id: () -> String?
       def api_key: () -> String?
+    end
+
+    class ApplicationProduct < Didit::Model
+      def product: () -> String
+      def status: () -> String
+      def modules: () -> Hash[String, bool]
     end
 
     class LoginResponse < Didit::Model
@@ -39,6 +62,20 @@ module Didit
     class OrganizationSummary < Didit::Model
       def uuid: () -> String?
       def name: () -> String?
+    end
+
+    class PaginatedApplicationList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::Application]
+    end
+
+    class PaginatedOrganizationList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::Organization]
     end
 
     class RegisterResponse < Didit::Model

@@ -79,6 +79,39 @@ module Didit
         )
       end
 
+      # Download a business session PDF report
+      #
+      # Render the PDF report of one Business Verification (KYB) session: company registry data, key people and
+      # beneficial owners, documents, AML results and the other workflow features, plus the session's tags and review
+      # activity. With white-label customization on, the report carries your logo and privacy policy URL. The body is
+      # the PDF itself (`application/pdf`), not JSON.
+      #
+      # The session must be `Approved`, `Declined` or `In Review`; any other status returns `403`, so wait for the
+      # `status.updated` [webhook](https://docs.didit.me/integration/webhooks) first. The report is rendered on every
+      # call and nothing is billed, so store the file instead of fetching it repeatedly. `GET
+      # /v3/session/{sessionId}/generate-pdf/` renders the same kind of report by session ID alone.
+      #
+      # A PDF report counts as media: a scoped API key needs `businesses: read` and `media: read`, and a key limited
+      # to some workflows or to approved sessions cannot call it.
+      #
+      # +GET /v3/organization/{organization_id}/application/{application_id}/businesses/{business_session_id}/pdf/+
+      #
+      # @param business_session_id [String] `session_id` of the Business Verification (KYB) session, as returned when
+      #   the session was created. A session of another application returns `404`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [String, nil] the body bytes, or nil when a block receives the chunks
+      def generate_session_pdf(business_session_id, request_options: nil, &block)
+        @client.request(
+          :get,
+          "/v3/organization/{organization_id}/application/{application_id}/businesses/{business_session_id}/pdf/",
+          path_params: { "business_session_id" => business_session_id },
+          scope: :application,
+          response: :binary,
+          accept: "application/pdf, application/json",
+          request_options: request_options, &block
+        )
+      end
+
       # List businesses
       #
       # List [businesses](/entities/businesses) Didit assembles from KYB sessions sharing the same `vendor_data`
@@ -114,14 +147,14 @@ module Didit
       #
       # @param vendor_business_uuid [String] Vendor business UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesListNetworksResponse]
+      # @return [Didit::Types::EntityNetworkMembershipList]
       def list_networks(vendor_business_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/businesses/{vendor_business_uuid}/networks/",
           path_params: { "vendor_business_uuid" => vendor_business_uuid },
           scope: :application,
-          response: Types::BusinessesListNetworksResponse,
+          response: Types::EntityNetworkMembershipList,
           request_options: request_options
         )
       end
@@ -156,14 +189,14 @@ module Didit
       #
       # @param job_id [String] Monitoring job UUID returned by the toggle endpoint.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesRetrieveOngoingMonitoringJobResponse]
+      # @return [Didit::Types::OngoingMonitoringJob]
       def retrieve_ongoing_monitoring_job(job_id, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/vendor-businesses/toggle-ongoing-monitoring/{job_id}/",
           path_params: { "job_id" => job_id },
           scope: :application,
-          response: Types::BusinessesRetrieveOngoingMonitoringJobResponse,
+          response: Types::OngoingMonitoringJob,
           request_options: request_options
         )
       end
@@ -177,14 +210,14 @@ module Didit
       #
       # @param job_id [String] Monitoring job UUID returned by the toggle endpoint.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesRetrieveSessionOngoingMonitoringJobResponse]
+      # @return [Didit::Types::OngoingMonitoringJob]
       def retrieve_session_ongoing_monitoring_job(job_id, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/businesses/toggle-ongoing-monitoring/{job_id}/",
           path_params: { "job_id" => job_id },
           scope: :application,
-          response: Types::BusinessesRetrieveSessionOngoingMonitoringJobResponse,
+          response: Types::OngoingMonitoringJob,
           request_options: request_options
         )
       end
@@ -214,7 +247,7 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Didit internal ids of the businesses to toggle - the
       #   `didit_internal_id` returned by the create, get and list endpoints.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesSetAmlMonitoringResponse, Didit::Types::BusinessesSetAmlMonitoringResponse202]
+      # @return [Didit::Types::AMLMonitoringToggleResult, Didit::Types::AMLMonitoringJob]
       def set_aml_monitoring(
         is_enabled:,
         estimate_only: OMIT,
@@ -231,7 +264,7 @@ module Didit
             "vendor_data_list" => vendor_data_list,
             "didit_internal_id_list" => didit_internal_id_list
           },
-          response: { 200 => Types::BusinessesSetAmlMonitoringResponse, 202 => Types::BusinessesSetAmlMonitoringResponse202 },
+          response: { 200 => Types::AMLMonitoringToggleResult, 202 => Types::AMLMonitoringJob },
           request_options: request_options
         )
       end
@@ -255,7 +288,7 @@ module Didit
       # @param filter_date_to [Date, String]
       # @param didit_internal_id_list [Array<String>] Entities to toggle. Required unless update_all is true.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesSetOngoingMonitoringResponse, Didit::Types::BusinessesSetOngoingMonitoringResponse202]
+      # @return [Didit::Types::OngoingMonitoringToggleResult, Didit::Types::OngoingMonitoringJob]
       def set_ongoing_monitoring(
         is_enabled:,
         estimate_only: OMIT,
@@ -283,7 +316,7 @@ module Didit
             "didit_internal_id_list" => didit_internal_id_list
           },
           scope: :application,
-          response: { 200 => Types::BusinessesSetOngoingMonitoringResponse, 202 => Types::BusinessesSetOngoingMonitoringResponse202 },
+          response: { 200 => Types::OngoingMonitoringToggleResult, 202 => Types::OngoingMonitoringJob },
           request_options: request_options
         )
       end
@@ -311,7 +344,7 @@ module Didit
       # @param toggle_all [Boolean] Legacy alias of update_all.
       # @param filter_workflow_id [String]
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessesSetSessionOngoingMonitoringResponse, Didit::Types::BusinessesSetSessionOngoingMonitoringResponse202]
+      # @return [Didit::Types::OngoingMonitoringToggleResult, Didit::Types::OngoingMonitoringJob]
       def set_session_ongoing_monitoring(
         is_enabled:,
         estimate_only: OMIT,
@@ -343,7 +376,7 @@ module Didit
             "filter_workflow_id" => filter_workflow_id
           },
           scope: :application,
-          response: { 200 => Types::BusinessesSetSessionOngoingMonitoringResponse, 202 => Types::BusinessesSetSessionOngoingMonitoringResponse202 },
+          response: { 200 => Types::OngoingMonitoringToggleResult, 202 => Types::OngoingMonitoringJob },
           request_options: request_options
         )
       end
@@ -352,7 +385,9 @@ module Didit
       #
       # Partial update of a business: `display_name`, `legal_name`, `registration_number`, `country_code`, `status`,
       # `metadata`. `metadata` fully replaces. Setting `status` to `BLOCKED` adds the `vendor_data` to the system
-      # blocklist; moving away from `BLOCKED` removes that entry.
+      # blocklist; moving away from `BLOCKED` removes that entry. Every edit is recorded in the company's activity: a
+      # status change with the optional `reason`, and a change to `display_name`, `legal_name`, `registration_number`,
+      # `country_code` or `metadata` as a profile update.
       #
       # +PATCH /v3/businesses/{vendor_data}/+
       #
@@ -366,6 +401,8 @@ module Didit
       #   the system blocklist; flipping away from `BLOCKED` removes that blocklist entry.
       # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. **Fully replaces** the existing
       #   metadata on update - merge client-side if you only want to add keys.
+      # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the company's
+      #   **Activity** in the Business Console, only when the status actually changes. Webhooks do not carry it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
       def update(
@@ -376,6 +413,7 @@ module Didit
         country_code: OMIT,
         status: OMIT,
         metadata: OMIT,
+        reason: OMIT,
         request_options: nil
       )
         @client.request(
@@ -388,7 +426,8 @@ module Didit
             "registration_number" => registration_number,
             "country_code" => country_code,
             "status" => status,
-            "metadata" => metadata
+            "metadata" => metadata,
+            "reason" => reason
           },
           response: Types::BusinessDetailItem,
           request_options: request_options
@@ -397,22 +436,27 @@ module Didit
 
       # Update business status
       #
-      # Flip only the lifecycle `status` of a business - VendorBusinessStatusChoices (`ACTIVE`/`FLAGGED`/`BLOCKED`,
-      # NOT session statuses). `BLOCKED` adds `vendor_data` to the system blocklist.
+      # Flip only the lifecycle `status` of a business: `ACTIVE`, `FLAGGED` or `BLOCKED` (not session statuses).
+      # `BLOCKED` adds the `vendor_data` to the system blocklist; moving away from `BLOCKED` removes that entry. Each
+      # change is recorded in the company's activity, with the optional `reason`. Sending the current status changes
+      # nothing and records no `reason`. The `business.status.updated` webhook does not carry `reason`.
       #
       # +PATCH /v3/businesses/{vendor_data}/update-status/+
       #
       # @param vendor_data [String] Your unique identifier for the business (free-form string, NOT a UUID).
       # @param status [String] New lifecycle status. `BLOCKED` also adds the `vendor_data` to the system blocklist.
+      # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the company's
+      #   **Activity** in the Business Console, only when the status actually changes. Webhooks do not carry it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
-      def update_status(vendor_data, status:, request_options: nil)
+      def update_status(vendor_data, status:, reason: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/businesses/{vendor_data}/update-status/",
           path_params: { "vendor_data" => vendor_data },
           body: {
-            "status" => status
+            "status" => status,
+            "reason" => reason
           },
           response: Types::BusinessDetailItem,
           request_options: request_options

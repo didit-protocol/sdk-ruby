@@ -81,13 +81,6 @@ module Didit
       VALUES = [DRAFT, VALIDATED, FINALIZED].freeze
     end
 
-    class RegulatoryReportsListResponse < Didit::Model
-      field :count, "count", :integer
-      field :next, "next", :string
-      field :previous, "previous", :string
-      field :results, "results", [:array, "RegulatoryReportDetail"]
-    end
-
     class RegulatoryReportsRetrieveDownloadUrlResponse < Didit::Model
       field :download_url, "download_url", :string
       field :file, "file", :string

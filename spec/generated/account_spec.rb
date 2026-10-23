@@ -67,7 +67,8 @@ RSpec.describe Didit::Resources::Account do
   it "account.resend_otp sends POST /programmatic/resend-otp/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
-        "detail": "A new verification code has been sent to your email."
+        "message": "A new verification code has been sent to your email.",
+        "email": "you@yourdomain.com"
       }
     JSON
     result = client.account.resend_otp(
@@ -86,7 +87,8 @@ RSpec.describe Didit::Resources::Account do
       "email" => "dev@example.com",
       "password" => "redacted-password"
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::AccountResendOtpResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
@@ -143,7 +145,31 @@ RSpec.describe Didit::Resources::Account do
         "terms_url": "https://acme.example/terms",
         "privacy_url": "https://acme.example/privacy",
         "description": null,
-        "created_at": "2025-06-01T10:00:00Z"
+        "created_at": "2025-06-01T10:00:00Z",
+        "products": [
+          {
+            "product": "identity",
+            "status": "enabled",
+            "modules": {
+              "user_verification": true,
+              "business_verification": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "transactions",
+            "status": "disabled",
+            "modules": {
+              "travel_rule": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "authentication",
+            "status": "disabled",
+            "modules": {}
+          }
+        ]
       }
     JSON
     result = client.account.applications.create(
@@ -180,22 +206,79 @@ RSpec.describe Didit::Resources::Account do
 
   it "account.applications.list sends GET /organizations/me/{org_id}/applications/" do
     calls = stub_api(status: 200, body: <<~'JSON')
-      {}
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "b2c3d4e5-6789-01bc-defg-222222222222",
+            "name": "My App",
+            "client_id": "S9LIYGSoWNuGMLHsvEt9dQ",
+            "api_key": "redacted-api_key",
+            "website_url": "https://example.com",
+            "redirect_uris": [
+              "https://example.com/callback"
+            ],
+            "terms_url": "https://example.com/terms",
+            "privacy_url": "https://example.com/privacy",
+            "description": "Production application",
+            "created_at": "2025-06-01T10:00:00Z",
+            "products": [
+              {
+                "product": "identity",
+                "status": "enabled",
+                "modules": {
+                  "user_verification": true,
+                  "business_verification": true,
+                  "case_management": true
+                }
+              },
+              {
+                "product": "transactions",
+                "status": "disabled",
+                "modules": {
+                  "travel_rule": true,
+                  "case_management": true
+                }
+              },
+              {
+                "product": "authentication",
+                "status": "disabled",
+                "modules": {}
+              }
+            ]
+          }
+        ]
+      }
     JSON
     result = client.account.applications.list(
-      "a1b2c3d4-5678-90ab-cdef-111111111111"
+      "a1b2c3d4-5678-90ab-cdef-111111111111",
+      limit: 50,
+      offset: 0
     )
     request = expect_api_request(
       calls,
       method: :get,
       url: "https://apx.didit.me/auth/v2/organizations/me/a1b2c3d4-5678-90ab-cdef-111111111111/applications/",
-      query: [],
+      query: [
+        [
+          "limit",
+          "50"
+        ],
+        [
+          "offset",
+          "0"
+        ]
+      ],
       auth: :account_token,
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).not_to be_nil
-    exercise_readers(result)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::Application))
+    exercise_readers(result.results)
   end
 
   it "account.applications.retrieve sends GET /organizations/me/{org_id}/applications/{app_id}/" do
@@ -212,7 +295,31 @@ RSpec.describe Didit::Resources::Account do
         "terms_url": "https://example.com/terms",
         "privacy_url": "https://example.com/privacy",
         "description": "Production application",
-        "created_at": "2025-06-01T10:00:00Z"
+        "created_at": "2025-06-01T10:00:00Z",
+        "products": [
+          {
+            "product": "identity",
+            "status": "enabled",
+            "modules": {
+              "user_verification": true,
+              "business_verification": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "transactions",
+            "status": "disabled",
+            "modules": {
+              "travel_rule": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "authentication",
+            "status": "disabled",
+            "modules": {}
+          }
+        ]
       }
     JSON
     result = client.account.applications.retrieve(
@@ -247,7 +354,31 @@ RSpec.describe Didit::Resources::Account do
         "terms_url": "https://acme.example/terms",
         "privacy_url": "https://acme.example/privacy",
         "description": null,
-        "created_at": "2025-06-01T10:00:00Z"
+        "created_at": "2025-06-01T10:00:00Z",
+        "products": [
+          {
+            "product": "identity",
+            "status": "enabled",
+            "modules": {
+              "user_verification": true,
+              "business_verification": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "transactions",
+            "status": "disabled",
+            "modules": {
+              "travel_rule": true,
+              "case_management": true
+            }
+          },
+          {
+            "product": "authentication",
+            "status": "disabled",
+            "modules": {}
+          }
+        ]
       }
     JSON
     result = client.account.applications.update(
@@ -275,14 +406,19 @@ RSpec.describe Didit::Resources::Account do
 
   it "account.organizations.list sends GET /organizations/me/" do
     calls = stub_api(status: 200, body: <<~'JSON')
-      [
-        {
-          "uuid": "a1b2c3d4-5678-90ab-cdef-111111111111",
-          "name": "developer",
-          "contact_email": "developer@gmail.com",
-          "created_at": "2025-06-01T10:00:00Z"
-        }
-      ]
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "a1b2c3d4-5678-90ab-cdef-111111111111",
+            "name": "developer",
+            "contact_email": "developer@gmail.com",
+            "created_at": "2025-06-01T10:00:00Z"
+          }
+        ]
+      }
     JSON
     result = client.account.organizations.list
     request = expect_api_request(
@@ -294,8 +430,9 @@ RSpec.describe Didit::Resources::Account do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Array)
-    expect(result).to all(be_a(Didit::Types::Organization))
-    exercise_readers(result)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::Organization))
+    exercise_readers(result.results)
   end
 end

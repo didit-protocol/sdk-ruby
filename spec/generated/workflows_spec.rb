@@ -92,7 +92,8 @@ RSpec.describe Didit::Resources::Workflows do
         }
       ]
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::WorkflowDetail)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
@@ -257,13 +258,42 @@ RSpec.describe Didit::Resources::Workflows do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::WorkflowDetail)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 
   it "workflows.update sends PATCH /v3/workflows/{settings_uuid}/" do
     calls = stub_api(status: 200, body: <<~'JSON')
-      {}
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "workflow_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "workflow_label": "workflow_label-value",
+        "workflow_type": "kyc",
+        "is_default": true,
+        "is_archived": true,
+        "version": 1,
+        "status": "draft",
+        "published_at": "2026-01-02T03:04:05Z",
+        "is_simple_workflow": true,
+        "is_editable": true,
+        "workflow_url": "https://example.com/callback",
+        "workflow_graph": {},
+        "features": "features-value",
+        "total_price": 1.5,
+        "min_price": 1.5,
+        "max_price": 1.5,
+        "special_add_on_prices": {},
+        "max_retry_attempts": 1,
+        "retry_window_days": 1,
+        "session_expiration_time": 1,
+        "questionnaire": {},
+        "kyb_role_settings": [
+          {}
+        ],
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z"
+      }
     JSON
     result = client.workflows.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -294,7 +324,8 @@ RSpec.describe Didit::Resources::Workflows do
         }
       ]
     })
-    expect(result).not_to be_nil
+    expect(result).to be_a(Didit::Types::WorkflowDetail)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
 end

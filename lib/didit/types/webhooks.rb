@@ -13,6 +13,27 @@ module Didit
       VALUES = [V1, V2, V3].freeze
     end
 
+    # Environment of the application that owns the destination.
+    module WebhooksDestinationsCreateResponseEnvironment
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
+    # Delivery health. `failing`: 3 or more consecutive events failed their first delivery attempt since the
+    # destination last answered successfully (see `failing_streak`). `degraded`: not failing, but a delivery attempt
+    # failed in the last 24 hours and no later attempt has delivered that event; a retry or resend that delivers it
+    # clears this. `healthy`: neither. Independent of `enabled`. A failed attempt is one answered with HTTP 400 or
+    # above, or not answered at all.
+    module WebhooksDestinationsCreateResponseHealthStatus
+      HEALTHY = "healthy"
+      DEGRADED = "degraded"
+      FAILING = "failing"
+
+      VALUES = [HEALTHY, DEGRADED, FAILING].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module WebhooksDestinationsCreateResponseWebhookVersion
       V1 = "v1"
@@ -22,6 +43,27 @@ module Didit
       VALUES = [V1, V2, V3].freeze
     end
 
+    # Environment of the application that owns the destination.
+    module WebhooksDestinationsListResponseItemEnvironment
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
+    # Delivery health. `failing`: 3 or more consecutive events failed their first delivery attempt since the
+    # destination last answered successfully (see `failing_streak`). `degraded`: not failing, but a delivery attempt
+    # failed in the last 24 hours and no later attempt has delivered that event; a retry or resend that delivers it
+    # clears this. `healthy`: neither. Independent of `enabled`. A failed attempt is one answered with HTTP 400 or
+    # above, or not answered at all.
+    module WebhooksDestinationsListResponseItemHealthStatus
+      HEALTHY = "healthy"
+      DEGRADED = "degraded"
+      FAILING = "failing"
+
+      VALUES = [HEALTHY, DEGRADED, FAILING].freeze
+    end
+
     # Payload schema version sent to this destination. `v3` is the current/recommended format.
     module WebhooksDestinationsListResponseItemWebhookVersion
       V1 = "v1"
@@ -29,6 +71,27 @@ module Didit
       V3 = "v3"
 
       VALUES = [V1, V2, V3].freeze
+    end
+
+    # Environment of the application that owns the destination.
+    module WebhooksDestinationsRetrieveResponseEnvironment
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
+    # Delivery health. `failing`: 3 or more consecutive events failed their first delivery attempt since the
+    # destination last answered successfully (see `failing_streak`). `degraded`: not failing, but a delivery attempt
+    # failed in the last 24 hours and no later attempt has delivered that event; a retry or resend that delivers it
+    # clears this. `healthy`: neither. Independent of `enabled`. A failed attempt is one answered with HTTP 400 or
+    # above, or not answered at all.
+    module WebhooksDestinationsRetrieveResponseHealthStatus
+      HEALTHY = "healthy"
+      DEGRADED = "degraded"
+      FAILING = "failing"
+
+      VALUES = [HEALTHY, DEGRADED, FAILING].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -49,8 +112,56 @@ module Didit
       VALUES = [V1, V2, V3].freeze
     end
 
+    # Environment of the application that owns the destination.
+    module WebhooksDestinationsUpdateResponseEnvironment
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
+    # Delivery health. `failing`: 3 or more consecutive events failed their first delivery attempt since the
+    # destination last answered successfully (see `failing_streak`). `degraded`: not failing, but a delivery attempt
+    # failed in the last 24 hours and no later attempt has delivered that event; a retry or resend that delivers it
+    # clears this. `healthy`: neither. Independent of `enabled`. A failed attempt is one answered with HTTP 400 or
+    # above, or not answered at all.
+    module WebhooksDestinationsUpdateResponseHealthStatus
+      HEALTHY = "healthy"
+      DEGRADED = "degraded"
+      FAILING = "failing"
+
+      VALUES = [HEALTHY, DEGRADED, FAILING].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module WebhooksDestinationsUpdateResponseWebhookVersion
+      V1 = "v1"
+      V2 = "v2"
+      V3 = "v3"
+
+      VALUES = [V1, V2, V3].freeze
+    end
+
+    # Legacy application setting. The verification flow does not read it.
+    module WebhooksUpdateConfigParamsCaptureMethod
+      MOBILE = "MOBILE"
+      MOBILE_AND_DESKTOP = "MOBILE_AND_DESKTOP"
+
+      VALUES = [MOBILE, MOBILE_AND_DESKTOP].freeze
+    end
+
+    # What happens to a session's face embedding when the session is deleted. `retain_until_user_deleted` needs
+    # `face_retention_days` in the same request or already set. A change applies to session deletions from then on; it
+    # creates or purges no existing biometric template.
+    module WebhooksUpdateConfigParamsFaceRetentionPolicy
+      DELETE_WITH_SESSION = "delete_with_session"
+      RETAIN_UNTIL_USER_DELETED = "retain_until_user_deleted"
+
+      VALUES = [DELETE_WITH_SESSION, RETAIN_UNTIL_USER_DELETED].freeze
+    end
+
+    # Payload version of the legacy `webhook_url`.
+    module WebhooksUpdateConfigParamsWebhookVersion
       V1 = "v1"
       V2 = "v2"
       V3 = "v3"
@@ -65,13 +176,23 @@ module Didit
       field :enabled, "enabled", :boolean
       field :webhook_version, "webhook_version", :string
       field :secret_shared_key, "secret_shared_key", :string
+      field :secret_last4, "secret_last4", :string
+      field :previous_secret_expires_at, "previous_secret_expires_at", :datetime
       field :subscribed_events, "subscribed_events", [:array, :string]
+      field :created_by_email, "created_by_email", :string
+      field :created_by_name, "created_by_name", :string
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :health_status, "health_status", :string
+      field :failing_streak, "failing_streak", :integer
+      field :failing_since, "failing_since", :datetime
+      field :last_success_at, "last_success_at", :datetime
+      field :environment, "environment", :string
       field :summary, "summary", "WebhooksDestinationsCreateResponseSummary"
     end
 
-    # Delivery health summary (all zero/null on a brand-new destination).
+    # Delivery metrics for the last `metrics_window_days` (30) days. `last_delivery_at` is the most recent attempt,
+    # whenever it was made.
     class WebhooksDestinationsCreateResponseSummary < Didit::Model
       field :total_deliveries, "total_deliveries", :integer
       field :failed_deliveries, "failed_deliveries", :integer
@@ -80,6 +201,14 @@ module Didit
       field :avg_response_time_ms, "avg_response_time_ms", :integer
       field :max_response_time_ms, "max_response_time_ms", :integer
       field :last_delivery_at, "last_delivery_at", :datetime
+      field :metrics_window_days, "metrics_window_days", :integer
+    end
+
+    class WebhooksDestinationsListDeliveriesResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "WebhookDestinationDelivery"]
     end
 
     class WebhooksDestinationsListResponseItem < Didit::Model
@@ -95,8 +224,48 @@ module Didit
       field :average_response_time_ms, "average_response_time_ms", :integer
       field :error_rate_percentage, "error_rate_percentage", :integer
       field :last_delivery_at, "last_delivery_at", :datetime
+      field :metrics_window_days, "metrics_window_days", :integer
+      field :health_status, "health_status", :string
+      field :failing_streak, "failing_streak", :integer
+      field :failing_since, "failing_since", :datetime
+      field :last_success_at, "last_success_at", :datetime
+      field :environment, "environment", :string
+      field :daily_points, "daily_points", [:array, "WebhooksDestinationsListResponseItemDailyPoints"]
+      field :secret_last4, "secret_last4", :string
+      field :created_by_email, "created_by_email", :string
+      field :created_by_name, "created_by_name", :string
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+    end
+
+    class WebhooksDestinationsListResponseItemDailyPoints < Didit::Model
+      field :date, "date", :date
+      field :total_deliveries, "total_deliveries", :integer
+      field :failed_deliveries, "failed_deliveries", :integer
+    end
+
+    class WebhooksDestinationsRetrieveAnalyticsResponse < Didit::Model
+      field :summary, "summary", "WebhooksDestinationsRetrieveAnalyticsResponseSummary"
+      field :points, "points", [:array, "WebhooksDestinationsRetrieveAnalyticsResponsePoints"]
+    end
+
+    class WebhooksDestinationsRetrieveAnalyticsResponsePoints < Didit::Model
+      field :date, "date", :date
+      field :total_deliveries, "total_deliveries", :integer
+      field :failed_deliveries, "failed_deliveries", :integer
+      field :min_response_time_ms, "min_response_time_ms", :integer
+      field :avg_response_time_ms, "avg_response_time_ms", :integer
+      field :max_response_time_ms, "max_response_time_ms", :integer
+    end
+
+    # Totals over the requested range.
+    class WebhooksDestinationsRetrieveAnalyticsResponseSummary < Didit::Model
+      field :total_deliveries, "total_deliveries", :integer
+      field :failed_deliveries, "failed_deliveries", :integer
+      field :min_response_time_ms, "min_response_time_ms", :integer
+      field :avg_response_time_ms, "avg_response_time_ms", :integer
+      field :max_response_time_ms, "max_response_time_ms", :integer
+      field :error_rate_percentage, "error_rate_percentage", :integer
     end
 
     class WebhooksDestinationsRetrieveResponse < Didit::Model
@@ -106,13 +275,23 @@ module Didit
       field :enabled, "enabled", :boolean
       field :webhook_version, "webhook_version", :string
       field :secret_shared_key, "secret_shared_key", :string
+      field :secret_last4, "secret_last4", :string
+      field :previous_secret_expires_at, "previous_secret_expires_at", :datetime
       field :subscribed_events, "subscribed_events", [:array, :string]
+      field :created_by_email, "created_by_email", :string
+      field :created_by_name, "created_by_name", :string
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :health_status, "health_status", :string
+      field :failing_streak, "failing_streak", :integer
+      field :failing_since, "failing_since", :datetime
+      field :last_success_at, "last_success_at", :datetime
+      field :environment, "environment", :string
       field :summary, "summary", "WebhooksDestinationsRetrieveResponseSummary"
     end
 
-    # Delivery health metrics aggregated over the destination's lifetime.
+    # Delivery metrics for the last `metrics_window_days` (30) days. `last_delivery_at` is the most recent attempt,
+    # whenever it was made.
     class WebhooksDestinationsRetrieveResponseSummary < Didit::Model
       field :total_deliveries, "total_deliveries", :integer
       field :failed_deliveries, "failed_deliveries", :integer
@@ -121,6 +300,7 @@ module Didit
       field :avg_response_time_ms, "avg_response_time_ms", :integer
       field :max_response_time_ms, "max_response_time_ms", :integer
       field :last_delivery_at, "last_delivery_at", :datetime
+      field :metrics_window_days, "metrics_window_days", :integer
     end
 
     class WebhooksDestinationsUpdateResponse < Didit::Model
@@ -130,12 +310,23 @@ module Didit
       field :enabled, "enabled", :boolean
       field :webhook_version, "webhook_version", :string
       field :secret_shared_key, "secret_shared_key", :string
+      field :secret_last4, "secret_last4", :string
+      field :previous_secret_expires_at, "previous_secret_expires_at", :datetime
       field :subscribed_events, "subscribed_events", [:array, :string]
+      field :created_by_email, "created_by_email", :string
+      field :created_by_name, "created_by_name", :string
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :health_status, "health_status", :string
+      field :failing_streak, "failing_streak", :integer
+      field :failing_since, "failing_since", :datetime
+      field :last_success_at, "last_success_at", :datetime
+      field :environment, "environment", :string
       field :summary, "summary", "WebhooksDestinationsUpdateResponseSummary"
     end
 
+    # Delivery metrics for the last `metrics_window_days` (30) days. `last_delivery_at` is the most recent attempt,
+    # whenever it was made.
     class WebhooksDestinationsUpdateResponseSummary < Didit::Model
       field :total_deliveries, "total_deliveries", :integer
       field :failed_deliveries, "failed_deliveries", :integer
@@ -144,6 +335,7 @@ module Didit
       field :avg_response_time_ms, "avg_response_time_ms", :integer
       field :max_response_time_ms, "max_response_time_ms", :integer
       field :last_delivery_at, "last_delivery_at", :datetime
+      field :metrics_window_days, "metrics_window_days", :integer
     end
   end
 end

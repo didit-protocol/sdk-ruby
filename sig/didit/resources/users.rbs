@@ -4,17 +4,17 @@ module Didit
   module Resources
     class Users < Didit::Resource
       def batch_delete: (?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool, ?request_options: Didit::request_options?) -> Didit::Types::UsersBatchDeleteResponse
-      def create: (vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
+      def create: (vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?first_name: String, ?last_name: String, ?email: String, ?phone_number: String, ?country: String, ?send_verification_link: bool, ?workflow_id: String, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::UsersCreateResponse
       def generate_pdf: (String vendor_data, ?request_options: Didit::request_options?) -> String
                       | (String vendor_data, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
       def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::UserListItem]
-      def list_networks: (String vendor_user_uuid, ?request_options: Didit::request_options?) -> Didit::Types::UsersListNetworksResponse
+      def list_networks: (String vendor_user_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
       def retrieve: (String vendor_data, ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
-      def retrieve_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::UsersRetrieveOngoingMonitoringJobResponse
-      def set_aml_monitoring: (is_enabled: bool, ?estimate_only: bool, ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::UsersSetAmlMonitoringResponse | Didit::Types::UsersSetAmlMonitoringResponse202)
-      def set_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::UsersSetOngoingMonitoringResponse | Didit::Types::UsersSetOngoingMonitoringResponse202)
-      def update: (String vendor_data, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
-      def update_status: (String vendor_data, status: String, ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
+      def retrieve_ongoing_monitoring_job: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::OngoingMonitoringJob
+      def set_aml_monitoring: (is_enabled: bool, ?estimate_only: bool, ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::AMLMonitoringToggleResult | Didit::Types::AMLMonitoringJob)
+      def set_ongoing_monitoring: (is_enabled: bool, ?estimate_only: bool, ?update_all: bool, ?filter_search: String, ?filter_status: Array[String], ?filter_country: String, ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?didit_internal_id_list: Array[String], ?request_options: Didit::request_options?) -> (Didit::Types::OngoingMonitoringToggleResult | Didit::Types::OngoingMonitoringJob)
+      def update: (String vendor_data, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?reason: String?, ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
+      def update_status: (String vendor_data, status: String, ?reason: String?, ?request_options: Didit::request_options?) -> Didit::Types::UserDetailItem
       def upload_face: (String didit_internal_id, image: String, ?comment: String, ?request_options: Didit::request_options?) -> Didit::Types::UsersUploadFaceResponse
     end
   end

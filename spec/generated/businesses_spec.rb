@@ -86,6 +86,23 @@ RSpec.describe Didit::Resources::Businesses do
     exercise_readers(result)
   end
 
+  it "businesses.generate_session_pdf sends GET /v3/organization/{organization_id}/application/{application_id}/businesses/{business_session_id}/pdf/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
+    result = client.businesses.generate_session_pdf(
+      "22222222-3333-4444-5555-666666666666"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/businesses/22222222-3333-4444-5555-666666666666/pdf/",
+      query: [],
+      auth: :api_key,
+      accept: "application/pdf, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
   it "businesses.list sends GET /v3/businesses/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -196,7 +213,7 @@ RSpec.describe Didit::Resources::Businesses do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::BusinessesListNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -304,7 +321,7 @@ RSpec.describe Didit::Resources::Businesses do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::BusinessesRetrieveOngoingMonitoringJobResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -354,7 +371,7 @@ RSpec.describe Didit::Resources::Businesses do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::BusinessesRetrieveSessionOngoingMonitoringJobResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -400,7 +417,7 @@ RSpec.describe Didit::Resources::Businesses do
         "company-456"
       ]
     })
-    expect(result).to be_a(Didit::Types::BusinessesSetAmlMonitoringResponse)
+    expect(result).to be_a(Didit::Types::AMLMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -433,7 +450,7 @@ RSpec.describe Didit::Resources::Businesses do
     expect_json_body(request, {
       "is_enabled" => true
     })
-    expect(result).to be_a(Didit::Types::BusinessesSetOngoingMonitoringResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -466,7 +483,7 @@ RSpec.describe Didit::Resources::Businesses do
     expect_json_body(request, {
       "is_enabled" => true
     })
-    expect(result).to be_a(Didit::Types::BusinessesSetSessionOngoingMonitoringResponse)
+    expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

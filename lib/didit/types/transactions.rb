@@ -129,13 +129,35 @@ module Didit
       VALUES = [ACTIVE, DISABLED, TEST].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module TransactionsTravelRuleCreateMessageParamsKind
+      MESSAGE = "MESSAGE"
+      DOCUMENT_REQUEST = "DOCUMENT_REQUEST"
+
+      VALUES = [MESSAGE, DOCUMENT_REQUEST].freeze
+    end
+
+    # What the Didit Test VASP declares the beneficiary to be. `accept` declares the holder's own name;
+    # `name_mismatch` declares a name no holder agrees with. The decision itself is always yours.
+    module TransactionsTravelRuleTriggerTestVaspInboundParamsScenario
+      ACCEPT = "accept"
+      NAME_MISMATCH = "name_mismatch"
+
+      VALUES = [ACCEPT, NAME_MISMATCH].freeze
+    end
+
     # "cancel" cancels a non-terminal transfer. "resend" re-runs routing for an outbound transfer stuck in
     # COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA.
+    # "update_compliance_email" replaces the compliance email the request goes to, on an outbound transfer in one of
+    # those three statuses; send "resend" afterwards. "update_originator_wallet" records the wallet the funds actually
+    # left from (`wallet_address`, `memo`).
     module TransactionsTravelRuleUpdateTransferParamsAction
       CANCEL = "cancel"
       RESEND = "resend"
+      UPDATE_COMPLIANCE_EMAIL = "update_compliance_email"
+      UPDATE_ORIGINATOR_WALLET = "update_originator_wallet"
 
-      VALUES = [CANCEL, RESEND].freeze
+      VALUES = [CANCEL, RESEND, UPDATE_COMPLIANCE_EMAIL, UPDATE_ORIGINATOR_WALLET].freeze
     end
 
     class TransactionsCreateSdkTokenResponse < Didit::Model
@@ -143,12 +165,11 @@ module Didit
       field :expires_at, "expires_at", :datetime
     end
 
-    class TransactionsListNetworksResponse < Didit::Model
-      field :results, "results", [:array, "EntityNetworkMembership"]
-    end
-
-    class TransactionsListPartyNetworksResponse < Didit::Model
-      field :results, "results", [:array, "EntityNetworkMembership"]
+    class TransactionsListRelatedResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TransactionSummary"]
     end
 
     class TransactionsListResponse < Didit::Model
@@ -186,6 +207,8 @@ module Didit
       field :decision_reason_code, "decision_reason_code", :string
       field :decision_reason_label, "decision_reason_label", :string
       field :assigned_to_name, "assigned_to_name", :string
+      field :travel_rule_status, "travel_rule_status", :string
+      field :travel_rule, "travel_rule", "TransactionTravelRule"
     end
 
     class TransactionsListResponseResultsTags < Didit::Model
@@ -194,6 +217,13 @@ module Didit
       field :color, "color", :string
       field :description, "description", :string
       field :source, "source", :string
+    end
+
+    class TransactionsNotesListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TransactionNote"]
     end
 
     class TransactionsRulesListLibraryResponse < Didit::Model

@@ -13,14 +13,14 @@ module Didit
       #
       # @param business_session_id [String] Business session UUID.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BusinessSessionsListNetworksResponse]
+      # @return [Didit::Types::EntityNetworkMembershipList]
       def list_networks(business_session_id, request_options: nil)
         @client.request(
           :get,
           "/v3/organization/{organization_id}/application/{application_id}/business-sessions/{business_session_id}/networks/",
           path_params: { "business_session_id" => business_session_id },
           scope: :application,
-          response: Types::BusinessSessionsListNetworksResponse,
+          response: Types::EntityNetworkMembershipList,
           request_options: request_options
         )
       end

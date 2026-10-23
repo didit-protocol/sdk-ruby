@@ -22,8 +22,8 @@ puts "Session #{session.session_id}: send the user to #{session.url}"
 decision = didit.sessions.retrieve_decision(session.session_id)
 puts "Decision: #{decision.status}"
 case decision.status
-when Didit::Types::SessionsRetrieveDecisionResponseStatus::APPROVED then puts "Approved"
-when Didit::Types::SessionsRetrieveDecisionResponseStatus::DECLINED then puts "Declined"
+when Didit::Types::SessionDecisionStatus::APPROVED then puts "Approved"
+when Didit::Types::SessionDecisionStatus::DECLINED then puts "Declined"
 else puts "Not final yet (#{decision.status}); unknown statuses never raise"
 end
 

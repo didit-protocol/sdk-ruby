@@ -3,6 +3,16 @@
 
 module Didit
   module Types
+    # `available` when a reading exists; `not_configured` when dataset dates are not collected in this environment;
+    # `not_yet_collected` when collection is set up but no reading exists yet.
+    module AmlRetrieveDatasetFreshnessResponseAvailability
+      AVAILABLE = "available"
+      NOT_CONFIGURED = "not_configured"
+      NOT_YET_COLLECTED = "not_yet_collected"
+
+      VALUES = [AVAILABLE, NOT_CONFIGURED, NOT_YET_COLLECTED].freeze
+    end
+
     # Type of entity to screen. Defaults to `person`.
     module AmlScreenParamsEntityType
       PERSON = "person"
@@ -48,6 +58,11 @@ module Didit
       DECLINED = "Declined"
 
       VALUES = [APPROVED, IN_REVIEW, DECLINED].freeze
+    end
+
+    class AmlRetrieveDatasetFreshnessResponse < Didit::Model
+      field :dataset_freshness, "dataset_freshness", "AMLDatasetFreshness"
+      field :availability, "availability", :string
     end
 
     class AmlScreenResponse < Didit::Model

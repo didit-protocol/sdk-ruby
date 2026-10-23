@@ -56,7 +56,7 @@ RSpec.describe Didit::Resources::BusinessSessions do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::BusinessSessionsListNetworksResponse)
+    expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

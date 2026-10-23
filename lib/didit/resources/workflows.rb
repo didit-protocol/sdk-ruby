@@ -37,7 +37,7 @@ module Didit
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
       #   maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Hash]
+      # @return [Didit::Types::WorkflowDetail]
       def create(
         features:,
         workflow_label: OMIT,
@@ -68,7 +68,7 @@ module Didit
             "face_match_max_attempts" => face_match_max_attempts,
             "session_expiration_time" => session_expiration_time
           },
-          response: :any,
+          response: Types::WorkflowDetail,
           request_options: request_options
         )
       end
@@ -127,13 +127,13 @@ module Didit
       # @param settings_uuid [String] Per-version UUID of the workflow (the `uuid` value returned by the list
       #   endpoint). Each version of a workflow has its own `settings_uuid`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Object]
+      # @return [Didit::Types::WorkflowDetail]
       def retrieve(settings_uuid, request_options: nil)
         @client.request(
           :get,
           "/v3/workflows/{settings_uuid}/",
           path_params: { "settings_uuid" => settings_uuid },
-          response: :any,
+          response: Types::WorkflowDetail,
           request_options: request_options
         )
       end
@@ -172,7 +172,7 @@ module Didit
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
       #   maximum 4 weeks (2419200).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Hash]
+      # @return [Didit::Types::WorkflowDetail]
       def update(
         settings_uuid,
         workflow_label: OMIT,
@@ -205,7 +205,7 @@ module Didit
             "face_match_max_attempts" => face_match_max_attempts,
             "session_expiration_time" => session_expiration_time
           },
-          response: :any,
+          response: Types::WorkflowDetail,
           request_options: request_options
         )
       end

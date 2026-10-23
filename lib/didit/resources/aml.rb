@@ -5,6 +5,35 @@ module Didit
   module Resources
     # The +aml+ resource.
     class Aml < Didit::Resource
+      # Get AML dataset freshness
+      #
+      # Report how current the datasets behind AML screening are, per source family (`sanctions`, `pep`, `warnings`,
+      # `adverse_media`), as audit evidence for [ongoing AML
+      # monitoring](https://docs.didit.me/core-technology/aml-screening/continuous-monitoring-aml-screening#proving-that-monitoring-ran).
+      # The answer is platform-wide: no session in the path, no customer data in the body, the same answer for every
+      # application.
+      #
+      # Always `200` for an accepted key. Check `availability` first: when it is not `available`, `dataset_freshness`
+      # is `null`. Dates are never estimated: a family whose datasets reported no date is absent from `sources`, and a
+      # family where only some datasets reported one has `oldest_updated_at: null`. Readings are taken while ongoing
+      # monitoring runs, not on each call; `captured_at` says when.
+      #
+      # A scoped API key needs `sessions: read`; a key limited to some workflows or to approved sessions cannot call
+      # this endpoint. Nothing is billed.
+      #
+      # +GET /v3/aml/dataset-freshness/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::AmlRetrieveDatasetFreshnessResponse]
+      def retrieve_dataset_freshness(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/aml/dataset-freshness/",
+          response: Types::AmlRetrieveDatasetFreshnessResponse,
+          request_options: request_options
+        )
+      end
+
       # AML screening (standalone)
       #
       # Screen a person or company against PEP, sanctions, warning/watchlist, and adverse-media datasets in one call.

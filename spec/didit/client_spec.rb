@@ -259,7 +259,7 @@ RSpec.describe Didit::Client do
     it "picks the type by status" do
       stub_api(status: 202, body: '{"job_id":"j"}')
       result = generated_test_client.sessions.batch_delete(delete_all: true)
-      expect(result).to be_a(Didit::Types::SessionsBatchDeleteResponse202)
+      expect(result).to be_a(Didit::Types::SessionDeletionJob)
     end
   end
 

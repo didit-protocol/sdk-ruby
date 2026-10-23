@@ -200,7 +200,8 @@ module Didit
       # **Branding.** SMS codes carry your application's SMS sender name, set in the Business Console, at no extra
       # cost. Pass `options.sms_sender_name` to sign one code with another name, or
       # `options.use_white_label_customization: true` to fall back to your white-label public name when no sender name
-      # is set. WhatsApp codes use a fixed message and are not branded.
+      # is set. WhatsApp codes use a fixed message; connect your own WhatsApp Business number in the Business Console
+      # to send them from your business name and number, billed at the Didit fee only.
       #
       # **Send statuses.** `Success` - OTP sent for a new verification; `Retry` - OTP re-sent for the pending
       # verification; `Blocked` - the anti-fraud layer refused to send (see `reason`, e.g. `repeated_attempts`,

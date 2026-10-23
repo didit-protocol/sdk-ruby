@@ -34,7 +34,7 @@ RSpec.describe Didit::Resources::Billing do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
         "checkout_session_id": "cs_test_a1B2c3D4e5F6g7H8i9J0",
-        "checkout_session_url": "https://checkout.stripe.com/c/pay/cs_test_a1B2c3D4e5F6g7H8i9J0"
+        "checkout_session_url": "https://checkout.example.com/c/pay/cs_test_a1B2c3D4e5F6g7H8i9J0"
       }
     JSON
     result = client.billing.top_up(

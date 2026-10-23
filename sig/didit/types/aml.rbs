@@ -2,6 +2,14 @@
 
 module Didit
   module Types
+    module AmlRetrieveDatasetFreshnessResponseAvailability
+      AVAILABLE: String
+      NOT_CONFIGURED: String
+      NOT_YET_COLLECTED: String
+
+      VALUES: Array[String]
+    end
+
     module AmlScreenParamsEntityType
       PERSON: String
       COMPANY: String
@@ -39,6 +47,11 @@ module Didit
       DECLINED: String
 
       VALUES: Array[String]
+    end
+
+    class AmlRetrieveDatasetFreshnessResponse < Didit::Model
+      def dataset_freshness: () -> Didit::Types::AMLDatasetFreshness?
+      def availability: () -> String
     end
 
     class AmlScreenResponse < Didit::Model

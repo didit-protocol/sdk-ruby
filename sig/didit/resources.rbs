@@ -7,8 +7,10 @@ module Didit
       def age_estimation: () -> Didit::Resources::AgeEstimation
       def aml: () -> Didit::Resources::Aml
       def aml_monitoring: () -> Didit::Resources::AmlMonitoring
+      def analytics: () -> Didit::Resources::Analytics
       def billing: () -> Didit::Resources::Billing
       def biometric_templates: () -> Didit::Resources::BiometricTemplates
+      def blocklist: () -> Didit::Resources::Blocklist
       def business_sessions: () -> Didit::Resources::BusinessSessions
       def businesses: () -> Didit::Resources::Businesses
       def cases: () -> Didit::Resources::Cases
@@ -21,8 +23,11 @@ module Didit
       def fraud_checks: () -> Didit::Resources::FraudChecks
       def id_verification: () -> Didit::Resources::IdVerification
       def id_wallets: () -> Didit::Resources::IdWallets
+      def investigator: () -> Didit::Resources::Investigator
       def ip: () -> Didit::Resources::Ip
       def kyb: () -> Didit::Resources::Kyb
+      def lists: () -> Didit::Resources::Lists
+      def monitoring_events: () -> Didit::Resources::MonitoringEvents
       def networks: () -> Didit::Resources::Networks
       def passive_liveness: () -> Didit::Resources::PassiveLiveness
       def phone: () -> Didit::Resources::Phone

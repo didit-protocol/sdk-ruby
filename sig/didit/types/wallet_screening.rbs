@@ -19,6 +19,9 @@ module Didit
       BASE: String
       OP: String
       ARB: String
+      CELO: String
+      MODE: String
+      PLUME: String
 
       VALUES: Array[String]
     end

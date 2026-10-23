@@ -8,8 +8,10 @@ module Didit
     autoload :AgeEstimation, "didit/resources/age_estimation"
     autoload :Aml, "didit/resources/aml"
     autoload :AmlMonitoring, "didit/resources/aml_monitoring"
+    autoload :Analytics, "didit/resources/analytics"
     autoload :Billing, "didit/resources/billing"
     autoload :BiometricTemplates, "didit/resources/biometric_templates"
+    autoload :Blocklist, "didit/resources/blocklist"
     autoload :BusinessSessions, "didit/resources/business_sessions"
     autoload :Businesses, "didit/resources/businesses"
     autoload :Cases, "didit/resources/cases"
@@ -22,8 +24,11 @@ module Didit
     autoload :FraudChecks, "didit/resources/fraud_checks"
     autoload :IdVerification, "didit/resources/id_verification"
     autoload :IdWallets, "didit/resources/id_wallets"
+    autoload :Investigator, "didit/resources/investigator"
     autoload :Ip, "didit/resources/ip"
     autoload :Kyb, "didit/resources/kyb"
+    autoload :Lists, "didit/resources/lists"
+    autoload :MonitoringEvents, "didit/resources/monitoring_events"
     autoload :Networks, "didit/resources/networks"
     autoload :PassiveLiveness, "didit/resources/passive_liveness"
     autoload :Phone, "didit/resources/phone"
@@ -61,6 +66,11 @@ module Didit
         @aml_monitoring ||= Resources::AmlMonitoring.new(self)
       end
 
+      # @return [Didit::Resources::Analytics]
+      def analytics
+        @analytics ||= Resources::Analytics.new(self)
+      end
+
       # @return [Didit::Resources::Billing]
       def billing
         @billing ||= Resources::Billing.new(self)
@@ -69,6 +79,11 @@ module Didit
       # @return [Didit::Resources::BiometricTemplates]
       def biometric_templates
         @biometric_templates ||= Resources::BiometricTemplates.new(self)
+      end
+
+      # @return [Didit::Resources::Blocklist]
+      def blocklist
+        @blocklist ||= Resources::Blocklist.new(self)
       end
 
       # @return [Didit::Resources::BusinessSessions]
@@ -131,6 +146,11 @@ module Didit
         @id_wallets ||= Resources::IdWallets.new(self)
       end
 
+      # @return [Didit::Resources::Investigator]
+      def investigator
+        @investigator ||= Resources::Investigator.new(self)
+      end
+
       # @return [Didit::Resources::Ip]
       def ip
         @ip ||= Resources::Ip.new(self)
@@ -139,6 +159,16 @@ module Didit
       # @return [Didit::Resources::Kyb]
       def kyb
         @kyb ||= Resources::Kyb.new(self)
+      end
+
+      # @return [Didit::Resources::Lists]
+      def lists
+        @lists ||= Resources::Lists.new(self)
+      end
+
+      # @return [Didit::Resources::MonitoringEvents]
+      def monitoring_events
+        @monitoring_events ||= Resources::MonitoringEvents.new(self)
       end
 
       # @return [Didit::Resources::Networks]

@@ -3,7 +3,7 @@
 module Didit
   module Resources
     class BusinessSessions < Didit::Resource
-      def list_networks: (String business_session_id, ?request_options: Didit::request_options?) -> Didit::Types::BusinessSessionsListNetworksResponse
+      def list_networks: (String business_session_id, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
     end
   end
 end
