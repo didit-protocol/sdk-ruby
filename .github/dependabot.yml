@@ -7,6 +7,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # simplecov 1.x requires Ruby 3.3, the SDK promises Ruby 3.1
+    ignore:
+      - dependency-name: "simplecov"
+        update-types: ["version-update:semver-major"]
     groups:
       ruby-dependencies:
         patterns: ["*"]
