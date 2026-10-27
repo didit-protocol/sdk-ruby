@@ -33,6 +33,7 @@ module Didit
     autoload :Networks, "didit/resources/networks"
     autoload :PassiveLiveness, "didit/resources/passive_liveness"
     autoload :Phone, "didit/resources/phone"
+    autoload :Pricing, "didit/resources/pricing"
     autoload :ProofOfAddress, "didit/resources/proof_of_address"
     autoload :Questionnaires, "didit/resources/questionnaires"
     autoload :RegulatoryReports, "didit/resources/regulatory_reports"
@@ -190,6 +191,11 @@ module Didit
       # @return [Didit::Resources::Phone]
       def phone
         @phone ||= Resources::Phone.new(self)
+      end
+
+      # @return [Didit::Resources::Pricing]
+      def pricing
+        @pricing ||= Resources::Pricing.new(self)
       end
 
       # @return [Didit::Resources::ProofOfAddress]

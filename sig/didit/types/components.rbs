@@ -211,6 +211,12 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BankVerificationPricingCurrency
+      USD: String
+
+      VALUES: Array[String]
+    end
+
     module BankVerificationResultAccountHolderType
       PERSON: String
       BUSINESS: String
@@ -249,6 +255,22 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BankVerificationResultContinuationOffered
+      STATEMENT: String
+      MICRODEPOSITS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankVerificationResultContinuationReason
+      NO_ROUTE: String
+      INSTITUTION_UNSUPPORTED: String
+      ATTEMPTS_EXHAUSTED: String
+      PERSON_CHOICE: String
+
+      VALUES: Array[String]
+    end
+
     module BankVerificationResultCredentialSource
       NATIVE: String
       BYOK: String
@@ -269,6 +291,7 @@ module Didit
       ACCOUNT_LOOKUP: String
       MICRODEPOSITS: String
       STATEMENT: String
+      NONE: String
 
       VALUES: Array[String]
     end
@@ -1119,6 +1142,76 @@ module Didit
     module IPRiskResponseStatus
       APPROVED: String
       IN_REVIEW: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportJobSummaryKind
+      SESSIONS: String
+      BUSINESSES: String
+      USERS: String
+      STATUS_RULES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportJobSummarySource
+      FILE: String
+      API: String
+      PROVIDER: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportJobSummaryState
+      READY: String
+      QUEUED: String
+      RUNNING: String
+      PAUSED: String
+      COMPLETED: String
+      ERRORS: String
+      FAILED: String
+      CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportProviderKey
+      SUMSUB: String
+      JUMIO: String
+      VERIFF: String
+      ONFIDO: String
+      PERSONA: String
+      METAMAP: String
+      SOCURE: String
+      IDNOW: String
+      SHUFTI: String
+      IDENFY: String
+      ONDATO: String
+      TRULIOO: String
+      AU10TIX: String
+      COMPLYCUBE: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportProviderMode
+      API_LIST: String
+      API_IDS: String
+      EXPORT_FILE: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportProviderStatusMappingValue
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      EXPIRED: String
+      NOT_FINISHED: String
+      ABANDONED: String
 
       VALUES: Array[String]
     end
@@ -2922,9 +3015,30 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionImportJobSource
+      FILE: String
+      API: String
+      PROVIDER: String
+
+      VALUES: Array[String]
+    end
+
     module SessionImportJobSourceFormat
       CSV: String
       NDJSON: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionImportJobState
+      READY: String
+      QUEUED: String
+      RUNNING: String
+      PAUSED: String
+      COMPLETED: String
+      ERRORS: String
+      FAILED: String
+      CANCELLED: String
 
       VALUES: Array[String]
     end
@@ -2936,6 +3050,7 @@ module Didit
       FAILED: String
       PAUSED: String
       CANCELLED: String
+      READY: String
 
       VALUES: Array[String]
     end
@@ -5160,6 +5275,11 @@ module Didit
       def reached: () -> Integer?
     end
 
+    class BankAccountCheckPricing < Didit::Model
+      def available: () -> bool
+      def price_usd: () -> String?
+    end
+
     class BankAccountCheckResponse < Didit::Model
       def request_id: () -> String
       def result: () -> String
@@ -5167,6 +5287,41 @@ module Didit
       def account: () -> String
       def vendor_data: () -> String?
       def created_at: () -> Time
+    end
+
+    class BankSignInPricing < Didit::Model
+      def available: () -> bool
+      def market: () -> String?
+      def price_usd: () -> String?
+      def add_ons: () -> Didit::Types::BankSignInPricingAddOns
+    end
+
+    class BankSignInPricingAddOns < Didit::Model
+      def balance: () -> String?
+      def transactions: () -> String?
+    end
+
+    class BankStatementUploadPricing < Didit::Model
+      def price_usd: () -> String
+      def included_after_charged_bank_attempt: () -> bool
+      def standalone_available: () -> bool
+    end
+
+    class BankVerificationPricing < Didit::Model
+      def currency: () -> String
+      def statement_upload: () -> Didit::Types::BankStatementUploadPricing
+      def own_provider_fee_usd: () -> String
+      def countries: () -> Hash[String, Didit::Types::BankVerificationPricingCountry]
+    end
+
+    class BankVerificationPricingCountry < Didit::Model
+      def name: () -> String
+      def methods_: () -> Didit::Types::BankVerificationPricingMethods
+    end
+
+    class BankVerificationPricingMethods < Didit::Model
+      def open_banking: () -> Didit::Types::BankSignInPricing
+      def account_lookup: () -> Didit::Types::BankAccountCheckPricing
     end
 
     class BankVerificationResult < Didit::Model
@@ -5188,6 +5343,8 @@ module Didit
       def signals: () -> Hash[String, untyped]?
       def connection_abandoned: () -> bool?
       def not_covered: () -> bool?
+      def continued_without_bank: () -> bool?
+      def continuation: () -> Didit::Types::BankVerificationResultContinuation?
       def evidence_purged_at: () -> Time?
       def warnings: () -> Array[String]?
       def reason_codes: () -> Array[String]?
@@ -5227,6 +5384,15 @@ module Didit
       def last_refreshed_at: () -> Time?
       def attempts: () -> Integer?
       def reason_code: () -> String?
+    end
+
+    class BankVerificationResultContinuation < Didit::Model
+      def reason: () -> String?
+      def country: () -> String?
+      def offered: () -> Array[String]?
+      def institution_id: () -> String?
+      def institution_name: () -> String?
+      def continued_at: () -> Time?
     end
 
     class BankVerificationResultFinancialData < Didit::Model
@@ -6341,6 +6507,69 @@ module Didit
       def claimed_country: () -> String?
       def country_mismatch: () -> bool?
       def threat: () -> Hash[String, untyped]
+    end
+
+    class ImportJobSummary < Didit::Model
+      def id: () -> String?
+      def kind: () -> String?
+      def source: () -> String?
+      def provider: () -> String?
+      def provider_name: () -> String?
+      def filename: () -> String?
+      def state: () -> String?
+      def status: () -> String?
+      def is_dry_run: () -> bool?
+      def credential_hint: () -> String?
+      def resumes_at: () -> Time?
+      def last_error: () -> String?
+      def started_by: () -> Didit::Types::ImportJobSummaryStartedBy?
+      def progress: () -> Didit::Types::ImportJobSummaryProgress?
+      def face_templates: () -> Didit::Types::ImportJobSummaryFaceTemplates?
+      def eta_seconds: () -> Integer?
+      def created_at: () -> Time?
+      def started_at: () -> Time?
+      def completed_at: () -> Time?
+    end
+
+    class ImportJobSummaryFaceTemplates < Didit::Model
+      def enabled: () -> bool?
+      def built: () -> Integer?
+      def duplicates: () -> Integer?
+      def blocklisted: () -> Integer?
+    end
+
+    class ImportJobSummaryProgress < Didit::Model
+      def total: () -> Integer?
+      def processed: () -> Integer?
+      def imported: () -> Integer?
+      def updated: () -> Integer?
+      def already_in_didit: () -> Integer?
+      def failed: () -> Integer?
+      def not_finished: () -> Integer?
+      def same_person: () -> Integer?
+    end
+
+    class ImportJobSummaryStartedBy < Didit::Model
+      def name: () -> String?
+      def email: () -> String?
+    end
+
+    class ImportProvider < Didit::Model
+      def key: () -> String?
+      def name: () -> String?
+      def mode: () -> String?
+      def record_noun: () -> String?
+      def credential_fields: () -> Array[Didit::Types::ImportProviderCredentialFields]?
+      def regions: () -> Array[String]?
+      def required_permissions: () -> Array[String]?
+      def docs_url: () -> String?
+      def status_mapping: () -> Hash[String, String]?
+    end
+
+    class ImportProviderCredentialFields < Didit::Model
+      def name: () -> String?
+      def label: () -> String?
+      def secret: () -> bool?
     end
 
     class InvestigatorBatchAcceptResponse < Didit::Model
@@ -8808,6 +9037,25 @@ module Didit
       def updated_at: () -> Time?
       def started_at: () -> Time?
       def completed_at: () -> Time?
+      def state: () -> String?
+      def source: () -> String?
+      def provider: () -> String?
+      def provider_options: () -> Hash[String, untyped]?
+      def credential_hint: () -> String?
+      def credentials_expires_at: () -> Time?
+      def resumes_at: () -> Time?
+      def status_mapping: () -> Hash[String, String]?
+      def is_dry_run: () -> bool?
+      def dry_run_summary: () -> Hash[String, untyped]?
+      def face_templates_enabled: () -> bool?
+      def lawful_basis_confirmed_at: () -> Time?
+      def not_finished_count: () -> Integer?
+      def same_person_count: () -> Integer?
+      def face_templates_count: () -> Integer?
+      def face_duplicates_count: () -> Integer?
+      def face_blocklist_hits_count: () -> Integer?
+      def created_by_name: () -> String?
+      def created_by_email: () -> String?
     end
 
     class SessionWebhookDelivery < Didit::Model
@@ -10209,6 +10457,10 @@ module Didit
       def kyb_role_settings: () -> Array[Hash[String, untyped]]?
       def created_at: () -> Time?
       def updated_at: () -> Time?
+      def is_bank_verification_enabled: () -> bool?
+      def bank_verification_config: () -> Hash[String, untyped]?
+      def is_geolocation_enabled: () -> bool?
+      def geolocation_config: () -> Hash[String, untyped]?
     end
 
     class WorkflowListItem < Didit::Model

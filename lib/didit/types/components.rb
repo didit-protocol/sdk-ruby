@@ -237,6 +237,13 @@ module Didit
       VALUES = [MATCH, CLOSE_MATCH, NO_MATCH, CANNOT_VERIFY].freeze
     end
 
+    # Currency of every price in the response.
+    module BankVerificationPricingCurrency
+      USD = "USD"
+
+      VALUES = [USD].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module BankVerificationResultAccountHolderType
       PERSON = "person"
@@ -279,6 +286,30 @@ module Didit
       VALUES = [PENDING, CONNECTED, CANCELLED, TIMEOUT, FAILED, UNSUPPORTED, REVOKED, EXPIRED].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module BankVerificationResultContinuationOffered
+      STATEMENT = "statement"
+      MICRODEPOSITS = "microdeposits"
+
+      VALUES = [STATEMENT, MICRODEPOSITS].freeze
+    end
+
+    # Why, as Didit worked it out when the person continued: `no_route` (no bank sign-in or account check serves their
+    # country), `institution_unsupported` (the bank they picked cannot be used on this step), `attempts_exhausted`
+    # (every attempt was already spent and none was in progress), or `person_choice` (a way to verify was there and
+    # they chose to continue, also when their bank could not be reached right now). `no_route` and
+    # `institution_unsupported` follow `bank_unsupported_action`, `attempts_exhausted` follows
+    # `bank_attempts_exhausted_action`, and `person_choice` follows `bank_skipped_action`, unless an evaluated attempt
+    # already decided the step.
+    module BankVerificationResultContinuationReason
+      NO_ROUTE = "no_route"
+      INSTITUTION_UNSUPPORTED = "institution_unsupported"
+      ATTEMPTS_EXHAUSTED = "attempts_exhausted"
+      PERSON_CHOICE = "person_choice"
+
+      VALUES = [NO_ROUTE, INSTITUTION_UNSUPPORTED, ATTEMPTS_EXHAUSTED, PERSON_CHOICE].freeze
+    end
+
     # `native`: Didit's own route, billed to your Didit balance. `byok`: a marketplace provider you connected with
     # your own credentials.
     module BankVerificationResultCredentialSource
@@ -299,15 +330,18 @@ module Didit
 
     # How the account was verified: `open_banking` (bank sign-in: the person signed in at their bank),
     # `account_lookup` (account check: the person typed the account details and the bank confirmed the name),
-    # `microdeposits` or `statement` (a statement upload). `null` until an account is evaluated. Workflow rules read
-    # the same value as `bank.method`.
+    # `microdeposits` or `statement` (a statement upload). `none` when the person continued without a bank before any
+    # attempt was evaluated, so no account was verified. After an evaluated attempt, it stays the method of that
+    # attempt. `null` until an account is evaluated, and when the workflow narrows the data it returns. Workflow rules
+    # read the same value as `bank.method`.
     module BankVerificationResultMethod
       OPEN_BANKING = "open_banking"
       ACCOUNT_LOOKUP = "account_lookup"
       MICRODEPOSITS = "microdeposits"
       STATEMENT = "statement"
+      NONE = "none"
 
-      VALUES = [OPEN_BANKING, ACCOUNT_LOOKUP, MICRODEPOSITS, STATEMENT].freeze
+      VALUES = [OPEN_BANKING, ACCOUNT_LOOKUP, MICRODEPOSITS, STATEMENT, NONE].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -1385,6 +1419,83 @@ module Didit
       IN_REVIEW = "In Review"
 
       VALUES = [APPROVED, IN_REVIEW].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module ImportJobSummaryKind
+      SESSIONS = "sessions"
+      BUSINESSES = "businesses"
+      USERS = "users"
+      STATUS_RULES = "status_rules"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [SESSIONS, BUSINESSES, USERS, STATUS_RULES, TRANSACTIONS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module ImportJobSummarySource
+      FILE = "file"
+      API = "api"
+      PROVIDER = "provider"
+
+      VALUES = [FILE, API, PROVIDER].freeze
+    end
+
+    # The job's state as the console shows it; `errors` is a completed job with rejected rows.
+    module ImportJobSummaryState
+      READY = "ready"
+      QUEUED = "queued"
+      RUNNING = "running"
+      PAUSED = "paused"
+      COMPLETED = "completed"
+      ERRORS = "errors"
+      FAILED = "failed"
+      CANCELLED = "cancelled"
+
+      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module ImportProviderKey
+      SUMSUB = "sumsub"
+      JUMIO = "jumio"
+      VERIFF = "veriff"
+      ONFIDO = "onfido"
+      PERSONA = "persona"
+      METAMAP = "metamap"
+      SOCURE = "socure"
+      IDNOW = "idnow"
+      SHUFTI = "shufti"
+      IDENFY = "idenfy"
+      ONDATO = "ondato"
+      TRULIOO = "trulioo"
+      AU10TIX = "au10tix"
+      COMPLYCUBE = "complycube"
+      OTHER = "other"
+
+      VALUES = [SUMSUB, JUMIO, VERIFF, ONFIDO, PERSONA, METAMAP, SOCURE, IDNOW, SHUFTI, IDENFY, ONDATO, TRULIOO, AU10TIX, COMPLYCUBE, OTHER].freeze
+    end
+
+    # `api_list`: Didit lists records with the key. `api_ids`: upload the record IDs from an export. `export_file`:
+    # upload an export in Didit's format.
+    module ImportProviderMode
+      API_LIST = "api_list"
+      API_IDS = "api_ids"
+      EXPORT_FILE = "export_file"
+
+      VALUES = [API_LIST, API_IDS, EXPORT_FILE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module ImportProviderStatusMappingValue
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      EXPIRED = "Expired"
+      NOT_FINISHED = "Not Finished"
+      ABANDONED = "Abandoned"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, NOT_FINISHED, ABANDONED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -3515,11 +3626,34 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module SessionImportJobSource
+      FILE = "file"
+      API = "api"
+      PROVIDER = "provider"
+
+      VALUES = [FILE, API, PROVIDER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module SessionImportJobSourceFormat
       CSV = "csv"
       NDJSON = "ndjson"
 
       VALUES = [CSV, NDJSON].freeze
+    end
+
+    # The job's state as the console shows it; `errors` is a completed job with rejected rows.
+    module SessionImportJobState
+      READY = "ready"
+      QUEUED = "queued"
+      RUNNING = "running"
+      PAUSED = "paused"
+      COMPLETED = "completed"
+      ERRORS = "errors"
+      FAILED = "failed"
+      CANCELLED = "cancelled"
+
+      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -3530,8 +3664,9 @@ module Didit
       FAILED = "FAILED"
       PAUSED = "PAUSED"
       CANCELLED = "CANCELLED"
+      READY = "READY"
 
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED, PAUSED, CANCELLED].freeze
+      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED, PAUSED, CANCELLED, READY].freeze
     end
 
     # `all` places one field per match; the keys after the first get `_2`, `_3` and so on.
@@ -6069,6 +6204,12 @@ module Didit
       field :reached, "reached", :integer
     end
 
+    # Account check: the person types their account number and Didit checks it with the bank. Priced per country.
+    class BankAccountCheckPricing < Didit::Model
+      field :available, "available", :boolean
+      field :price_usd, "price_usd", :string
+    end
+
     class BankAccountCheckResponse < Didit::Model
       field :request_id, "request_id", :string
       field :result, "result", :string
@@ -6078,8 +6219,53 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
+    # Bank sign-in: the person signs in to their bank. Priced by market, the same for every bank in it.
+    class BankSignInPricing < Didit::Model
+      field :available, "available", :boolean
+      field :market, "market", :string
+      field :price_usd, "price_usd", :string
+      field :add_ons, "add_ons", "BankSignInPricingAddOns"
+    end
+
+    # Add-ons priced in this country, each a decimal string with 4 decimals in USD, added to the bank sign-in price.
+    # Only the add-ons the country offers are listed; empty when bank sign-in is not available.
+    class BankSignInPricingAddOns < Didit::Model
+      field :balance, "balance", :string
+      field :transactions, "transactions", :string
+    end
+
+    # How the bank statement upload is priced.
+    class BankStatementUploadPricing < Didit::Model
+      field :price_usd, "price_usd", :string
+      field :included_after_charged_bank_attempt, "included_after_charged_bank_attempt", :boolean
+      field :standalone_available, "standalone_available", :boolean
+    end
+
+    # Public Bank Verification list prices: the statement upload, the own provider key fee and each country's methods.
+    class BankVerificationPricing < Didit::Model
+      field :currency, "currency", :string
+      field :statement_upload, "statement_upload", "BankStatementUploadPricing"
+      field :own_provider_fee_usd, "own_provider_fee_usd", :string
+      field :countries, "countries", [:map, "BankVerificationPricingCountry"]
+    end
+
+    # One country's Bank Verification methods and their list prices.
+    class BankVerificationPricingCountry < Didit::Model
+      field :name, "name", :string
+      field :methods_, "methods", "BankVerificationPricingMethods"
+    end
+
+    # The two Bank Verification methods in a country.
+    class BankVerificationPricingMethods < Didit::Model
+      field :open_banking, "open_banking", "BankSignInPricing"
+      field :account_lookup, "account_lookup", "BankAccountCheckPricing"
+    end
+
     # One Bank Verification step's result, for User and Business Verification. `method` says how the account was
-    # verified. See [Bank verification methods](/core-technology/bank-verification/verification-methods).
+    # verified, and `none` that the person continued without a bank before any attempt was evaluated.
+    # `continued_without_bank` says the person continued without a bank, also after an evaluated attempt. See [Bank
+    # verification methods](/core-technology/bank-verification/verification-methods) and [When the person cannot
+    # verify their bank](/core-technology/bank-verification/fallbacks).
     class BankVerificationResult < Didit::Model
       field :schema_version, "schema_version", :integer
       field :bank_verification_id, "bank_verification_id", :string
@@ -6099,6 +6285,8 @@ module Didit
       field :signals, "signals", :any
       field :connection_abandoned, "connection_abandoned", :boolean
       field :not_covered, "not_covered", :boolean
+      field :continued_without_bank, "continued_without_bank", :boolean
+      field :continuation, "continuation", "BankVerificationResultContinuation"
       field :evidence_purged_at, "evidence_purged_at", :datetime
       field :warnings, "warnings", [:array, :string]
       field :reason_codes, "reason_codes", [:array, :string]
@@ -6140,6 +6328,17 @@ module Didit
       field :last_refreshed_at, "last_refreshed_at", :datetime
       field :attempts, "attempts", :integer
       field :reason_code, "reason_code", :string
+    end
+
+    # How the person continued without a bank. `null` when they did not. When the workflow narrows the data it
+    # returns, `reason` is still returned and every other key is `null`.
+    class BankVerificationResultContinuation < Didit::Model
+      field :reason, "reason", :string
+      field :country, "country", :string
+      field :offered, "offered", [:array, :string]
+      field :institution_id, "institution_id", :string
+      field :institution_name, "institution_name", :string
+      field :continued_at, "continued_at", :datetime
     end
 
     # The financial data the step read. Only bank sign-in reads it.
@@ -7296,6 +7495,70 @@ module Didit
       field :claimed_country, "claimed_country", :string
       field :country_mismatch, "country_mismatch", :boolean
       field :threat, "threat", :any
+    end
+
+    # One import job of any kind, in the shape the console's Import jobs drawer reads.
+    class ImportJobSummary < Didit::Model
+      field :id, "id", :string
+      field :kind, "kind", :string
+      field :source, "source", :string
+      field :provider, "provider", :string
+      field :provider_name, "provider_name", :string
+      field :filename, "filename", :string
+      field :state, "state", :string
+      field :status, "status", :string
+      field :is_dry_run, "is_dry_run", :boolean
+      field :credential_hint, "credential_hint", :string
+      field :resumes_at, "resumes_at", :datetime
+      field :last_error, "last_error", :string
+      field :started_by, "started_by", "ImportJobSummaryStartedBy"
+      field :progress, "progress", "ImportJobSummaryProgress"
+      field :face_templates, "face_templates", "ImportJobSummaryFaceTemplates"
+      field :eta_seconds, "eta_seconds", :integer
+      field :created_at, "created_at", :datetime
+      field :started_at, "started_at", :datetime
+      field :completed_at, "completed_at", :datetime
+    end
+
+    class ImportJobSummaryFaceTemplates < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :built, "built", :integer
+      field :duplicates, "duplicates", :integer
+      field :blocklisted, "blocklisted", :integer
+    end
+
+    class ImportJobSummaryProgress < Didit::Model
+      field :total, "total", :integer
+      field :processed, "processed", :integer
+      field :imported, "imported", :integer
+      field :updated, "updated", :integer
+      field :already_in_didit, "already_in_didit", :integer
+      field :failed, "failed", :integer
+      field :not_finished, "not_finished", :integer
+      field :same_person, "same_person", :integer
+    end
+
+    class ImportJobSummaryStartedBy < Didit::Model
+      field :name, "name", :string
+      field :email, "email", :string
+    end
+
+    class ImportProvider < Didit::Model
+      field :key, "key", :string
+      field :name, "name", :string
+      field :mode, "mode", :string
+      field :record_noun, "record_noun", :string
+      field :credential_fields, "credential_fields", [:array, "ImportProviderCredentialFields"]
+      field :regions, "regions", [:array, :string]
+      field :required_permissions, "required_permissions", [:array, :string]
+      field :docs_url, "docs_url", :string
+      field :status_mapping, "status_mapping", [:map, :string]
+    end
+
+    class ImportProviderCredentialFields < Didit::Model
+      field :name, "name", :string
+      field :label, "label", :string
+      field :secret, "secret", :boolean
     end
 
     class InvestigatorBatchAcceptResponse < Didit::Model
@@ -9941,6 +10204,25 @@ module Didit
       field :updated_at, "updated_at", :datetime
       field :started_at, "started_at", :datetime
       field :completed_at, "completed_at", :datetime
+      field :state, "state", :string
+      field :source, "source", :string
+      field :provider, "provider", :string
+      field :provider_options, "provider_options", :any
+      field :credential_hint, "credential_hint", :string
+      field :credentials_expires_at, "credentials_expires_at", :datetime
+      field :resumes_at, "resumes_at", :datetime
+      field :status_mapping, "status_mapping", [:map, :string]
+      field :is_dry_run, "is_dry_run", :boolean
+      field :dry_run_summary, "dry_run_summary", :any
+      field :face_templates_enabled, "face_templates_enabled", :boolean
+      field :lawful_basis_confirmed_at, "lawful_basis_confirmed_at", :datetime
+      field :not_finished_count, "not_finished_count", :integer
+      field :same_person_count, "same_person_count", :integer
+      field :face_templates_count, "face_templates_count", :integer
+      field :face_duplicates_count, "face_duplicates_count", :integer
+      field :face_blocklist_hits_count, "face_blocklist_hits_count", :integer
+      field :created_by_name, "created_by_name", :string
+      field :created_by_email, "created_by_email", :string
     end
 
     # One webhook delivery attempt recorded for a verification session, with the exact request headers and body Didit
@@ -11498,6 +11780,10 @@ module Didit
       field :kyb_role_settings, "kyb_role_settings", [:array, :any]
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :is_bank_verification_enabled, "is_bank_verification_enabled", :boolean
+      field :bank_verification_config, "bank_verification_config", :any
+      field :is_geolocation_enabled, "is_geolocation_enabled", :boolean
+      field :geolocation_config, "geolocation_config", :any
     end
 
     # One workflow version in the list view.
