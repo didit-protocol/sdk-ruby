@@ -40,11 +40,20 @@ module Didit
       def update_poa_data: (String session_id, ?issuing_state: String?, ?document_type: String, ?document_language: String?, ?issuer: String?, ?issue_date: (Date | String)?, ?poa_address: String?, ?name_on_document: String?, ?extra_fields: (Hash[String | Symbol, untyped])?, ?poa_parsed_address: Didit::Types::sessions_update_poa_data_params_poa_parsed_address?, ?node_id: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionsUpdatePoaDataResponse
       def update_status: (String session_id, new_status: String, ?comment: String, ?nodes_to_resubmit: Array[Didit::Types::sessions_update_status_params_nodes_to_resubmit], ?send_email: bool, ?email_address: String, ?email_language: String, ?email_preview_token: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionsUpdateStatusResponse
       class Imports < Didit::Resource
-        def create: (?import_type: String, ?workflow_id: String, ?source_format: String, ?source_file_url: String, ?file: Didit::upload, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def cancel: (String import_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def check_provider: (provider: String, credentials: Hash[String | Symbol, String], ?options: Didit::Types::sessions_imports_check_provider_params_options, ?record_ids: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsCheckProviderResponse
+        def create: (?import_type: String, ?workflow_id: String, ?source_format: String, ?source_file_url: String, ?source: String, ?provider: String, ?credentials: Hash[String | Symbol, String], ?options: Didit::Types::sessions_imports_create_params_options, ?status_mapping: Hash[String | Symbol, String], ?dry_run: bool, ?face_templates: bool, ?lawful_basis_confirmed: bool, ?file: Didit::upload, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def list_active_jobs: (?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsListActiveJobsResponse
         def list_errors: (String import_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::SessionImportError]
+        def list_jobs: (?scope: String, ?limit: Integer, ?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsListJobsResponse
+        def list_providers: (?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsListProvidersResponse
+        def pause: (String import_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def resume: (String import_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
         def retrieve: (String import_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
         def retrieve_template: (?import_type: String, ?request_options: Didit::request_options?) -> String
                              | (?import_type: String, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
+        def `retry`: (String import_id, ?credentials: Hash[String | Symbol, String], ?file: Didit::upload, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def start: (String import_id, ?status_mapping: Hash[String | Symbol, String], ?face_templates: bool, ?lawful_basis_confirmed: bool, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
       end
       class Reviews < Didit::Resource
         def create: (String session_id, ?new_status: String?, ?comment: String?, ?request_options: Didit::request_options?) -> Didit::Types::SessionsReviewsCreateResponse

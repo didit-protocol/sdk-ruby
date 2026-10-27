@@ -211,11 +211,58 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsImportsCheckProviderParamsProvider
+      SUMSUB: String
+      JUMIO: String
+      VERIFF: String
+      ONFIDO: String
+      PERSONA: String
+      METAMAP: String
+      SOCURE: String
+      IDNOW: String
+      SHUFTI: String
+      IDENFY: String
+      ONDATO: String
+      TRULIOO: String
+      AU10TIX: String
+      COMPLYCUBE: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsImportsCreateParamsImportType
       USER_VERIFICATION: String
       BUSINESS_VERIFICATION: String
       STATUS_RULES: String
       TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsImportsCreateParamsProvider
+      SUMSUB: String
+      JUMIO: String
+      VERIFF: String
+      ONFIDO: String
+      PERSONA: String
+      METAMAP: String
+      SOCURE: String
+      IDNOW: String
+      SHUFTI: String
+      IDENFY: String
+      ONDATO: String
+      TRULIOO: String
+      AU10TIX: String
+      COMPLYCUBE: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsImportsCreateParamsSource
+      FILE: String
+      PROVIDER: String
 
       VALUES: Array[String]
     end
@@ -227,11 +274,42 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsImportsCreateParamsStatusMappingValue
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      EXPIRED: String
+      NOT_FINISHED: String
+      ABANDONED: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsImportsListJobsParamsScope
+      ALL: String
+      SESSIONS: String
+      USERS: String
+      BUSINESSES: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsImportsRetrieveTemplateParamsImportType
       USER_VERIFICATION: String
       BUSINESS_VERIFICATION: String
       STATUS_RULES: String
       TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsImportsStartParamsStatusMappingValue
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      EXPIRED: String
+      NOT_FINISHED: String
+      ABANDONED: String
 
       VALUES: Array[String]
     end
@@ -822,11 +900,40 @@ module Didit
       def deleted_child_verifications: () -> Integer?
     end
 
+    class SessionsImportsCheckProviderResponse < Didit::Model
+      def ok: () -> bool?
+      def provider: () -> String?
+      def credential_hint: () -> String?
+    end
+
+    class SessionsImportsListActiveJobsResponse < Didit::Model
+      def results: () -> Array[Didit::Types::ImportJobSummary]?
+      def running: () -> Integer?
+    end
+
     class SessionsImportsListErrorsResponse < Didit::Model
       def count: () -> Integer?
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::SessionImportError]?
+    end
+
+    class SessionsImportsListJobsResponse < Didit::Model
+      def results: () -> Array[Didit::Types::ImportJobSummary]?
+      def counts: () -> Didit::Types::SessionsImportsListJobsResponseCounts?
+    end
+
+    class SessionsImportsListJobsResponseCounts < Didit::Model
+      def all: () -> Integer?
+      def running_and_waiting: () -> Integer?
+      def needs_attention: () -> Integer?
+      def done: () -> Integer?
+    end
+
+    class SessionsImportsListProvidersResponse < Didit::Model
+      def providers: () -> Array[Didit::Types::ImportProvider]?
+      def mapping_targets: () -> Array[String]?
+      def skipped_statuses: () -> Array[String]?
     end
 
     class SessionsListAmlScreeningHistoryResponse < Didit::Model
@@ -1186,7 +1293,17 @@ module Didit
 
     type sessions_import_shared_params = { share_token: String, trust_review: bool, workflow_id: String, ?vendor_data: String? }
 
-    type sessions_imports_create_params = { ?import_type: String, ?workflow_id: String, ?source_format: String, ?source_file_url: String, ?file: Didit::upload }
+    type sessions_imports_check_provider_params = { provider: String, credentials: Hash[String | Symbol, String], ?options: Didit::Types::sessions_imports_check_provider_params_options, ?record_ids: Array[String] }
+
+    type sessions_imports_check_provider_params_options = { ?region: String }
+
+    type sessions_imports_create_params = { ?import_type: String, ?workflow_id: String, ?source_format: String, ?source_file_url: String, ?source: String, ?provider: String, ?credentials: Hash[String | Symbol, String], ?options: Didit::Types::sessions_imports_create_params_options, ?status_mapping: Hash[String | Symbol, String], ?dry_run: bool, ?face_templates: bool, ?lawful_basis_confirmed: bool, ?file: Didit::upload }
+
+    type sessions_imports_create_params_options = { ?region: String }
+
+    type sessions_imports_retry_params = { ?credentials: Hash[String | Symbol, String], ?file: Didit::upload }
+
+    type sessions_imports_start_params = { ?status_mapping: Hash[String | Symbol, String], ?face_templates: bool, ?lawful_basis_confirmed: bool }
 
     type sessions_preview_decision_email_params = { new_status: String, ?email_language: String }
 

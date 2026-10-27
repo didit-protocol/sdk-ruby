@@ -3465,6 +3465,100 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.imports.cancel sends POST /v3/session/imports/{importId}/cancel/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "status": "PENDING",
+        "import_type": "user_verification",
+        "source_format": "csv",
+        "source_filename": "source_filename-value",
+        "total_rows": 1,
+        "processed_rows": 1,
+        "checkpoint_row": 1,
+        "created_count": 1,
+        "updated_count": 1,
+        "skipped_count": 1,
+        "failed_count": 1,
+        "total_media_bytes": 1,
+        "last_error": "last_error-value",
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z",
+        "started_at": "2026-01-02T03:04:05Z",
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
+      }
+    JSON
+    result = client.sessions.imports.cancel(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/cancel/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.check_provider sends POST /v3/session/imports/providers/check/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "ok": true,
+        "provider": "provider-value",
+        "credential_hint": "credential_hint-value"
+      }
+    JSON
+    result = client.sessions.imports.check_provider(
+      provider: "sumsub",
+      credentials: {
+        key: "value"
+      }
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/providers/check/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "provider" => "sumsub",
+      "credentials" => {
+        "key" => "value"
+      }
+    })
+    expect(result).to be_a(Didit::Types::SessionsImportsCheckProviderResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.imports.create sends POST /v3/session/imports/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -3522,6 +3616,67 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.imports.list_active_jobs sends GET /v3/import-jobs/active/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "results": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "kind": "sessions",
+            "source": "file",
+            "provider": "provider-value",
+            "provider_name": "provider_name-value",
+            "filename": "filename-value",
+            "state": "ready",
+            "status": "status-value",
+            "is_dry_run": true,
+            "credential_hint": "credential_hint-value",
+            "resumes_at": "2026-01-02T03:04:05Z",
+            "last_error": "last_error-value",
+            "started_by": {
+              "name": "name-value",
+              "email": "email-value"
+            },
+            "progress": {
+              "total": 1,
+              "processed": 1,
+              "imported": 1,
+              "updated": 1,
+              "already_in_didit": 1,
+              "failed": 1,
+              "not_finished": 1,
+              "same_person": 1
+            },
+            "face_templates": {
+              "enabled": true,
+              "built": 1,
+              "duplicates": 1,
+              "blocklisted": 1
+            },
+            "eta_seconds": 1,
+            "created_at": "2026-01-02T03:04:05Z",
+            "started_at": "2026-01-02T03:04:05Z",
+            "completed_at": "2026-01-02T03:04:05Z"
+          }
+        ],
+        "running": 1
+      }
+    JSON
+    result = client.sessions.imports.list_active_jobs
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/import-jobs/active/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsImportsListActiveJobsResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.imports.list_errors sends GET /v3/session/imports/{importId}/errors/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -3562,6 +3717,245 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result.results)
   end
 
+  it "sessions.imports.list_jobs sends GET /v3/import-jobs/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "results": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "kind": "sessions",
+            "source": "file",
+            "provider": "provider-value",
+            "provider_name": "provider_name-value",
+            "filename": "filename-value",
+            "state": "ready",
+            "status": "status-value",
+            "is_dry_run": true,
+            "credential_hint": "credential_hint-value",
+            "resumes_at": "2026-01-02T03:04:05Z",
+            "last_error": "last_error-value",
+            "started_by": {
+              "name": "name-value",
+              "email": "email-value"
+            },
+            "progress": {
+              "total": 1,
+              "processed": 1,
+              "imported": 1,
+              "updated": 1,
+              "already_in_didit": 1,
+              "failed": 1,
+              "not_finished": 1,
+              "same_person": 1
+            },
+            "face_templates": {
+              "enabled": true,
+              "built": 1,
+              "duplicates": 1,
+              "blocklisted": 1
+            },
+            "eta_seconds": 1,
+            "created_at": "2026-01-02T03:04:05Z",
+            "started_at": "2026-01-02T03:04:05Z",
+            "completed_at": "2026-01-02T03:04:05Z"
+          }
+        ],
+        "counts": {
+          "all": 1,
+          "running_and_waiting": 1,
+          "needs_attention": 1,
+          "done": 1
+        }
+      }
+    JSON
+    result = client.sessions.imports.list_jobs
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/import-jobs/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsImportsListJobsResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.list_providers sends GET /v3/session/imports/providers/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "providers": [
+          {
+            "key": "sumsub",
+            "name": "name-value",
+            "mode": "api_list",
+            "record_noun": "record_noun-value",
+            "credential_fields": [
+              {
+                "name": "example",
+                "label": "example",
+                "secret": "example"
+              }
+            ],
+            "regions": [
+              "regions-value"
+            ],
+            "required_permissions": [
+              "required_permissions-value"
+            ],
+            "docs_url": "docs_url-value",
+            "status_mapping": {
+              "key": "Approved"
+            }
+          }
+        ],
+        "mapping_targets": [
+          "mapping_targets-value"
+        ],
+        "skipped_statuses": [
+          "skipped_statuses-value"
+        ]
+      }
+    JSON
+    result = client.sessions.imports.list_providers
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/imports/providers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsImportsListProvidersResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.pause sends POST /v3/session/imports/{importId}/pause/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "status": "PENDING",
+        "import_type": "user_verification",
+        "source_format": "csv",
+        "source_filename": "source_filename-value",
+        "total_rows": 1,
+        "processed_rows": 1,
+        "checkpoint_row": 1,
+        "created_count": 1,
+        "updated_count": 1,
+        "skipped_count": 1,
+        "failed_count": 1,
+        "total_media_bytes": 1,
+        "last_error": "last_error-value",
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z",
+        "started_at": "2026-01-02T03:04:05Z",
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
+      }
+    JSON
+    result = client.sessions.imports.pause(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/pause/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.resume sends POST /v3/session/imports/{importId}/resume/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "status": "PENDING",
+        "import_type": "user_verification",
+        "source_format": "csv",
+        "source_filename": "source_filename-value",
+        "total_rows": 1,
+        "processed_rows": 1,
+        "checkpoint_row": 1,
+        "created_count": 1,
+        "updated_count": 1,
+        "skipped_count": 1,
+        "failed_count": 1,
+        "total_media_bytes": 1,
+        "last_error": "last_error-value",
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z",
+        "started_at": "2026-01-02T03:04:05Z",
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
+      }
+    JSON
+    result = client.sessions.imports.resume(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/resume/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.imports.retrieve sends GET /v3/session/imports/{importId}/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -3582,7 +3976,28 @@ RSpec.describe Didit::Resources::Sessions do
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z",
         "started_at": "2026-01-02T03:04:05Z",
-        "completed_at": "2026-01-02T03:04:05Z"
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
       }
     JSON
     result = client.sessions.imports.retrieve(
@@ -3615,6 +4030,139 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_no_body(request)
     expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.imports.retry sends POST /v3/session/imports/{importId}/retry/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "status": "PENDING",
+        "import_type": "user_verification",
+        "source_format": "csv",
+        "source_filename": "source_filename-value",
+        "total_rows": 1,
+        "processed_rows": 1,
+        "checkpoint_row": 1,
+        "created_count": 1,
+        "updated_count": 1,
+        "skipped_count": 1,
+        "failed_count": 1,
+        "total_media_bytes": 1,
+        "last_error": "last_error-value",
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z",
+        "started_at": "2026-01-02T03:04:05Z",
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
+      }
+    JSON
+    result = client.sessions.imports.retry(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/retry/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_multipart_body(
+      request,
+      fields: {},
+      files: {
+        "file" => [
+          "file.jpg",
+          "image/jpeg",
+          "fake-file-bytes"
+        ]
+      }
+    )
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.start sends POST /v3/session/imports/{importId}/start/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "status": "PENDING",
+        "import_type": "user_verification",
+        "source_format": "csv",
+        "source_filename": "source_filename-value",
+        "total_rows": 1,
+        "processed_rows": 1,
+        "checkpoint_row": 1,
+        "created_count": 1,
+        "updated_count": 1,
+        "skipped_count": 1,
+        "failed_count": 1,
+        "total_media_bytes": 1,
+        "last_error": "last_error-value",
+        "created_at": "2026-01-02T03:04:05Z",
+        "updated_at": "2026-01-02T03:04:05Z",
+        "started_at": "2026-01-02T03:04:05Z",
+        "completed_at": "2026-01-02T03:04:05Z",
+        "state": "ready",
+        "source": "file",
+        "provider": "provider-value",
+        "provider_options": {},
+        "credential_hint": "credential_hint-value",
+        "credentials_expires_at": "2026-01-02T03:04:05Z",
+        "resumes_at": "2026-01-02T03:04:05Z",
+        "status_mapping": {
+          "key": "value"
+        },
+        "is_dry_run": true,
+        "dry_run_summary": {},
+        "face_templates_enabled": true,
+        "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
+        "not_finished_count": 1,
+        "same_person_count": 1,
+        "face_templates_count": 1,
+        "face_duplicates_count": 1,
+        "face_blocklist_hits_count": 1,
+        "created_by_name": "created_by_name-value",
+        "created_by_email": "created_by_email-value"
+      }
+    JSON
+    result = client.sessions.imports.start(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/start/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {})
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "sessions.reviews.create sends POST /v3/sessions/{session_id}/reviews/" do

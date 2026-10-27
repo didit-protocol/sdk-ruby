@@ -2127,13 +2127,63 @@ module Didit
 
       # The +sessions.imports+ resource.
       class Imports < Didit::Resource
+        # Cancel an import job
+        #
+        # Cancel an import. What was imported stays; the uploaded file and the key are erased.
+        #
+        # +POST /v3/session/imports/{importId}/cancel/+
+        #
+        # @param import_id [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionImportJob]
+        def cancel(import_id, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/imports/{importId}/cancel/",
+            path_params: { "importId" => import_id },
+            response: Types::SessionImportJob,
+            request_options: request_options
+          )
+        end
+
+        # Check a provider key
+        #
+        # Read the provider with your key before creating a migration. Nothing is stored.
+        #
+        # +POST /v3/session/imports/providers/check/+
+        #
+        # @param provider [String] Migration source, from `GET /v3/session/imports/providers/`. Required when `source`
+        #   is `provider`.
+        # @param credentials [Hash{String => String}] The provider's read-only key, with the field names
+        #   `credential_fields` lists. Encrypted at rest, never returned, and erased when the import ends. Send it as a
+        #   JSON string in multipart.
+        # @param options [Hash]
+        # @param record_ids [Array<String>] For `api_ids` providers: the first record ID of your export.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionsImportsCheckProviderResponse]
+        def check_provider(provider:, credentials:, options: OMIT, record_ids: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/imports/providers/check/",
+            body: {
+              "provider" => provider,
+              "credentials" => credentials,
+              "options" => options,
+              "record_ids" => record_ids
+            },
+            response: Types::SessionsImportsCheckProviderResponse,
+            request_options: request_options
+          )
+        end
+
         # Create a verification import job
         #
         # Create an asynchronous import job for historical User Verification sessions, Business Verification sessions,
-        # transaction monitoring records, or workflow custom status rules. Use this to migrate from providers such as
-        # Sumsub, MetaMap, Veriff, Onfido, Persona, Trulioo, Jumio, Incode, iDenfy, or any other provider after
-        # transforming the export into Didit's canonical CSV/NDJSON format. Imports are disabled by default and must
-        # be enabled per organization by Didit.
+        # transaction monitoring records, or workflow custom status rules. Set `source=provider` to migrate from
+        # another provider: Didit reads Sumsub, Onfido, Persona and ComplyCube with your read-only key, reads Veriff,
+        # iDenfy and MetaMap records by the IDs you upload in `file`, and imports an export file in Didit's format for
+        # the other providers. Record IDs are namespaced by provider (`sumsub:<id>`) so a re-run skips everything
+        # already in Didit. Imports are disabled by default and must be enabled per organization by Didit.
         #
         # +POST /v3/session/imports/+
         #
@@ -2144,6 +2194,23 @@ module Didit
         # @param source_format [String] Optional. Inferred from the URL's file extension when omitted.
         # @param source_file_url [String] Alternative to file upload. Must be an HTTPS URL resolving to a public
         #   address (private/loopback networks are rejected). Mutually exclusive with `file`.
+        # @param source [String] `provider` makes this a migration from another identity verification provider. Omit
+        #   for a file import.
+        # @param provider [String] Migration source, from `GET /v3/session/imports/providers/`. Required when `source`
+        #   is `provider`.
+        # @param credentials [Hash{String => String}] The provider's read-only key, with the field names
+        #   `credential_fields` lists. Encrypted at rest, never returned, and erased when the import ends. Send it as a
+        #   JSON string in multipart.
+        # @param options [Hash]
+        # @param status_mapping [Hash{String => String}] Edits to the provider's default status mapping: source status
+        #   to Didit status. `Not Finished` and `Abandoned` are skipped and counted, never imported.
+        # @param dry_run [Boolean] Count what the migration would import (by status, already in Didit, same person,
+        #   not finished) and write nothing. The job ends `READY`; start it with `POST
+        #   /v3/session/imports/{importId}/start/`.
+        # @param face_templates [Boolean] Build face templates from the imported selfies and search them against the
+        #   application's faces and blocklist. Matches are flagged for review only. Requires `lawful_basis_confirmed`.
+        # @param lawful_basis_confirmed [Boolean] Confirms you have a lawful basis to share these selfies with Didit
+        #   as processor.
         # @param file [Pathname, IO, String, Didit::FilePart] Canonical CSV or NDJSON file. Use NDJSON for large
         #   imports. Maximum upload size 25 MB (use `source_file_url` for bigger files). Mutually exclusive with
         #   `source_file_url`.
@@ -2154,6 +2221,14 @@ module Didit
           workflow_id: OMIT,
           source_format: OMIT,
           source_file_url: OMIT,
+          source: OMIT,
+          provider: OMIT,
+          credentials: OMIT,
+          options: OMIT,
+          status_mapping: OMIT,
+          dry_run: OMIT,
+          face_templates: OMIT,
+          lawful_basis_confirmed: OMIT,
           file: OMIT,
           request_options: nil
         )
@@ -2165,11 +2240,36 @@ module Didit
               "workflow_id" => workflow_id,
               "source_format" => source_format,
               "source_file_url" => source_file_url,
+              "source" => source,
+              "provider" => provider,
+              "credentials" => credentials,
+              "options" => options,
+              "status_mapping" => status_mapping,
+              "dry_run" => dry_run,
+              "face_templates" => face_templates,
+              "lawful_basis_confirmed" => lawful_basis_confirmed,
               "file" => file
             },
             encoding: :auto,
             file_fields: %w[file],
             response: Types::SessionImportJob,
+            request_options: request_options
+          )
+        end
+
+        # List active import jobs
+        #
+        # What is running or waiting, plus what just ended, for a progress indicator.
+        #
+        # +GET /v3/import-jobs/active/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionsImportsListActiveJobsResponse]
+        def list_active_jobs(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/import-jobs/active/",
+            response: Types::SessionsImportsListActiveJobsResponse,
             request_options: request_options
           )
         end
@@ -2196,6 +2296,85 @@ module Didit
               "offset" => offset
             },
             page: Types::SessionImportError,
+            request_options: request_options
+          )
+        end
+
+        # List import jobs
+        #
+        # Every import of the application in one shape: verification imports and migrations, people and businesses.
+        #
+        # +GET /v3/import-jobs/+
+        #
+        # @param scope [String]
+        # @param limit [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionsImportsListJobsResponse]
+        def list_jobs(scope: OMIT, limit: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/import-jobs/",
+            query: {
+              "scope" => scope,
+              "limit" => limit
+            },
+            response: Types::SessionsImportsListJobsResponse,
+            request_options: request_options
+          )
+        end
+
+        # List migration providers
+        #
+        # The 15 providers you can migrate verifications from: what each needs to connect, whether its API can list
+        # records, the permissions its key needs and its default status mapping.
+        #
+        # +GET /v3/session/imports/providers/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionsImportsListProvidersResponse]
+        def list_providers(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/session/imports/providers/",
+            response: Types::SessionsImportsListProvidersResponse,
+            request_options: request_options
+          )
+        end
+
+        # Pause an import job
+        #
+        # Pause a queued or running import.
+        #
+        # +POST /v3/session/imports/{importId}/pause/+
+        #
+        # @param import_id [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionImportJob]
+        def pause(import_id, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/imports/{importId}/pause/",
+            path_params: { "importId" => import_id },
+            response: Types::SessionImportJob,
+            request_options: request_options
+          )
+        end
+
+        # Resume an import job
+        #
+        # Resume an import you paused. A job paused by the provider's rate limit resumes by itself.
+        #
+        # +POST /v3/session/imports/{importId}/resume/+
+        #
+        # @param import_id [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionImportJob]
+        def resume(import_id, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/imports/{importId}/resume/",
+            path_params: { "importId" => import_id },
+            response: Types::SessionImportJob,
             request_options: request_options
           )
         end
@@ -2240,6 +2419,75 @@ module Didit
             response: :binary,
             accept: "text/csv, application/json",
             request_options: request_options, &block
+          )
+        end
+
+        # Retry a migration
+        #
+        # Run a migration that ended again as a new job, with a new key (the old one was erased). It keeps the
+        # provider, workflow, region, status mapping and face templates choice; everything already in Didit is
+        # skipped.
+        #
+        # +POST /v3/session/imports/{importId}/retry/+
+        #
+        # @param import_id [String]
+        # @param credentials [Hash{String => String}] The provider's read-only key, with the field names
+        #   `credential_fields` lists. Encrypted at rest, never returned, and erased when the import ends. Send it as a
+        #   JSON string in multipart.
+        # @param file [Pathname, IO, String, Didit::FilePart] The record IDs or export file again, for `api_ids` and
+        #   `export_file` providers.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionImportJob]
+        def retry(import_id, credentials: OMIT, file: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/session/imports/{importId}/retry/",
+            path_params: { "importId" => import_id },
+            body: {
+              "credentials" => credentials,
+              "file" => file
+            },
+            encoding: :multipart,
+            file_fields: %w[file],
+            response: Types::SessionImportJob,
+            request_options: request_options
+          )
+        end
+
+        # Start a dry run
+        #
+        # Start a migration whose dry run finished (`READY`): the same job imports for real, with the status mapping
+        # and face templates choice as sent now.
+        #
+        # +POST /v3/session/imports/{importId}/start/+
+        #
+        # @param import_id [String]
+        # @param status_mapping [Hash{String => String}] Edits to the provider's default status mapping: source status
+        #   to Didit status. `Not Finished` and `Abandoned` are skipped and counted, never imported.
+        # @param face_templates [Boolean] Build face templates from the imported selfies and search them against the
+        #   application's faces and blocklist. Matches are flagged for review only. Requires `lawful_basis_confirmed`.
+        # @param lawful_basis_confirmed [Boolean] Confirms you have a lawful basis to share these selfies with Didit
+        #   as processor.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::SessionImportJob]
+        def start(
+          import_id,
+          status_mapping: OMIT,
+          face_templates: OMIT,
+          lawful_basis_confirmed: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/session/imports/{importId}/start/",
+            path_params: { "importId" => import_id },
+            body: {
+              "status_mapping" => status_mapping,
+              "face_templates" => face_templates,
+              "lawful_basis_confirmed" => lawful_basis_confirmed
+            },
+            response: Types::SessionImportJob,
+            request_options: request_options
           )
         end
       end

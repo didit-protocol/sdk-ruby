@@ -292,7 +292,11 @@ RSpec.describe Didit::Resources::Workflows do
           {}
         ],
         "created_at": "2026-01-02T03:04:05Z",
-        "updated_at": "2026-01-02T03:04:05Z"
+        "updated_at": "2026-01-02T03:04:05Z",
+        "is_bank_verification_enabled": true,
+        "bank_verification_config": {},
+        "is_geolocation_enabled": true,
+        "geolocation_config": {}
       }
     JSON
     result = client.workflows.update(

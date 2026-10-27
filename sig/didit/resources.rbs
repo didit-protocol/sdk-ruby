@@ -32,6 +32,7 @@ module Didit
       def networks: () -> Didit::Resources::Networks
       def passive_liveness: () -> Didit::Resources::PassiveLiveness
       def phone: () -> Didit::Resources::Phone
+      def pricing: () -> Didit::Resources::Pricing
       def proof_of_address: () -> Didit::Resources::ProofOfAddress
       def questionnaires: () -> Didit::Resources::Questionnaires
       def regulatory_reports: () -> Didit::Resources::RegulatoryReports

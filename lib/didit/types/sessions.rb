@@ -253,6 +253,27 @@ module Didit
       VALUES = [RETAINED_WITH_USER, DELETED, NONE, INELIGIBLE_NO_VENDOR_USER].freeze
     end
 
+    # Migration source, from `GET /v3/session/imports/providers/`. Required when `source` is `provider`.
+    module SessionsImportsCheckProviderParamsProvider
+      SUMSUB = "sumsub"
+      JUMIO = "jumio"
+      VERIFF = "veriff"
+      ONFIDO = "onfido"
+      PERSONA = "persona"
+      METAMAP = "metamap"
+      SOCURE = "socure"
+      IDNOW = "idnow"
+      SHUFTI = "shufti"
+      IDENFY = "idenfy"
+      ONDATO = "ondato"
+      TRULIOO = "trulioo"
+      AU10TIX = "au10tix"
+      COMPLYCUBE = "complycube"
+      OTHER = "other"
+
+      VALUES = [SUMSUB, JUMIO, VERIFF, ONFIDO, PERSONA, METAMAP, SOCURE, IDNOW, SHUFTI, IDENFY, ONDATO, TRULIOO, AU10TIX, COMPLYCUBE, OTHER].freeze
+    end
+
     # What to import: historical User Verification sessions, historical Business Verification sessions, workflow
     # custom status rules, or historical transaction monitoring records.
     module SessionsImportsCreateParamsImportType
@@ -264,12 +285,63 @@ module Didit
       VALUES = [USER_VERIFICATION, BUSINESS_VERIFICATION, STATUS_RULES, TRANSACTIONS].freeze
     end
 
+    # Migration source, from `GET /v3/session/imports/providers/`. Required when `source` is `provider`.
+    module SessionsImportsCreateParamsProvider
+      SUMSUB = "sumsub"
+      JUMIO = "jumio"
+      VERIFF = "veriff"
+      ONFIDO = "onfido"
+      PERSONA = "persona"
+      METAMAP = "metamap"
+      SOCURE = "socure"
+      IDNOW = "idnow"
+      SHUFTI = "shufti"
+      IDENFY = "idenfy"
+      ONDATO = "ondato"
+      TRULIOO = "trulioo"
+      AU10TIX = "au10tix"
+      COMPLYCUBE = "complycube"
+      OTHER = "other"
+
+      VALUES = [SUMSUB, JUMIO, VERIFF, ONFIDO, PERSONA, METAMAP, SOCURE, IDNOW, SHUFTI, IDENFY, ONDATO, TRULIOO, AU10TIX, COMPLYCUBE, OTHER].freeze
+    end
+
+    # `provider` makes this a migration from another identity verification provider. Omit for a file import.
+    module SessionsImportsCreateParamsSource
+      FILE = "file"
+      PROVIDER = "provider"
+
+      VALUES = [FILE, PROVIDER].freeze
+    end
+
     # Optional. Inferred from the URL's file extension when omitted.
     module SessionsImportsCreateParamsSourceFormat
       CSV = "csv"
       NDJSON = "ndjson"
 
       VALUES = [CSV, NDJSON].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsImportsCreateParamsStatusMappingValue
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      EXPIRED = "Expired"
+      NOT_FINISHED = "Not Finished"
+      ABANDONED = "Abandoned"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, NOT_FINISHED, ABANDONED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsImportsListJobsParamsScope
+      ALL = "all"
+      SESSIONS = "sessions"
+      USERS = "users"
+      BUSINESSES = "businesses"
+
+      VALUES = [ALL, SESSIONS, USERS, BUSINESSES].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -280,6 +352,18 @@ module Didit
       TRANSACTIONS = "transactions"
 
       VALUES = [USER_VERIFICATION, BUSINESS_VERIFICATION, STATUS_RULES, TRANSACTIONS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsImportsStartParamsStatusMappingValue
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      EXPIRED = "Expired"
+      NOT_FINISHED = "Not Finished"
+      ABANDONED = "Abandoned"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, NOT_FINISHED, ABANDONED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -957,11 +1041,40 @@ module Didit
       field :deleted_child_verifications, "deleted_child_verifications", :integer
     end
 
+    class SessionsImportsCheckProviderResponse < Didit::Model
+      field :ok, "ok", :boolean
+      field :provider, "provider", :string
+      field :credential_hint, "credential_hint", :string
+    end
+
+    class SessionsImportsListActiveJobsResponse < Didit::Model
+      field :results, "results", [:array, "ImportJobSummary"]
+      field :running, "running", :integer
+    end
+
     class SessionsImportsListErrorsResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "SessionImportError"]
+    end
+
+    class SessionsImportsListJobsResponse < Didit::Model
+      field :results, "results", [:array, "ImportJobSummary"]
+      field :counts, "counts", "SessionsImportsListJobsResponseCounts"
+    end
+
+    class SessionsImportsListJobsResponseCounts < Didit::Model
+      field :all, "all", :integer
+      field :running_and_waiting, "running_and_waiting", :integer
+      field :needs_attention, "needs_attention", :integer
+      field :done, "done", :integer
+    end
+
+    class SessionsImportsListProvidersResponse < Didit::Model
+      field :providers, "providers", [:array, "ImportProvider"]
+      field :mapping_targets, "mapping_targets", [:array, :string]
+      field :skipped_statuses, "skipped_statuses", [:array, :string]
     end
 
     class SessionsListAmlScreeningHistoryResponse < Didit::Model
