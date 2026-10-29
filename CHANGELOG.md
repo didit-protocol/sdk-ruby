@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/didit-protocol/sdk-ruby/compare/v1.0.0...v1.0.1) (2026-10-29)
+
+
+### Miscellaneous Chores
+
+* release 1.0.1 ([2fc666a](https://github.com/didit-protocol/sdk-ruby/commit/2fc666aabf3f664137341bd05590c44060117632))
+
 ## [1.0.0](https://github.com/didit-protocol/sdk-ruby/compare/v0.1.0...v1.0.0) (2026-10-29)
 
 
