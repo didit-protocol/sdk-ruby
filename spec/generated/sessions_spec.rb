@@ -1742,7 +1742,7 @@ RSpec.describe Didit::Resources::Sessions do
                   "status": "Success",
                   "reason": null
                 },
-                "fee": 0.03
+                "fee": 0.02
               },
               {
                 "type": "VALID_CODE_ENTERED",
@@ -2832,7 +2832,36 @@ RSpec.describe Didit::Resources::Sessions do
           }
         ],
         "created_at": "2024-07-24T08:54:25.443172Z",
-        "expires_at": "2025-07-24T08:54:25.443172Z"
+        "expires_at": "2025-07-24T08:54:25.443172Z",
+        "biometric_consent": {
+          "required": false,
+          "trigger": null,
+          "status": "not_required",
+          "given_at": null,
+          "declined_at": null,
+          "text_version": null,
+          "text_hash": null,
+          "locale": null,
+          "policy_url": null,
+          "step": null,
+          "node_id": null,
+          "ip_address": null,
+          "ip_country_code": null,
+          "ip_state": null,
+          "ip_city": null,
+          "user_agent": null,
+          "detected_ip_address": "83.50.226.71",
+          "detected_country_code": "ES",
+          "detected_state": "ES-B",
+          "detected_city": "Barcelona",
+          "declared_state": null,
+          "document_state": null,
+          "jurisdictions": [],
+          "retention_months": null,
+          "reason": null,
+          "decline_reason": null,
+          "face_data_deleted_at": null
+        }
       }
     JSON
     result = client.sessions.retrieve_decision(

@@ -65,6 +65,11 @@ module Didit
       #   to session deletions from then on; it creates or purges no existing biometric template.
       # @param face_retention_days [Integer, nil] Retention period, in days, of biometric templates under
       #   `retain_until_user_deleted`.
+      # @param biometric_consent_mode [String] When the hosted flow and the native SDKs ask the person for explicit
+      #   biometric consent before a face capture. `auto` (default) asks only where a trigger applies: a declared state,
+      #   the person's IP, or the identity document's issuer is in Illinois, Texas or Colorado, or the person looks to
+      #   be in the US without a known state. `always` asks every person whose workflow captures a face. `never` never
+      #   s...
       # @param allowed_return_hosts [Array<String>] Replaces the whole list of Digital ID wallet return hosts. Bare
       #   hostnames only, such as `shop.example.com`: no scheme, port, path or wildcard. Values are lowercased and
       #   duplicates are dropped. Send `[]` to clear the list.
@@ -78,6 +83,7 @@ module Didit
         data_retention_months: OMIT,
         face_retention_policy: OMIT,
         face_retention_days: OMIT,
+        biometric_consent_mode: OMIT,
         allowed_return_hosts: OMIT,
         request_options: nil
       )
@@ -92,6 +98,7 @@ module Didit
             "data_retention_months" => data_retention_months,
             "face_retention_policy" => face_retention_policy,
             "face_retention_days" => face_retention_days,
+            "biometric_consent_mode" => biometric_consent_mode,
             "allowed_return_hosts" => allowed_return_hosts
           },
           response: Types::WebhookConfig,

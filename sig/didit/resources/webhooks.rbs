@@ -6,7 +6,7 @@ module Didit
       include ::Didit::Webhooks::ClientMethods
       def destinations: () -> Didit::Resources::Webhooks::Destinations
       def retrieve_config: (?request_options: Didit::request_options?) -> Didit::Types::WebhookConfig
-      def update_config: (?webhook_url: String?, ?webhook_version: String, ?rotate_secret_key: bool, ?capture_method: String, ?data_retention_months: Integer?, ?face_retention_policy: String, ?face_retention_days: Integer?, ?allowed_return_hosts: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::WebhookConfig
+      def update_config: (?webhook_url: String?, ?webhook_version: String, ?rotate_secret_key: bool, ?capture_method: String, ?data_retention_months: Integer?, ?face_retention_policy: String, ?face_retention_days: Integer?, ?biometric_consent_mode: String, ?allowed_return_hosts: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::WebhookConfig
       class Destinations < Didit::Resource
         def create: (label: String, url: String, ?enabled: bool, ?webhook_version: String, ?subscribed_events: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::WebhooksDestinationsCreateResponse
         def delete: (String destination_uuid, ?request_options: Didit::request_options?) -> nil

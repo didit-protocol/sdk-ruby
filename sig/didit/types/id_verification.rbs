@@ -47,6 +47,7 @@ module Didit
     module IdVerificationVerifyResponseIdVerificationStatus
       APPROVED: String
       DECLINED: String
+      IN_REVIEW: String
 
       VALUES: Array[String]
     end

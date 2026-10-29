@@ -167,6 +167,25 @@ module Didit
       VALUES: Array[String]
     end
 
+    module AddressValidationResultStatus
+      VERIFIED: String
+      PARTIALLY_VERIFIED: String
+      NOT_VERIFIED: String
+      UNAVAILABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module AddressValidationResultVerificationLevel
+      ADMINISTRATIVE_AREA: String
+      LOCALITY: String
+      THOROUGHFARE: String
+      PREMISE: String
+      DELIVERY_POINT: String
+
+      VALUES: Array[String]
+    end
+
     module ApplicationAnalyticsWidgetGroupingMode
       DAY: String
       WEEK: String
@@ -1454,6 +1473,7 @@ module Didit
       NOT_REQUESTED: String
       PENDING: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
 
       VALUES: Array[String]
@@ -2029,6 +2049,39 @@ module Didit
       IN_REVIEW: String
       EXPIRED: String
       ABANDONED: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionDecisionBiometricConsentDeclineReason
+      BIOMETRIC_CONSENT_DECLINED: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionDecisionBiometricConsentReason
+      BIOMETRIC_CONSENT_UNSUPPORTED_SDK: String
+      BIOMETRIC_CONSENT_DECLINED: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionDecisionBiometricConsentStatus
+      NOT_REQUIRED: String
+      PENDING: String
+      GIVEN: String
+      DECLINED: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionDecisionBiometricConsentTrigger
+      DECLARED_STATE: String
+      IP_STATE: String
+      IP_UNKNOWN: String
+      DOCUMENT_ISSUER: String
+      FORCED: String
+      CUSTOMER_COLLECTED: String
 
       VALUES: Array[String]
     end
@@ -4046,6 +4099,126 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleNetworkParticipantMode
+      PLATFORM: String
+      OWN: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkParticipantNetwork
+      GTR: String
+      TRUST: String
+      VERIFYVASP: String
+      SYGNA: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkParticipantRail
+      GTR: String
+      TRUST: String
+      VERIFYVASP: String
+      SYGNA: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkParticipantStatus
+      NOT_REQUESTED: String
+      QUESTIONNAIRE_PENDING: String
+      SUBMITTED_TO_NETWORK: String
+      ACTIVE: String
+      SUSPENDED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkParticipantSummaryMode
+      PLATFORM: String
+      OWN: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkParticipantSummaryStatus
+      NOT_REQUESTED: String
+      QUESTIONNAIRE_PENDING: String
+      SUBMITTED_TO_NETWORK: String
+      ACTIVE: String
+      SUSPENDED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkQuestionnaireStatus
+      DRAFT: String
+      SUBMITTED: String
+      CHANGES_REQUESTED: String
+      APPROVED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateMode
+      OWN: String
+      DIDIT: String
+      OFF: String
+      UNAVAILABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateRail
+      GTR: String
+      TRUST: String
+      VERIFYVASP: String
+      SYGNA: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateReason
+      OWN_MEMBERSHIP_CONNECTED: String
+      PLATFORM_NETWORK_SWITCHED_OFF: String
+      OWN_MEMBERSHIP_ONLY: String
+      SANDBOX_APPLICATION: String
+      DIDIT_MEMBERSHIP_NOT_LIVE: String
+      PARTICIPANT_SUSPENDED: String
+      PARTICIPANT_REJECTED: String
+      QUESTIONNAIRE_NOT_SUBMITTED: String
+      QUESTIONNAIRE_SUBMITTED: String
+      QUESTIONNAIRE_CHANGES_REQUESTED: String
+      QUESTIONNAIRE_REJECTED: String
+      PARTICIPANT_NOT_REQUESTED: String
+      PARTICIPANT_ACTIVE: String
+      PARTICIPANT_KEY_MISSING: String
+      PARTICIPANT_KEY_UNRESOLVED: String
+      PROVISIONING_FAILED: String
+      QUESTIONNAIRE_PENDING: String
+      SUBMITTED_TO_NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateState
+      OWN_MEMBERSHIP: String
+      LIVE_THROUGH_DIDIT: String
+      OFF: String
+      DIDIT_ONBOARDING: String
+      QUESTIONNAIRE_NEEDED: String
+      QUESTIONNAIRE_IN_REVIEW: String
+      REQUEST_ACCESS: String
+      REQUEST_SENT: String
+      UNAVAILABLE: String
+      ERROR: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleNextActionAction
       SELECT_COUNTERPARTY_VASP: String
       DECLARE_SELF_HOSTED: String
@@ -4084,66 +4257,6 @@ module Didit
       CONTAINS: String
       DEFAULT: String
       FUZZY: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksGtrMode
-      OWN: String
-      DIDIT: String
-      OFF: String
-      UNAVAILABLE: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksGtrRail
-      GTR: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksSygnaMode
-      OWN: String
-      DIDIT: String
-      OFF: String
-      UNAVAILABLE: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksSygnaRail
-      SYGNA: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksTrustMode
-      OWN: String
-      DIDIT: String
-      OFF: String
-      UNAVAILABLE: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksTrustRail
-      TRUST: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksVerifyvaspMode
-      OWN: String
-      DIDIT: String
-      OFF: String
-      UNAVAILABLE: String
-
-      VALUES: Array[String]
-    end
-
-    module TravelRuleSettingsDetailNetworksVerifyvaspRail
-      VERIFYVASP: String
 
       VALUES: Array[String]
     end
@@ -4278,6 +4391,41 @@ module Didit
       COUNTERPARTY_VASP_GENERAL_DECLINE: String
       NOT_ENOUGH_COUNTERPARTY_DATA: String
       NOT_APPLICABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofFailureReason
+      VALUE: String
+      SIGNATURE_INVALID: String
+      SIGNATURE_UNSUPPORTED_SCHEME: String
+      DEPOSIT_NOT_FOUND: String
+      DEPOSIT_UNCONFIRMED: String
+      DEPOSIT_LOOKUP_FAILED: String
+      DEPOSIT_MISMATCH: String
+      DEPOSIT_STALE: String
+      TXID_REUSED: String
+      CHAIN_UNSUPPORTED: String
+      WINDOW_EXPIRED: String
+      OWNERSHIP_CHANGED: String
+      METHOD_SWITCHED: String
+      REVIEW_REJECTED: String
+      ABANDONED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofReviewMethod
+      SCREENSHOT: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofReviewStatus
+      PENDING: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
 
       VALUES: Array[String]
     end
@@ -4598,6 +4746,14 @@ module Didit
       SCREENED: String
       PENDING: String
       ERROR: String
+
+      VALUES: Array[String]
+    end
+
+    module WebhookConfigBiometricConsentMode
+      AUTO: String
+      ALWAYS: String
+      NEVER: String
 
       VALUES: Array[String]
     end
@@ -5055,6 +5211,30 @@ module Didit
       def short_description: () -> String?
       def long_description: () -> String?
       def node_id: () -> String?
+    end
+
+    class AddressValidationResponse < Didit::Model
+      def request_id: () -> String
+      def address_validation: () -> Didit::Types::AddressValidationResult
+      def created_at: () -> Time
+    end
+
+    class AddressValidationResult < Didit::Model
+      def status: () -> String
+      def verification_level: () -> String?
+      def address: () -> Didit::Types::AddressValidationResultAddress?
+      def formatted_address: () -> String?
+      def latitude: () -> Float?
+      def longitude: () -> Float?
+    end
+
+    class AddressValidationResultAddress < Didit::Model
+      def address_line_1: () -> String?
+      def address_line_2: () -> String?
+      def city: () -> String?
+      def region: () -> String?
+      def postal_code: () -> String?
+      def country: () -> String?
     end
 
     class ApplicationAnalyticsCountryCount < Didit::Model
@@ -7652,7 +7832,38 @@ module Didit
       def document_verifications: () -> Array[Didit::Types::SessionDecisionDocumentVerifications]?
       def environment: () -> String?
       def resubmissions: () -> Array[Didit::Types::SessionDecisionResubmissions]?
+      def biometric_consent: () -> Didit::Types::SessionDecisionBiometricConsent?
       def investigator: () -> Didit::Types::InvestigatorBlock?
+    end
+
+    class SessionDecisionBiometricConsent < Didit::Model
+      def required: () -> bool?
+      def trigger: () -> String?
+      def status: () -> String?
+      def given_at: () -> Time?
+      def declined_at: () -> Time?
+      def text_version: () -> String?
+      def text_hash: () -> String?
+      def locale: () -> String?
+      def policy_url: () -> String?
+      def step: () -> String?
+      def node_id: () -> String?
+      def ip_address: () -> String?
+      def ip_country_code: () -> String?
+      def ip_state: () -> String?
+      def ip_city: () -> String?
+      def user_agent: () -> String?
+      def detected_ip_address: () -> String?
+      def detected_country_code: () -> String?
+      def detected_state: () -> String?
+      def detected_city: () -> String?
+      def declared_state: () -> String?
+      def document_state: () -> String?
+      def jurisdictions: () -> Array[String]?
+      def retention_months: () -> Integer?
+      def reason: () -> String?
+      def decline_reason: () -> String?
+      def face_data_deleted_at: () -> Time?
     end
 
     class SessionDecisionContactDetails < Didit::Model
@@ -7967,6 +8178,7 @@ module Didit
       def warnings: () -> Array[Didit::Types::SessionDecisionIdVerificationsWarnings]?
       def matches: () -> Array[Didit::Types::SessionDecisionIdVerificationsMatches]?
       def document_liveness: () -> Didit::Types::SessionDecisionIdVerificationsDocumentLiveness?
+      def address_validation: () -> Didit::Types::AddressValidationResult?
     end
 
     class SessionDecisionIdVerificationsBackImageQualityScore < Didit::Model
@@ -8714,6 +8926,7 @@ module Didit
       def extra_files: () -> Array[String]?
       def warnings: () -> Array[Didit::Types::SessionDecisionPoaVerificationsWarnings]?
       def detected_codes: () -> Array[Didit::Types::DocumentAIDetectedCode]?
+      def address_validation: () -> Didit::Types::AddressValidationResult?
     end
 
     class SessionDecisionPoaVerificationsDocumentMetadata < Didit::Model
@@ -9860,6 +10073,106 @@ module Didit
       def mismatched_names: () -> Array[String]?
     end
 
+    class TravelRuleNetworkParticipant < Didit::Model
+      def network: () -> String?
+      def rail: () -> String?
+      def mode: () -> String?
+      def status: () -> String?
+      def participant_code: () -> String?
+      def requested_at: () -> Time?
+      def submitted_at: () -> Time?
+      def activated_at: () -> Time?
+      def suspended_at: () -> Time?
+      def last_error: () -> String?
+      def history: () -> Array[Didit::Types::TravelRuleNetworkParticipantHistory]?
+    end
+
+    class TravelRuleNetworkParticipantHistory < Didit::Model
+      def at: () -> Time?
+      def from: () -> String?
+      def to: () -> String?
+      def note: () -> String?
+    end
+
+    class TravelRuleNetworkParticipantSummary < Didit::Model
+      def mode: () -> String?
+      def status: () -> String?
+      def participant_code: () -> String?
+      def requested_at: () -> Time?
+      def activated_at: () -> Time?
+      def last_error: () -> String?
+    end
+
+    class TravelRuleNetworkQuestionnaire < Didit::Model
+      def status: () -> String?
+      def answers: () -> Didit::Types::TravelRuleNetworkQuestionnaireAnswers?
+      def submitted_at: () -> Time?
+      def reviewed_at: () -> Time?
+      def review_note: () -> String?
+      def history: () -> Array[Didit::Types::TravelRuleNetworkQuestionnaireHistory]?
+      def updated_at: () -> Time?
+    end
+
+    class TravelRuleNetworkQuestionnaireAnswers < Didit::Model
+      def legal_name: () -> String?
+      def registration_number: () -> String?
+      def incorporation_country: () -> String?
+      def registered_address: () -> String?
+      def website: () -> String?
+      def lei: () -> String?
+      def licences: () -> Array[Didit::Types::TravelRuleNetworkQuestionnaireAnswersLicences]?
+      def operating_jurisdictions: () -> Array[String]?
+      def compliance_officer_name: () -> String?
+      def compliance_officer_email: () -> String?
+      def aml_ctf_policy_attested: () -> bool?
+      def sanctions_screening_attested: () -> bool?
+      def data_protection_attested: () -> bool?
+      def data_protection_contact_email: () -> String?
+      def expected_monthly_transfers: () -> Integer?
+      def expected_monthly_volume_usd: () -> String?
+      def assets: () -> Array[String]?
+    end
+
+    class TravelRuleNetworkQuestionnaireAnswersLicences < Didit::Model
+      def regulator: () -> String
+      def jurisdiction: () -> String
+      def licence_type: () -> String
+      def licence_number: () -> String
+    end
+
+    class TravelRuleNetworkQuestionnaireHistory < Didit::Model
+      def at: () -> Time?
+      def from: () -> String?
+      def to: () -> String?
+      def note: () -> String?
+    end
+
+    class TravelRuleNetworkState < Didit::Model
+      def rail: () -> String?
+      def mode: () -> String?
+      def state: () -> String?
+      def reason: () -> String?
+      def platform_available: () -> bool?
+      def connected: () -> bool?
+      def participant: () -> Didit::Types::TravelRuleNetworkParticipantSummary?
+      def vasps_reachable: () -> Integer?
+      def routed_30d: () -> Integer?
+    end
+
+    class TravelRuleNetworksOverview < Didit::Model
+      def platform_networks_enabled: () -> bool?
+      def questionnaire: () -> Didit::Types::TravelRuleNetworkQuestionnaire?
+      def participants: () -> Array[Didit::Types::TravelRuleNetworkParticipant]?
+      def networks: () -> Didit::Types::TravelRuleNetworksOverviewNetworks?
+    end
+
+    class TravelRuleNetworksOverviewNetworks < Didit::Model
+      def gtr: () -> Didit::Types::TravelRuleNetworkState?
+      def trust: () -> Didit::Types::TravelRuleNetworkState?
+      def verifyvasp: () -> Didit::Types::TravelRuleNetworkState?
+      def sygna: () -> Didit::Types::TravelRuleNetworkState?
+    end
+
     class TravelRuleNextAction < Didit::Model
       def action: () -> String
       def url: () -> String?
@@ -9902,38 +10215,10 @@ module Didit
     end
 
     class TravelRuleSettingsDetailNetworks < Didit::Model
-      def gtr: () -> Didit::Types::TravelRuleSettingsDetailNetworksGtr?
-      def trust: () -> Didit::Types::TravelRuleSettingsDetailNetworksTrust?
-      def verifyvasp: () -> Didit::Types::TravelRuleSettingsDetailNetworksVerifyvasp?
-      def sygna: () -> Didit::Types::TravelRuleSettingsDetailNetworksSygna?
-    end
-
-    class TravelRuleSettingsDetailNetworksGtr < Didit::Model
-      def rail: () -> String?
-      def mode: () -> String?
-      def platform_available: () -> bool?
-      def connected: () -> bool?
-    end
-
-    class TravelRuleSettingsDetailNetworksSygna < Didit::Model
-      def rail: () -> String?
-      def mode: () -> String?
-      def platform_available: () -> bool?
-      def connected: () -> bool?
-    end
-
-    class TravelRuleSettingsDetailNetworksTrust < Didit::Model
-      def rail: () -> String?
-      def mode: () -> String?
-      def platform_available: () -> bool?
-      def connected: () -> bool?
-    end
-
-    class TravelRuleSettingsDetailNetworksVerifyvasp < Didit::Model
-      def rail: () -> String?
-      def mode: () -> String?
-      def platform_available: () -> bool?
-      def connected: () -> bool?
+      def gtr: () -> Didit::Types::TravelRuleNetworkState?
+      def trust: () -> Didit::Types::TravelRuleNetworkState?
+      def verifyvasp: () -> Didit::Types::TravelRuleNetworkState?
+      def sygna: () -> Didit::Types::TravelRuleNetworkState?
     end
 
     class TravelRuleTestVaspInboundResponse < Didit::Model
@@ -10026,6 +10311,27 @@ module Didit
       def amount: () -> String?
       def txid: () -> String?
       def vout: () -> Integer?
+    end
+
+    class TravelRuleWalletProofReview < Didit::Model
+      def proof_id: () -> String?
+      def method_: () -> String?
+      def status: () -> String?
+      def wallet_address: () -> String?
+      def chain: () -> String?
+      def holder_name: () -> String?
+      def is_ownership_verified: () -> bool?
+      def transaction_id: () -> String?
+      def file_name: () -> String?
+      def content_type: () -> String?
+      def screenshot_url: () -> String?
+      def attempts: () -> Integer?
+      def failure_reason: () -> String?
+      def method_chosen_at: () -> Time?
+      def decided_at: () -> Time?
+      def decided_by: () -> String?
+      def review_note: () -> String?
+      def created_at: () -> Time?
     end
 
     class TravelRuleWidgetSessionResponse < Didit::Model
@@ -10385,6 +10691,7 @@ module Didit
       def data_retention_months: () -> Integer?
       def face_retention_policy: () -> String
       def face_retention_days: () -> Integer?
+      def biometric_consent_mode: () -> String?
       def available_events: () -> Array[Didit::Types::WebhookConfigAvailableEvents]
       def allowed_return_hosts: () -> Array[String]
       def endpoints: () -> Array[Didit::Types::WebhookConfigDestination]

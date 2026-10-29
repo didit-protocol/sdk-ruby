@@ -20,6 +20,36 @@ module Didit
         @travel_rule ||= TravelRule.new(@client)
       end
 
+      # Batch delete transactions
+      #
+      # Delete one or more transactions permanently. Select them with `transaction_uuids`, or delete every transaction
+      # in the application with `delete_all: true`.
+      #
+      # A deleted transaction goes with the records that are only its own: its parties, tags, notes, payment method
+      # links, documents and every stored version of their files, rule runs, alerts, provider results, network
+      # snapshot and Travel Rule data. Cases, people and companies stay; their link to the deleted transaction is
+      # cleared. Draft regulatory reports stop listing it and are rebuilt without it. Deletion is permanent and
+      # irreversible; there is no undo endpoint.
+      #
+      # If any selected transaction is listed in a finalized regulatory report, the whole request is refused with
+      # `409` and nothing is deleted. The body uses `code: in_filed_report` and names each transaction and the reports
+      # that list it. Delete those reports, then repeat the request.
+      #
+      # +DELETE /v3/organization/{organization_id}/application/{application_id}/transactions/delete/+
+      #
+      # @param body [Hash]
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [nil]
+      def batch_delete(body:, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/organization/{organization_id}/application/{application_id}/transactions/delete/",
+          body: body,
+          scope: :application,
+          request_options: request_options
+        )
+      end
+
       # Create transaction
       #
       # Submit a transaction for synchronous AML/risk monitoring. The transaction is created `APPROVED`, then your
@@ -893,7 +923,10 @@ module Didit
         # you declared. It changes the record only: nothing is sent to the counterparty again and the status stays.
         # The originator becomes `chain_details.originator` with `source: updated`, the change is added to the
         # `timeline` with the previous and the new wallet, and the INTERNAL-rail counterpart of the transfer is
-        # updated the same way.
+        # updated the same way. `{"action": "beneficiary_vasp", "beneficiary_vasp": "<directory VASP id>"}` names the
+        # counterparty yourself when discovery could not, on an outbound transfer in COUNTERPARTY_VASP_NOT_FOUND,
+        # COUNTERPARTY_VASP_NOT_REACHABLE or NOT_ENOUGH_COUNTERPARTY_DATA: the transfer is routed to that VASP and
+        # sent again.
         #
         # +PATCH /v3/transactions/{transaction_id}/travel-rule/+
         #
@@ -912,6 +945,8 @@ module Didit
         #   the transfer's UTXO inputs are known it must be one of them.
         # @param memo [String] With `action: update_originator_wallet`: the wallet's memo or tag on a memo network.
         #   Optional.
+        # @param beneficiary_vasp [String] Required with action=beneficiary_vasp: the `id` of a directory VASP, from
+        #   `GET /v3/travel-rule/vasps/`. Your choice outranks every automatic discovery step, which never overrides it.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
         def update_transfer(
@@ -921,6 +956,7 @@ module Didit
           compliance_email: OMIT,
           wallet_address: OMIT,
           memo: OMIT,
+          beneficiary_vasp: OMIT,
           request_options: nil
         )
           @client.request(
@@ -932,7 +968,8 @@ module Didit
               "action" => action,
               "compliance_email" => compliance_email,
               "wallet_address" => wallet_address,
-              "memo" => memo
+              "memo" => memo,
+              "beneficiary_vasp" => beneficiary_vasp
             },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options

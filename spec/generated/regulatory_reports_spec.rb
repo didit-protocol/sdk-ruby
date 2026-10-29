@@ -86,7 +86,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
   it "regulatory_reports.delete sends DELETE /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.regulatory_reports.delete(
-      "5ec00000-0000-4000-8000-000000000007"
+      "5ec00000-0000-4000-8000-000000000007",
+      confirm_delete: true
     )
     request = expect_api_request(
       calls,
@@ -96,7 +97,9 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_no_body(request)
+    expect_json_body(request, {
+      "confirm_delete" => true
+    })
     expect(result).to be_nil
   end
 

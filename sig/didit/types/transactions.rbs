@@ -129,6 +129,7 @@ module Didit
       RESEND: String
       UPDATE_COMPLIANCE_EMAIL: String
       UPDATE_ORIGINATOR_WALLET: String
+      BENEFICIARY_VASP: String
 
       VALUES: Array[String]
     end
@@ -213,6 +214,10 @@ module Didit
       def results: () -> Array[Didit::Types::TransactionRuleDetail]?
     end
 
+    type transactions_batch_delete_params_all_transactions = { delete_all: bool, ?transaction_uuids: Array[String] }
+
+    type transactions_batch_delete_params_selected_transactions = { transaction_uuids: Array[String], ?delete_all: bool }
+
     type transactions_create_params = { transaction_id: String, ?transaction_at: Time | String, ?time_zone: String, transaction_category: String, transaction_details: Didit::Types::transactions_create_params_transaction_details, subject: Didit::Types::transactions_create_params_subject, ?counterparty: Didit::Types::transactions_create_params_counterparty, ?custom_properties: Hash[String | Symbol, untyped], ?travel_rule_details: Didit::Types::transactions_create_params_travel_rule_details, ?network_snapshot: Didit::Types::transactions_create_params_network_snapshot, ?include_crypto_screening: bool? }
 
     type transactions_create_params_counterparty = { ?entity_type: String, ?vendor_data: String, ?full_name: String, ?first_name: String, ?last_name: String, ?date_of_birth: Date | String, ?address: Hash[String | Symbol, untyped], ?institution_details: Hash[String | Symbol, untyped], ?device_context: Didit::Types::transactions_create_params_counterparty_device_context, ?payment_method: Didit::Types::transactions_create_params_counterparty_payment_method }
@@ -263,6 +268,6 @@ module Didit
 
     type transactions_travel_rule_trigger_test_vasp_inbound_params = { beneficiary_wallet_address: String, ?scenario: String, ?chain: String, ?amount: String, ?currency: String, ?reference: String }
 
-    type transactions_travel_rule_update_transfer_params = { ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String }
+    type transactions_travel_rule_update_transfer_params = { ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String }
   end
 end

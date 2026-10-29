@@ -110,6 +110,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module WebhooksUpdateConfigParamsBiometricConsentMode
+      AUTO: String
+      ALWAYS: String
+      NEVER: String
+
+      VALUES: Array[String]
+    end
+
     module WebhooksUpdateConfigParamsCaptureMethod
       MOBILE: String
       MOBILE_AND_DESKTOP: String
@@ -298,6 +306,6 @@ module Didit
 
     type webhooks_destinations_update_params = { ?label: String, ?url: String, ?enabled: bool, ?webhook_version: String, ?subscribed_events: Array[String] }
 
-    type webhooks_update_config_params = { ?webhook_url: String?, ?webhook_version: String, ?rotate_secret_key: bool, ?capture_method: String, ?data_retention_months: Integer?, ?face_retention_policy: String, ?face_retention_days: Integer?, ?allowed_return_hosts: Array[String] }
+    type webhooks_update_config_params = { ?webhook_url: String?, ?webhook_version: String, ?rotate_secret_key: bool, ?capture_method: String, ?data_retention_months: Integer?, ?face_retention_policy: String, ?face_retention_days: Integer?, ?biometric_consent_mode: String, ?allowed_return_hosts: Array[String] }
   end
 end

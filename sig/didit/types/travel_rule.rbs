@@ -96,6 +96,22 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleWalletProofsDecideParamsDecision
+      APPROVE: String
+      REJECT: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofsListParamsStatus
+      PENDING: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
     class TravelRuleCounterpartyContactsListResponse < Didit::Model
       def count: () -> Integer?
       def `next`: () -> String?
@@ -128,9 +144,20 @@ module Didit
       def results: () -> Array[Didit::Types::WalletAddressEntry]?
     end
 
+    class TravelRuleWalletProofsListResponse < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::TravelRuleWalletProofReview]?
+    end
+
     type travel_rule_counterparty_contacts_create_params = { counterparty: String, email: String, ?name: String }
 
     type travel_rule_create_widget_session_params = { ?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer }
+
+    type travel_rule_networks_update_questionnaire_params = { ?legal_name: String, ?registration_number: String, ?incorporation_country: String, ?registered_address: String, ?website: String, ?lei: String, ?licences: Array[Didit::Types::travel_rule_networks_update_questionnaire_params_licences], ?operating_jurisdictions: Array[String], ?compliance_officer_name: String, ?compliance_officer_email: String, ?aml_ctf_policy_attested: bool, ?sanctions_screening_attested: bool, ?data_protection_attested: bool, ?data_protection_contact_email: String, ?expected_monthly_transfers: Integer, ?expected_monthly_volume_usd: String, ?assets: Array[String] }
+
+    type travel_rule_networks_update_questionnaire_params_licences = { regulator: String, jurisdiction: String, licence_type: String, licence_number: String }
 
     type travel_rule_register_inbound_params = { chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo }
 
@@ -149,6 +176,8 @@ module Didit
     type travel_rule_wallet_addresses_create_params = { address: String, ?chain: String, ?holder_vendor_data: String, ?holder_name: String, ?entity_type: String, ?self_declared: bool, ?travel_address: String, ?memo: String }
 
     type travel_rule_wallet_addresses_update_params = { ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String }
+
+    type travel_rule_wallet_proofs_decide_params = { decision: String, ?note: String }
 
     type travel_rule_workspace_claim_params = { vasp_id: String }
 

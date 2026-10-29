@@ -28,8 +28,8 @@ module Didit
       # trigger `DUPLICATED_FACE`, and a blocklisted face originating from a session with the caller's own
       # `vendor_data` is also NOT flagged (`FACE_IN_BLOCKLIST` screening is bypassed for same-`vendor_data` faces).
       #
-      # **Billing.** Each `200` response consumes one Passive Liveness API credit (standalone APIs have no free tier).
-      # Insufficient balance returns `403` before any image processing.
+      # **Billing.** Each `200` response consumes one Passive Liveness API credit (paid from your plan credit or
+      # top-up balance). Insufficient balance returns `403` before any image processing.
       #
       # **Session persistence and face enrollment (`save_api_request`, default `true`).** When `true`, the call is
       # persisted as an API-type session (Business Console, `GET /v3/session/{sessionId}/decision/` via the returned

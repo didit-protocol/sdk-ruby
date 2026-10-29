@@ -8,8 +8,8 @@ module Didit
       # ID Verification (document OCR + fraud checks)
       #
       # OCR an identity document and run document fraud checks in one call - returns the extracted holder fields, the
-      # parsed MRZ, an `Approved`/`Declined` `status`, and a `warnings` list explaining every issue found. Supports
-      # 14,000+ document types from 220+ countries and territories.
+      # parsed MRZ, an `Approved`/`Declined`/`In Review` `status`, and a `warnings` list explaining every issue found.
+      # Supports 14,000+ document types from 220+ countries and territories.
       #
       # **How it works.** Send the document's `front_image` (required) and, for two-sided documents, the `back_image`.
       # Upload uncropped photos with all four corners of the document visible - the service detects, aligns, and crops
@@ -27,13 +27,19 @@ module Didit
       # in workflow sessions but are never produced by this standalone endpoint.) Three risk groups are configurable
       # per request via `invalid_mrz_action`, `inconsistent_data_action`, and `expiration_date_not_detected_action`
       # (`DECLINE` or `NO_ACTION`). All other warnings (e.g. `POSSIBLE_DUPLICATED_USER`) are informational and never
-      # decline on their own. A document that cannot be processed at all returns `400` with `{"error":
-      # "COULD_NOT_RECOGNIZE_DOCUMENT"}`; a readable but problematic document returns `200` with `status: "Declined"`
-      # - always inspect `id_verification.status` and `id_verification.warnings`, not just the HTTP code.
+      # decline on their own. When `perform_document_liveness=true` (the default) and the forgery check returns no
+      # usable score - the provider failed, answered non-200, or answered HTTP 200 with `status="ERR"` - the call
+      # returns `200` with `status: "In Review"` and a `DOCUMENT_LIVENESS_NOT_COMPUTED` warning (`log_type:
+      # "warning"`) instead of `Approved`: a check that did not run is not evidence that the document is genuine. This
+      # escalation is not configurable and never overrides a `Declined`; with `perform_document_liveness=false` the
+      # check is skipped and the status follows the remaining warnings as before. A document that cannot be processed
+      # at all returns `400` with `{"error": "COULD_NOT_RECOGNIZE_DOCUMENT"}`; a readable but problematic document
+      # returns `200` with `status: "Declined"` - always inspect `id_verification.status` and
+      # `id_verification.warnings`, not just the HTTP code.
       #
-      # **Billing.** Each `200` response consumes one ID Verification API credit (standalone APIs have no free tier).
-      # When the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits
-      # error before any image processing.
+      # **Billing.** Each `200` response consumes one ID Verification API credit (paid from your plan credit or top-up
+      # balance). When the organization's balance cannot cover the call, the endpoint returns `403` with the
+      # not-enough-credits error before any image processing.
       #
       # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an
       # API-type session: it appears in the Business Console, the returned `request_id` is a real session id you can
@@ -70,7 +76,8 @@ module Didit
       # @param perform_document_liveness [Boolean] Screens both images for presentation fraud: screen replays
       #   (`SCREEN_CAPTURE_DETECTED`), printed copies (`PRINTED_COPY_DETECTED`), and portrait manipulation
       #   (`PORTRAIT_MANIPULATION_DETECTED`). Any of these auto-declines. Enabled by default; set to `false` to skip
-      #   fraud screening and reduce latency.
+      #   fraud screening and reduce latency. When enabled and the provider returns no usable score, the response is `In
+      #   Review` with a `DOCUMENT_...
       # @param minimum_age [Integer, nil] Accepted and validated (1-120) but **currently not applied** by this
       #   endpoint - it never produces a `MINIMUM_AGE_NOT_MET` warning from this field. Enforce age rules from the
       #   returned `date_of_birth`/`age`, or use a verification-session workflow with age restrictions.

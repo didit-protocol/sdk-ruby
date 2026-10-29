@@ -5,6 +5,7 @@ module Didit
   # One class per API resource, one method per operation (docs/DESIGN.md section 4).
   module Resources
     autoload :Account, "didit/resources/account"
+    autoload :AddressValidation, "didit/resources/address_validation"
     autoload :AgeEstimation, "didit/resources/age_estimation"
     autoload :Aml, "didit/resources/aml"
     autoload :AmlMonitoring, "didit/resources/aml_monitoring"
@@ -51,6 +52,11 @@ module Didit
       # @return [Didit::Resources::Account]
       def account
         @account ||= Resources::Account.new(self)
+      end
+
+      # @return [Didit::Resources::AddressValidation]
+      def address_validation
+        @address_validation ||= Resources::AddressValidation.new(self)
       end
 
       # @return [Didit::Resources::AgeEstimation]

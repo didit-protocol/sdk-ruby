@@ -6,6 +6,33 @@ RSpec.describe Didit::Resources::Transactions do
 
   let(:client) { generated_test_client }
 
+  it "transactions.batch_delete sends DELETE /v3/organization/{organization_id}/application/{application_id}/transactions/delete/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.transactions.batch_delete(
+      body: {
+        transaction_uuids: [
+          "abcdef12-3456-7890-abcd-ef1234567890",
+          "12345678-90ab-cdef-1234-567890abcdef"
+        ]
+      }
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/transactions/delete/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "transaction_uuids" => [
+        "abcdef12-3456-7890-abcd-ef1234567890",
+        "12345678-90ab-cdef-1234-567890abcdef"
+      ]
+    })
+    expect(result).to be_nil
+  end
+
   it "transactions.create sends POST /v3/transactions/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {

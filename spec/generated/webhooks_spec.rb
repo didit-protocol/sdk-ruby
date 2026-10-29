@@ -16,6 +16,7 @@ RSpec.describe Didit::Resources::Webhooks do
         "data_retention_months": 24,
         "face_retention_policy": "delete_with_session",
         "face_retention_days": null,
+        "biometric_consent_mode": "auto",
         "available_events": [
           {
             "value": "status.updated",
@@ -108,6 +109,7 @@ RSpec.describe Didit::Resources::Webhooks do
         "data_retention_months": 24,
         "face_retention_policy": "retain_until_user_deleted",
         "face_retention_days": 365,
+        "biometric_consent_mode": "auto",
         "available_events": [
           {
             "value": "status.updated",
@@ -177,7 +179,8 @@ RSpec.describe Didit::Resources::Webhooks do
     JSON
     result = client.webhooks.update_config(
       face_retention_policy: "retain_until_user_deleted",
-      face_retention_days: 365
+      face_retention_days: 365,
+      biometric_consent_mode: "auto"
     )
     request = expect_api_request(
       calls,
@@ -189,7 +192,8 @@ RSpec.describe Didit::Resources::Webhooks do
     )
     expect_json_body(request, {
       "face_retention_policy" => "retain_until_user_deleted",
-      "face_retention_days" => 365
+      "face_retention_days" => 365,
+      "biometric_consent_mode" => "auto"
     })
     expect(result).to be_a(Didit::Types::WebhookConfig)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

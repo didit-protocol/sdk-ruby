@@ -1026,6 +1026,7 @@ module Didit
       field :url, "url", :string
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
+      field :tags, "tags", [:array, :string]
       field :status, "status", :string
       field :callback, "callback", :string
       field :workflow_id, "workflow_id", :string

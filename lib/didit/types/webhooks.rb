@@ -142,6 +142,20 @@ module Didit
       VALUES = [V1, V2, V3].freeze
     end
 
+    # When the hosted flow and the native SDKs ask the person for explicit biometric consent before a face capture.
+    # `auto` (default) asks only where a trigger applies: a declared state, the person's IP, or the identity
+    # document's issuer is in Illinois, Texas or Colorado, or the person looks to be in the US without a known state.
+    # `always` asks every person whose workflow captures a face. `never` never shows the step, and you collect consent
+    # yourself before the selfie. Each change is recorded in the audit log. See [Biometric
+    # consent](https://docs.didit.me/getting-started/biometric-consent).
+    module WebhooksUpdateConfigParamsBiometricConsentMode
+      AUTO = "auto"
+      ALWAYS = "always"
+      NEVER = "never"
+
+      VALUES = [AUTO, ALWAYS, NEVER].freeze
+    end
+
     # Legacy application setting. The verification flow does not read it.
     module WebhooksUpdateConfigParamsCaptureMethod
       MOBILE = "MOBILE"
