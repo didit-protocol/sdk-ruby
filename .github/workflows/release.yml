@@ -1,7 +1,6 @@
-# NOTHING MAY BE PUBLISHED before Alex's explicit approval and the 2026-11-01 Didit release
-# (docs/DESIGN.md section 13). Every job is skipped until a maintainer sets the repository
-# variable RELEASES_ENABLED to "true", and the publish job waits for a required reviewer of
-# the rubygems environment. CONTRIBUTING.md lists the one-time setup.
+# Every job runs while the repository variable RELEASES_ENABLED is "true" (set since the 1.0.0
+# release on 2026-10-29). Merging the release pull request is the release approval; the publish
+# job runs in the rubygems environment (the trusted publisher's environment, no reviewers).
 #
 # release-please opens and updates the release pull request (the version in
 # lib/didit/version.rb and the generated CHANGELOG.md). After that pull request is merged,
@@ -127,7 +126,7 @@ jobs:
       group: publish-${{ needs.release-please.outputs.tag_name }}
       cancel-in-progress: false
     environment:
-      # Required reviewers and "Prevent self-review": Settings > Environments > rubygems.
+      # The RubyGems trusted publisher is bound to this environment; it has no required reviewers.
       name: rubygems
       url: https://rubygems.org/gems/didit-sdk
     permissions:
