@@ -4,8 +4,10 @@ module Didit
   module Resources
     class TravelRule < Didit::Resource
       def counterparty_contacts: () -> Didit::Resources::TravelRule::CounterpartyContacts
+      def networks: () -> Didit::Resources::TravelRule::Networks
       def transfers: () -> Didit::Resources::TravelRule::Transfers
       def wallet_addresses: () -> Didit::Resources::TravelRule::WalletAddresses
+      def wallet_proofs: () -> Didit::Resources::TravelRule::WalletProofs
       def workspace: () -> Didit::Resources::TravelRule::Workspace
       def clear_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
@@ -26,6 +28,13 @@ module Didit
         def delete: (String contact_uuid, ?request_options: Didit::request_options?) -> nil
         def list: (?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleCounterpartyContact]
       end
+      class Networks < Didit::Resource
+        def request_access: (String network, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkParticipant
+        def retrieve: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworksOverview
+        def retrieve_questionnaire: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
+        def submit_questionnaire: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
+        def update_questionnaire: (?legal_name: String, ?registration_number: String, ?incorporation_country: String, ?registered_address: String, ?website: String, ?lei: String, ?licences: Array[Didit::Types::travel_rule_networks_update_questionnaire_params_licences], ?operating_jurisdictions: Array[String], ?compliance_officer_name: String, ?compliance_officer_email: String, ?aml_ctf_policy_attested: bool, ?sanctions_screening_attested: bool, ?data_protection_attested: bool, ?data_protection_contact_email: String, ?expected_monthly_transfers: Integer, ?expected_monthly_volume_usd: String, ?assets: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
+      end
       class Transfers < Didit::Resource
         def list: (?direction: String, ?status: String, ?rail: String, ?kind: String, ?currency: String, ?start_date: Date | String, ?end_date: Date | String, ?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleTransferRow]
       end
@@ -35,6 +44,10 @@ module Didit
         def delete: (String entry_uuid, ?request_options: Didit::request_options?) -> nil
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WalletAddressEntry]
         def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdate
+      end
+      class WalletProofs < Didit::Resource
+        def decide: (String proof_uuid, decision: String, ?note: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletProofReview
+        def list: (?status: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletProofReview]
       end
       class Workspace < Didit::Resource
         def claim: (vasp_id: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace

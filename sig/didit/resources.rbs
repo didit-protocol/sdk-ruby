@@ -4,6 +4,7 @@ module Didit
   module Resources
     module ClientMethods
       def account: () -> Didit::Resources::Account
+      def address_validation: () -> Didit::Resources::AddressValidation
       def age_estimation: () -> Didit::Resources::AgeEstimation
       def aml: () -> Didit::Resources::Aml
       def aml_monitoring: () -> Didit::Resources::AmlMonitoring

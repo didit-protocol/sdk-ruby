@@ -150,14 +150,16 @@ module Didit
     # COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, or NOT_ENOUGH_COUNTERPARTY_DATA.
     # "update_compliance_email" replaces the compliance email the request goes to, on an outbound transfer in one of
     # those three statuses; send "resend" afterwards. "update_originator_wallet" records the wallet the funds actually
-    # left from (`wallet_address`, `memo`).
+    # left from (`wallet_address`, `memo`). "beneficiary_vasp" names the counterparty VASP yourself (requires
+    # `beneficiary_vasp`) for an outbound transfer in one of those statuses: it is routed to that VASP and sent again.
     module TransactionsTravelRuleUpdateTransferParamsAction
       CANCEL = "cancel"
       RESEND = "resend"
       UPDATE_COMPLIANCE_EMAIL = "update_compliance_email"
       UPDATE_ORIGINATOR_WALLET = "update_originator_wallet"
+      BENEFICIARY_VASP = "beneficiary_vasp"
 
-      VALUES = [CANCEL, RESEND, UPDATE_COMPLIANCE_EMAIL, UPDATE_ORIGINATOR_WALLET].freeze
+      VALUES = [CANCEL, RESEND, UPDATE_COMPLIANCE_EMAIL, UPDATE_ORIGINATOR_WALLET, BENEFICIARY_VASP].freeze
     end
 
     class TransactionsCreateSdkTokenResponse < Didit::Model

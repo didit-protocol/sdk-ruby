@@ -18,9 +18,9 @@ module Didit
       # `null` on the default save path, or `0` with `save_api_request=false`. Submit one clear, front-facing face per
       # image for best results.
       #
-      # **Billing.** Each `200` response consumes one Face Match API credit (standalone APIs have no free tier). When
-      # the organization's balance cannot cover the call, the endpoint returns `403` with the not-enough-credits error
-      # before any image processing.
+      # **Billing.** Each `200` response consumes one Face Match API credit (paid from your plan credit or top-up
+      # balance). When the organization's balance cannot cover the call, the endpoint returns `403` with the
+      # not-enough-credits error before any image processing.
       #
       # **Session persistence (`save_api_request`, default `true`).** When `true`, the call is persisted as an
       # API-type session: it appears in the Business Console, the returned `request_id` is a real session id you can

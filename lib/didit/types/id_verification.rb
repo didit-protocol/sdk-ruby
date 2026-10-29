@@ -65,12 +65,15 @@ module Didit
       VALUES = [LATIN, NON_LATIN].freeze
     end
 
-    # `Approved` when no warning resolves to a decline; `Declined` otherwise - the `warnings` list explains why.
+    # `Approved` when no warning resolves to a decline and the requested document-liveness check produced a usable
+    # result; `In Review` when that requested check produced no usable result (`DOCUMENT_LIVENESS_NOT_COMPUTED`);
+    # `Declined` when a warning resolves to a decline - the `warnings` list explains why.
     module IdVerificationVerifyResponseIdVerificationStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
+      IN_REVIEW = "In Review"
 
-      VALUES = [APPROVED, DECLINED].freeze
+      VALUES = [APPROVED, DECLINED, IN_REVIEW].freeze
     end
 
     # Feature that raised the warning. Always `ID_VERIFICATION` on this endpoint.
@@ -80,8 +83,9 @@ module Didit
       VALUES = [ID_VERIFICATION].freeze
     end
 
-    # Severity. `error` warnings drive `status` to `Declined`; `information` entries are advisory and never decline on
-    # their own. (`warning` is not produced by this endpoint - its options only accept `DECLINE` or `NO_ACTION`.)
+    # Severity. `error` warnings drive `status` to `Declined`; `warning` (only `DOCUMENT_LIVENESS_NOT_COMPUTED`, when
+    # the requested forgery check produced no usable score) drives `status` to `In Review`; `information` entries are
+    # advisory and never change the status.
     module IdVerificationVerifyResponseIdVerificationWarningsLogType
       ERROR = "error"
       WARNING = "warning"

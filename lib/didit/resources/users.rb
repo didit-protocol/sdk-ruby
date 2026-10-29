@@ -20,6 +20,10 @@ module Didit
       # duplicate detection and Face Search. If a template cannot be purged because a biometric store is unavailable,
       # the call returns `503`, no user in the request is deleted, and repeating the request finishes the job.
       #
+      # **Filed regulatory reports:** if the selected data is in a finalized regulatory report, the whole request is
+      # refused with `409` and nothing is deleted. The body uses `code: in_filed_report` and names each report with
+      # `uuid`, `report_number`, `report_type` and `case_uuid`. Delete the reports, then repeat the request.
+      #
       # +POST /v3/users/delete/+
       #
       # @param vendor_data_list [Array<String>] Your own identifiers to delete, matched exactly as sent.

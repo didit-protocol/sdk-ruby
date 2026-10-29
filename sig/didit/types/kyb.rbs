@@ -57,6 +57,7 @@ module Didit
     module KybListShareholdersResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
       PENDING: String
 
@@ -193,6 +194,7 @@ module Didit
     module KybListShareholdersResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
       PENDING: String
 
@@ -329,6 +331,7 @@ module Didit
     module KybListUbosResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
       PENDING: String
 
@@ -465,6 +468,7 @@ module Didit
     module KybListUbosResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
       PENDING: String
 
@@ -615,6 +619,7 @@ module Didit
     module KybSelectResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED: String
       DELIVERED: String
+      NOT_HELD: String
       UNAVAILABLE: String
 
       VALUES: Array[String]

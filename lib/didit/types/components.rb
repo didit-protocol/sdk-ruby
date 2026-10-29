@@ -187,6 +187,30 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
     end
 
+    # `verified`: the address was confirmed down to the building (or the flat or PO box). `partially_verified`: it was
+    # confirmed only to the street, or to the most precise level the postal reference data holds for that place.
+    # `not_verified`: only the region or the city matched, or nothing did. `unavailable`: the validation could not run
+    # (for example the reference service did not answer); it is not charged and never affects a verification.
+    module AddressValidationResultStatus
+      VERIFIED = "verified"
+      PARTIALLY_VERIFIED = "partially_verified"
+      NOT_VERIFIED = "not_verified"
+      UNAVAILABLE = "unavailable"
+
+      VALUES = [VERIFIED, PARTIALLY_VERIFIED, NOT_VERIFIED, UNAVAILABLE].freeze
+    end
+
+    # The most precise level the address was matched to. `null` when nothing matched or `status` is `unavailable`.
+    module AddressValidationResultVerificationLevel
+      ADMINISTRATIVE_AREA = "administrative_area"
+      LOCALITY = "locality"
+      THOROUGHFARE = "thoroughfare"
+      PREMISE = "premise"
+      DELIVERY_POINT = "delivery_point"
+
+      VALUES = [ADMINISTRATIVE_AREA, LOCALITY, THOROUGHFARE, PREMISE, DELIVERY_POINT].freeze
+    end
+
     # How the `*_time_series` lists are grouped: `day` for up to 14 days, `week` up to 90, `month` beyond. Measured
     # from the first day with sessions in the range.
     module ApplicationAnalyticsWidgetGroupingMode
@@ -1758,15 +1782,18 @@ module Didit
       VALUES = [KYC, KYB, ADAPTIVE_AGE_VERIFICATION, BIOMETRIC_AUTHENTICATION, ADDRESS_VERIFICATION, QUESTIONNAIRE_VERIFICATION, EMAIL_VERIFICATION, PHONE_VERIFICATION].freeze
     end
 
-    # `delivered` when the registry published ownership; `unavailable` when it did not (see `unavailable_reason`);
-    # `pending` while the registry is still fetching it; `not_requested` for the Basic tier.
+    # `delivered` when the registry published ownership; `not_held` when the ownership registry answered and does not
+    # list the company at all (see `unavailable_reason`); `unavailable` when it did not serve the ownership data for
+    # any other reason (see `unavailable_reason`); `pending` while the registry is still fetching it; `not_requested`
+    # for the Basic tier.
     module KYBRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       PENDING = "pending"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
 
-      VALUES = [NOT_REQUESTED, PENDING, DELIVERED, UNAVAILABLE].freeze
+      VALUES = [NOT_REQUESTED, PENDING, DELIVERED, NOT_HELD, UNAVAILABLE].freeze
     end
 
     # The tier the registry delivered (and that is billed). A UBO request answered with direct shareholders only is
@@ -1926,8 +1953,8 @@ module Didit
       VALUES = [ACCEPTED, APPROVED, IN_REVIEW, DECLINED].freeze
     end
 
-    # Why cross-organization signals do not apply, checked in this order. `plan`: the organization's Identity plan
-    # does not include the cross-organization fraud network (it needs Identity Enterprise), whatever the sharing mode.
+    # Why cross-organization signals do not apply, checked in this order. `plan`: the organization's plan does not
+    # include the cross-organization fraud network (it needs the Enterprise plan), whatever the sharing mode.
     # `sharing_mode`: the plan includes it, but the sharing mode is `private` or `off`. Null when
     # `cross_org_available` is `true`.
     module NetworkDetailResponseCrossOrgUnavailableReason
@@ -2443,6 +2470,53 @@ module Didit
       ABANDONED = "Abandoned"
 
       VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED].freeze
+    end
+
+    # `BIOMETRIC_CONSENT_DECLINED` when a recorded decline ended the session, otherwise `null`.
+    module SessionDecisionBiometricConsentDeclineReason
+      BIOMETRIC_CONSENT_DECLINED = "BIOMETRIC_CONSENT_DECLINED"
+
+      VALUES = [BIOMETRIC_CONSENT_DECLINED].freeze
+    end
+
+    # `BIOMETRIC_CONSENT_UNSUPPORTED_SDK`: consent was required and a native SDK below 4.10.0, or one that did not
+    # report its version, captured a face without the consent step; `status` stays `pending`, or `given` if the person
+    # later agreed in the hosted flow. `BIOMETRIC_CONSENT_DECLINED`: a decline was recorded (it replaces the SDK
+    # reason). `null` otherwise, and always `null` when the session did not require consent.
+    module SessionDecisionBiometricConsentReason
+      BIOMETRIC_CONSENT_UNSUPPORTED_SDK = "BIOMETRIC_CONSENT_UNSUPPORTED_SDK"
+      BIOMETRIC_CONSENT_DECLINED = "BIOMETRIC_CONSENT_DECLINED"
+
+      VALUES = [BIOMETRIC_CONSENT_UNSUPPORTED_SDK, BIOMETRIC_CONSENT_DECLINED].freeze
+    end
+
+    # `not_required`; `pending` (required and not given: the person has not answered yet, or `reason` says why it was
+    # not collected); `given`; `declined` (a decline was recorded and the session ended as `Declined`; no Didit screen
+    # offers a decline today).
+    module SessionDecisionBiometricConsentStatus
+      NOT_REQUIRED = "not_required"
+      PENDING = "pending"
+      GIVEN = "given"
+      DECLINED = "declined"
+
+      VALUES = [NOT_REQUIRED, PENDING, GIVEN, DECLINED].freeze
+    end
+
+    # Why consent is required, or how it was satisfied. `declared_state`: you declared a covered state (`user_state`,
+    # or a US address in `expected_details`). `ip_state`: the person's IP is in a covered state (Illinois, Texas,
+    # Colorado). `ip_unknown`: the evidence places the person in the US but the state cannot be told (the IP is in the
+    # US with no state, or cannot be located while your details or the document place the person in the US).
+    # `document_issuer`: the identity document was issued by a covered state. `forced`: the application's mode is
+    # Always. `customer_collected`: you sent `biometric_consent` when creating the session. `null` while not required.
+    module SessionDecisionBiometricConsentTrigger
+      DECLARED_STATE = "declared_state"
+      IP_STATE = "ip_state"
+      IP_UNKNOWN = "ip_unknown"
+      DOCUMENT_ISSUER = "document_issuer"
+      FORCED = "forced"
+      CUSTOMER_COLLECTED = "customer_collected"
+
+      VALUES = [DECLARED_STATE, IP_STATE, IP_UNKNOWN, DOCUMENT_ISSUER, FORCED, CUSTOMER_COLLECTED].freeze
     end
 
     # The aggregate match outcome across the queried services. `null` until the validation has been evaluated.
@@ -4824,12 +4898,158 @@ module Didit
       VALUES = [NONE, STRICT, CONTAINS, DEFAULT, FUZZY].freeze
     end
 
-    # `select_counterparty_vasp`: the end user picks the destination VASP in the wallet-ownership widget.
-    # `declare_self_hosted`: the end user declares the wallet self-hosted in the widget. `add_vasp_hint`: tell Didit
-    # who the counterparty is, with a VASP name, LEI or travel address (for example a `travel_address` on the
-    # destination wallet's address-book entry), then resend. `update_compliance_email` and `resend` are `action`
-    # values of `PATCH /v3/transactions/{transaction_id}/travel-rule/`: give the counterparty's compliance email
-    # again, and re-run routing.
+    # Known values of an open enum: the API may send others.
+    module TravelRuleNetworkParticipantMode
+      PLATFORM = "platform"
+      OWN = "own"
+
+      VALUES = [PLATFORM, OWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleNetworkParticipantNetwork
+      GTR = "gtr"
+      TRUST = "trust"
+      VERIFYVASP = "verifyvasp"
+      SYGNA = "sygna"
+
+      VALUES = [GTR, TRUST, VERIFYVASP, SYGNA].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleNetworkParticipantRail
+      GTR = "GTR"
+      TRUST = "TRUST"
+      VERIFYVASP = "VERIFYVASP"
+      SYGNA = "SYGNA"
+
+      VALUES = [GTR, TRUST, VERIFYVASP, SYGNA].freeze
+    end
+
+    # not_requested: never requested, or the network refused the first request (see last_error);
+    # questionnaire_pending: waiting for the due-diligence questionnaire to be approved; submitted_to_network: handed
+    # to the network's onboarding; active: the network gave this application its own participant code; suspended /
+    # rejected: Didit suspended or rejected it.
+    module TravelRuleNetworkParticipantStatus
+      NOT_REQUESTED = "not_requested"
+      QUESTIONNAIRE_PENDING = "questionnaire_pending"
+      SUBMITTED_TO_NETWORK = "submitted_to_network"
+      ACTIVE = "active"
+      SUSPENDED = "suspended"
+      REJECTED = "rejected"
+
+      VALUES = [NOT_REQUESTED, QUESTIONNAIRE_PENDING, SUBMITTED_TO_NETWORK, ACTIVE, SUSPENDED, REJECTED].freeze
+    end
+
+    # platform: carried by Didit's membership; own: onboarded under the application's own membership.
+    module TravelRuleNetworkParticipantSummaryMode
+      PLATFORM = "platform"
+      OWN = "own"
+
+      VALUES = [PLATFORM, OWN].freeze
+    end
+
+    # not_requested: never requested, or the network refused the first request (see last_error);
+    # questionnaire_pending: waiting for the due-diligence questionnaire to be approved; submitted_to_network: handed
+    # to the network's onboarding; active: the network gave this application its own participant code; suspended /
+    # rejected: Didit suspended or rejected it.
+    module TravelRuleNetworkParticipantSummaryStatus
+      NOT_REQUESTED = "not_requested"
+      QUESTIONNAIRE_PENDING = "questionnaire_pending"
+      SUBMITTED_TO_NETWORK = "submitted_to_network"
+      ACTIVE = "active"
+      SUSPENDED = "suspended"
+      REJECTED = "rejected"
+
+      VALUES = [NOT_REQUESTED, QUESTIONNAIRE_PENDING, SUBMITTED_TO_NETWORK, ACTIVE, SUSPENDED, REJECTED].freeze
+    end
+
+    # Answers can be saved while draft or changes_requested; submitted, approved and rejected are Didit's to move.
+    module TravelRuleNetworkQuestionnaireStatus
+      DRAFT = "draft"
+      SUBMITTED = "submitted"
+      CHANGES_REQUESTED = "changes_requested"
+      APPROVED = "approved"
+      REJECTED = "rejected"
+
+      VALUES = [DRAFT, SUBMITTED, CHANGES_REQUESTED, APPROVED, REJECTED].freeze
+    end
+
+    # own: the application's connected membership is used; didit: Didit's membership carries the application as its
+    # own active participant; off: platform routing disabled in disabled_networks with no own membership; unavailable:
+    # nothing can send on this network yet (see state and reason).
+    module TravelRuleNetworkStateMode
+      OWN = "own"
+      DIDIT = "didit"
+      OFF = "off"
+      UNAVAILABLE = "unavailable"
+
+      VALUES = [OWN, DIDIT, OFF, UNAVAILABLE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleNetworkStateRail
+      GTR = "GTR"
+      TRUST = "TRUST"
+      VERIFYVASP = "VERIFYVASP"
+      SYGNA = "SYGNA"
+
+      VALUES = [GTR, TRUST, VERIFYVASP, SYGNA].freeze
+    end
+
+    # Machine-readable detail of state. own_membership_only: Didit does not carry applications on this network
+    # (TRUST), connect your own membership; sandbox_application: sandbox transfers never reach a network;
+    # provisioning_failed: the network refused the registration, the participant's last_error says why and requesting
+    # the network again retries.
+    module TravelRuleNetworkStateReason
+      OWN_MEMBERSHIP_CONNECTED = "own_membership_connected"
+      PLATFORM_NETWORK_SWITCHED_OFF = "platform_network_switched_off"
+      OWN_MEMBERSHIP_ONLY = "own_membership_only"
+      SANDBOX_APPLICATION = "sandbox_application"
+      DIDIT_MEMBERSHIP_NOT_LIVE = "didit_membership_not_live"
+      PARTICIPANT_SUSPENDED = "participant_suspended"
+      PARTICIPANT_REJECTED = "participant_rejected"
+      QUESTIONNAIRE_NOT_SUBMITTED = "questionnaire_not_submitted"
+      QUESTIONNAIRE_SUBMITTED = "questionnaire_submitted"
+      QUESTIONNAIRE_CHANGES_REQUESTED = "questionnaire_changes_requested"
+      QUESTIONNAIRE_REJECTED = "questionnaire_rejected"
+      PARTICIPANT_NOT_REQUESTED = "participant_not_requested"
+      PARTICIPANT_ACTIVE = "participant_active"
+      PARTICIPANT_KEY_MISSING = "participant_key_missing"
+      PARTICIPANT_KEY_UNRESOLVED = "participant_key_unresolved"
+      PROVISIONING_FAILED = "provisioning_failed"
+      QUESTIONNAIRE_PENDING = "questionnaire_pending"
+      SUBMITTED_TO_NETWORK = "submitted_to_network"
+
+      VALUES = [OWN_MEMBERSHIP_CONNECTED, PLATFORM_NETWORK_SWITCHED_OFF, OWN_MEMBERSHIP_ONLY, SANDBOX_APPLICATION, DIDIT_MEMBERSHIP_NOT_LIVE, PARTICIPANT_SUSPENDED, PARTICIPANT_REJECTED, QUESTIONNAIRE_NOT_SUBMITTED, QUESTIONNAIRE_SUBMITTED, QUESTIONNAIRE_CHANGES_REQUESTED, QUESTIONNAIRE_REJECTED, PARTICIPANT_NOT_REQUESTED, PARTICIPANT_ACTIVE, PARTICIPANT_KEY_MISSING, PARTICIPANT_KEY_UNRESOLVED, PROVISIONING_FAILED, QUESTIONNAIRE_PENDING, SUBMITTED_TO_NETWORK].freeze
+    end
+
+    # own_membership: your connected membership sends; live_through_didit: your own participant on Didit's membership
+    # sends; off: you switched platform routing off; didit_onboarding: Didit's own membership of this network is not
+    # live yet, so it cannot carry anyone; questionnaire_needed / questionnaire_in_review: the due-diligence
+    # questionnaire must be submitted or is with Didit; request_access: the questionnaire is approved, request the
+    # network; request_sent: your participant is being onboarded; unavailable: see reason; error: see reason.
+    module TravelRuleNetworkStateState
+      OWN_MEMBERSHIP = "own_membership"
+      LIVE_THROUGH_DIDIT = "live_through_didit"
+      OFF = "off"
+      DIDIT_ONBOARDING = "didit_onboarding"
+      QUESTIONNAIRE_NEEDED = "questionnaire_needed"
+      QUESTIONNAIRE_IN_REVIEW = "questionnaire_in_review"
+      REQUEST_ACCESS = "request_access"
+      REQUEST_SENT = "request_sent"
+      UNAVAILABLE = "unavailable"
+      ERROR = "error"
+
+      VALUES = [OWN_MEMBERSHIP, LIVE_THROUGH_DIDIT, OFF, DIDIT_ONBOARDING, QUESTIONNAIRE_NEEDED, QUESTIONNAIRE_IN_REVIEW, REQUEST_ACCESS, REQUEST_SENT, UNAVAILABLE, ERROR].freeze
+    end
+
+    # `select_counterparty_vasp`: the end user picks the destination VASP in the wallet-ownership widget, or you PATCH
+    # `action=beneficiary_vasp`. `declare_self_hosted`: the end user declares the wallet self-hosted in the widget.
+    # `add_vasp_hint`: tell Didit who the counterparty is, with a VASP name, LEI or travel address (for example a
+    # `travel_address` on the destination wallet's address-book entry), then resend. `update_compliance_email` and
+    # `resend` are `action` values of `PATCH /v3/transactions/{transaction_id}/travel-rule/`: give the counterparty's
+    # compliance email again, and re-run routing.
     module TravelRuleNextActionAction
       SELECT_COUNTERPARTY_VASP = "select_counterparty_vasp"
       DECLARE_SELF_HOSTED = "declare_self_hosted"
@@ -4874,78 +5094,6 @@ module Didit
       FUZZY = "FUZZY"
 
       VALUES = [NONE, STRICT, CONTAINS, DEFAULT, FUZZY].freeze
-    end
-
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
-    # platform routing disabled with no own membership; unavailable: neither membership available.
-    module TravelRuleSettingsDetailNetworksGtrMode
-      OWN = "own"
-      DIDIT = "didit"
-      OFF = "off"
-      UNAVAILABLE = "unavailable"
-
-      VALUES = [OWN, DIDIT, OFF, UNAVAILABLE].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module TravelRuleSettingsDetailNetworksGtrRail
-      GTR = "GTR"
-
-      VALUES = [GTR].freeze
-    end
-
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
-    # platform routing disabled with no own membership; unavailable: neither membership available.
-    module TravelRuleSettingsDetailNetworksSygnaMode
-      OWN = "own"
-      DIDIT = "didit"
-      OFF = "off"
-      UNAVAILABLE = "unavailable"
-
-      VALUES = [OWN, DIDIT, OFF, UNAVAILABLE].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module TravelRuleSettingsDetailNetworksSygnaRail
-      SYGNA = "SYGNA"
-
-      VALUES = [SYGNA].freeze
-    end
-
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
-    # platform routing disabled with no own membership; unavailable: neither membership available.
-    module TravelRuleSettingsDetailNetworksTrustMode
-      OWN = "own"
-      DIDIT = "didit"
-      OFF = "off"
-      UNAVAILABLE = "unavailable"
-
-      VALUES = [OWN, DIDIT, OFF, UNAVAILABLE].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module TravelRuleSettingsDetailNetworksTrustRail
-      TRUST = "TRUST"
-
-      VALUES = [TRUST].freeze
-    end
-
-    # own: connected customer membership takes precedence; didit: configured platform membership allowed; off:
-    # platform routing disabled with no own membership; unavailable: neither membership available.
-    module TravelRuleSettingsDetailNetworksVerifyvaspMode
-      OWN = "own"
-      DIDIT = "didit"
-      OFF = "off"
-      UNAVAILABLE = "unavailable"
-
-      VALUES = [OWN, DIDIT, OFF, UNAVAILABLE].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
-    module TravelRuleSettingsDetailNetworksVerifyvaspRail
-      VERIFYVASP = "VERIFYVASP"
-
-      VALUES = [VERIFYVASP].freeze
     end
 
     # What an expired transfer does to its transaction when the counterparty is a directory entry whose responsiveness
@@ -5111,6 +5259,55 @@ module Didit
       NOT_APPLICABLE = "NOT_APPLICABLE"
 
       VALUES = [AWAITING_COUNTERPARTY, ON_HOLD, COMPLETED, FINISHED, CANCELLED, EXPIRED, COUNTERPARTY_MISMATCHED_DATA, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, UNCONFIRMED_OWNERSHIP, COUNTERPARTY_VASP_GENERAL_DECLINE, NOT_ENOUGH_COUNTERPARTY_DATA, NOT_APPLICABLE].freeze
+    end
+
+    # Why a wallet-ownership proof, or its last attempt, fell short of VERIFIED. Empty when nothing failed. A PENDING
+    # proof can carry one: the last attempt failed and the end user can try again. DEPOSIT_MISMATCH, DEPOSIT_STALE,
+    # TXID_REUSED and REVIEW_REJECTED close the proof as REJECTED. SIGNATURE_INVALID: the signature does not match the
+    # wallet and challenge. SIGNATURE_UNSUPPORTED_SCHEME: the wallet signed in a format Didit does not verify.
+    # DEPOSIT_NOT_FOUND, DEPOSIT_UNCONFIRMED, DEPOSIT_LOOKUP_FAILED: the test deposit is not readable or not confirmed
+    # yet; Didit keeps checking it until the test window closes. DEPOSIT_MISMATCH: the transaction does not send the
+    # expected amount from the wallet to the deposit address. DEPOSIT_STALE: the transaction predates the challenge.
+    # TXID_REUSED: the transaction already proved another wallet. CHAIN_UNSUPPORTED: the method is not available on
+    # this chain. WINDOW_EXPIRED: the test window closed. OWNERSHIP_CHANGED: the wallet's holder changed, or the
+    # wallet was deleted from your address book, after the widget session was minted. METHOD_SWITCHED: the end user
+    # picked another method before finishing this one. REVIEW_REJECTED: your reviewer rejected the screenshot.
+    # ABANDONED: the widget session lapsed before the end user finished.
+    module TravelRuleWalletProofFailureReason
+      VALUE = ""
+      SIGNATURE_INVALID = "SIGNATURE_INVALID"
+      SIGNATURE_UNSUPPORTED_SCHEME = "SIGNATURE_UNSUPPORTED_SCHEME"
+      DEPOSIT_NOT_FOUND = "DEPOSIT_NOT_FOUND"
+      DEPOSIT_UNCONFIRMED = "DEPOSIT_UNCONFIRMED"
+      DEPOSIT_LOOKUP_FAILED = "DEPOSIT_LOOKUP_FAILED"
+      DEPOSIT_MISMATCH = "DEPOSIT_MISMATCH"
+      DEPOSIT_STALE = "DEPOSIT_STALE"
+      TXID_REUSED = "TXID_REUSED"
+      CHAIN_UNSUPPORTED = "CHAIN_UNSUPPORTED"
+      WINDOW_EXPIRED = "WINDOW_EXPIRED"
+      OWNERSHIP_CHANGED = "OWNERSHIP_CHANGED"
+      METHOD_SWITCHED = "METHOD_SWITCHED"
+      REVIEW_REJECTED = "REVIEW_REJECTED"
+      ABANDONED = "ABANDONED"
+
+      VALUES = [VALUE, SIGNATURE_INVALID, SIGNATURE_UNSUPPORTED_SCHEME, DEPOSIT_NOT_FOUND, DEPOSIT_UNCONFIRMED, DEPOSIT_LOOKUP_FAILED, DEPOSIT_MISMATCH, DEPOSIT_STALE, TXID_REUSED, CHAIN_UNSUPPORTED, WINDOW_EXPIRED, OWNERSHIP_CHANGED, METHOD_SWITCHED, REVIEW_REJECTED, ABANDONED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofReviewMethod
+      SCREENSHOT = "SCREENSHOT"
+
+      VALUES = [SCREENSHOT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofReviewStatus
+      PENDING = "PENDING"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -5491,6 +5688,20 @@ module Didit
       ERROR = "ERROR"
 
       VALUES = [SCREENED, PENDING, ERROR].freeze
+    end
+
+    # When the hosted flow and the native SDKs ask the person for explicit biometric consent before a face capture.
+    # `auto` (default) asks only where a trigger applies: a declared state, the person's IP, or the identity
+    # document's issuer is in Illinois, Texas or Colorado, or the person looks to be in the US without a known state.
+    # `always` asks every person whose workflow captures a face. `never` never shows the step, and you collect consent
+    # yourself before the selfie. Each change is recorded in the audit log. See [Biometric
+    # consent](https://docs.didit.me/getting-started/biometric-consent).
+    module WebhookConfigBiometricConsentMode
+      AUTO = "auto"
+      ALWAYS = "always"
+      NEVER = "never"
+
+      VALUES = [AUTO, ALWAYS, NEVER].freeze
     end
 
     # Legacy application setting. The verification flow does not read it: capture options are configured per workflow.
@@ -5972,6 +6183,33 @@ module Didit
       field :short_description, "short_description", :string
       field :long_description, "long_description", :string
       field :node_id, "node_id", :string
+    end
+
+    class AddressValidationResponse < Didit::Model
+      field :request_id, "request_id", :string
+      field :address_validation, "address_validation", "AddressValidationResult"
+      field :created_at, "created_at", :datetime
+    end
+
+    # The result of one Address Validation: whether the address exists, and its normalised form. It confirms the
+    # address only; it never links the address to a person.
+    class AddressValidationResult < Didit::Model
+      field :status, "status", :string
+      field :verification_level, "verification_level", :string
+      field :address, "address", "AddressValidationResultAddress"
+      field :formatted_address, "formatted_address", :string
+      field :latitude, "latitude", :float
+      field :longitude, "longitude", :float
+    end
+
+    # The normalised address. `null` when `status` is `unavailable`.
+    class AddressValidationResultAddress < Didit::Model
+      field :address_line_1, "address_line_1", :string
+      field :address_line_2, "address_line_2", :string
+      field :city, "city", :string
+      field :region, "region", :string
+      field :postal_code, "postal_code", :string
+      field :country, "country", :string
     end
 
     class ApplicationAnalyticsCountryCount < Didit::Model
@@ -8714,7 +8952,44 @@ module Didit
       field :document_verifications, "document_verifications", [:array, "SessionDecisionDocumentVerifications"]
       field :environment, "environment", :string
       field :resubmissions, "resubmissions", [:array, "SessionDecisionResubmissions"]
+      field :biometric_consent, "biometric_consent", "SessionDecisionBiometricConsent"
       field :investigator, "investigator", "InvestigatorBlock"
+    end
+
+    # Whether the session required explicit biometric consent before a face capture, why, and the evidence of the
+    # answer. User Verification (KYC) sessions only; the same object is in the `decision` of session webhooks. `null`
+    # when the session was never evaluated, for example a workflow without a face capture. Fields with no recorded
+    # value are `null`. A native SDK below 4.10.0, or one that does not report its version, cannot show the consent
+    # step: its face captures run as before, and a session that required consent then reports `status: "pending"` with
+    # `reason: "BIOMETRIC_CONSENT_UNSUPPORTED_SDK"`. See [Biometric consent](/getting-started/biometric-consent).
+    class SessionDecisionBiometricConsent < Didit::Model
+      field :required, "required", :boolean
+      field :trigger, "trigger", :string
+      field :status, "status", :string
+      field :given_at, "given_at", :datetime
+      field :declined_at, "declined_at", :datetime
+      field :text_version, "text_version", :string
+      field :text_hash, "text_hash", :string
+      field :locale, "locale", :string
+      field :policy_url, "policy_url", :string
+      field :step, "step", :string
+      field :node_id, "node_id", :string
+      field :ip_address, "ip_address", :string
+      field :ip_country_code, "ip_country_code", :string
+      field :ip_state, "ip_state", :string
+      field :ip_city, "ip_city", :string
+      field :user_agent, "user_agent", :string
+      field :detected_ip_address, "detected_ip_address", :string
+      field :detected_country_code, "detected_country_code", :string
+      field :detected_state, "detected_state", :string
+      field :detected_city, "detected_city", :string
+      field :declared_state, "declared_state", :string
+      field :document_state, "document_state", :string
+      field :jurisdictions, "jurisdictions", [:array, :string]
+      field :retention_months, "retention_months", :integer
+      field :reason, "reason", :string
+      field :decline_reason, "decline_reason", :string
+      field :face_data_deleted_at, "face_data_deleted_at", :datetime
     end
 
     # Contact details supplied when the session was created (used for notification emails, prefilled phone/email
@@ -9054,6 +9329,7 @@ module Didit
       field :warnings, "warnings", [:array, "SessionDecisionIdVerificationsWarnings"]
       field :matches, "matches", [:array, "SessionDecisionIdVerificationsMatches"]
       field :document_liveness, "document_liveness", "SessionDecisionIdVerificationsDocumentLiveness"
+      field :address_validation, "address_validation", "AddressValidationResult"
     end
 
     # Quality metrics for the back document image. Same structure as front_image_quality_score.
@@ -9867,6 +10143,7 @@ module Didit
       field :extra_files, "extra_files", [:array, :string]
       field :warnings, "warnings", [:array, "SessionDecisionPoaVerificationsWarnings"]
       field :detected_codes, "detected_codes", [:array, "DocumentAIDetectedCode"]
+      field :address_validation, "address_validation", "AddressValidationResult"
     end
 
     # File-forensics metadata extracted from the uploaded POA document. Always contains the keys below (values are
@@ -11127,6 +11404,116 @@ module Didit
       field :mismatched_names, "mismatched_names", [:array, :string]
     end
 
+    # This application's own participant on one network.
+    class TravelRuleNetworkParticipant < Didit::Model
+      field :network, "network", :string
+      field :rail, "rail", :string
+      field :mode, "mode", :string
+      field :status, "status", :string
+      field :participant_code, "participant_code", :string
+      field :requested_at, "requested_at", :datetime
+      field :submitted_at, "submitted_at", :datetime
+      field :activated_at, "activated_at", :datetime
+      field :suspended_at, "suspended_at", :datetime
+      field :last_error, "last_error", :string
+      field :history, "history", [:array, "TravelRuleNetworkParticipantHistory"]
+    end
+
+    class TravelRuleNetworkParticipantHistory < Didit::Model
+      field :at, "at", :datetime
+      field :from, "from", :string
+      field :to, "to", :string
+      field :note, "note", :string
+    end
+
+    # This application's own participant on the network, or null when it has none.
+    class TravelRuleNetworkParticipantSummary < Didit::Model
+      field :mode, "mode", :string
+      field :status, "status", :string
+      field :participant_code, "participant_code", :string
+      field :requested_at, "requested_at", :datetime
+      field :activated_at, "activated_at", :datetime
+      field :last_error, "last_error", :string
+    end
+
+    class TravelRuleNetworkQuestionnaire < Didit::Model
+      field :status, "status", :string
+      field :answers, "answers", "TravelRuleNetworkQuestionnaireAnswers"
+      field :submitted_at, "submitted_at", :datetime
+      field :reviewed_at, "reviewed_at", :datetime
+      field :review_note, "review_note", :string
+      field :history, "history", [:array, "TravelRuleNetworkQuestionnaireHistory"]
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # Didit's network due-diligence questionnaire. Saves are partial: a save keeps every answer it does not name.
+    # Submitting requires every field except lei and data_protection_contact_email, and the three attestations true.
+    class TravelRuleNetworkQuestionnaireAnswers < Didit::Model
+      field :legal_name, "legal_name", :string
+      field :registration_number, "registration_number", :string
+      field :incorporation_country, "incorporation_country", :string
+      field :registered_address, "registered_address", :string
+      field :website, "website", :string
+      field :lei, "lei", :string
+      field :licences, "licences", [:array, "TravelRuleNetworkQuestionnaireAnswersLicences"]
+      field :operating_jurisdictions, "operating_jurisdictions", [:array, :string]
+      field :compliance_officer_name, "compliance_officer_name", :string
+      field :compliance_officer_email, "compliance_officer_email", :string
+      field :aml_ctf_policy_attested, "aml_ctf_policy_attested", :boolean
+      field :sanctions_screening_attested, "sanctions_screening_attested", :boolean
+      field :data_protection_attested, "data_protection_attested", :boolean
+      field :data_protection_contact_email, "data_protection_contact_email", :string
+      field :expected_monthly_transfers, "expected_monthly_transfers", :integer
+      field :expected_monthly_volume_usd, "expected_monthly_volume_usd", :string
+      field :assets, "assets", [:array, :string]
+    end
+
+    class TravelRuleNetworkQuestionnaireAnswersLicences < Didit::Model
+      field :regulator, "regulator", :string
+      field :jurisdiction, "jurisdiction", :string
+      field :licence_type, "licence_type", :string
+      field :licence_number, "licence_number", :string
+    end
+
+    class TravelRuleNetworkQuestionnaireHistory < Didit::Model
+      field :at, "at", :datetime
+      field :from, "from", :string
+      field :to, "to", :string
+      field :note, "note", :string
+    end
+
+    # How Travel Rule messages on one network would be sent for this application, and why they cannot be.
+    # Configuration status, not a live health or delivery check.
+    class TravelRuleNetworkState < Didit::Model
+      field :rail, "rail", :string
+      field :mode, "mode", :string
+      field :state, "state", :string
+      field :reason, "reason", :string
+      field :platform_available, "platform_available", :boolean
+      field :connected, "connected", :boolean
+      field :participant, "participant", "TravelRuleNetworkParticipantSummary"
+      field :vasps_reachable, "vasps_reachable", :integer
+      field :routed_30d, "routed_30d", :integer
+    end
+
+    class TravelRuleNetworksOverview < Didit::Model
+      field :platform_networks_enabled, "platform_networks_enabled", :boolean
+      field :questionnaire, "questionnaire", "TravelRuleNetworkQuestionnaire"
+      field :participants, "participants", [:array, "TravelRuleNetworkParticipant"]
+      field :networks, "networks", "TravelRuleNetworksOverviewNetworks"
+    end
+
+    # Per network, how this application would send and why it cannot. No network, including GTR, is included by
+    # default: a network is reachable through your own connected membership, or through Didit's membership once
+    # Didit's membership of that network is live and your own participant on it is active. Not a live health or
+    # delivery check.
+    class TravelRuleNetworksOverviewNetworks < Didit::Model
+      field :gtr, "gtr", "TravelRuleNetworkState"
+      field :trust, "trust", "TravelRuleNetworkState"
+      field :verifyvasp, "verifyvasp", "TravelRuleNetworkState"
+      field :sygna, "sygna", "TravelRuleNetworkState"
+    end
+
     # One thing that moves a `COUNTERPARTY_VASP_NOT_FOUND` or `COUNTERPARTY_VASP_NOT_REACHABLE` transfer on. See [Why
     # a transfer is stuck](/transaction-monitoring/travel-rule#why-a-transfer-is-stuck).
     class TravelRuleNextAction < Didit::Model
@@ -11172,41 +11559,15 @@ module Didit
       field :compliance_email_confirmed, "compliance_email_confirmed", :boolean
     end
 
-    # Effective membership configuration for each network. No network, including GTR, is included by default. This is
-    # not a live health or delivery check.
+    # Per network, how this application would send and why it cannot. No network, including GTR, is included by
+    # default: a network is reachable through your own connected membership, or through Didit's membership once
+    # Didit's membership of that network is live and your own participant on it is active. Not a live health or
+    # delivery check.
     class TravelRuleSettingsDetailNetworks < Didit::Model
-      field :gtr, "gtr", "TravelRuleSettingsDetailNetworksGtr"
-      field :trust, "trust", "TravelRuleSettingsDetailNetworksTrust"
-      field :verifyvasp, "verifyvasp", "TravelRuleSettingsDetailNetworksVerifyvasp"
-      field :sygna, "sygna", "TravelRuleSettingsDetailNetworksSygna"
-    end
-
-    class TravelRuleSettingsDetailNetworksGtr < Didit::Model
-      field :rail, "rail", :string
-      field :mode, "mode", :string
-      field :platform_available, "platform_available", :boolean
-      field :connected, "connected", :boolean
-    end
-
-    class TravelRuleSettingsDetailNetworksSygna < Didit::Model
-      field :rail, "rail", :string
-      field :mode, "mode", :string
-      field :platform_available, "platform_available", :boolean
-      field :connected, "connected", :boolean
-    end
-
-    class TravelRuleSettingsDetailNetworksTrust < Didit::Model
-      field :rail, "rail", :string
-      field :mode, "mode", :string
-      field :platform_available, "platform_available", :boolean
-      field :connected, "connected", :boolean
-    end
-
-    class TravelRuleSettingsDetailNetworksVerifyvasp < Didit::Model
-      field :rail, "rail", :string
-      field :mode, "mode", :string
-      field :platform_available, "platform_available", :boolean
-      field :connected, "connected", :boolean
+      field :gtr, "gtr", "TravelRuleNetworkState"
+      field :trust, "trust", "TravelRuleNetworkState"
+      field :verifyvasp, "verifyvasp", "TravelRuleNetworkState"
+      field :sygna, "sygna", "TravelRuleNetworkState"
     end
 
     class TravelRuleTestVaspInboundResponse < Didit::Model
@@ -11306,6 +11667,27 @@ module Didit
       field :amount, "amount", :string
       field :txid, "txid", :string
       field :vout, "vout", :integer
+    end
+
+    class TravelRuleWalletProofReview < Didit::Model
+      field :proof_id, "proof_id", :string
+      field :method_, "method", :string
+      field :status, "status", :string
+      field :wallet_address, "wallet_address", :string
+      field :chain, "chain", :string
+      field :holder_name, "holder_name", :string
+      field :is_ownership_verified, "is_ownership_verified", :boolean
+      field :transaction_id, "transaction_id", :string
+      field :file_name, "file_name", :string
+      field :content_type, "content_type", :string
+      field :screenshot_url, "screenshot_url", :string
+      field :attempts, "attempts", :integer
+      field :failure_reason, "failure_reason", :string
+      field :method_chosen_at, "method_chosen_at", :datetime
+      field :decided_at, "decided_at", :datetime
+      field :decided_by, "decided_by", :string
+      field :review_note, "review_note", :string
+      field :created_at, "created_at", :datetime
     end
 
     class TravelRuleWidgetSessionResponse < Didit::Model
@@ -11700,6 +12082,7 @@ module Didit
       field :data_retention_months, "data_retention_months", :integer
       field :face_retention_policy, "face_retention_policy", :string
       field :face_retention_days, "face_retention_days", :integer
+      field :biometric_consent_mode, "biometric_consent_mode", :string
       field :available_events, "available_events", [:array, "WebhookConfigAvailableEvents"]
       field :allowed_return_hosts, "allowed_return_hosts", [:array, :string]
       field :endpoints, "endpoints", [:array, "WebhookConfigDestination"]

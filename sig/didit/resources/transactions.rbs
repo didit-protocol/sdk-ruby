@@ -6,6 +6,7 @@ module Didit
       def notes: () -> Didit::Resources::Transactions::Notes
       def rules: () -> Didit::Resources::Transactions::Rules
       def travel_rule: () -> Didit::Resources::Transactions::TravelRule
+      def batch_delete: (body: (Didit::Types::transactions_batch_delete_params_selected_transactions | Didit::Types::transactions_batch_delete_params_all_transactions), ?request_options: Didit::request_options?) -> nil
       def create: (transaction_id: String, transaction_category: String, transaction_details: Didit::Types::transactions_create_params_transaction_details, subject: Didit::Types::transactions_create_params_subject, ?transaction_at: Time | String, ?time_zone: String, ?counterparty: Didit::Types::transactions_create_params_counterparty, ?custom_properties: Hash[String | Symbol, untyped], ?travel_rule_details: Didit::Types::transactions_create_params_travel_rule_details, ?network_snapshot: Didit::Types::transactions_create_params_network_snapshot, ?include_crypto_screening: bool?, ?request_options: Didit::request_options?) -> Didit::Types::TransactionDetail
       def create_sdk_token: (vendor_data: String, ?ttl_seconds: Integer, ?max_uses: Integer?, ?request_options: Didit::request_options?) -> Didit::Types::TransactionsCreateSdkTokenResponse
       def generate_pdf: (String transaction_uuid, ?request_options: Didit::request_options?) -> String
@@ -35,7 +36,7 @@ module Didit
         def create_message: (String transaction_id, ?kind: String, ?body: String, ?requested_documents: Array[String], ?reply_to: String?, ?files: Array[Didit::upload], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleMessage
         def list_messages: (String transaction_id, ?request_options: Didit::request_options?) -> Array[Didit::Types::TravelRuleMessage]
         def trigger_test_vasp_inbound: (beneficiary_wallet_address: String, ?scenario: String, ?chain: String, ?amount: String, ?currency: String, ?reference: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTestVaspInboundResponse
-        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
+        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
       end
     end
   end

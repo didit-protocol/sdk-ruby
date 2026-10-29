@@ -509,26 +509,46 @@ RSpec.describe Didit::Resources::TravelRule do
           "gtr": {
             "rail": "GTR",
             "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
             "platform_available": false,
-            "connected": false
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
           },
           "trust": {
             "rail": "TRUST",
             "mode": "unavailable",
+            "state": "unavailable",
+            "reason": "own_membership_only",
             "platform_available": false,
-            "connected": false
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
           },
           "verifyvasp": {
             "rail": "VERIFYVASP",
             "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
             "platform_available": false,
-            "connected": false
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
           },
           "sygna": {
             "rail": "SYGNA",
             "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
             "platform_available": false,
-            "connected": false
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
           }
         },
         "didit_network": {
@@ -944,26 +964,74 @@ RSpec.describe Didit::Resources::TravelRule do
           "gtr": {
             "rail": "GTR",
             "mode": "own",
+            "state": "own_membership",
+            "reason": "own_membership_connected",
             "platform_available": true,
-            "connected": true
+            "connected": true,
+            "participant": {
+              "mode": "platform",
+              "status": "not_requested",
+              "participant_code": "participant_code-value",
+              "requested_at": "2026-01-02T03:04:05Z",
+              "activated_at": "2026-01-02T03:04:05Z",
+              "last_error": "last_error-value"
+            },
+            "vasps_reachable": 1,
+            "routed_30d": 1
           },
           "trust": {
-            "rail": "TRUST",
+            "rail": "GTR",
             "mode": "own",
+            "state": "own_membership",
+            "reason": "own_membership_connected",
             "platform_available": true,
-            "connected": true
+            "connected": true,
+            "participant": {
+              "mode": "platform",
+              "status": "not_requested",
+              "participant_code": "participant_code-value",
+              "requested_at": "2026-01-02T03:04:05Z",
+              "activated_at": "2026-01-02T03:04:05Z",
+              "last_error": "last_error-value"
+            },
+            "vasps_reachable": 1,
+            "routed_30d": 1
           },
           "verifyvasp": {
-            "rail": "VERIFYVASP",
+            "rail": "GTR",
             "mode": "own",
+            "state": "own_membership",
+            "reason": "own_membership_connected",
             "platform_available": true,
-            "connected": true
+            "connected": true,
+            "participant": {
+              "mode": "platform",
+              "status": "not_requested",
+              "participant_code": "participant_code-value",
+              "requested_at": "2026-01-02T03:04:05Z",
+              "activated_at": "2026-01-02T03:04:05Z",
+              "last_error": "last_error-value"
+            },
+            "vasps_reachable": 1,
+            "routed_30d": 1
           },
           "sygna": {
-            "rail": "SYGNA",
+            "rail": "GTR",
             "mode": "own",
+            "state": "own_membership",
+            "reason": "own_membership_connected",
             "platform_available": true,
-            "connected": true
+            "connected": true,
+            "participant": {
+              "mode": "platform",
+              "status": "not_requested",
+              "participant_code": "participant_code-value",
+              "requested_at": "2026-01-02T03:04:05Z",
+              "activated_at": "2026-01-02T03:04:05Z",
+              "last_error": "last_error-value"
+            },
+            "vasps_reachable": 1,
+            "routed_30d": 1
           }
         },
         "didit_network": {
@@ -1139,6 +1207,312 @@ RSpec.describe Didit::Resources::TravelRule do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     expect(result.results).to all(be_a(Didit::Types::TravelRuleCounterpartyContact))
     exercise_readers(result.results)
+  end
+
+  it "travel_rule.networks.request_access sends POST /v3/travel-rule/networks/{network}/request/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "network": "gtr",
+        "rail": "GTR",
+        "mode": "platform",
+        "status": "not_requested",
+        "participant_code": "participant_code-value",
+        "requested_at": "2026-01-02T03:04:05Z",
+        "submitted_at": "2026-01-02T03:04:05Z",
+        "activated_at": "2026-01-02T03:04:05Z",
+        "suspended_at": "2026-01-02T03:04:05Z",
+        "last_error": "last_error-value",
+        "history": [
+          {
+            "at": "2026-01-02T03:04:05Z",
+            "from": "from-value",
+            "to": "to-value",
+            "note": "note-value"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.networks.request_access(
+      "network-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/networks/network-1/request/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleNetworkParticipant)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.networks.retrieve sends GET /v3/travel-rule/networks/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "platform_networks_enabled": false,
+        "questionnaire": {
+          "status": "draft",
+          "answers": {},
+          "submitted_at": null,
+          "reviewed_at": null,
+          "review_note": "",
+          "history": [],
+          "updated_at": null
+        },
+        "participants": [],
+        "networks": {
+          "gtr": {
+            "rail": "GTR",
+            "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
+            "platform_available": false,
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
+          },
+          "trust": {
+            "rail": "TRUST",
+            "mode": "unavailable",
+            "state": "unavailable",
+            "reason": "own_membership_only",
+            "platform_available": false,
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
+          },
+          "verifyvasp": {
+            "rail": "VERIFYVASP",
+            "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
+            "platform_available": false,
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
+          },
+          "sygna": {
+            "rail": "SYGNA",
+            "mode": "unavailable",
+            "state": "didit_onboarding",
+            "reason": "didit_membership_not_live",
+            "platform_available": false,
+            "connected": false,
+            "participant": null,
+            "vasps_reachable": 0,
+            "routed_30d": 0
+          }
+        }
+      }
+    JSON
+    result = client.travel_rule.networks.retrieve
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/networks/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleNetworksOverview)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.networks.retrieve_questionnaire sends GET /v3/travel-rule/networks/questionnaire/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "status": "draft",
+        "answers": {
+          "legal_name": "legal_name-value",
+          "registration_number": "registration_number-value",
+          "incorporation_country": "incorporation_country-value",
+          "registered_address": "registered_address-value",
+          "website": "https://example.com/callback",
+          "lei": "lei-value",
+          "licences": [
+            {
+              "regulator": "regulator-value",
+              "jurisdiction": "jurisdiction-value",
+              "licence_type": "licence_type-value",
+              "licence_number": "licence_number-value"
+            }
+          ],
+          "operating_jurisdictions": [
+            "operating_jurisdictions-value"
+          ],
+          "compliance_officer_name": "compliance_officer_name-value",
+          "compliance_officer_email": "user@example.com",
+          "aml_ctf_policy_attested": true,
+          "sanctions_screening_attested": true,
+          "data_protection_attested": true,
+          "data_protection_contact_email": "user@example.com",
+          "expected_monthly_transfers": 1,
+          "expected_monthly_volume_usd": "expected_monthly_volume_usd-value",
+          "assets": [
+            "assets-value"
+          ]
+        },
+        "submitted_at": "2026-01-02T03:04:05Z",
+        "reviewed_at": "2026-01-02T03:04:05Z",
+        "review_note": "review_note-value",
+        "history": [
+          {
+            "at": "2026-01-02T03:04:05Z",
+            "from": "from-value",
+            "to": "to-value",
+            "note": "note-value"
+          }
+        ],
+        "updated_at": "2026-01-02T03:04:05Z"
+      }
+    JSON
+    result = client.travel_rule.networks.retrieve_questionnaire
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/networks/questionnaire/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.networks.submit_questionnaire sends POST /v3/travel-rule/networks/questionnaire/submit/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "status": "draft",
+        "answers": {
+          "legal_name": "legal_name-value",
+          "registration_number": "registration_number-value",
+          "incorporation_country": "incorporation_country-value",
+          "registered_address": "registered_address-value",
+          "website": "https://example.com/callback",
+          "lei": "lei-value",
+          "licences": [
+            {
+              "regulator": "regulator-value",
+              "jurisdiction": "jurisdiction-value",
+              "licence_type": "licence_type-value",
+              "licence_number": "licence_number-value"
+            }
+          ],
+          "operating_jurisdictions": [
+            "operating_jurisdictions-value"
+          ],
+          "compliance_officer_name": "compliance_officer_name-value",
+          "compliance_officer_email": "user@example.com",
+          "aml_ctf_policy_attested": true,
+          "sanctions_screening_attested": true,
+          "data_protection_attested": true,
+          "data_protection_contact_email": "user@example.com",
+          "expected_monthly_transfers": 1,
+          "expected_monthly_volume_usd": "expected_monthly_volume_usd-value",
+          "assets": [
+            "assets-value"
+          ]
+        },
+        "submitted_at": "2026-01-02T03:04:05Z",
+        "reviewed_at": "2026-01-02T03:04:05Z",
+        "review_note": "review_note-value",
+        "history": [
+          {
+            "at": "2026-01-02T03:04:05Z",
+            "from": "from-value",
+            "to": "to-value",
+            "note": "note-value"
+          }
+        ],
+        "updated_at": "2026-01-02T03:04:05Z"
+      }
+    JSON
+    result = client.travel_rule.networks.submit_questionnaire
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/networks/questionnaire/submit/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.networks.update_questionnaire sends PUT /v3/travel-rule/networks/questionnaire/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "status": "draft",
+        "answers": {
+          "legal_name": "legal_name-value",
+          "registration_number": "registration_number-value",
+          "incorporation_country": "incorporation_country-value",
+          "registered_address": "registered_address-value",
+          "website": "https://example.com/callback",
+          "lei": "lei-value",
+          "licences": [
+            {
+              "regulator": "regulator-value",
+              "jurisdiction": "jurisdiction-value",
+              "licence_type": "licence_type-value",
+              "licence_number": "licence_number-value"
+            }
+          ],
+          "operating_jurisdictions": [
+            "operating_jurisdictions-value"
+          ],
+          "compliance_officer_name": "compliance_officer_name-value",
+          "compliance_officer_email": "user@example.com",
+          "aml_ctf_policy_attested": true,
+          "sanctions_screening_attested": true,
+          "data_protection_attested": true,
+          "data_protection_contact_email": "user@example.com",
+          "expected_monthly_transfers": 1,
+          "expected_monthly_volume_usd": "expected_monthly_volume_usd-value",
+          "assets": [
+            "assets-value"
+          ]
+        },
+        "submitted_at": "2026-01-02T03:04:05Z",
+        "reviewed_at": "2026-01-02T03:04:05Z",
+        "review_note": "review_note-value",
+        "history": [
+          {
+            "at": "2026-01-02T03:04:05Z",
+            "from": "from-value",
+            "to": "to-value",
+            "note": "note-value"
+          }
+        ],
+        "updated_at": "2026-01-02T03:04:05Z"
+      }
+    JSON
+    result = client.travel_rule.networks.update_questionnaire
+    request = expect_api_request(
+      calls,
+      method: :put,
+      url: "https://verification.didit.me/v3/travel-rule/networks/questionnaire/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {})
+    expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "travel_rule.transfers.list sends GET /v3/travel-rule/transfers/" do
@@ -1412,6 +1786,95 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.wallet_proofs.decide sends POST /v3/travel-rule/wallet-proofs/{proof_uuid}/decision/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "method": "SCREENSHOT",
+        "status": "PENDING",
+        "wallet_address": "wallet_address-value",
+        "chain": "chain-value",
+        "holder_name": "holder_name-value",
+        "is_ownership_verified": true,
+        "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "file_name": "file_name-value",
+        "content_type": "content_type-value",
+        "screenshot_url": "screenshot_url-value",
+        "attempts": 1,
+        "failure_reason": {},
+        "method_chosen_at": "2026-01-02T03:04:05Z",
+        "decided_at": "2026-01-02T03:04:05Z",
+        "decided_by": "decided_by-value",
+        "review_note": "review_note-value",
+        "created_at": "2026-01-02T03:04:05Z"
+      }
+    JSON
+    result = client.travel_rule.wallet_proofs.decide(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      decision: "approve"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/wallet-proofs/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/decision/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "decision" => "approve"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleWalletProofReview)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.wallet_proofs.list sends GET /v3/travel-rule/wallet-proofs/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": "next-value",
+        "previous": "previous-value",
+        "results": [
+          {
+            "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "method": "SCREENSHOT",
+            "status": "PENDING",
+            "wallet_address": "wallet_address-value",
+            "chain": "chain-value",
+            "holder_name": "holder_name-value",
+            "is_ownership_verified": true,
+            "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "file_name": "file_name-value",
+            "content_type": "content_type-value",
+            "screenshot_url": "screenshot_url-value",
+            "attempts": 1,
+            "failure_reason": {},
+            "method_chosen_at": "2026-01-02T03:04:05Z",
+            "decided_at": "2026-01-02T03:04:05Z",
+            "decided_by": "decided_by-value",
+            "review_note": "review_note-value",
+            "created_at": "2026-01-02T03:04:05Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.wallet_proofs.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/wallet-proofs/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleWalletProofReview))
+    exercise_readers(result.results)
+  end
+
   it "travel_rule.workspace.claim sends POST /v3/travel-rule/workspace/claim/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1493,26 +1956,74 @@ RSpec.describe Didit::Resources::TravelRule do
             "gtr": {
               "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "trust": {
-              "rail": "TRUST",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "verifyvasp": {
-              "rail": "VERIFYVASP",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "sygna": {
-              "rail": "SYGNA",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             }
           },
           "didit_network": {
@@ -1625,26 +2136,74 @@ RSpec.describe Didit::Resources::TravelRule do
             "gtr": {
               "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "trust": {
-              "rail": "TRUST",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "verifyvasp": {
-              "rail": "VERIFYVASP",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "sygna": {
-              "rail": "SYGNA",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             }
           },
           "didit_network": {
@@ -1757,26 +2316,74 @@ RSpec.describe Didit::Resources::TravelRule do
             "gtr": {
               "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "trust": {
-              "rail": "TRUST",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "verifyvasp": {
-              "rail": "VERIFYVASP",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "sygna": {
-              "rail": "SYGNA",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             }
           },
           "didit_network": {
@@ -1889,26 +2496,74 @@ RSpec.describe Didit::Resources::TravelRule do
             "gtr": {
               "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "trust": {
-              "rail": "TRUST",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "verifyvasp": {
-              "rail": "VERIFYVASP",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "sygna": {
-              "rail": "SYGNA",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             }
           },
           "didit_network": {
@@ -2043,26 +2698,74 @@ RSpec.describe Didit::Resources::TravelRule do
             "gtr": {
               "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "trust": {
-              "rail": "TRUST",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "verifyvasp": {
-              "rail": "VERIFYVASP",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             },
             "sygna": {
-              "rail": "SYGNA",
+              "rail": "GTR",
               "mode": "own",
+              "state": "own_membership",
+              "reason": "own_membership_connected",
               "platform_available": true,
-              "connected": true
+              "connected": true,
+              "participant": {
+                "mode": "example",
+                "status": "example",
+                "participant_code": "example",
+                "requested_at": "example",
+                "activated_at": "example",
+                "last_error": "example"
+              },
+              "vasps_reachable": 1,
+              "routed_30d": 1
             }
           },
           "didit_network": {

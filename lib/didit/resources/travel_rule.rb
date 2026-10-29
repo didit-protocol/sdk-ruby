@@ -10,6 +10,11 @@ module Didit
         @counterparty_contacts ||= CounterpartyContacts.new(@client)
       end
 
+      # @return [Didit::Resources::TravelRule::Networks]
+      def networks
+        @networks ||= Networks.new(@client)
+      end
+
       # @return [Didit::Resources::TravelRule::Transfers]
       def transfers
         @transfers ||= Transfers.new(@client)
@@ -18,6 +23,11 @@ module Didit
       # @return [Didit::Resources::TravelRule::WalletAddresses]
       def wallet_addresses
         @wallet_addresses ||= WalletAddresses.new(@client)
+      end
+
+      # @return [Didit::Resources::TravelRule::WalletProofs]
+      def wallet_proofs
+        @wallet_proofs ||= WalletProofs.new(@client)
       end
 
       # @return [Didit::Resources::TravelRule::Workspace]
@@ -57,7 +67,8 @@ module Didit
       # @param wallet_address [String] The wallet address to verify. Optional; when empty, the address must be
       #   supplied when a proof is started.
       # @param chain [String] Chain token for the address, for example `ETH`, `BTC` or `SOL`. Use the same token as in
-      #   your wallet address book. Message signing and the Satoshi test are offered only for a supported chain.
+      #   your wallet address book. Message signing and the Satoshi test are offered only for a supported chain. The
+      #   address book entry the proof verifies stores it under its canonical identifier (ETH, BTC, SOL, TRX).
       # @param holder_name [String] Name of the wallet holder, used for the beneficiary name match.
       # @param vendor_data [String] Your internal identifier for the holder, carried onto the created address-book
       #   entry.
@@ -616,6 +627,164 @@ module Didit
         end
       end
 
+      # The +travel_rule.networks+ resource.
+      class Networks < Didit::Resource
+        # Request a Travel Rule network
+        #
+        # Ask for this application's own participant on a network Didit's membership carries (GTR or Sygna). Without
+        # an approved questionnaire the participant waits for it (questionnaire_pending); with one it goes to the
+        # network's onboarding (submitted_to_network) and becomes active once the network gives it a code. Idempotent:
+        # a pending, onboarding or live participant is returned unchanged. If the network refused the registration
+        # (last_error is set), requesting again retries. TRUST and VerifyVASP are reachable only through your own
+        # membership: TRUST admits members per VASP, and a VerifyVASP Enclave serves one VASP id.
+        #
+        # +POST /v3/travel-rule/networks/{network}/request/+
+        #
+        # @param network [String] The network to join through Didit's membership.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleNetworkParticipant]
+        def request_access(network, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/networks/{network}/request/",
+            path_params: { "network" => network },
+            response: Types::TravelRuleNetworkParticipant,
+            request_options: request_options
+          )
+        end
+
+        # Get Travel Rule networks
+        #
+        # Read, for this application, every network's true state: whether it sends through your own membership or
+        # through Didit's, and why it cannot yet. Also returns the due-diligence questionnaire and your participants.
+        # Reading creates nothing.
+        #
+        # +GET /v3/travel-rule/networks/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleNetworksOverview]
+        def retrieve(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/networks/",
+            response: Types::TravelRuleNetworksOverview,
+            request_options: request_options
+          )
+        end
+
+        # Get the network questionnaire
+        #
+        # Read Didit's network due-diligence questionnaire for this application, its status and Didit's review note.
+        # An application that never saved one reads an empty draft.
+        #
+        # +GET /v3/travel-rule/networks/questionnaire/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleNetworkQuestionnaire]
+        def retrieve_questionnaire(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/networks/questionnaire/",
+            response: Types::TravelRuleNetworkQuestionnaire,
+            request_options: request_options
+          )
+        end
+
+        # Submit the network questionnaire
+        #
+        # Send the saved questionnaire to Didit's review. The saved answers must be complete: every field except lei
+        # and data_protection_contact_email, with the three attestations true. Didit approves it, asks for changes
+        # (edit and submit again) or rejects it. Networks you requested while it was pending are handed to their
+        # onboarding when it is approved.
+        #
+        # +POST /v3/travel-rule/networks/questionnaire/submit/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleNetworkQuestionnaire]
+        def submit_questionnaire(request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/networks/questionnaire/submit/",
+            response: Types::TravelRuleNetworkQuestionnaire,
+            request_options: request_options
+          )
+        end
+
+        # Save network questionnaire answers
+        #
+        # Save answers to the questionnaire while it is draft or changes_requested. Saves are partial: answers you do
+        # not send are kept.
+        #
+        # +PUT /v3/travel-rule/networks/questionnaire/+
+        #
+        # @param legal_name [String]
+        # @param registration_number [String]
+        # @param incorporation_country [String] ISO 3166-1 alpha-2 country code.
+        # @param registered_address [String]
+        # @param website [String]
+        # @param lei [String] Optional. A valid ISO 17442 LEI when given.
+        # @param licences [Array<Hash>] Every licence or registration the VASP holds.
+        # @param operating_jurisdictions [Array<String>]
+        # @param compliance_officer_name [String]
+        # @param compliance_officer_email [String]
+        # @param aml_ctf_policy_attested [Boolean] Must be true to submit.
+        # @param sanctions_screening_attested [Boolean] Must be true to submit.
+        # @param data_protection_attested [Boolean] Must be true to submit.
+        # @param data_protection_contact_email [String] Optional.
+        # @param expected_monthly_transfers [Integer]
+        # @param expected_monthly_volume_usd [String] Expected monthly volume in USD, up to 2 decimal places. Returned
+        #   as a string.
+        # @param assets [Array<String>] Asset tickers, stored upper-case, sorted and de-duplicated.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleNetworkQuestionnaire]
+        def update_questionnaire(
+          legal_name: OMIT,
+          registration_number: OMIT,
+          incorporation_country: OMIT,
+          registered_address: OMIT,
+          website: OMIT,
+          lei: OMIT,
+          licences: OMIT,
+          operating_jurisdictions: OMIT,
+          compliance_officer_name: OMIT,
+          compliance_officer_email: OMIT,
+          aml_ctf_policy_attested: OMIT,
+          sanctions_screening_attested: OMIT,
+          data_protection_attested: OMIT,
+          data_protection_contact_email: OMIT,
+          expected_monthly_transfers: OMIT,
+          expected_monthly_volume_usd: OMIT,
+          assets: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :put,
+            "/v3/travel-rule/networks/questionnaire/",
+            body: {
+              "legal_name" => legal_name,
+              "registration_number" => registration_number,
+              "incorporation_country" => incorporation_country,
+              "registered_address" => registered_address,
+              "website" => website,
+              "lei" => lei,
+              "licences" => licences,
+              "operating_jurisdictions" => operating_jurisdictions,
+              "compliance_officer_name" => compliance_officer_name,
+              "compliance_officer_email" => compliance_officer_email,
+              "aml_ctf_policy_attested" => aml_ctf_policy_attested,
+              "sanctions_screening_attested" => sanctions_screening_attested,
+              "data_protection_attested" => data_protection_attested,
+              "data_protection_contact_email" => data_protection_contact_email,
+              "expected_monthly_transfers" => expected_monthly_transfers,
+              "expected_monthly_volume_usd" => expected_monthly_volume_usd,
+              "assets" => assets
+            },
+            response: Types::TravelRuleNetworkQuestionnaire,
+            request_options: request_options
+          )
+        end
+      end
+
       # The +travel_rule.transfers+ resource.
       class Transfers < Didit::Resource
         # List Travel Rule transfers
@@ -836,6 +1005,68 @@ module Didit
               "travel_address" => travel_address
             },
             response: Types::WalletAddressEntryUpdate,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +travel_rule.wallet_proofs+ resource.
+      class WalletProofs < Didit::Resource
+        # Approve or reject a screenshot wallet proof
+        #
+        # Decide a screenshot proof from your review queue. approve verifies the proof and the address book entry and
+        # applies the ownership to the transfer the widget session was minted for, exactly as a verified signature
+        # does. A screenshot never confirms a transfer that another Didit customer sent over the INTERNAL rail: that
+        # takes a signed message or a test deposit. reject closes the proof as REJECTED with failure_reason
+        # REVIEW_REJECTED; the end user can start a new proof from the widget. The note is kept with the proof.
+        #
+        # +POST /v3/travel-rule/wallet-proofs/{proof_uuid}/decision/+
+        #
+        # @param proof_uuid [String] proof_id from the review queue.
+        # @param decision [String]
+        # @param note [String] Optional. Kept with the proof and returned as review_note.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWalletProofReview]
+        def decide(proof_uuid, decision:, note: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/wallet-proofs/{proof_uuid}/decision/",
+            path_params: { "proof_uuid" => proof_uuid },
+            body: {
+              "decision" => decision,
+              "note" => note
+            },
+            response: Types::TravelRuleWalletProofReview,
+            request_options: request_options
+          )
+        end
+
+        # List screenshot wallet proofs to review
+        #
+        # Your review queue for screenshot wallet-ownership proofs. A screenshot is the one proof Didit cannot check
+        # itself: once the end user uploads it from the widget it waits PENDING until you approve or reject it with
+        # POST /v3/travel-rule/wallet-proofs/{proof_uuid}/decision/. Oldest first, so the queue is worked from the
+        # proof that has waited longest. Only uploaded screenshots appear, never a proof whose end user has not
+        # uploaded a file yet, and never one on a wallet you deleted from your address book (Didit closes those as
+        # OWNERSHIP_CHANGED).
+        #
+        # +GET /v3/travel-rule/wallet-proofs/+
+        #
+        # @param status [String] Which proofs to list. Defaults to PENDING, the ones still to decide.
+        # @param limit [Integer]
+        # @param offset [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleWalletProofReview>]
+        def list(status: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/wallet-proofs/",
+            query: {
+              "status" => status,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleWalletProofReview,
             request_options: request_options
           )
         end

@@ -11,8 +11,8 @@ module Didit
       VALUES = [IDENTITY, TRANSACTIONS].freeze
     end
 
-    # Why cross-organization signals do not apply, checked in this order. `plan`: the organization's Identity plan
-    # does not include the cross-organization fraud network (it needs Identity Enterprise), whatever the sharing mode.
+    # Why cross-organization signals do not apply, checked in this order. `plan`: the organization's plan does not
+    # include the cross-organization fraud network (it needs the Enterprise plan), whatever the sharing mode.
     # `sharing_mode`: the plan includes it, but the sharing mode is `private` or `off`. Null when
     # `cross_org_available` is `true`.
     module NetworksListResponseCrossOrgUnavailableReason

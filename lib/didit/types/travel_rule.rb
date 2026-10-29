@@ -108,6 +108,24 @@ module Didit
       VALUES = [APPROVED, RESTRICTED, BLOCKED].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofsDecideParamsDecision
+      APPROVE = "approve"
+      REJECT = "reject"
+
+      VALUES = [APPROVE, REJECT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofsListParamsStatus
+      PENDING = "PENDING"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
+    end
+
     class TravelRuleCounterpartyContactsListResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
@@ -138,6 +156,13 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "WalletAddressEntry"]
+    end
+
+    class TravelRuleWalletProofsListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleWalletProofReview"]
     end
   end
 end

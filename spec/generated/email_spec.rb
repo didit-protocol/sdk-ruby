@@ -100,7 +100,7 @@ RSpec.describe Didit::Resources::Email do
                 "status": "Success",
                 "reason": null
               },
-              "fee": 0.03
+              "fee": 0.02
             },
             {
               "type": "VALID_CODE_ENTERED",

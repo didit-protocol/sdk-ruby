@@ -141,6 +141,10 @@ module Didit
       # This endpoint accepts API keys only. Business Console user Bearer tokens are rejected with `403` (unlike the
       # single-session delete, which accepts both).
       #
+      # **Filed regulatory reports:** if the selected data is in a finalized regulatory report, the whole request is
+      # refused with `409` and nothing is deleted. The body uses `code: in_filed_report` and names each report with
+      # `uuid`, `report_number`, `report_type` and `case_uuid`. Delete the reports, then repeat the request.
+      #
       # +POST /v3/sessions/delete/+
       #
       # @param session_numbers [Array<String>] Numeric `session_number` values of the KYC sessions to delete, as
@@ -422,6 +426,10 @@ module Didit
       #   Any JSON value is accepted (object, string, number, array), but a JSON object of key/value pairs is
       #   recommended. Not shown to the end user. Use it to pass your own correlation ids, A/B variants, or business
       #   context.
+      # @param tags [Array<String>] Tags added to the session when it is created, by name. Up to 10, each up to 50
+      #   characters. Names are case-insensitive and stored in upper case. A name that does not exist yet in the
+      #   application is created as a new tag. The tags show on the session in the console, where you can filter by
+      #   them.
       # @param language [String] Language code (ISO 639-1) for the verification process interface. Controls the
       #   language displayed to the end user during verification. If not provided, the browser's language will be
       #   automatically detected and used. Check all the supported languages [here](/integration/supported-languages).
@@ -445,6 +453,14 @@ module Didit
       #   workflow whose Electronic Signature step takes documents from the session (`signature_documents_source`
       #   `session` or `both`): up to 20 documents and 50 MB in total. `field_values` fills the fields whose `prefill`
       #   is `api.<key>`, on workflow and session documents alike. Creating a session again for the same `...
+      # @param user_state [String] Where the person lives, when you know it: an ISO 3166-2 subdivision code (`US-IL`,
+      #   `ES-M`) or a US state code or name (`IL`, `Illinois`). A state whose law requires explicit biometric consent
+      #   (Illinois, Texas, Colorado) makes the verification flow ask for it before capturing a face, with trigger
+      #   `declared_state`. An unrecognized value returns `400`. See [Biometric consent](/getting-started/biomet...
+      # @param biometric_consent [Hash] Explicit biometric consent you already collected from the person. It satisfies
+      #   the requirement, so the verification flow does not ask again, and the decision records it as `status: "given"`
+      #   with trigger `customer_collected`. An answer the person already gave in the flow is never replaced. See
+      #   [Biometric consent](/getting-started/biometric-consent).
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsCreateResponse]
       def create(
@@ -453,12 +469,15 @@ module Didit
         callback: OMIT,
         callback_method: OMIT,
         metadata: OMIT,
+        tags: OMIT,
         language: OMIT,
         contact_details: OMIT,
         expected_details: OMIT,
         portrait_image: OMIT,
         sandbox_scenario: OMIT,
         sign: OMIT,
+        user_state: OMIT,
+        biometric_consent: OMIT,
         request_options: nil
       )
         @client.request(
@@ -470,12 +489,15 @@ module Didit
             "callback" => callback,
             "callback_method" => callback_method,
             "metadata" => metadata,
+            "tags" => tags,
             "language" => language,
             "contact_details" => contact_details,
             "expected_details" => expected_details,
             "portrait_image" => portrait_image,
             "sandbox_scenario" => sandbox_scenario,
-            "sign" => sign
+            "sign" => sign,
+            "user_state" => user_state,
+            "biometric_consent" => biometric_consent
           },
           response: Types::SessionsCreateResponse,
           request_options: request_options
@@ -552,6 +574,10 @@ module Didit
       # exceeding it returns `429`.
       #
       # To bulk-delete KYC sessions by their numeric `session_number`, use `POST /v3/sessions/delete/` instead.
+      #
+      # **Filed regulatory reports:** if the selected data is in a finalized regulatory report, the whole request is
+      # refused with `409` and nothing is deleted. The body uses `code: in_filed_report` and names each report with
+      # `uuid`, `report_number`, `report_type` and `case_uuid`. Delete the reports, then repeat the request.
       #
       # +DELETE /v3/session/{sessionId}/delete/+
       #
@@ -793,10 +819,10 @@ module Didit
       #   nothing.
       # @param vendor_data [String] Exact-match filter on the `vendor_data` you sent at session creation (your own
       #   user/business identifier). For partial matches use `search` instead.
-      # @param search [String] Smart free-text search. A full UUID matches `session_id`; numeric input matches
-      #   session-number prefix, document/personal numbers, phone prefix, or `vendor_data`; input containing `@` matches
-      #   email prefixes; other text matches names (accent-insensitive) and `vendor_data`. Free text containing digits
-      #   additionally matches document/personal-number search fields and session-number prefixes.
+      # @param search [String] A complete displayed reference such as `S-0001` (user) or `B-0001` (business) matches
+      #   only that session number and kind; leading zeros and letter case do not affect matching. Smart free-text
+      #   search. A full UUID matches `session_id`; numeric input matches session-number prefix, document/personal
+      #   numbers, phone prefix, or `vendor_data`; input containing `@` matches email prefixes; other text matche...
       # @param workflow_id [String] Comma-separated workflow UUIDs (find them on the Workflows page in the Console).
       #   Malformed UUIDs in the list are ignored; if none are valid the result is empty.
       # @param date_from [Date, String] Only sessions created on or after this date (UTC), format `YYYY-MM-DD`.

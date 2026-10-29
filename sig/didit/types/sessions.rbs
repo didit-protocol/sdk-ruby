@@ -885,6 +885,7 @@ module Didit
       def url: () -> String
       def vendor_data: () -> String?
       def metadata: () -> untyped
+      def tags: () -> Array[String]?
       def status: () -> String
       def callback: () -> String?
       def workflow_id: () -> String
@@ -1281,7 +1282,9 @@ module Didit
 
     type sessions_bulk_update_aml_hit_status_params_hit_updates = { hit_id: String, review_status: String }
 
-    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign }
+    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?tags: Array[String], ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign, ?user_state: String, ?biometric_consent: Didit::Types::sessions_create_params_biometric_consent }
+
+    type sessions_create_params_biometric_consent = { given_at: Time | String, text_version: String }
 
     type sessions_create_params_contact_details = { ?email: String, ?send_notification_emails: bool, ?email_lang: String, ?phone: String }
 

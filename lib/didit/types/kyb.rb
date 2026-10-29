@@ -61,16 +61,19 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
-    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
-    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `not_held` when the ownership registry answered and does not list
+    # this company (see `registry_data.ownership_error`), `unavailable` when an ownership tier was requested but the
+    # registry had none for this company or could not be asked (see `registry_data.ownership_error`), `pending` when
+    # the ownership section has not been retrieved from the registry yet and Didit is still completing it,
+    # `not_requested` on the Lite tier.
     module KybListShareholdersResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
       PENDING = "pending"
 
-      VALUES = [NOT_REQUESTED, DELIVERED, UNAVAILABLE, PENDING].freeze
+      VALUES = [NOT_REQUESTED, DELIVERED, NOT_HELD, UNAVAILABLE, PENDING].freeze
     end
 
     # Normalized company status as reported by the registry.
@@ -221,16 +224,19 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
-    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
-    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `not_held` when the ownership registry answered and does not list
+    # this company (see `registry_data.ownership_error`), `unavailable` when an ownership tier was requested but the
+    # registry had none for this company or could not be asked (see `registry_data.ownership_error`), `pending` when
+    # the ownership section has not been retrieved from the registry yet and Didit is still completing it,
+    # `not_requested` on the Lite tier.
     module KybListShareholdersResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
       PENDING = "pending"
 
-      VALUES = [NOT_REQUESTED, DELIVERED, UNAVAILABLE, PENDING].freeze
+      VALUES = [NOT_REQUESTED, DELIVERED, NOT_HELD, UNAVAILABLE, PENDING].freeze
     end
 
     # Normalized company status as reported by the registry.
@@ -381,16 +387,19 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
-    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
-    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `not_held` when the ownership registry answered and does not list
+    # this company (see `registry_data.ownership_error`), `unavailable` when an ownership tier was requested but the
+    # registry had none for this company or could not be asked (see `registry_data.ownership_error`), `pending` when
+    # the ownership section has not been retrieved from the registry yet and Didit is still completing it,
+    # `not_requested` on the Lite tier.
     module KybListUbosResponse202KybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
       PENDING = "pending"
 
-      VALUES = [NOT_REQUESTED, DELIVERED, UNAVAILABLE, PENDING].freeze
+      VALUES = [NOT_REQUESTED, DELIVERED, NOT_HELD, UNAVAILABLE, PENDING].freeze
     end
 
     # Normalized company status as reported by the registry.
@@ -542,16 +551,19 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
-    # registry had none for this company (see `registry_data.ownership_error`), `pending` when the ownership section
-    # has not been retrieved from the registry yet and Didit is still completing it, `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `not_held` when the ownership registry answered and does not list
+    # this company (see `registry_data.ownership_error`), `unavailable` when an ownership tier was requested but the
+    # registry had none for this company or could not be asked (see `registry_data.ownership_error`), `pending` when
+    # the ownership section has not been retrieved from the registry yet and Didit is still completing it,
+    # `not_requested` on the Lite tier.
     module KybListUbosResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
       PENDING = "pending"
 
-      VALUES = [NOT_REQUESTED, DELIVERED, UNAVAILABLE, PENDING].freeze
+      VALUES = [NOT_REQUESTED, DELIVERED, NOT_HELD, UNAVAILABLE, PENDING].freeze
     end
 
     # Normalized company status as reported by the registry.
@@ -725,14 +737,17 @@ module Didit
       VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, COMPANY_OFFICER, SETTLOR, PROTECTOR, INVESTOR, OTHER].freeze
     end
 
-    # `delivered` when the ownership data came back, `unavailable` when an ownership tier was requested but the
-    # registry had none for this company (see `registry_data.ownership_error`), `not_requested` on the Lite tier.
+    # `delivered` when the ownership data came back, `not_held` when the ownership registry answered and does not list
+    # this company (see `registry_data.ownership_error`), `unavailable` when an ownership tier was requested but the
+    # registry had none for this company or could not be asked (see `registry_data.ownership_error`), `not_requested`
+    # on the Lite tier.
     module KybSelectResponseKybRegistryRegistryOwnershipStatus
       NOT_REQUESTED = "not_requested"
       DELIVERED = "delivered"
+      NOT_HELD = "not_held"
       UNAVAILABLE = "unavailable"
 
-      VALUES = [NOT_REQUESTED, DELIVERED, UNAVAILABLE].freeze
+      VALUES = [NOT_REQUESTED, DELIVERED, NOT_HELD, UNAVAILABLE].freeze
     end
 
     # Normalized company status as reported by the registry.

@@ -112,7 +112,7 @@ RSpec.describe Didit::Resources::Phone do
                 "channel": "whatsapp",
                 "actual_channel": "whatsapp"
               },
-              "fee": 0.0709
+              "fee": 0.0509
             },
             {
               "type": "PHONE_DELIVERY_DELIVERED",
