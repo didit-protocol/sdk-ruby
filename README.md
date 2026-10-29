@@ -3,8 +3,6 @@
 The official [Didit](https://didit.me) Ruby library.
 Identity verification (KYC), business verification (KYB), AML screening, biometrics, transaction monitoring, Travel Rule and customer authentication, from your backend.
 
-> In development. Not released yet.
-
 - Every Didit server API: sessions, standalone checks, KYB, users and businesses, workflows, webhooks, cases, transactions, wallet screening, Travel Rule and account management.
 - Typed results with RBS signatures (checked with Steep), generated from the [OpenAPI contract](openapi/).
 - Webhook verification and Didit Authentication (OpenID Connect) token verification built in.

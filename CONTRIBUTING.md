@@ -75,19 +75,19 @@ Pull requests are squash-merged, so the title becomes the commit that release-pl
 
 release-please (`.github/workflows/release.yml`) keeps a release pull request open with the next version (`lib/didit/version.rb`, `.release-please-manifest.json`) and the generated `CHANGELOG.md`. Never edit the changelog by hand. Merging the release pull request makes the next run create the `vX.Y.Z` tag and the GitHub release. The `build` job of the same workflow then checks out the tag, checks that it equals `Didit::VERSION`, runs the full test suite and builds the gem. The `publish` job waits for a reviewer of the `rubygems` environment; once approved, it checks that the gem is the one the build job tested, attests its build provenance, attaches it to the GitHub release and pushes it to RubyGems.org with trusted publishing. Only the `publish` job can obtain the OIDC token, and it installs and runs nothing from the repository or its bundle. If a step fails for a transient reason, re-run the failed jobs (RubyGems.org refuses a second push of the same version); if the tagged code itself fails, fix `main` and release the next patch version.
 
-Nothing is published without Alex's explicit approval, and nothing before the 2026-11-01 Didit release. Until then the workflow does nothing (`RELEASES_ENABLED` is unset), the version stays 0.x and the repository stays private. Do not push release tags or publish the gem by hand.
-The first release pull request proposes 0.1.0 (`initial-version` in `release-please-config.json`); for another approved version, merge a commit on `main` whose message ends with the footer `Release-As: X.Y.Z` first.
+1.0.0 was released on 2026-10-29. Merging the release pull request is the release approval (Alex, 2026-10-29); nobody tags or publishes by hand. The workflow runs while the repository variable `RELEASES_ENABLED` is `true`.
+To force a specific version, merge a commit on `main` whose message ends with the footer `Release-As: X.Y.Z` first.
 
-### One-time registry setup (a maintainer, before the first release)
+### One-time registry setup (done for 1.0.0 on 2026-10-29)
 
 1. RubyGems.org: use the Didit account (owner `didit`) with MFA enabled, and add the other Didit maintainers as owners of `didit-sdk` once it exists, each with MFA.
 2. Trusted publisher: `didit-sdk` does not exist on RubyGems.org yet, so add a pending trusted publisher from the account settings (gem name `didit-sdk`, GitHub Actions, repository `didit-protocol/sdk-ruby`, workflow file `release.yml`, environment `rubygems`). The first push from the workflow creates the gem; after that the publisher is listed on the gem's trusted publishers page. No API key is stored in GitHub.
-3. GitHub environment `rubygems` (Settings > Environments): required reviewers, "Prevent self-review" on, and deployment branches limited to `main` (the publish job runs on pushes to `main`). Create it before setting `RELEASES_ENABLED`: a job that names a missing environment creates it without any protection rule.
+3. GitHub environment `rubygems` (Settings > Environments): the trusted publisher's environment, with no required reviewers (merging the release pull request is the approval); deployment branches may be limited to `main` (the publish job runs on pushes to `main`). Create it before setting `RELEASES_ENABLED`: a job that names a missing environment creates it without any protection rule.
 4. Tag ruleset for `v*` (Settings > Rules > Rulesets): restrict creation, update and deletion, with only the identity that creates the release tags on the bypass list (the role, team or GitHub App behind `RELEASE_PLEASE_TOKEN`). If that identity cannot be added to the bypass list (for example the default `GITHUB_TOKEN`), restrict update and deletion only.
 5. Settings > Actions > General: "Allow GitHub Actions to create and approve pull requests", so release-please and the spec sync can open their pull requests.
 6. Optional repository secret `RELEASE_PLEASE_TOKEN`: a fine-grained token with contents, issues and pull requests read and write on this repository only (for a GitHub App, mint its token in the workflow with `actions/create-github-app-token` and pass that instead). Without it the release pull request gets no CI run, because pull requests opened with the default `GITHUB_TOKEN` start no workflows.
 7. Settings > Collaborators and teams: give `@didit-protocol/backend`, the code owners in `.github/CODEOWNERS`, write access; GitHub ignores code owners without it.
-8. Only after Alex approves the first release (not before 2026-11-01): make the repository public, set the repository variable `RELEASES_ENABLED` to `true`, and merge the release pull request that release-please then opens.
+8. The repository is public and the repository variable `RELEASES_ENABLED` is `true` (both since 2026-10-29).
 9. Check a release with `gh attestation verify didit-sdk-X.Y.Z.gem --repo didit-protocol/sdk-ruby`.
 
 ## Keep the SDKs in sync

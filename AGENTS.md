@@ -1,7 +1,7 @@
 # Didit Ruby SDK (`sdk-ruby`)
 
 The official Didit server-side library for Ruby: `didit-sdk` on RubyGems.
-Status: in development, not released.
+Status: released (1.0.0 on 2026-10-29). Merging the release-please pull request publishes the next version.
 
 ## Read first
 
