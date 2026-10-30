@@ -52,6 +52,14 @@ RSpec.describe Didit::Resources::DatabaseValidation do
     JSON
     result = client.database_validation.validate(
       issuing_state: "BRA",
+      services: [
+        "bra_cpf"
+      ],
+      identification_number: "12345678900",
+      first_name: "John",
+      last_name: "Doe",
+      date_of_birth: "1980-01-01",
+      vendor_data: "user-1234",
       selfie: Didit::FilePart.new("fake-selfie-bytes", filename: "selfie.jpg", content_type: "image/jpeg")
     )
     request = expect_api_request(
@@ -65,7 +73,13 @@ RSpec.describe Didit::Resources::DatabaseValidation do
     expect_multipart_body(
       request,
       fields: {
-        "issuing_state" => "BRA"
+        "issuing_state" => "BRA",
+        "services" => "[\"bra_cpf\"]",
+        "identification_number" => "12345678900",
+        "first_name" => "John",
+        "last_name" => "Doe",
+        "date_of_birth" => "1980-01-01",
+        "vendor_data" => "user-1234"
       },
       files: {
         "selfie" => [

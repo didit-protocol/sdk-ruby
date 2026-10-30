@@ -843,6 +843,16 @@ module Didit
       VALUES: Array[String]
     end
 
+    module DigitalIdWalletApiGoogleWalletWalletVerificationStartCountryEnum
+      USA: String
+      GBR: String
+      BRA: String
+      SGP: String
+      TWN: String
+
+      VALUES: Array[String]
+    end
+
     module DigitalIdWalletApiGovbrWalletVerificationStartCountryEnum
       BRA: String
 
@@ -864,6 +874,7 @@ module Didit
     module DigitalIdWalletApiInteractionEnum
       REDIRECT: String
       IN_APP: String
+      DIGITAL_CREDENTIALS: String
 
       VALUES: Array[String]
     end
@@ -913,6 +924,7 @@ module Didit
     module DigitalIdWalletApiWalletNextActionTypeEnum
       REDIRECT: String
       CONFIRM_IN_APP: String
+      REQUEST_DIGITAL_CREDENTIAL: String
 
       VALUES: Array[String]
     end
@@ -6327,6 +6339,11 @@ module Didit
       def wallets: () -> Array[Didit::Types::DigitalIdWalletApiWalletCatalogEntry]
     end
 
+    class DigitalIdWalletApiWalletDigitalCredentialsRequest < Didit::Model
+      def protocol: () -> String
+      def request: () -> Hash[String, untyped]
+    end
+
     class DigitalIdWalletApiWalletIdentity < Didit::Model
       def full_name: () -> String?
       def first_name: () -> String?
@@ -6339,6 +6356,7 @@ module Didit
     class DigitalIdWalletApiWalletNextAction < Didit::Model
       def `type`: () -> String
       def url: () -> String?
+      def digital_credentials: () -> Didit::Types::DigitalIdWalletApiWalletDigitalCredentialsRequest?
       def verification_code: () -> String?
       def poll_interval_seconds: () -> Integer?
     end

@@ -1500,7 +1500,11 @@ RSpec.describe Didit::Resources::TravelRule do
         "updated_at": "2026-01-02T03:04:05Z"
       }
     JSON
-    result = client.travel_rule.networks.update_questionnaire
+    result = client.travel_rule.networks.update_questionnaire(
+      legal_name: "Example VASP Ltd",
+      incorporation_country: "ES",
+      aml_ctf_policy_attested: true
+    )
     request = expect_api_request(
       calls,
       method: :put,
@@ -1509,7 +1513,11 @@ RSpec.describe Didit::Resources::TravelRule do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "legal_name" => "Example VASP Ltd",
+      "incorporation_country" => "ES",
+      "aml_ctf_policy_attested" => true
+    })
     expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1811,7 +1819,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.wallet_proofs.decide(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      decision: "approve"
+      decision: "approve",
+      note: "Address matches the wallet app."
     )
     request = expect_api_request(
       calls,
@@ -1822,7 +1831,8 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "decision" => "approve"
+      "decision" => "approve",
+      "note" => "Address matches the wallet app."
     })
     expect(result).to be_a(Didit::Types::TravelRuleWalletProofReview)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

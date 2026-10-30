@@ -41,7 +41,8 @@ RSpec.describe Didit::Resources::Investigator do
       }
     JSON
     result = client.investigator.accept_run(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      send_email: false
     )
     request = expect_api_request(
       calls,
@@ -51,7 +52,9 @@ RSpec.describe Didit::Resources::Investigator do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "send_email" => false
+    })
     expect(result).to be_a(Didit::Types::InvestigatorDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -250,9 +253,9 @@ RSpec.describe Didit::Resources::Investigator do
     JSON
     result = client.investigator.override_run(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      action: "approve",
-      category: "missing_context",
-      reason: "reason-value"
+      action: "decline",
+      category: "evidence_misread",
+      reason: "The proof of address is older than three months."
     )
     request = expect_api_request(
       calls,
@@ -263,9 +266,9 @@ RSpec.describe Didit::Resources::Investigator do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "action" => "approve",
-      "category" => "missing_context",
-      "reason" => "reason-value"
+      "action" => "decline",
+      "category" => "evidence_misread",
+      "reason" => "The proof of address is older than three months."
     })
     expect(result).to be_a(Didit::Types::InvestigatorDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -548,7 +551,10 @@ RSpec.describe Didit::Resources::Investigator do
         }
       }
     JSON
-    result = client.investigator.update_settings
+    result = client.investigator.update_settings(
+      stage: "shadow",
+      monthly_spend_limit: "500.00"
+    )
     request = expect_api_request(
       calls,
       method: :patch,
@@ -557,7 +563,10 @@ RSpec.describe Didit::Resources::Investigator do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "stage" => "shadow",
+      "monthly_spend_limit" => "500.00"
+    })
     expect(result).to be_a(Didit::Types::InvestigatorSettings)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

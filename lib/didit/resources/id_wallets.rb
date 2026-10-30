@@ -757,6 +757,61 @@ module Didit
         )
       end
 
+      # Start Google Wallet verification
+      #
+      # Start a Google Wallet sign-in (Google Wallet (ID pass) and US state issuers (mobile driving licence); USA,
+      # GBR, BRA, SGP, TWN) without any workflow. Billed once, only when the identity is verified. The response
+      # carries next_action.type=request_digital_credential with a request Didit signed for your application, usable
+      # only from origin. In a user gesture there, pass next_action.digital_credentials.request to
+      # navigator.credentials.get({digital: ...}) (or to Android Credential Manager as GetDigitalCredentialOption
+      # requestJson), then POST what the wallet returns to
+      # /v3/id-verification/wallets/verifications/{request_id}/response/. The browser offers its own QR code when the
+      # wallet is on another device. Sandbox applications get a deterministic simulation (simulated: true) that never
+      # contacts the provider.
+      #
+      # +POST /v3/id-verification/wallets/google-wallet/+
+      #
+      # @param country [String] ISO 3166-1 alpha-3 country of the Google Wallet identity. * `USA` - USA * `GBR` - GBR
+      #   * `BRA` - BRA * `SGP` - SGP * `TWN` - TWN
+      # @param origin [String] Where your page or app will ask the wallet: the https origin of your page (its host
+      #   must be in the application's allowed_return_hosts, or be its white-label domain), e.g.
+      #   https://app.example.com, or android:apk-key-hash:<base64 SHA-256 of your app's signing certificate, no
+      #   padding>. The wallet refuses the request anywhere else.
+      # @param vendor_data [String, nil] Your own reference for this verification (e.g. your user id). Returned in
+      #   results and webhooks.
+      # @param metadata [Hash, nil] Optional JSON object stored with the verification and returned in results and
+      #   webhooks.
+      # @param sandbox_scenario [String] Sandbox applications only: the simulated outcome - 'wallet_cancelled',
+      #   'wallet_timeout' or 'wallet_provider_error'; any other scenario (or none) verifies. Rejected on live
+      #   applications. The full catalog is available at GET /v1/sandbox/scenarios/.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
+      def start_google_wallet(
+        country:,
+        origin:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        sandbox_scenario: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/id-verification/wallets/google-wallet/",
+          body: {
+            "country" => country,
+            "origin" => origin,
+            "vendor_data" => vendor_data,
+            "metadata" => metadata,
+            "sandbox_scenario" => sandbox_scenario
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::DigitalIdWalletApiWalletVerificationResponse,
+          request_options: request_options
+        )
+      end
+
       # Start gov.br verification
       #
       # Start a gov.br sign-in (Governo Federal do Brasil; BRA) without any workflow. Billed once, only when the
@@ -1459,6 +1514,35 @@ module Didit
             "device" => device
           },
           headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::DigitalIdWalletApiWalletVerificationResponse,
+          request_options: request_options
+        )
+      end
+
+      # Submit a wallet response
+      #
+      # Digital Credentials API wallets (Google Wallet): send what the wallet returned to your page or app for a
+      # verification whose next_action is request_digital_credential. Didit decrypts it, checks the issuer's signature
+      # against the trusted issuer roots, every returned value against its signed digest, and the device signature
+      # over your origin and this request, then decides the verification: verified (billed once) or declined with the
+      # error code. Single use: a second submit returns the decided verification.
+      #
+      # +POST /v3/id-verification/wallets/verifications/{request_id}/response/+
+      #
+      # @param request_id [String] The request_id the start endpoint returned.
+      # @param response [Hash] Exactly what the wallet returned: {protocol, data} of the DigitalCredential from
+      #   navigator.credentials.get, or the parsed credentialJson of Android's DigitalCredential. Encrypted to Didit; do
+      #   not alter it.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
+      def submit_verification_response(request_id, response:, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/id-verification/wallets/verifications/{request_id}/response/",
+          path_params: { "request_id" => request_id },
+          body: {
+            "response" => response
+          },
           response: Types::DigitalIdWalletApiWalletVerificationResponse,
           request_options: request_options
         )
