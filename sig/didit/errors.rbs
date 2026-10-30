@@ -1,0 +1,80 @@
+module Didit
+  class DiditError < StandardError
+  end
+
+  class ConfigurationError < DiditError
+  end
+
+  class APIConnectionError < DiditError
+    attr_reader http_method: String?
+    attr_reader url: String?
+
+    def initialize: (?String message, ?http_method: String?, ?url: String?) -> void
+  end
+
+  class APITimeoutError < APIConnectionError
+  end
+
+  module ResponseDetails
+    attr_reader status: Integer
+    attr_reader headers: Hash[String, String]
+    attr_reader body: untyped
+    attr_reader request_id: String?
+
+    def status_code: () -> Integer
+  end
+
+  class APIResponseValidationError < DiditError
+    include ResponseDetails
+
+    def initialize: (String message, status: Integer, ?headers: Hash[String, String], ?body: untyped,
+                     ?request_id: String?) -> void
+  end
+
+  class APIStatusError < DiditError
+    include ResponseDetails
+
+    def initialize: (String message, status: Integer, ?headers: Hash[String, String], ?body: untyped,
+                     ?request_id: String?) -> void
+  end
+
+  class BadRequestError < APIStatusError
+  end
+
+  class AuthenticationError < APIStatusError
+  end
+
+  class PermissionDeniedError < APIStatusError
+  end
+
+  class NotFoundError < APIStatusError
+  end
+
+  class ConflictError < APIStatusError
+  end
+
+  class UnprocessableEntityError < APIStatusError
+  end
+
+  class RateLimitError < APIStatusError
+  end
+
+  class InternalServerError < APIStatusError
+  end
+
+  class WebhookVerificationError < DiditError
+    REASONS: Array[Symbol]
+
+    attr_reader reason: Symbol
+
+    def initialize: (Symbol reason, String message) -> void
+  end
+
+  class TokenVerificationError < DiditError
+    REASONS: Array[Symbol]
+
+    attr_reader reason: Symbol
+
+    def initialize: (Symbol reason, String message) -> void
+  end
+end
