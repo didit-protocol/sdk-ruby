@@ -1,0 +1,23 @@
+# gitleaks configuration, used by the secret-scan job in .github/workflows/ci.yml.
+# The default rules apply everywhere. Keep the allowlists narrow: never allowlist a directory
+# or a whole rule. Test keys and tokens are generated at test time; fix the fixture instead.
+title = "didit-protocol/sdk-ruby"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Upstream copies, synced byte for byte by the spec sync workflow and never edited by hand"
+paths = [
+  '''^openapi/verification\.json$''',
+  '''^openapi/account\.json$''',
+  '''^openapi/webhook-vectors\.json$''',
+]
+
+[[allowlists]]
+description = "Synthetic webhook secrets used by the test suite and the examples"
+# Matched against the secret a rule extracts, not the whole line.
+regexTarget = "secret"
+regexes = [
+  '''^whsec_test_[A-Za-z0-9_]+$''',
+]
