@@ -1,0 +1,25 @@
+module Didit
+  module Webhooks
+    module CanonicalJson
+      MAX_NESTING: Integer
+      ESCAPES: Hash[String, String]
+      ESCAPED: Regexp
+
+      def self?.generate: (untyped value) -> String
+      def self?.normalize: (untyped value, ?Integer depth) -> untyped
+      def self?.dump: (untyped value) -> String
+      def self?.python_str: (untyped value) -> String?
+      def self?.float_repr: (Float value) -> String
+      def self?.decimal_digits: (String text) -> [String, Integer]
+      def self?.format_repr: (String digits, Integer point) -> String
+      def self?.normalize_object: (Hash[untyped, untyped] value, Integer depth) -> Hash[String, untyped]
+      def self?.normalize_array: (Array[untyped] value, Integer depth) -> Array[untyped]
+      def self?.key_name: (untyped key) -> String
+      def self?.utf8: (String value) -> String
+      def self?.write: (untyped value, String out) -> String
+      def self?.write_object: (Hash[String, untyped] value, String out) -> String
+      def self?.write_array: (Array[untyped] value, String out) -> String
+      def self?.write_string: (String value, String out) -> String
+    end
+  end
+end
