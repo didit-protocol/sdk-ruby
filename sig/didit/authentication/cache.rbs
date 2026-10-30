@@ -1,0 +1,60 @@
+module Didit
+  class Authentication
+    class Discovery
+      attr_reader issuer: String
+      attr_reader token_endpoint: String
+      attr_reader jwks_uri: String
+      attr_reader document: Hash[String, untyped]
+
+      def initialize: (issuer: String, token_endpoint: String, jwks_uri: String, document: Hash[String, untyped]) -> void
+    end
+
+    class IssuerCache
+      DEFAULT_MAX_AGE: Integer
+      MIN_MAX_AGE: Integer
+      MAX_MAX_AGE: Integer
+      REFETCH_INTERVAL: Integer
+      NO_CACHE: Array[String]
+
+      class Entry[T]
+        attr_reader value: T
+        attr_reader expires_at: Float
+
+        def initialize: (T value, Float expires_at) -> void
+      end
+
+      def self.cache_seconds: (Hash[String, String] headers) -> Integer
+      def self.deep_freeze: (untyped value) -> untyped
+
+      private
+
+      def self.max_age: (String cache_control) -> Integer?
+
+      public
+
+      @clock: ^() -> (Integer | Float)
+      @discovery: Entry[Discovery]?
+      @key_set: Entry[KeySet]?
+      @key_set_attempted_at: Float?
+      @key_set_failed: bool
+      @refused: Entry[String]?
+
+      def initialize: (^() -> (Integer | Float) clock) -> void
+      def discovery: () -> Discovery?
+      def store_discovery: (Discovery discovery, Hash[String, String] headers) -> Discovery
+      def discovery_refused: (String message) -> nil
+      def refused_discovery: () -> String?
+      def key_set: () -> KeySet?
+      def store_key_set: (KeySet key_set, Hash[String, String] headers) -> KeySet
+      def key_set_fetch_failed: () -> nil
+      def key_set_unavailable?: () -> bool
+      def key_set_with: (String kid) -> KeySet?
+      def needs_key_set_fetch?: (String? kid) -> bool
+
+      private
+
+      def fresh: [T] (Entry[T]? entry) -> T?
+      def now: () -> Float
+    end
+  end
+end

@@ -1,0 +1,25 @@
+module Didit
+  class Authentication
+    class KeySet
+      SPKI_PREFIX: String
+      UNCOMPRESSED: String
+
+      def self.parse: (untyped data) -> KeySet?
+      def self.p256_key: (Hash[String, untyped] jwk) -> OpenSSL::PKey::EC?
+
+      private
+
+      def self.coordinate: (untyped value) -> String?
+
+      public
+
+      @keys: Hash[String, OpenSSL::PKey::EC]
+
+      attr_reader document: Hash[String, untyped]
+
+      def initialize: (Hash[String, OpenSSL::PKey::EC] keys, Hash[String, untyped] document) -> void
+      def []: (String kid) -> OpenSSL::PKey::EC?
+      def key?: (String kid) -> bool
+    end
+  end
+end

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/didit-protocol/sdk-ruby/security/advisories/new
+    about: Report vulnerabilities privately, never in a public issue. See SECURITY.md.
+  - name: Didit documentation and support
+    url: https://docs.didit.me
+    about: API reference, guides and webhooks. Questions about your account, sessions, verifications or billing go to support@didit.me.
