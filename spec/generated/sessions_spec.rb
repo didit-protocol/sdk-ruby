@@ -126,7 +126,11 @@ RSpec.describe Didit::Resources::Sessions do
       hit_updates: [
         {
           hit_id: "abc123",
-          review_status: "Unreviewed"
+          review_status: "Confirmed Match"
+        },
+        {
+          hit_id: "def456",
+          review_status: "False Positive"
         }
       ],
       node_id_query: "feature_aml_1"
@@ -148,7 +152,11 @@ RSpec.describe Didit::Resources::Sessions do
       "hit_updates" => [
         {
           "hit_id" => "abc123",
-          "review_status" => "Unreviewed"
+          "review_status" => "Confirmed Match"
+        },
+        {
+          "hit_id" => "def456",
+          "review_status" => "False Positive"
         }
       ]
     })
@@ -2999,7 +3007,7 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.update_aml_hit_status(
       "11111111-2222-3333-4444-555555555555",
       hit_id: "abc123",
-      review_status: "Unreviewed",
+      review_status: "False Positive",
       node_id_query: "feature_aml_1"
     )
     request = expect_api_request(
@@ -3017,7 +3025,7 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_json_body(request, {
       "hit_id" => "abc123",
-      "review_status" => "Unreviewed"
+      "review_status" => "False Positive"
     })
     expect(result).to be_a(Didit::Types::SessionsUpdateAmlHitStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3566,7 +3574,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.imports.check_provider(
       provider: "sumsub",
       credentials: {
-        key: "value"
+        app_token: "redacted-app_token",
+        secret_key: "redacted-secret_key"
       }
     )
     request = expect_api_request(
@@ -3580,7 +3589,8 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "provider" => "sumsub",
       "credentials" => {
-        "key" => "value"
+        "app_token" => "redacted-app_token",
+        "secret_key" => "redacted-secret_key"
       }
     })
     expect(result).to be_a(Didit::Types::SessionsImportsCheckProviderResponse)
@@ -4107,6 +4117,10 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.imports.retry(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      credentials: {
+        app_token: "redacted-app_token",
+        secret_key: "redacted-secret_key"
+      },
       file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
     )
     request = expect_api_request(
@@ -4119,7 +4133,9 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_multipart_body(
       request,
-      fields: {},
+      fields: {
+        "credentials" => "{\"app_token\":\"redacted-app_token\",\"secret_key\":\"redacted-secret_key\"}"
+      },
       files: {
         "file" => [
           "file.jpg",

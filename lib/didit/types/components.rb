@@ -1019,6 +1019,21 @@ module Didit
       VALUES = [FIN].freeze
     end
 
+    # * `USA` - USA
+    # * `GBR` - GBR
+    # * `BRA` - BRA
+    # * `SGP` - SGP
+    # * `TWN` - TWN
+    module DigitalIdWalletApiGoogleWalletWalletVerificationStartCountryEnum
+      USA = "USA"
+      GBR = "GBR"
+      BRA = "BRA"
+      SGP = "SGP"
+      TWN = "TWN"
+
+      VALUES = [USA, GBR, BRA, SGP, TWN].freeze
+    end
+
     # * `BRA` - BRA
     module DigitalIdWalletApiGovbrWalletVerificationStartCountryEnum
       BRA = "BRA"
@@ -1042,11 +1057,13 @@ module Didit
 
     # * `redirect` - redirect
     # * `in_app` - in_app
+    # * `digital_credentials` - digital_credentials
     module DigitalIdWalletApiInteractionEnum
       REDIRECT = "redirect"
       IN_APP = "in_app"
+      DIGITAL_CREDENTIALS = "digital_credentials"
 
-      VALUES = [REDIRECT, IN_APP].freeze
+      VALUES = [REDIRECT, IN_APP, DIGITAL_CREDENTIALS].freeze
     end
 
     # * `BEL` - BEL
@@ -1105,11 +1122,13 @@ module Didit
 
     # * `redirect` - redirect
     # * `confirm_in_app` - confirm_in_app
+    # * `request_digital_credential` - request_digital_credential
     module DigitalIdWalletApiWalletNextActionTypeEnum
       REDIRECT = "redirect"
       CONFIRM_IN_APP = "confirm_in_app"
+      REQUEST_DIGITAL_CREDENTIAL = "request_digital_credential"
 
-      VALUES = [REDIRECT, CONFIRM_IN_APP].freeze
+      VALUES = [REDIRECT, CONFIRM_IN_APP, REQUEST_DIGITAL_CREDENTIAL].freeze
     end
 
     # * `pending` - Pending
@@ -7357,6 +7376,11 @@ module Didit
       field :wallets, "wallets", [:array, "DigitalIdWalletApiWalletCatalogEntry"]
     end
 
+    class DigitalIdWalletApiWalletDigitalCredentialsRequest < Didit::Model
+      field :protocol, "protocol", :string
+      field :request, "request", :any
+    end
+
     class DigitalIdWalletApiWalletIdentity < Didit::Model
       field :full_name, "full_name", :string
       field :first_name, "first_name", :string
@@ -7369,6 +7393,7 @@ module Didit
     class DigitalIdWalletApiWalletNextAction < Didit::Model
       field :type, "type", :string
       field :url, "url", :string
+      field :digital_credentials, "digital_credentials", "DigitalIdWalletApiWalletDigitalCredentialsRequest"
       field :verification_code, "verification_code", :string
       field :poll_interval_seconds, "poll_interval_seconds", :integer
     end
