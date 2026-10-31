@@ -12,7 +12,7 @@ gem "jwt", ENV["JWT_VERSION"] if ENV["JWT_VERSION"]
 group :test do
   gem "rack", "~> 3.1"
   gem "rspec", "~> 3.13"
-  gem "simplecov", "~> 0.22", require: false
+  gem "simplecov", "~> 1.3", require: false
   gem "webmock", "~> 3.25"
 end
 
