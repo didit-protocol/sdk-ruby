@@ -17,18 +17,17 @@ module Didit
       #
       # @param wallet_address [String] The crypto address or network identifier to screen. Must match the selected
       #   network (e.g. a `0x`-prefixed 40-hex-char address for EVM chains). Alias: `address`.
-      # @param blockchain [String] Network identifier. Managed screening supports BTC, ETH, LTC, XRP, BCH, DOGE, TRX,
-      #   SOL, MATIC, BNB, BASE (Base), OP (Optimism), and ARB (Arbitrum One). USDT and USDC are legacy Ethereum
-      #   aliases, not multi-network searches. Connected-provider coverage varies. LIGHTNING requires a supported
-      #   connected provider. CELO (Celo), MODE (Mode) and PLUME (Plume) are screened through a connected TRM Labs
-      #   acco...
+      # @param blockchain [String] Optional network identifier. When omitted, the network is read from the address
+      #   format: `bc1`, `1` and `3` addresses are Bitcoin (BTC), `T` addresses are Tron (TRX) and base58 public keys
+      #   are Solana (SOL). A `0x` address is valid on every EVM network, so omitting `blockchain` for it answers 422
+      #   with the candidate networks in `candidate_chains`. Managed screening supports BTC, ETH, LTC, XRP, BCH,...
       # @param direction [String] Optional. Whether the address is being screened as an inbound (deposit) or outbound
       #   (withdrawal) counterparty. Accepts `inbound`, `outbound`, `deposit`, or `withdrawal`. Defaults to a neutral
       #   pre-transfer screen when omitted. This is passed to the provider as context only; it does not change the
       #   returned `risk_score`, `severity`, or the `source_of_funds`/`destination_of_funds` breakdowns, which a...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WalletScreeningResult]
-      def screen(wallet_address:, blockchain:, direction: OMIT, request_options: nil)
+      def screen(wallet_address:, blockchain: OMIT, direction: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/wallet-screening/",

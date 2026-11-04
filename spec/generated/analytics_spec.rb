@@ -434,4 +434,94 @@ RSpec.describe Didit::Resources::Analytics do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
+
+  it "analytics.retrieve_today sends GET /v3/organization/{organization_id}/application/{application_id}/analytics/today/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "time_zone": "Europe/Madrid",
+        "date": "2026-10-30",
+        "current_hour": 14,
+        "previous_date": "2026-10-23",
+        "hours": [
+          3,
+          1,
+          0,
+          0,
+          1,
+          2,
+          4,
+          9,
+          14,
+          18,
+          21,
+          19,
+          22,
+          24,
+          27,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "previous_hours": [
+          2,
+          1,
+          1,
+          0,
+          1,
+          3,
+          5,
+          8,
+          12,
+          16,
+          19,
+          18,
+          20,
+          22,
+          24,
+          26,
+          23,
+          19,
+          15,
+          12,
+          9,
+          7,
+          5,
+          3
+        ],
+        "total": 165,
+        "previous_total_so_far": 151,
+        "outcomes": {
+          "approved": 139,
+          "in_review": 6,
+          "declined": 18
+        }
+      }
+    JSON
+    result = client.analytics.retrieve_today(
+      tz: "Europe/Madrid"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/analytics/today/",
+      query: [
+        [
+          "tz",
+          "Europe/Madrid"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::ApplicationAnalyticsToday)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
 end

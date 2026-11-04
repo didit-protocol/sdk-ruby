@@ -116,8 +116,8 @@ RSpec.describe Didit::Resources::Sessions do
       {
         "message": "Updated 2 hit(s) successfully",
         "updated_hits": [
-          "abc123",
-          "def456"
+          "hit_7c1e9a40b2d35f86e0a4c912",
+          "hit_3b8f20d6a91c4e75f0b2d6a8"
         ]
       }
     JSON
@@ -125,8 +125,12 @@ RSpec.describe Didit::Resources::Sessions do
       "11111111-2222-3333-4444-555555555555",
       hit_updates: [
         {
-          hit_id: "abc123",
-          review_status: "Unreviewed"
+          hit_id: "hit_7c1e9a40b2d35f86e0a4c912",
+          review_status: "Confirmed Match"
+        },
+        {
+          hit_id: "hit_3b8f20d6a91c4e75f0b2d6a8",
+          review_status: "False Positive"
         }
       ],
       node_id_query: "feature_aml_1"
@@ -147,8 +151,12 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "hit_updates" => [
         {
-          "hit_id" => "abc123",
-          "review_status" => "Unreviewed"
+          "hit_id" => "hit_7c1e9a40b2d35f86e0a4c912",
+          "review_status" => "Confirmed Match"
+        },
+        {
+          "hit_id" => "hit_3b8f20d6a91c4e75f0b2d6a8",
+          "review_status" => "False Positive"
         }
       ]
     })
@@ -285,6 +293,67 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.create_kyb_party_draft sends POST /v3/session/{sessionId}/kyb/parties/drafts/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "draft_id": "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
+        "created_at": "2026-10-31T10:00:00Z",
+        "updated_at": "2026-10-31T10:00:00Z",
+        "party": {
+          "entity_type": "person",
+          "first_name": "Ana",
+          "last_name": "Lopez",
+          "roles": [
+            "ubo",
+            "director"
+          ],
+          "ownership_percent": 60,
+          "nationality": "MEX",
+          "email": "ana.lopez@example.com",
+          "date_of_birth": "1984-06-12"
+        }
+      }
+    JSON
+    result = client.sessions.create_kyb_party_draft(
+      "33333333-4444-5555-6666-777777777777",
+      entity_type: "person",
+      first_name: "Ana",
+      last_name: "Lopez",
+      roles: [
+        "ubo",
+        "director"
+      ],
+      ownership_percent: 60,
+      nationality: "MEX",
+      email: "ana.lopez@example.com",
+      date_of_birth: "1984-06-12"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/drafts/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "entity_type" => "person",
+      "first_name" => "Ana",
+      "last_name" => "Lopez",
+      "roles" => [
+        "ubo",
+        "director"
+      ],
+      "ownership_percent" => 60,
+      "nationality" => "MEX",
+      "email" => "ana.lopez@example.com",
+      "date_of_birth" => "1984-06-12"
+    })
+    expect(result).to be_a(Didit::Types::SessionsCreateKybPartyDraftResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.delete sends DELETE /v3/session/{sessionId}/delete/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -320,11 +389,30 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.delete_kyb_party_draft sends DELETE /v3/session/{sessionId}/kyb/parties/drafts/{draftId}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.sessions.delete_kyb_party_draft(
+      "33333333-4444-5555-6666-777777777777",
+      "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/drafts/5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_nil
+  end
+
   it "sessions.export_aml_screening_history sends GET /v3/session/{sessionId}/aml-screening-history/export/" do
     calls = stub_api(status: 200, body: "fake-binary-body", content_type: "text/csv")
     result = client.sessions.export_aml_screening_history(
       "11111111-2222-3333-4444-555555555555",
-      node_id: "feature_aml_1"
+      node_id: "feature_aml_1",
+      month: "2026-09"
     )
     request = expect_api_request(
       calls,
@@ -334,6 +422,10 @@ RSpec.describe Didit::Resources::Sessions do
         [
           "node_id",
           "feature_aml_1"
+        ],
+        [
+          "month",
+          "2026-09"
         ]
       ],
       auth: :api_key,
@@ -341,6 +433,38 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_no_body(request)
     expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.export_files sends POST /v3/session/{sessionId}/files-export/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "export_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "session_id": "11111111-2222-3333-4444-555555555555",
+        "status": "PENDING",
+        "file_count": null,
+        "size_bytes": null,
+        "download_url": null,
+        "expires_at": null,
+        "error": null,
+        "created_at": "2026-10-29T12:00:03Z",
+        "completed_at": null
+      }
+    JSON
+    result = client.sessions.export_files(
+      "11111111-2222-3333-4444-555555555555"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/files-export/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionFilesExport)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "sessions.generate_pdf sends GET /v3/session/{sessionId}/generate-pdf/" do
@@ -358,6 +482,39 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_no_body(request)
     expect(result).to eq("fake-binary-body")
+  end
+
+  it "sessions.get_files_export sends GET /v3/session/{sessionId}/files-export/{exportId}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "export_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "session_id": "11111111-2222-3333-4444-555555555555",
+        "status": "READY",
+        "file_count": 9,
+        "size_bytes": 18734120,
+        "download_url": "https://storage.example.com/session/11111111-2222-3333-4444-555555555555/files-export/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/session-42-files.zip?X-Amz-Signature=...",
+        "expires_at": "2026-10-30T12:00:41Z",
+        "error": null,
+        "created_at": "2026-10-29T12:00:03Z",
+        "completed_at": "2026-10-29T12:00:41Z"
+      }
+    JSON
+    result = client.sessions.get_files_export(
+      "11111111-2222-3333-4444-555555555555",
+      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/files-export/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionFilesExport)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "sessions.import_shared sends POST /v3/session/import-shared/" do
@@ -644,6 +801,7 @@ RSpec.describe Didit::Resources::Sessions do
         "results": [
           {
             "uuid": "dddddddd-1111-2222-3333-444444444444",
+            "run_id": "aaaaaaaa-1111-2222-3333-444444444444",
             "completed_at": "2026-09-14T04:12:33.481207Z",
             "started_at": "2026-09-14T04:00:01.002311Z",
             "outcome": "NO_CHANGE",
@@ -652,6 +810,8 @@ RSpec.describe Didit::Resources::Sessions do
             "status": "Approved",
             "score": 0.0,
             "total_hits": 0,
+            "new_hits": 0,
+            "entities_screened": 1,
             "dataset_freshness": {
               "captured_at": "2026-09-14T03:58:02.114820+00:00",
               "provider": "aml_data_source",
@@ -680,6 +840,7 @@ RSpec.describe Didit::Resources::Sessions do
           },
           {
             "uuid": "eeeeeeee-1111-2222-3333-444444444444",
+            "run_id": "bbbbbbbb-1111-2222-3333-444444444444",
             "completed_at": "2026-09-13T04:11:58.020914Z",
             "started_at": "2026-09-13T04:00:00.871022Z",
             "outcome": "FAILED",
@@ -688,6 +849,8 @@ RSpec.describe Didit::Resources::Sessions do
             "status": "Approved",
             "score": 0.0,
             "total_hits": 0,
+            "new_hits": null,
+            "entities_screened": 0,
             "dataset_freshness": null
           }
         ]
@@ -696,6 +859,7 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.list_aml_screening_history(
       "11111111-2222-3333-4444-555555555555",
       node_id: "feature_aml_1",
+      month: "2026-09",
       limit: 50,
       offset: 0,
       ordering: "completed_at"
@@ -708,6 +872,10 @@ RSpec.describe Didit::Resources::Sessions do
         [
           "node_id",
           "feature_aml_1"
+        ],
+        [
+          "month",
+          "2026-09"
         ],
         [
           "limit",
@@ -889,6 +1057,102 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::SessionsListFeatureOverridesResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.list_kyb_extracted_parties sends GET /v3/session/{sessionId}/kyb/extracted-parties/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "parties": [
+          {
+            "name": "Ana Lopez",
+            "entity_type": "person",
+            "first_name": "Ana",
+            "last_name": "Lopez",
+            "appointment_date": null,
+            "designation": "Administrador unico",
+            "roles": [
+              {
+                "role": "shareholder",
+                "ownership_percent": {
+                  "text": "60%",
+                  "min": 60,
+                  "max": 60
+                }
+              }
+            ],
+            "documents": [
+              {
+                "document_uuid": "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41",
+                "document_type": "OWNERSHIP_STRUCTURE",
+                "document_subtype": "ARTICLES_OF_INCORPORATION",
+                "original_filename": "acta_constitutiva.pdf",
+                "status": "Approved"
+              }
+            ]
+          }
+        ],
+        "document_count": 1,
+        "node_id": "node_kyb_documents"
+      }
+    JSON
+    result = client.sessions.list_kyb_extracted_parties(
+      "33333333-4444-5555-6666-777777777777"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/extracted-parties/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsListKybExtractedPartiesResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.list_kyb_party_drafts sends GET /v3/session/{sessionId}/kyb/parties/drafts/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "parties": [
+          {
+            "draft_id": "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
+            "created_at": "2026-10-31T10:00:00Z",
+            "updated_at": "2026-10-31T10:00:00Z",
+            "party": {
+              "entity_type": "person",
+              "first_name": "Ana",
+              "last_name": "Lopez",
+              "roles": [
+                "ubo",
+                "director"
+              ],
+              "ownership_percent": 60,
+              "nationality": "MEX",
+              "email": "ana.lopez@example.com",
+              "date_of_birth": "1984-06-12"
+            }
+          }
+        ],
+        "node_id": "node_kyb_key_people"
+      }
+    JSON
+    result = client.sessions.list_kyb_party_drafts(
+      "33333333-4444-5555-6666-777777777777"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/drafts/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::SessionsListKybPartyDraftsResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -2283,7 +2547,7 @@ RSpec.describe Didit::Resources::Sessions do
             "entity_type": "person",
             "hits": [
               {
-                "id": "cPtTGRKkyddAcAC4xgsLCm",
+                "id": "hit_7c1e9a40b2d35f86e0a4c912",
                 "url": "https://news.example.org/articles/sample",
                 "match": false,
                 "score": 0.73,
@@ -2988,18 +3252,50 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.submit_kyb_parties sends POST /v3/session/{sessionId}/kyb/parties/submit/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "valid": true,
+        "next_step": "FINISHED",
+        "status": "In Progress",
+        "advanced": true,
+        "already_submitted": false,
+        "kyb_key_people_status": "In Progress",
+        "parties": []
+      }
+    JSON
+    result = client.sessions.submit_kyb_parties(
+      "33333333-4444-5555-6666-777777777777",
+      locale: "es"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/submit/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "locale" => "es"
+    })
+    expect(result).to be_a(Didit::Types::SessionsSubmitKybPartiesResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.update_aml_hit_status sends PATCH /v3/session/{sessionId}/update-aml-hit-status/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
         "message": "Hit status updated successfully",
-        "hit_id": "abc123",
+        "hit_id": "hit_7c1e9a40b2d35f86e0a4c912",
         "review_status": "False Positive"
       }
     JSON
     result = client.sessions.update_aml_hit_status(
       "11111111-2222-3333-4444-555555555555",
-      hit_id: "abc123",
-      review_status: "Unreviewed",
+      hit_id: "hit_7c1e9a40b2d35f86e0a4c912",
+      review_status: "False Positive",
       node_id_query: "feature_aml_1"
     )
     request = expect_api_request(
@@ -3016,8 +3312,8 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "hit_id" => "abc123",
-      "review_status" => "Unreviewed"
+      "hit_id" => "hit_7c1e9a40b2d35f86e0a4c912",
+      "review_status" => "False Positive"
     })
     expect(result).to be_a(Didit::Types::SessionsUpdateAmlHitStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3373,6 +3669,48 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.update_kyb_party_draft sends PATCH /v3/session/{sessionId}/kyb/parties/drafts/{draftId}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "draft_id": "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
+        "created_at": "2026-10-31T10:00:00Z",
+        "updated_at": "2026-10-31T10:00:00Z",
+        "party": {
+          "entity_type": "person",
+          "first_name": "Ana",
+          "last_name": "Lopez",
+          "roles": [
+            "ubo",
+            "director"
+          ],
+          "ownership_percent": 55,
+          "nationality": "MEX",
+          "email": "ana.lopez@example.com",
+          "date_of_birth": "1984-06-12"
+        }
+      }
+    JSON
+    result = client.sessions.update_kyb_party_draft(
+      "33333333-4444-5555-6666-777777777777",
+      "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
+      ownership_percent: 55
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/parties/drafts/5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "ownership_percent" => 55
+    })
+    expect(result).to be_a(Didit::Types::SessionsUpdateKybPartyDraftResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.update_poa_data sends PATCH /v3/session/{sessionId}/update-poa-data/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -3494,6 +3832,42 @@ RSpec.describe Didit::Resources::Sessions do
     exercise_readers(result)
   end
 
+  it "sessions.upload_kyb_documents sends POST /v3/session/{sessionId}/kyb/documents/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "valid": true,
+        "next_step": "KYB_KEY_PEOPLE",
+        "kyb_status": "In Progress"
+      }
+    JSON
+    result = client.sessions.upload_kyb_documents(
+      "33333333-4444-5555-6666-777777777777",
+      documents: Didit::FilePart.new("fake-documents-bytes", filename: "documents.jpg", content_type: "image/jpeg")
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/33333333-4444-5555-6666-777777777777/kyb/documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_multipart_body(
+      request,
+      fields: {},
+      files: {
+        "documents" => [
+          "documents.jpg",
+          "image/jpeg",
+          "fake-documents-bytes"
+        ]
+      }
+    )
+    expect(result).to be_a(Didit::Types::SessionsUploadKybDocumentsResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "sessions.imports.cancel sends POST /v3/session/imports/{importId}/cancel/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -3566,7 +3940,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.imports.check_provider(
       provider: "sumsub",
       credentials: {
-        key: "value"
+        app_token: "redacted-app_token",
+        secret_key: "redacted-secret_key"
       }
     )
     request = expect_api_request(
@@ -3580,7 +3955,8 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "provider" => "sumsub",
       "credentials" => {
-        "key" => "value"
+        "app_token" => "redacted-app_token",
+        "secret_key" => "redacted-secret_key"
       }
     })
     expect(result).to be_a(Didit::Types::SessionsImportsCheckProviderResponse)
@@ -4107,6 +4483,10 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.imports.retry(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      credentials: {
+        app_token: "redacted-app_token",
+        secret_key: "redacted-secret_key"
+      },
       file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
     )
     request = expect_api_request(
@@ -4119,7 +4499,9 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_multipart_body(
       request,
-      fields: {},
+      fields: {
+        "credentials" => "{\"app_token\":\"redacted-app_token\",\"secret_key\":\"redacted-secret_key\"}"
+      },
       files: {
         "file" => [
           "file.jpg",
@@ -4388,8 +4770,8 @@ RSpec.describe Didit::Resources::Sessions do
             "node_id": "node_id-value",
             "status": "intro",
             "verdict": "Not Finished",
-            "level": "aes",
-            "format": "pades",
+            "level": "simple",
+            "format": "pdf",
             "profile": "profile-value",
             "signer": {
               "name": "name-value",

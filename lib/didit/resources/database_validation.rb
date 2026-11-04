@@ -156,6 +156,39 @@ module Didit
       #   (A/B/C) in `mex_ine_vigencia`.
       # @param bvn [String] Nigerian Bank Verification Number.
       # @param bank_card_number [String] Bank card number (CHN bank-card verification).
+      # @param company_registration_number [String] Company registration number as issued by the companies register:
+      #   the CNPJ in Brazil (e.g. `11222333000181`), the registration number in South Africa (e.g. `1936/007721/06`).
+      #   Required by the company registry and company directors services (`bra_company_registry`,
+      #   `bra_company_directors`, `zaf_company_registry`, `zaf_company_directors`).
+      # @param company_name [String] Registered company name, cross-checked against the register entry. Optional for
+      #   `zaf_company_registry`.
+      # @param initials [String] The person's initials as printed on the document. Required by `zaf_drivers_license`;
+      #   accepted by `zaf_bank_account_holder`.
+      # @param licence_number [String] Driving licence number as printed on the card, for `zaf_drivers_license`. When
+      #   omitted, `document_number` is used.
+      # @param refugee_file_number [String] Refugee file number issued by South Africa's Department of Home Affairs.
+      #   Required by `zaf_refugee`.
+      # @param bank_name [String] Name of the bank that holds the account. Required by `zaf_bank_account_holder`.
+      # @param bank_account_number [String] Bank account number. Required by `zaf_bank_account_holder`; accepted by
+      #   `zaf_fraud_prevention`.
+      # @param account_type [String] Bank account type for `zaf_bank_account_holder`: `current`, `savings`,
+      #   `transmission`, `subscriptionShare` or `notKnown`, case-insensitive. Any other value returns `400`. Omit it
+      #   when you do not know the type: the account-type cross-check is then reported as not confirmed.
+      # @param phone_number [String] Contact mobile number, for the services that cross-check contactability
+      #   (`zaf_bank_account_holder`, `zaf_fraud_prevention`, `zaf_refugee`).
+      # @param right_thumb [String] Base64-encoded right thumb fingerprint for `zaf_dha_fingerprint_match`, with
+      #   `left_thumb` or on its own.
+      # @param left_thumb [String] Base64-encoded left thumb fingerprint for `zaf_dha_fingerprint_match`, with
+      #   `right_thumb` or on its own.
+      # @param score_level [Integer] Minimum biometric score level for `zaf_criminal_face_screening`. Defaults to `3`.
+      # @param max_matches [Integer] Maximum number of candidate matches `zaf_criminal_face_screening` returns.
+      #   Defaults to `1`.
+      # @param vehicle_register_number [String] Vehicle register number. Required, with `vehicle_licence_plate` and
+      #   `vin`, by `zaf_vehicle_ownership`.
+      # @param vehicle_licence_plate [String] Vehicle licence plate number. Required, with `vehicle_register_number`
+      #   and `vin`, by `zaf_vehicle_ownership`.
+      # @param vin [String] Vehicle Identification Number (VIN or chassis number). Required, with
+      #   `vehicle_register_number` and `vehicle_licence_plate`, by `zaf_vehicle_ownership`.
       # @param ssn [String] Social Security Number (USA).
       # @param phone [String] Phone number for phone-verification services.
       # @param landline [String] Landline number for phone-verification services.
@@ -232,6 +265,22 @@ module Didit
         emission_number: OMIT,
         bvn: OMIT,
         bank_card_number: OMIT,
+        company_registration_number: OMIT,
+        company_name: OMIT,
+        initials: OMIT,
+        licence_number: OMIT,
+        refugee_file_number: OMIT,
+        bank_name: OMIT,
+        bank_account_number: OMIT,
+        account_type: OMIT,
+        phone_number: OMIT,
+        right_thumb: OMIT,
+        left_thumb: OMIT,
+        score_level: OMIT,
+        max_matches: OMIT,
+        vehicle_register_number: OMIT,
+        vehicle_licence_plate: OMIT,
+        vin: OMIT,
         ssn: OMIT,
         phone: OMIT,
         landline: OMIT,
@@ -304,6 +353,22 @@ module Didit
             "emission_number" => emission_number,
             "bvn" => bvn,
             "bank_card_number" => bank_card_number,
+            "company_registration_number" => company_registration_number,
+            "company_name" => company_name,
+            "initials" => initials,
+            "licence_number" => licence_number,
+            "refugee_file_number" => refugee_file_number,
+            "bank_name" => bank_name,
+            "bank_account_number" => bank_account_number,
+            "account_type" => account_type,
+            "phone_number" => phone_number,
+            "right_thumb" => right_thumb,
+            "left_thumb" => left_thumb,
+            "score_level" => score_level,
+            "max_matches" => max_matches,
+            "vehicle_register_number" => vehicle_register_number,
+            "vehicle_licence_plate" => vehicle_licence_plate,
+            "vin" => vin,
             "ssn" => ssn,
             "phone" => phone,
             "landline" => landline,

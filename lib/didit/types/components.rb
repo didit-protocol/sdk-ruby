@@ -83,8 +83,9 @@ module Didit
       SIP = "SIP"
       SIE = "SIE"
       INSOLVENCY = "Insolvency"
+      OTHER_LISTS = "Other Lists"
 
-      VALUES = [PEP, PEP_LEVEL_1, PEP_LEVEL_2, PEP_LEVEL_3, PEP_LEVEL_4, SANCTIONS, ADVERSE_MEDIA, WARNINGS_AND_REGULATORY_ENFORCEMENT, FITNESS_AND_PROBITY, SIP, SIE, INSOLVENCY].freeze
+      VALUES = [PEP, PEP_LEVEL_1, PEP_LEVEL_2, PEP_LEVEL_3, PEP_LEVEL_4, SANCTIONS, ADVERSE_MEDIA, WARNINGS_AND_REGULATORY_ENFORCEMENT, FITNESS_AND_PROBITY, SIP, SIE, INSOLVENCY, OTHER_LISTS].freeze
     end
 
     # Review status for this hit. Can be 'Unreviewed', 'Confirmed Match', 'False Positive', or 'Inconclusive'.
@@ -183,8 +184,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # `verified`: the address was confirmed down to the building (or the flat or PO box). `partially_verified`: it was
@@ -1019,6 +1022,21 @@ module Didit
       VALUES = [FIN].freeze
     end
 
+    # * `USA` - USA
+    # * `GBR` - GBR
+    # * `BRA` - BRA
+    # * `SGP` - SGP
+    # * `TWN` - TWN
+    module DigitalIdWalletApiGoogleWalletWalletVerificationStartCountryEnum
+      USA = "USA"
+      GBR = "GBR"
+      BRA = "BRA"
+      SGP = "SGP"
+      TWN = "TWN"
+
+      VALUES = [USA, GBR, BRA, SGP, TWN].freeze
+    end
+
     # * `BRA` - BRA
     module DigitalIdWalletApiGovbrWalletVerificationStartCountryEnum
       BRA = "BRA"
@@ -1042,11 +1060,13 @@ module Didit
 
     # * `redirect` - redirect
     # * `in_app` - in_app
+    # * `digital_credentials` - digital_credentials
     module DigitalIdWalletApiInteractionEnum
       REDIRECT = "redirect"
       IN_APP = "in_app"
+      DIGITAL_CREDENTIALS = "digital_credentials"
 
-      VALUES = [REDIRECT, IN_APP].freeze
+      VALUES = [REDIRECT, IN_APP, DIGITAL_CREDENTIALS].freeze
     end
 
     # * `BEL` - BEL
@@ -1105,11 +1125,13 @@ module Didit
 
     # * `redirect` - redirect
     # * `confirm_in_app` - confirm_in_app
+    # * `request_digital_credential` - request_digital_credential
     module DigitalIdWalletApiWalletNextActionTypeEnum
       REDIRECT = "redirect"
       CONFIRM_IN_APP = "confirm_in_app"
+      REQUEST_DIGITAL_CREDENTIAL = "request_digital_credential"
 
-      VALUES = [REDIRECT, CONFIRM_IN_APP].freeze
+      VALUES = [REDIRECT, CONFIRM_IN_APP, REQUEST_DIGITAL_CREDENTIAL].freeze
     end
 
     # * `pending` - Pending
@@ -1125,6 +1147,14 @@ module Didit
       FAILED = "failed"
 
       VALUES = [PENDING, VERIFIED, CANCELLED, TIMEOUT, FAILED].freeze
+    end
+
+    # Whether the signal raised the risk or added trust.
+    module EmailIntelligenceReasonCodesDirection
+      RISK = "risk"
+      TRUST = "trust"
+
+      VALUES = [RISK, TRUST].freeze
     end
 
     # Decision for this email address. Mirrors the top-level `status`.
@@ -1426,6 +1456,280 @@ module Didit
       EXTERNAL_ID = "external_id"
 
       VALUES = [EMAIL, PHONE, NATIONAL_ID, TAX_NUMBER, PASSPORT_NUMBER, DRIVING_LICENCE_NUMBER, RESIDENCE_PERMIT_NUMBER, VOTER_ID, EXTERNAL_ID].freeze
+    end
+
+    # Confidence level the platform attaches to `accuracy_m`: `p95` (browsers), `p68` (Android) or `unspecified`
+    # (iOS).
+    module GeolocationAttemptAccuracyConfidence
+      P95 = "p95"
+      P68 = "p68"
+      UNSPECIFIED = "unspecified"
+
+      VALUES = [P95, P68, UNSPECIFIED].freeze
+    end
+
+    # Which position the area result was judged from: the `device` fix, or the connection's `ip` location.
+    module GeolocationAttemptGeofenceBasis
+      DEVICE = "device"
+      IP = "ip"
+
+      VALUES = [DEVICE, IP].freeze
+    end
+
+    # Where the position sits relative to the rules. `undetermined` means the accuracy circle straddles the border or
+    # the position resolved to no country; it is not evidence of being outside.
+    module GeolocationAttemptGeofenceResult
+      INSIDE = "inside"
+      OUTSIDE = "outside"
+      UNDETERMINED = "undetermined"
+
+      VALUES = [INSIDE, OUTSIDE, UNDETERMINED].freeze
+    end
+
+    # Whether device attestation backs the fix. `unsupported` is what browsers report, because the web has no
+    # attestation mechanism; it is not a failure.
+    module GeolocationAttemptIntegrity
+      ATTESTED = "attested"
+      NOT_ATTESTED = "not_attested"
+      FAILED = "failed"
+      UNSUPPORTED = "unsupported"
+      NOT_DETERMINED = "not_determined"
+
+      VALUES = [ATTESTED, NOT_ATTESTED, FAILED, UNSUPPORTED, NOT_DETERMINED].freeze
+    end
+
+    # What happened on this attempt.
+    module GeolocationAttemptOutcome
+      VERIFIED = "verified"
+      LOW_ACCURACY = "low_accuracy"
+      ACCURACY_UNDETERMINED = "accuracy_undetermined"
+      STALE = "stale"
+      APPROXIMATE = "approximate"
+      DENIED = "denied"
+      RESTRICTED = "restricted"
+      UNAVAILABLE = "unavailable"
+      TIMEOUT = "timeout"
+      MOCK_DETECTED = "mock_detected"
+      OUTSIDE_GEOFENCE = "outside_geofence"
+      IN_BLOCKED_AREA = "in_blocked_area"
+      ANONYMIZER_DETECTED = "anonymizer_detected"
+      SKIPPED = "skipped"
+      REPLAY_REJECTED = "replay_rejected"
+      UNSUPPORTED_CLIENT = "unsupported_client"
+
+      VALUES = [VERIFIED, LOW_ACCURACY, ACCURACY_UNDETERMINED, STALE, APPROXIMATE, DENIED, RESTRICTED, UNAVAILABLE, TIMEOUT, MOCK_DETECTED, OUTSIDE_GEOFENCE, IN_BLOCKED_AREA, ANONYMIZER_DETECTED, SKIPPED, REPLAY_REJECTED, UNSUPPORTED_CLIENT].freeze
+    end
+
+    # What the operating system or browser granted. `not_requested` means the step uses the connection's IP location
+    # only, so the person is never asked for a permission.
+    module GeolocationAttemptPermission
+      GRANTED_PRECISE = "granted_precise"
+      GRANTED_APPROXIMATE = "granted_approximate"
+      DENIED = "denied"
+      RESTRICTED = "restricted"
+      UNAVAILABLE = "unavailable"
+      TIMEOUT = "timeout"
+      DISMISSED = "dismissed"
+      NOT_REQUESTED = "not_requested"
+
+      VALUES = [GRANTED_PRECISE, GRANTED_APPROXIMATE, DENIED, RESTRICTED, UNAVAILABLE, TIMEOUT, DISMISSED, NOT_REQUESTED].freeze
+    end
+
+    # The client that produced the fix.
+    module GeolocationAttemptPlatform
+      WEB = "web"
+      IOS = "ios"
+      ANDROID = "android"
+      REACT_NATIVE = "react_native"
+      FLUTTER = "flutter"
+
+      VALUES = [WEB, IOS, ANDROID, REACT_NATIVE, FLUTTER].freeze
+    end
+
+    # Where the step takes the position from, as configured: the device checked against the IP location, the device
+    # only, or the IP location only.
+    module GeolocationAttemptPositionSource
+      DEVICE_AND_IP = "device_and_ip"
+      DEVICE_ONLY = "device_only"
+      IP_ONLY = "ip_only"
+
+      VALUES = [DEVICE_AND_IP, DEVICE_ONLY, IP_ONLY].freeze
+    end
+
+    # Where the fix came from, when the platform says. `ip` means the position is the connection's IP location.
+    module GeolocationAttemptSource
+      GPS = "gps"
+      FUSED = "fused"
+      NETWORK = "network"
+      WIFI = "wifi"
+      CELL = "cell"
+      BROWSER = "browser"
+      UNKNOWN = "unknown"
+      IP = "ip"
+
+      VALUES = [GPS, FUSED, NETWORK, WIFI, CELL, BROWSER, UNKNOWN, IP].freeze
+    end
+
+    # Feature-level status of this Location verification step, resolved from its warnings. Independent of the session
+    # `status`.
+    module GeolocationAttemptStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
+    end
+
+    # Confidence level the platform attaches to `accuracy_m`: `p95` (browsers), `p68` (Android) or `unspecified`
+    # (iOS).
+    module GeolocationCheckAccuracyConfidence
+      P95 = "p95"
+      P68 = "p68"
+      UNSPECIFIED = "unspecified"
+
+      VALUES = [P95, P68, UNSPECIFIED].freeze
+    end
+
+    # Which position the area result was judged from: the `device` fix, or the connection's `ip` location.
+    module GeolocationCheckGeofenceBasis
+      DEVICE = "device"
+      IP = "ip"
+
+      VALUES = [DEVICE, IP].freeze
+    end
+
+    # Where the position sits relative to the rules. `undetermined` means the accuracy circle straddles the border or
+    # the position resolved to no country; it is not evidence of being outside.
+    module GeolocationCheckGeofenceResult
+      INSIDE = "inside"
+      OUTSIDE = "outside"
+      UNDETERMINED = "undetermined"
+
+      VALUES = [INSIDE, OUTSIDE, UNDETERMINED].freeze
+    end
+
+    # Whether device attestation backs the fix. `unsupported` is what browsers report, because the web has no
+    # attestation mechanism; it is not a failure.
+    module GeolocationCheckIntegrity
+      ATTESTED = "attested"
+      NOT_ATTESTED = "not_attested"
+      FAILED = "failed"
+      UNSUPPORTED = "unsupported"
+      NOT_DETERMINED = "not_determined"
+
+      VALUES = [ATTESTED, NOT_ATTESTED, FAILED, UNSUPPORTED, NOT_DETERMINED].freeze
+    end
+
+    # What happened on this attempt.
+    module GeolocationCheckOutcome
+      VERIFIED = "verified"
+      LOW_ACCURACY = "low_accuracy"
+      ACCURACY_UNDETERMINED = "accuracy_undetermined"
+      STALE = "stale"
+      APPROXIMATE = "approximate"
+      DENIED = "denied"
+      RESTRICTED = "restricted"
+      UNAVAILABLE = "unavailable"
+      TIMEOUT = "timeout"
+      MOCK_DETECTED = "mock_detected"
+      OUTSIDE_GEOFENCE = "outside_geofence"
+      IN_BLOCKED_AREA = "in_blocked_area"
+      ANONYMIZER_DETECTED = "anonymizer_detected"
+      SKIPPED = "skipped"
+      REPLAY_REJECTED = "replay_rejected"
+      UNSUPPORTED_CLIENT = "unsupported_client"
+
+      VALUES = [VERIFIED, LOW_ACCURACY, ACCURACY_UNDETERMINED, STALE, APPROXIMATE, DENIED, RESTRICTED, UNAVAILABLE, TIMEOUT, MOCK_DETECTED, OUTSIDE_GEOFENCE, IN_BLOCKED_AREA, ANONYMIZER_DETECTED, SKIPPED, REPLAY_REJECTED, UNSUPPORTED_CLIENT].freeze
+    end
+
+    # What the operating system or browser granted. `not_requested` means the step uses the connection's IP location
+    # only, so the person is never asked for a permission.
+    module GeolocationCheckPermission
+      GRANTED_PRECISE = "granted_precise"
+      GRANTED_APPROXIMATE = "granted_approximate"
+      DENIED = "denied"
+      RESTRICTED = "restricted"
+      UNAVAILABLE = "unavailable"
+      TIMEOUT = "timeout"
+      DISMISSED = "dismissed"
+      NOT_REQUESTED = "not_requested"
+
+      VALUES = [GRANTED_PRECISE, GRANTED_APPROXIMATE, DENIED, RESTRICTED, UNAVAILABLE, TIMEOUT, DISMISSED, NOT_REQUESTED].freeze
+    end
+
+    # The client that produced the fix.
+    module GeolocationCheckPlatform
+      WEB = "web"
+      IOS = "ios"
+      ANDROID = "android"
+      REACT_NATIVE = "react_native"
+      FLUTTER = "flutter"
+
+      VALUES = [WEB, IOS, ANDROID, REACT_NATIVE, FLUTTER].freeze
+    end
+
+    # Where the step takes the position from, as configured: the device checked against the IP location, the device
+    # only, or the IP location only.
+    module GeolocationCheckPositionSource
+      DEVICE_AND_IP = "device_and_ip"
+      DEVICE_ONLY = "device_only"
+      IP_ONLY = "ip_only"
+
+      VALUES = [DEVICE_AND_IP, DEVICE_ONLY, IP_ONLY].freeze
+    end
+
+    # Where the fix came from, when the platform says. `ip` means the position is the connection's IP location.
+    module GeolocationCheckSource
+      GPS = "gps"
+      FUSED = "fused"
+      NETWORK = "network"
+      WIFI = "wifi"
+      CELL = "cell"
+      BROWSER = "browser"
+      UNKNOWN = "unknown"
+      IP = "ip"
+
+      VALUES = [GPS, FUSED, NETWORK, WIFI, CELL, BROWSER, UNKNOWN, IP].freeze
+    end
+
+    # Feature-level status of this Location verification step, resolved from its warnings. Independent of the session
+    # `status`.
+    module GeolocationCheckStatus
+      NOT_FINISHED = "Not Finished"
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      RESUB_REQUESTED = "Resub Requested"
+
+      VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, RESUB_REQUESTED].freeze
+    end
+
+    # The feature that generated this warning. The value identifies the feature block the warning belongs to. Each
+    # module's warnings array typically uses the value matching its module (e.g. `PHONE` inside
+    # `phone_verifications[].warnings`), but the enum above is authoritative across all feature warnings on the
+    # decision payload.
+    module GeolocationCheckWarningsFeature
+      ID_VERIFICATION = "ID_VERIFICATION"
+      NFC = "NFC"
+      LIVENESS = "LIVENESS"
+      FACEMATCH = "FACEMATCH"
+      PROOF_OF_ADDRESS = "PROOF_OF_ADDRESS"
+      PHONE = "PHONE"
+      EMAIL = "EMAIL"
+      AML = "AML"
+      LOCATION = "LOCATION"
+      DATABASE_VALIDATION = "DATABASE_VALIDATION"
+      QUESTIONNAIRE = "QUESTIONNAIRE"
+      DOCUMENT_AI = "DOCUMENT_AI"
+      KYB_REGISTRY = "KYB_REGISTRY"
+      KYB_DOCUMENTS = "KYB_DOCUMENTS"
+      KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
+
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # `In Review` when the resolved country conflicts with `claimed_country`, or when the address is associated with
@@ -1782,6 +2086,31 @@ module Didit
       VALUES = [KYC, KYB, ADAPTIVE_AGE_VERIFICATION, BIOMETRIC_AUTHENTICATION, ADDRESS_VERIFICATION, QUESTIONNAIRE_VERIFICATION, EMAIL_VERIFICATION, PHONE_VERIFICATION].freeze
     end
 
+    # Whether the owner is a natural person or a company.
+    module KYBOwnershipStructureOwnerEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Why a requested ownership tier was not delivered, in the same codes as `ownership.unavailable_reason`.
+    # `no_owners_on_record` (the registry answered and names no owner) and `ownership_section_unavailable` (the
+    # registry did not return the ownership section) are different findings.
+    module KYBRegistryDataOwnershipError
+      NO_OWNERS_ON_RECORD = "no_owners_on_record"
+      NO_NATURAL_PERSON_OWNER = "no_natural_person_owner"
+      OWNERSHIP_SECTION_UNAVAILABLE = "ownership_section_unavailable"
+      COMPANY_NOT_FOUND = "company_not_found"
+      AMBIGUOUS_COMPANY_MATCH = "ambiguous_company_match"
+      MISSING_REGISTRATION_NUMBER = "missing_registration_number"
+      ENTITY_TYPE_NOT_COVERED = "entity_type_not_covered"
+      PROVIDER_UNAVAILABLE = "provider_unavailable"
+      OTHER = "other"
+
+      VALUES = [NO_OWNERS_ON_RECORD, NO_NATURAL_PERSON_OWNER, OWNERSHIP_SECTION_UNAVAILABLE, COMPANY_NOT_FOUND, AMBIGUOUS_COMPANY_MATCH, MISSING_REGISTRATION_NUMBER, ENTITY_TYPE_NOT_COVERED, PROVIDER_UNAVAILABLE, OTHER].freeze
+    end
+
     # `delivered` when the registry published ownership; `not_held` when the ownership registry answered and does not
     # list the company at all (see `unavailable_reason`); `unavailable` when it did not serve the ownership data for
     # any other reason (see `unavailable_reason`); `pending` while the registry is still fetching it; `not_requested`
@@ -1836,6 +2165,13 @@ module Didit
       RESOLVED = "resolved"
 
       VALUES = [PENDING, RESOLVED].freeze
+    end
+
+    # Always `official`.
+    module KYBRegistrySourceSourceType
+      OFFICIAL = "official"
+
+      VALUES = [OFFICIAL].freeze
     end
 
     # Event category.
@@ -2190,6 +2526,14 @@ module Didit
       FAILED = "FAILED"
 
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
+    end
+
+    # Whether the signal raised the risk or added trust.
+    module PhoneIntelligenceReasonCodesDirection
+      RISK = "risk"
+      TRUST = "trust"
+
+      VALUES = [RISK, TRUST].freeze
     end
 
     # Decision for this phone number. Mirrors the top-level `status`.
@@ -2572,8 +2916,19 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
+    end
+
+    # Who set the status. `null` while the session is not decided.
+    module SessionDecisionDecisionTraceDecidedBy
+      MANUAL = "manual"
+      AUTOMATIC = "automatic"
+      INVESTIGATOR = "investigator"
+
+      VALUES = [MANUAL, AUTOMATIC, INVESTIGATOR].freeze
     end
 
     # Expected value type of the extracted field.
@@ -2680,8 +3035,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Whether the session was created by a live application (`live`) or a sandbox application (`sandbox`). Sandbox
@@ -2746,8 +3103,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Assurance tier derived from `verification_method`: `documentary` for a document that was captured and checked,
@@ -2919,8 +3278,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Evidence class of the match: `deterministic` (exact stored or hardware-rooted identifier that cannot collide
@@ -2994,8 +3355,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Status of the AML screening run for this beneficial owner. `null` when no AML screening was run.
@@ -3297,8 +3660,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Why NFC chip verification did not run, populated whenever the workflow includes an NFC step. `null` while NFC is
@@ -3439,8 +3804,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Where this match came from. `session` means another verification session in your application matched on this
@@ -3485,8 +3852,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Feature-level status of this Proof of Address step. Independent of the top-level session `status` - a session
@@ -3521,8 +3890,10 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_DOCUMENTS = "KYB_DOCUMENTS"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
+      GEOLOCATION = "GEOLOCATION"
+      SIGNATURE = "SIGNATURE"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -3687,6 +4058,18 @@ module Didit
       GEOLOCATION = "GEOLOCATION"
 
       VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, DOCUMENT_AI, GEOLOCATION].freeze
+    end
+
+    # `PENDING` and `PROCESSING` while the ZIP is prepared, `READY` once it can be downloaded, `FAILED` when it could
+    # not be prepared (request a new export), `EXPIRED` once the ZIP was deleted.
+    module SessionFilesExportStatus
+      PENDING = "PENDING"
+      PROCESSING = "PROCESSING"
+      READY = "READY"
+      FAILED = "FAILED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, PROCESSING, READY, FAILED, EXPIRED].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -3855,7 +4238,7 @@ module Didit
       VALUES = [TYPED, DRAWN].freeze
     end
 
-    # Known values of an open enum: the API may send others.
+    # `null` for a Simple signature, which has no code.
     module SignatureResultConfirmationChannel
       EMAIL = "email"
       SMS = "sms"
@@ -3905,19 +4288,21 @@ module Didit
       VALUES = [SIGNED, DECLINED, NOT_SIGNED, NOT_REACHED].freeze
     end
 
-    # Known values of an open enum: the API may send others.
+    # `pdf` for a Simple signature, `pades` for Advanced (AES).
     module SignatureResultFormat
+      PDF = "pdf"
       PADES = "pades"
 
-      VALUES = [PADES].freeze
+      VALUES = [PDF, PADES].freeze
     end
 
-    # `aes`. `qes` (Qualified Electronic Signature, QES) is coming soon.
+    # `simple` (default) or `aes`. `qes` (Qualified Electronic Signature, QES) is an add-on that is not available yet.
     module SignatureResultLevel
+      SIMPLE = "simple"
       AES = "aes"
       QES = "qes"
 
-      VALUES = [AES, QES].freeze
+      VALUES = [SIMPLE, AES, QES].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -5755,6 +6140,7 @@ module Didit
       TRANSACTION_STATUS_UPDATED = "transaction.status.updated"
       TRAVEL_RULE_STATUS_UPDATED = "travel_rule.status.updated"
       WORKFLOW_COMPLIANCE_CHANGED = "workflow.compliance_changed"
+      TRANSACTION_RULE_SUGGESTIONS_CREATED = "transaction_rule_suggestions.created"
       AUTH_SIGNUP = "auth.signup"
       AUTH_LOGIN = "auth.login"
       AUTH_LOGIN_FAILED = "auth.login_failed"
@@ -5776,7 +6162,7 @@ module Didit
       INVESTIGATOR_QA_FAILED = "investigator.qa.failed"
       INVESTIGATOR_EXTERNAL_REPORT_READY = "investigator.external.report.ready"
 
-      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY].freeze
+      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY].freeze
     end
 
     # Draft versions are editable; published versions are immutable and used for new sessions.
@@ -6157,6 +6543,7 @@ module Didit
     # One completed ongoing-monitoring re-screen of an AML check.
     class AMLScreeningRun < Didit::Model
       field :uuid, "uuid", :string
+      field :run_id, "run_id", :string
       field :completed_at, "completed_at", :datetime
       field :started_at, "started_at", :datetime
       field :outcome, "outcome", :string
@@ -6165,6 +6552,8 @@ module Didit
       field :status, "status", :string
       field :score, "score", :float
       field :total_hits, "total_hits", :integer
+      field :new_hits, "new_hits", :integer
+      field :entities_screened, "entities_screened", :integer
       field :dataset_freshness, "dataset_freshness", "AMLDatasetFreshness"
     end
 
@@ -6350,6 +6739,27 @@ module Didit
       field :second, "second", :integer
       field :third_plus, "third_plus", :integer
       field :abandoned, "abandoned", :integer
+    end
+
+    # Today's verifications by local hour against the same weekday last week.
+    class ApplicationAnalyticsToday < Didit::Model
+      field :time_zone, "time_zone", :string
+      field :date, "date", :date
+      field :current_hour, "current_hour", :integer
+      field :previous_date, "previous_date", :date
+      field :hours, "hours", [:array, :integer]
+      field :previous_hours, "previous_hours", [:array, :integer]
+      field :total, "total", :integer
+      field :previous_total_so_far, "previous_total_so_far", :integer
+      field :outcomes, "outcomes", "ApplicationAnalyticsTodayOutcomes"
+    end
+
+    # Of today's verifications, how many are approved, waiting in review and declined now. The rest are not finished
+    # yet.
+    class ApplicationAnalyticsTodayOutcomes < Didit::Model
+      field :approved, "approved", :integer
+      field :in_review, "in_review", :integer
+      field :declined, "declined", :integer
     end
 
     class ApplicationAnalyticsVerificationTimePoint < Didit::Model
@@ -6615,6 +7025,12 @@ module Didit
       field :is_fallback, "is_fallback", :boolean
       field :provider_connection_id, "provider_connection_id", :string
       field :requested_scopes, "requested_scopes", [:array, :string]
+    end
+
+    # When the live biometric data of this session is deleted.
+    class BiometricRetention < Didit::Model
+      field :jurisdictions, "jurisdictions", [:array, :string]
+      field :deletes_at, "deletes_at", :datetime
     end
 
     # One blocklisted face, identity document, phone number or email address of a verification session. Fields that do
@@ -7357,6 +7773,11 @@ module Didit
       field :wallets, "wallets", [:array, "DigitalIdWalletApiWalletCatalogEntry"]
     end
 
+    class DigitalIdWalletApiWalletDigitalCredentialsRequest < Didit::Model
+      field :protocol, "protocol", :string
+      field :request, "request", :any
+    end
+
     class DigitalIdWalletApiWalletIdentity < Didit::Model
       field :full_name, "full_name", :string
       field :first_name, "first_name", :string
@@ -7369,6 +7790,7 @@ module Didit
     class DigitalIdWalletApiWalletNextAction < Didit::Model
       field :type, "type", :string
       field :url, "url", :string
+      field :digital_credentials, "digital_credentials", "DigitalIdWalletApiWalletDigitalCredentialsRequest"
       field :verification_code, "verification_code", :string
       field :poll_interval_seconds, "poll_interval_seconds", :integer
     end
@@ -7427,7 +7849,15 @@ module Didit
       field :is_free_domain, "is_free_domain", :boolean
       field :is_breached, "is_breached", :boolean
       field :no_of_breaches, "no_of_breaches", :float
-      field :reason_codes, "reason_codes", [:array, :string]
+      field :reason_codes, "reason_codes", [:array, "EmailIntelligenceReasonCodes"]
+    end
+
+    class EmailIntelligenceReasonCodes < Didit::Model
+      field :code, "code", :string
+      field :value, "value", :any
+      field :direction, "direction", :string
+      field :message, "message", :string
+      field :impact_level, "impact_level", :string
     end
 
     # Another session of your application that used the same email address with a different `vendor_data`.
@@ -7530,6 +7960,7 @@ module Didit
       field :lifecycle, "lifecycle", [:array, "EmailVerificationCheckResponseEmailLifecycle"]
       field :matches, "matches", [:array, "EmailVerificationCheckResponseEmailMatches"]
       field :email_social, "email_social", "EmailSocialFootprint"
+      field :email_intelligence, "email_intelligence", "EmailIntelligence"
     end
 
     class EmailVerificationCheckResponseEmailBreaches < Didit::Model
@@ -7698,6 +8129,141 @@ module Didit
       field :requested_but_unavailable, "requested_but_unavailable", :boolean
       field :reason_codes, "reason_codes", [:array, :string]
       field :evidence_indexes, "evidence_indexes", [:array, :integer]
+    end
+
+    # One attempt of a Location verification step: the same keys as `geolocation_checks[]` except `warnings`, plus
+    # when Didit received it.
+    class GeolocationAttempt < Didit::Model
+      field :node_id, "node_id", :string
+      field :status, "status", :string
+      field :outcome, "outcome", :string
+      field :permission, "permission", :string
+      field :latitude, "latitude", :float
+      field :longitude, "longitude", :float
+      field :accuracy_m, "accuracy_m", :float
+      field :accuracy_confidence, "accuracy_confidence", :string
+      field :measured_at, "measured_at", :datetime
+      field :age_seconds, "age_seconds", :integer
+      field :source, "source", :string
+      field :platform, "platform", :string
+      field :sdk_version, "sdk_version", :string
+      field :is_mock, "is_mock", :boolean
+      field :produced_by_accessory, "produced_by_accessory", :boolean
+      field :integrity, "integrity", :string
+      field :country_code, "country_code", :string
+      field :region_code, "region_code", :string
+      field :city, "city", :string
+      field :geofence, "geofence", "GeolocationAttemptGeofence"
+      field :inside_geofence, "inside_geofence", :boolean
+      field :geofence_basis, "geofence_basis", :string
+      field :inside_areas, "inside_areas", [:array, :string]
+      field :blocked_areas, "blocked_areas", [:array, :string]
+      field :position_source, "position_source", :string
+      field :anonymizers, "anonymizers", "GeolocationAttemptAnonymizers"
+      field :ip_distance_km, "ip_distance_km", :float
+      field :ip_distance_uncertainty_km, "ip_distance_uncertainty_km", :float
+      field :ip_consistent, "ip_consistent", :boolean
+      field :document_distance_km, "document_distance_km", :float
+      field :travel_excused, "travel_excused", :boolean
+      field :consecutive_mismatches, "consecutive_mismatches", :integer
+      field :attempts, "attempts", :integer
+      field :consent, "consent", "GeolocationAttemptConsent"
+      field :received_at, "received_at", :datetime
+      field :created_at, "created_at", :datetime
+    end
+
+    # What the connection and device look like, each `true`, `false` or `null` when the source cannot tell.
+    class GeolocationAttemptAnonymizers < Didit::Model
+      field :vpn, "vpn", :boolean
+      field :proxy, "proxy", :boolean
+      field :tor, "tor", :boolean
+      field :spoofing, "spoofing", :boolean
+      field :emulator, "emulator", :boolean
+    end
+
+    # The consent the person gave before the system prompt, recorded with the wording version and language they saw.
+    class GeolocationAttemptConsent < Didit::Model
+      field :accepted_at, "accepted_at", :datetime
+      field :version, "version", :string
+      field :locale, "locale", :string
+    end
+
+    # Result of the country and area rules of the step.
+    class GeolocationAttemptGeofence < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :result, "result", :string
+    end
+
+    # One Location verification result, the accepted attempt of one workflow node. Measurement, uncertainty and
+    # authenticity are separate keys, so a precise unattested fix reads differently from an imprecise attested one.
+    class GeolocationCheck < Didit::Model
+      field :node_id, "node_id", :string
+      field :status, "status", :string
+      field :outcome, "outcome", :string
+      field :permission, "permission", :string
+      field :latitude, "latitude", :float
+      field :longitude, "longitude", :float
+      field :accuracy_m, "accuracy_m", :float
+      field :accuracy_confidence, "accuracy_confidence", :string
+      field :measured_at, "measured_at", :datetime
+      field :age_seconds, "age_seconds", :integer
+      field :source, "source", :string
+      field :platform, "platform", :string
+      field :sdk_version, "sdk_version", :string
+      field :is_mock, "is_mock", :boolean
+      field :produced_by_accessory, "produced_by_accessory", :boolean
+      field :integrity, "integrity", :string
+      field :country_code, "country_code", :string
+      field :region_code, "region_code", :string
+      field :city, "city", :string
+      field :geofence, "geofence", "GeolocationCheckGeofence"
+      field :inside_geofence, "inside_geofence", :boolean
+      field :geofence_basis, "geofence_basis", :string
+      field :inside_areas, "inside_areas", [:array, :string]
+      field :blocked_areas, "blocked_areas", [:array, :string]
+      field :position_source, "position_source", :string
+      field :anonymizers, "anonymizers", "GeolocationCheckAnonymizers"
+      field :ip_distance_km, "ip_distance_km", :float
+      field :ip_distance_uncertainty_km, "ip_distance_uncertainty_km", :float
+      field :ip_consistent, "ip_consistent", :boolean
+      field :document_distance_km, "document_distance_km", :float
+      field :travel_excused, "travel_excused", :boolean
+      field :consecutive_mismatches, "consecutive_mismatches", :integer
+      field :attempts, "attempts", :integer
+      field :consent, "consent", "GeolocationCheckConsent"
+      field :warnings, "warnings", [:array, "GeolocationCheckWarnings"]
+    end
+
+    # What the connection and device look like, each `true`, `false` or `null` when the source cannot tell.
+    class GeolocationCheckAnonymizers < Didit::Model
+      field :vpn, "vpn", :boolean
+      field :proxy, "proxy", :boolean
+      field :tor, "tor", :boolean
+      field :spoofing, "spoofing", :boolean
+      field :emulator, "emulator", :boolean
+    end
+
+    # The consent the person gave before the system prompt, recorded with the wording version and language they saw.
+    class GeolocationCheckConsent < Didit::Model
+      field :accepted_at, "accepted_at", :datetime
+      field :version, "version", :string
+      field :locale, "locale", :string
+    end
+
+    # Result of the country and area rules of the step.
+    class GeolocationCheckGeofence < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :result, "result", :string
+    end
+
+    class GeolocationCheckWarnings < Didit::Model
+      field :feature, "feature", :string
+      field :risk, "risk", :string
+      field :additional_data, "additional_data", :any
+      field :log_type, "log_type", :string
+      field :short_description, "short_description", :string
+      field :long_description, "long_description", :string
+      field :node_id, "node_id", :string
     end
 
     class IPRiskResponse < Didit::Model
@@ -7967,6 +8533,37 @@ module Didit
       field :status, "status", :string
     end
 
+    # The cap table the registry proved, as it stood when the ownership tier was delivered: direct `shareholders` and
+    # `beneficial_owners`. Null when the registry proved no ownership. It never carries the registry source's own
+    # rows; read `company.beneficial_owners` and `company.ownership` for the current record.
+    class KYBOwnershipStructure < Didit::Model
+      field :shareholders, "shareholders", [:array, "KYBOwnershipStructureOwner"]
+      field :beneficial_owners, "beneficial_owners", [:array, "KYBOwnershipStructureOwner"]
+    end
+
+    # One owner of the ownership snapshot: the same registry identity and stake as `company.beneficial_owners[]`, and
+    # its canonical `shareholding`.
+    class KYBOwnershipStructureOwner < Didit::Model
+      field :name, "name", :string
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :date_of_birth, "date_of_birth", :string
+      field :country_of_birth, "country_of_birth", :string
+      field :company_name, "company_name", :string
+      field :registration_number, "registration_number", :string
+      field :entity_type, "entity_type", :string
+      field :nationality, "nationality", :string
+      field :designation, "designation", :string
+      field :roles, "roles", [:array, :string]
+      field :ownership_min_shares, "ownership_min_shares", :string
+      field :ownership_max_shares, "ownership_max_shares", :string
+      field :voting_min_shares, "voting_min_shares", :string
+      field :voting_max_shares, "voting_max_shares", :string
+      field :appointment_date, "appointment_date", :string
+      field :is_active, "is_active", :boolean
+      field :shareholding, "shareholding", "KYBRegistryShareholding"
+    end
+
     # An address the registry states, in the same shape for every country and registry source. Every key is always
     # present; a part the registry does not publish is null.
     class KYBRegistryAddress < Didit::Model
@@ -7980,12 +8577,67 @@ module Didit
       field :description, "description", :string
     end
 
+    # Didit's normalized registry detail for the company: the ownership outcome (`ownership_error`, `section_errors`,
+    # `ubo_resolution`, `lite_enrichment`), the corrections made with update-data, and registry facts that have no
+    # field of their own. It never carries the registry source's own record. Every key is optional and present only
+    # when the company has a value for it; new keys may be added. Read the canonical fields (`addresses`,
+    # `industries`, `ownership`, `beneficial_owners[].shareholding`) for anything they cover.
+    class KYBRegistryData < Didit::Model
+      field :company_name, "company_name", :string
+      field :registration_number, "registration_number", :string
+      field :country_code, "country_code", :string
+      field :region, "region", :string
+      field :incorporation_date, "incorporation_date", :string
+      field :registration_date, "registration_date", :string
+      field :dissolution_date, "dissolution_date", :string
+      field :tax_number, "tax_number", :string
+      field :vat_number, "vat_number", :string
+      field :legal_address, "legal_address", :string
+      field :registered_address, "registered_address", :string
+      field :company_type, "company_type", :string
+      field :registry_status, "registry_status", :string
+      field :verification_status, "verification_status", :string
+      field :alternative_names, "alternative_names", :string
+      field :nature_of_business, "nature_of_business", :string
+      field :registered_capital, "registered_capital", :string
+      field :registered_capital_amount, "registered_capital_amount", :string
+      field :registered_capital_currency, "registered_capital_currency", :string
+      field :website, "website", :string
+      field :email, "email", :string
+      field :phone, "phone", :string
+      field :legal_entity_identifier, "legal_entity_identifier", :string
+      field :location_of_registration, "location_of_registration", :string
+      field :control_scheme, "control_scheme", :string
+      field :ownership_error, "ownership_error", :string
+      field :section_errors, "section_errors", [:map, "KYBRegistrySectionError"]
+      field :ubo_resolution, "ubo_resolution", "KYBRegistryUboResolution"
+      field :lite_enrichment, "lite_enrichment", "KYBRegistryLiteEnrichment"
+      field :registry_metadata, "registry_metadata", [:map, [:union, [:string, :float, :boolean]]]
+      field :registry_sources, "registry_sources", [:array, "KYBRegistrySource"]
+      field :previous_names, "previous_names", [:array, :string]
+      field :parent_companies, "parent_companies", [:array, :string]
+      field :documents_available, "documents_available", :integer
+    end
+
+    # A company of the corporate group, by its registry identity.
+    class KYBRegistryGroupCompany < Didit::Model
+      field :name, "name", :string
+      field :country_code, "country_code", :string
+      field :registration_number, "registration_number", :string
+    end
+
     # An activity the registry classifies the company under, in the same shape for every country and registry source.
     class KYBRegistryIndustry < Didit::Model
       field :code, "code", :string
       field :description, "description", :string
       field :scheme, "scheme", :string
       field :is_primary, "is_primary", :boolean
+    end
+
+    # Blank Lite profile fields another of the country's registry sources filled. The source is not named.
+    class KYBRegistryLiteEnrichment < Didit::Model
+      field :fields, "fields", [:array, :string]
+      field :people_added, "people_added", :integer
     end
 
     # The outcome of the ownership (Shareholders / UBO) tier, in the same shape for every country and registry source.
@@ -8027,6 +8679,11 @@ module Didit
       field :per_page, "per_page", :integer
     end
 
+    # A section the registry did not return.
+    class KYBRegistrySectionError < Didit::Model
+      field :status_code, "status_code", :integer
+    end
+
     # What an owner holds, in the same shape for every country and registry source. Null when the registry states no
     # holding. A band (for example a UK PSC's 25-50%) is not a stake: `percentage` is null and the band stays in
     # `ownership_min_shares` / `ownership_max_shares`.
@@ -8037,6 +8694,25 @@ module Didit
       field :nominal_value, "nominal_value", :float
       field :total_value, "total_value", :float
       field :percentage, "percentage", :float
+    end
+
+    # An official register the record was read from. Only official government registers, regulators and the official
+    # identifier system are named; any other source is left out.
+    class KYBRegistrySource < Didit::Model
+      field :name, "name", :string
+      field :source_type, "source_type", :string
+    end
+
+    # How the UBO tier walked the ownership chain above the company.
+    class KYBRegistryUboResolution < Didit::Model
+      field :parent_chain, "parent_chain", [:array, "KYBRegistryGroupCompany"]
+      field :subsidiaries, "subsidiaries", [:array, "KYBRegistryGroupCompany"]
+      field :unresolved, "unresolved", [:array, "KYBRegistryUboResolutionUnresolved"]
+    end
+
+    class KYBRegistryUboResolutionUnresolved < Didit::Model
+      field :reason, "reason", :string
+      field :section, "section", :string
     end
 
     # One stored monitoring event as returned by the list and subject-timeline endpoints. Restricted evidence
@@ -8564,7 +9240,15 @@ module Didit
       field :is_ported, "is_ported", :boolean
       field :is_recently_ported, "is_recently_ported", :boolean
       field :carrier_type, "carrier_type", :string
-      field :reason_codes, "reason_codes", [:array, :string]
+      field :reason_codes, "reason_codes", [:array, "PhoneIntelligenceReasonCodes"]
+    end
+
+    class PhoneIntelligenceReasonCodes < Didit::Model
+      field :code, "code", :string
+      field :value, "value", :any
+      field :direction, "direction", :string
+      field :message, "message", :string
+      field :impact_level, "impact_level", :string
     end
 
     # Another session of your application that used the same phone number with a different `vendor_data`.
@@ -8670,6 +9354,7 @@ module Didit
       field :lifecycle, "lifecycle", [:array, "PhoneVerificationCheckResponsePhoneLifecycle"]
       field :matches, "matches", [:array, "PhoneVerificationCheckResponsePhoneMatches"]
       field :phone_social, "phone_social", "PhoneSocialFootprint"
+      field :phone_intelligence, "phone_intelligence", "PhoneIntelligence"
     end
 
     # Current network serving the number, from the carrier lookup run at finalization.
@@ -8919,9 +9604,13 @@ module Didit
       field :session_id, "session_id", :string
       field :session_kind, "session_kind", :string
       field :shared_from_session, "shared_from_session", :string
+      field :shared_from_session_number, "shared_from_session_number", :integer
       field :session_number, "session_number", :integer
       field :session_url, "session_url", :string
       field :status, "status", :string
+      field :status_override, "status_override", "SessionDecisionStatusOverride"
+      field :decision_trace, "decision_trace", "SessionDecisionDecisionTrace"
+      field :linked_records, "linked_records", "SessionDecisionLinkedRecords"
       field :workflow_id, "workflow_id", :string
       field :features, "features", [:array, :string]
       field :vendor_data, "vendor_data", :string
@@ -8943,17 +9632,34 @@ module Didit
       field :signatures, "signatures", [:array, "SignatureResult"]
       field :aml_screenings, "aml_screenings", [:array, "AMLScreening"]
       field :ip_analyses, "ip_analyses", [:array, "SessionDecisionIpAnalyses"]
+      field :geolocation_checks, "geolocation_checks", [:array, "GeolocationCheck"]
+      field :geolocation_attempts, "geolocation_attempts", [:array, "GeolocationAttempt"]
       field :database_validations, "database_validations", [:array, "SessionDecisionDatabaseValidations"]
+      field :database_validation_not_performed_reason, "database_validation_not_performed_reason", "SessionDecisionDatabaseValidationNotPerformedReason"
       field :reviews, "reviews", [:array, "SessionDecisionReviews"]
+      field :assignee, "assignee", "SessionDecisionAssignee"
+      field :waiting_since, "waiting_since", :datetime
+      field :sla_due_at, "sla_due_at", :datetime
       field :created_at, "created_at", :datetime
       field :expires_at, "expires_at", :datetime
       field :registry_checks, "registry_checks", [:array, "SessionDecisionRegistryChecks"]
       field :key_people_checks, "key_people_checks", [:array, "SessionDecisionKeyPeopleChecks"]
       field :document_verifications, "document_verifications", [:array, "SessionDecisionDocumentVerifications"]
       field :environment, "environment", :string
+      field :sandbox_scenario, "sandbox_scenario", :string
       field :resubmissions, "resubmissions", [:array, "SessionDecisionResubmissions"]
       field :biometric_consent, "biometric_consent", "SessionDecisionBiometricConsent"
       field :investigator, "investigator", "InvestigatorBlock"
+      field :biometric_retention, "biometric_retention", "BiometricRetention"
+      field :fraud_check, "fraud_check", :any
+      field :full_session_video, "full_session_video", :string
+      field :full_session_video_recorded_at, "full_session_video_recorded_at", :datetime
+    end
+
+    # The Console reviewer the session is assigned to, or `null` when nobody holds it.
+    class SessionDecisionAssignee < Didit::Model
+      field :email, "email", :string
+      field :assigned_at, "assigned_at", :datetime
     end
 
     # Whether the session required explicit biometric consent before a face capture, why, and the evidence of the
@@ -8999,6 +9705,14 @@ module Didit
       field :email_lang, "email_lang", :string
       field :send_notification_emails, "send_notification_emails", :boolean
       field :phone, "phone", :string
+    end
+
+    # Why a configured database validation produced no result, as `{code, message}` plus context fields. Present only
+    # when `database_validations` is `null` for a workflow that has the step, so you can tell "the registry agreed"
+    # from "nothing ran". `null` otherwise.
+    class SessionDecisionDatabaseValidationNotPerformedReason < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
     end
 
     class SessionDecisionDatabaseValidations < Didit::Model
@@ -9056,6 +9770,34 @@ module Didit
       field :short_description, "short_description", :string
       field :long_description, "long_description", :string
       field :node_id, "node_id", :string
+    end
+
+    # How the status was reached: who set it and which warnings did.
+    class SessionDecisionDecisionTrace < Didit::Model
+      field :status, "status", :string
+      field :decided_by, "decided_by", :string
+      field :decided_at, "decided_at", :datetime
+      field :automatic_status, "automatic_status", :string
+      field :terminal_node_id, "terminal_node_id", :string
+      field :actor, "actor", "SessionDecisionDecisionTraceActor"
+      field :warning_counts, "warning_counts", [:map, :integer]
+      field :status_warnings, "status_warnings", [:array, "SessionDecisionDecisionTraceStatusWarnings"]
+    end
+
+    # The reviewer behind a manual decision.
+    class SessionDecisionDecisionTraceActor < Didit::Model
+      field :user, "user", :string
+      field :actor_type, "actor_type", :string
+    end
+
+    class SessionDecisionDecisionTraceStatusWarnings < Didit::Model
+      field :risk, "risk", :string
+      field :feature, "feature", :string
+      field :node_id, "node_id", :string
+      field :log_type, "log_type", :string
+      field :check_status, "check_status", :string
+      field :source, "source", :string
+      field :short_description, "short_description", :string
     end
 
     # Document AI results grouped by workflow node.
@@ -9183,6 +9925,8 @@ module Didit
       field :warnings, "warnings", [:array, "SessionDecisionEmailVerificationsWarnings"]
       field :lifecycle, "lifecycle", [:array, "SessionDecisionEmailVerificationsLifecycle"]
       field :matches, "matches", [:array, "SessionDecisionEmailVerificationsMatches"]
+      field :email_intelligence, "email_intelligence", "EmailIntelligence"
+      field :email_social, "email_social", "EmailSocialFootprint"
     end
 
     class SessionDecisionEmailVerificationsBreaches < Didit::Model
@@ -9265,6 +10009,34 @@ module Didit
       field :source_image, "source_image", :string
       field :target_image, "target_image", :string
       field :warnings, "warnings", [:array, "SessionDecisionFaceMatchesWarnings"]
+      field :face_coverage, "face_coverage", "SessionDecisionFaceMatchesFaceCoverage"
+    end
+
+    # Whether the eyes, mouth and face are covered in the captured image. Returned by `GET
+    # /v3/session/{sessionId}/decision/` only; it is not part of webhook payloads. `null` when no coverage reading
+    # exists.
+    class SessionDecisionFaceMatchesFaceCoverage < Didit::Model
+      field :eyes, "eyes", "SessionDecisionFaceMatchesFaceCoverageEyes"
+      field :mouth, "mouth", "SessionDecisionFaceMatchesFaceCoverageMouth"
+      field :face, "face", "SessionDecisionFaceMatchesFaceCoverageFace"
+    end
+
+    class SessionDecisionFaceMatchesFaceCoverageEyes < Didit::Model
+      field :covered, "covered", :boolean
+      field :calibrated, "calibrated", :boolean
+      field :visibility_score, "visibility_score", :float
+    end
+
+    class SessionDecisionFaceMatchesFaceCoverageFace < Didit::Model
+      field :covered, "covered", :boolean
+      field :calibrated, "calibrated", :boolean
+      field :visibility_score, "visibility_score", :float
+    end
+
+    class SessionDecisionFaceMatchesFaceCoverageMouth < Didit::Model
+      field :covered, "covered", :boolean
+      field :calibrated, "calibrated", :boolean
+      field :visibility_score, "visibility_score", :float
     end
 
     class SessionDecisionFaceMatchesWarnings < Didit::Model
@@ -9330,6 +10102,9 @@ module Didit
       field :matches, "matches", [:array, "SessionDecisionIdVerificationsMatches"]
       field :document_liveness, "document_liveness", "SessionDecisionIdVerificationsDocumentLiveness"
       field :address_validation, "address_validation", "AddressValidationResult"
+      field :region, "region", :string
+      field :extracted_data, "extracted_data", :any
+      field :barcodes, "barcodes", [:array, :any]
     end
 
     # Quality metrics for the back document image. Same structure as front_image_quality_score.
@@ -9638,6 +10413,14 @@ module Didit
       field :poa_document, "poa_document", "SessionDecisionIpAnalysesPoaDocument"
       field :warnings, "warnings", [:array, "SessionDecisionIpAnalysesWarnings"]
       field :matches, "matches", [:array, "SessionDecisionIpAnalysesMatches"]
+      field :browser_version, "browser_version", :string
+      field :os_version, "os_version", :string
+      field :user_agent, "user_agent", :string
+      field :accept_language, "accept_language", :string
+      field :session_identifier, "session_identifier", :string
+      field :session_age_ms, "session_age_ms", :integer
+      field :coords_accuracy, "coords_accuracy", :float
+      field :raw_device_data, "raw_device_data", :any
     end
 
     # Location extracted from the ID document address plus distances (km) to the IP geolocation and the POA document
@@ -9905,6 +10688,47 @@ module Didit
       field :pending, "pending", :integer
     end
 
+    # A summary of other records linked to the session. `null` when there is nothing to show, and for workflows that
+    # declare an age assurance standard.
+    class SessionDecisionLinkedRecords < Didit::Model
+      field :same_face, "same_face", "SessionDecisionLinkedRecordsSameFace"
+      field :earlier_verifications, "earlier_verifications", "SessionDecisionLinkedRecordsEarlierVerifications"
+      field :networks, "networks", "SessionDecisionLinkedRecordsNetworks"
+    end
+
+    class SessionDecisionLinkedRecordsEarlierVerifications < Didit::Model
+      field :count, "count", :integer
+      field :vendor_user_id, "vendor_user_id", :string
+    end
+
+    class SessionDecisionLinkedRecordsNetworks < Didit::Model
+      field :count, "count", :integer
+      field :open, "open", :integer
+      field :dismissed, "dismissed", :integer
+      field :items, "items", [:array, "SessionDecisionLinkedRecordsNetworksItems"]
+    end
+
+    class SessionDecisionLinkedRecordsNetworksItems < Didit::Model
+      field :network_id, "network_id", :string
+      field :display_number, "display_number", :integer
+      field :name, "name", :string
+      field :status, "status", :string
+      field :risk_score, "risk_score", :float
+    end
+
+    # Other people whose face matched one of this session's face searches.
+    class SessionDecisionLinkedRecordsSameFace < Didit::Model
+      field :count, "count", :integer
+      field :best_match, "best_match", "SessionDecisionLinkedRecordsSameFaceBestMatch"
+    end
+
+    class SessionDecisionLinkedRecordsSameFaceBestMatch < Didit::Model
+      field :session_id, "session_id", :string
+      field :session_number, "session_number", :integer
+      field :vendor_user_id, "vendor_user_id", :string
+      field :similarity_percentage, "similarity_percentage", :float
+    end
+
     # One liveness report - the full report for a single liveness pass.
     class SessionDecisionLivenessChecks < Didit::Model
       field :node_id, "node_id", :string
@@ -10071,6 +10895,8 @@ module Didit
       field :lifecycle, "lifecycle", [:array, "SessionDecisionPhoneVerificationsLifecycle"]
       field :warnings, "warnings", [:array, "SessionDecisionPhoneVerificationsWarnings"]
       field :matches, "matches", [:array, "SessionDecisionPhoneVerificationsMatches"]
+      field :phone_intelligence, "phone_intelligence", "PhoneIntelligence"
+      field :phone_social, "phone_social", "PhoneSocialFootprint"
     end
 
     class SessionDecisionPhoneVerificationsCarrier < Didit::Model
@@ -10282,7 +11108,7 @@ module Didit
       field :node_id, "node_id", :string
       field :data_resolved, "data_resolved", :boolean
       field :company, "company", "SessionDecisionRegistryChecksCompany"
-      field :ownership_structure, "ownership_structure", :any
+      field :ownership_structure, "ownership_structure", "KYBOwnershipStructure"
       field :warnings, "warnings", [:array, :any]
     end
 
@@ -10328,7 +11154,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -10337,6 +11163,7 @@ module Didit
       field :registry_tier, "registry_tier", :string
       field :registry_tier_delivered, "registry_tier_delivered", :string
       field :registry_ownership_status, "registry_ownership_status", :string
+      field :registry_monitoring, "registry_monitoring", "SessionDecisionRegistryChecksCompanyRegistryMonitoring"
     end
 
     class SessionDecisionRegistryChecksCompanyBeneficialOwners < Didit::Model
@@ -10384,6 +11211,20 @@ module Didit
       field :date_of_birth_month, "date_of_birth_month", :integer
     end
 
+    # The latest registry monitor for the company, or `null` when none exists.
+    class SessionDecisionRegistryChecksCompanyRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
+    end
+
     class SessionDecisionResubmissions < Didit::Model
       field :number, "number", :integer
       field :created_at, "created_at", :datetime
@@ -10411,6 +11252,13 @@ module Didit
       field :new_status, "new_status", :string
       field :comment, "comment", :string
       field :created_at, "created_at", :datetime
+    end
+
+    # Present when a reviewer set `status` by hand. `null` when the status is the automatic one. Use it to tell a
+    # manual approval from an automatic one.
+    class SessionDecisionStatusOverride < Didit::Model
+      field :overridden_at, "overridden_at", :datetime
+      field :automatic_status, "automatic_status", :string
     end
 
     # A bulk session deletion running in the background: progress and counts per outcome, never which sessions it
@@ -10451,6 +11299,20 @@ module Didit
       field :device_info, "device_info", :any
       field :file_url, "file_url", :string
       field :sent_at, "sent_at", :integer
+    end
+
+    # One ZIP with every file of a session, in original quality.
+    class SessionFilesExport < Didit::Model
+      field :export_id, "export_id", :string
+      field :session_id, "session_id", :string
+      field :status, "status", :string
+      field :file_count, "file_count", :integer
+      field :size_bytes, "size_bytes", :integer
+      field :download_url, "download_url", :string
+      field :expires_at, "expires_at", :datetime
+      field :error, "error", :string
+      field :created_at, "created_at", :datetime
+      field :completed_at, "completed_at", :datetime
     end
 
     class SessionImportError < Didit::Model
@@ -10537,7 +11399,7 @@ module Didit
       field :value_unavailable_reason, "value_unavailable_reason", :string
     end
 
-    # One signer's result for one Electronic Signature step. See the [Electronic Signature
+    # One signer's result for one E-signature step. See the [E-signature
     # report](/core-technology/electronic-signature/report-electronic-signature).
     class SignatureResult < Didit::Model
       field :id, "id", :string
@@ -10577,7 +11439,7 @@ module Didit
       field :adopted_at, "adopted_at", :datetime
     end
 
-    # The certificate the documents were signed with. `null` until signed.
+    # The certificate the documents were signed with. `null` until signed, and always `null` for a Simple signature.
     class SignatureResultCertificate < Didit::Model
       field :issuer, "issuer", :string
       field :issued_to, "issued_to", :string
@@ -10624,6 +11486,7 @@ module Didit
       field :converter, "converter", :string
     end
 
+    # The verified identity the signature relies on. Empty for a Simple signature with no verified identity.
     class SignatureResultIdentityUsed < Didit::Model
       field :session_id, "session_id", :string
       field :kyc_id, "kyc_id", :string
@@ -10640,7 +11503,8 @@ module Didit
       field :identity_session_id, "identity_session_id", :string
     end
 
-    # The trusted timestamp in the signature. `null` until signed.
+    # The RFC 3161 timestamp in the signature, issued by Didit. `null` until signed, and always `null` for a Simple
+    # signature.
     class SignatureResultTimestamp < Didit::Model
       field :time, "time", :datetime
       field :qualified, "qualified", :boolean
@@ -10669,7 +11533,7 @@ module Didit
       field :timestamp, "timestamp", "SignatureResultValidationDocumentsTimestamp"
     end
 
-    # The certificate the documents were signed with. `null` until signed.
+    # The certificate the documents were signed with. `null` until signed, and always `null` for a Simple signature.
     class SignatureResultValidationDocumentsCertificate < Didit::Model
       field :issuer, "issuer", :string
       field :issued_to, "issued_to", :string
@@ -10678,7 +11542,8 @@ module Didit
       field :valid_until, "valid_until", :datetime
     end
 
-    # The trusted timestamp in the signature. `null` until signed.
+    # The RFC 3161 timestamp in the signature, issued by Didit. `null` until signed, and always `null` for a Simple
+    # signature.
     class SignatureResultValidationDocumentsTimestamp < Didit::Model
       field :time, "time", :datetime
       field :qualified, "qualified", :boolean
@@ -11332,6 +12197,11 @@ module Didit
       field :txn_id, "txn_id", :string
       field :created, "created", :boolean
       field :travel_rule, "travel_rule", "TravelRuleTransferDetail"
+    end
+
+    class TravelRuleManualMatchResponse < Didit::Model
+      field :deposit, "deposit", "TravelRuleTransferRow"
+      field :message, "message", "TravelRuleTransferRow"
     end
 
     # How strictly each field of the counterparty's data is compared with what you hold, per entity type. A field you
@@ -12086,6 +12956,7 @@ module Didit
       field :available_events, "available_events", [:array, "WebhookConfigAvailableEvents"]
       field :allowed_return_hosts, "allowed_return_hosts", [:array, :string]
       field :endpoints, "endpoints", [:array, "WebhookConfigDestination"]
+      field :allowed_domains, "allowed_domains", [:array, :string]
     end
 
     class WebhookConfigAvailableEvents < Didit::Model
@@ -12163,10 +13034,19 @@ module Didit
       field :kyb_role_settings, "kyb_role_settings", [:array, :any]
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :signature_availability, "signature_availability", "WorkflowDetailSignatureAvailability"
       field :is_bank_verification_enabled, "is_bank_verification_enabled", :boolean
       field :bank_verification_config, "bank_verification_config", :any
       field :is_geolocation_enabled, "is_geolocation_enabled", :boolean
       field :geolocation_config, "geolocation_config", :any
+    end
+
+    # Which E-signature levels can sign right now. Check it before you set `signature_level`. Returned on `kyc`, `kyb`
+    # and graph workflows.
+    class WorkflowDetailSignatureAvailability < Didit::Model
+      field :simple, "simple", :boolean
+      field :aes, "aes", :boolean
+      field :qes, "qes", :boolean
     end
 
     # One workflow version in the list view.

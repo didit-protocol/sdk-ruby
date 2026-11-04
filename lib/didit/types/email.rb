@@ -31,10 +31,38 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
+    # Action when the email intelligence risk score is above the threshold. `DECLINE` flips the final `status` to
+    # `Declined`; `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is
+    # `true`.
+    module EmailCheckCodeParamsEmailIntelligenceScoreAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
     # Action when the social footprint check finds the address registered on none of the platforms it covers. Only
     # NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of
     # the same name.
     module EmailCheckCodeParamsEmailNoSocialPresenceAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
+    # Action when the address appears in many known data breaches. `DECLINE` flips the final `status` to `Declined`;
+    # `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is `true`.
+    module EmailCheckCodeParamsFrequentEmailBreachAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
+    # Action when the address appears in a recent known data breach. `DECLINE` flips the final `status` to `Declined`;
+    # `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is `true`.
+    module EmailCheckCodeParamsRecentEmailBreachAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
 

@@ -3,7 +3,7 @@
 module Didit
   module Resources
     class Users < Didit::Resource
-      def batch_delete: (?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool, ?request_options: Didit::request_options?) -> Didit::Types::UsersBatchDeleteResponse
+      def batch_delete: (?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool, ?retain_face_embeddings: bool, ?face_retention_days: Integer, ?request_options: Didit::request_options?) -> Didit::Types::UsersBatchDeleteResponse
       def create: (vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?first_name: String, ?last_name: String, ?email: String, ?phone_number: String, ?country: String, ?send_verification_link: bool, ?workflow_id: String, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::UsersCreateResponse
       def generate_pdf: (String vendor_data, ?request_options: Didit::request_options?) -> String
                       | (String vendor_data, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
