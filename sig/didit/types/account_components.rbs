@@ -2,6 +2,14 @@
 
 module Didit
   module Types
+    module ApplicationDataLocation
+      EU: String
+      AU: String
+      MX: String
+
+      VALUES: Array[String]
+    end
+
     module ApplicationProductProduct
       IDENTITY: String
       TRANSACTIONS: String
@@ -29,6 +37,7 @@ module Didit
       def privacy_url: () -> String?
       def description: () -> String?
       def created_at: () -> Time?
+      def data_location: () -> String?
       def products: () -> Array[Didit::Types::ApplicationProduct]?
     end
 
@@ -37,6 +46,7 @@ module Didit
       def name: () -> String?
       def client_id: () -> String?
       def api_key: () -> String?
+      def data_location: () -> String?
     end
 
     class ApplicationProduct < Didit::Model
