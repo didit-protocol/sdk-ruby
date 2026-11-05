@@ -106,7 +106,8 @@ RSpec.describe Didit::Resources::Account do
           "uuid": "b2c3d4e5-6789-01bc-defg-222222222222",
           "name": "developer",
           "client_id": "S9LIYGSoWNuGMLHsvEt9dQ",
-          "api_key": "redacted-api_key"
+          "api_key": "redacted-api_key",
+          "data_location": "eu"
         }
       }
     JSON
@@ -146,6 +147,7 @@ RSpec.describe Didit::Resources::Account do
         "privacy_url": "https://acme.example/privacy",
         "description": null,
         "created_at": "2025-06-01T10:00:00Z",
+        "data_location": "eu",
         "products": [
           {
             "product": "identity",
@@ -180,7 +182,8 @@ RSpec.describe Didit::Resources::Account do
         "https://acme.example/callback"
       ],
       terms_url: "https://acme.example/terms",
-      privacy_url: "https://acme.example/privacy"
+      privacy_url: "https://acme.example/privacy",
+      data_location: "eu"
     )
     request = expect_api_request(
       calls,
@@ -197,7 +200,8 @@ RSpec.describe Didit::Resources::Account do
         "https://acme.example/callback"
       ],
       "terms_url" => "https://acme.example/terms",
-      "privacy_url" => "https://acme.example/privacy"
+      "privacy_url" => "https://acme.example/privacy",
+      "data_location" => "eu"
     })
     expect(result).to be_a(Didit::Types::Application)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -224,6 +228,7 @@ RSpec.describe Didit::Resources::Account do
             "privacy_url": "https://example.com/privacy",
             "description": "Production application",
             "created_at": "2025-06-01T10:00:00Z",
+            "data_location": "eu",
             "products": [
               {
                 "product": "identity",
@@ -296,6 +301,7 @@ RSpec.describe Didit::Resources::Account do
         "privacy_url": "https://example.com/privacy",
         "description": "Production application",
         "created_at": "2025-06-01T10:00:00Z",
+        "data_location": "eu",
         "products": [
           {
             "product": "identity",
@@ -355,6 +361,7 @@ RSpec.describe Didit::Resources::Account do
         "privacy_url": "https://acme.example/privacy",
         "description": null,
         "created_at": "2025-06-01T10:00:00Z",
+        "data_location": "eu",
         "products": [
           {
             "product": "identity",

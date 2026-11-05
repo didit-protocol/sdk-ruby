@@ -147,6 +147,17 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
+    # Cross-jurisdiction verification status: `verified` when the registry status establishes standing (`active`),
+    # `failed` when it says the company is no longer standing (for example `dissolved`), otherwise `unknown`. `null`
+    # for a company that did not come from a registry and while a selection is still `pending`.
+    module KybListShareholdersResponse202KybRegistryVerificationStatus
+      VERIFIED = "verified"
+      FAILED = "failed"
+      UNKNOWN = "unknown"
+
+      VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
+    end
+
     # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
     # data, or the registry has no ownership record for this company.
     module KybListShareholdersResponse202RegistryTierDelivered
@@ -308,6 +319,17 @@ module Didit
       NOT_APPLICABLE = "not_applicable"
 
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
+    end
+
+    # Cross-jurisdiction verification status: `verified` when the registry status establishes standing (`active`),
+    # `failed` when it says the company is no longer standing (for example `dissolved`), otherwise `unknown`. `null`
+    # for a company that did not come from a registry and while a selection is still `pending`.
+    module KybListShareholdersResponseKybRegistryVerificationStatus
+      VERIFIED = "verified"
+      FAILED = "failed"
+      UNKNOWN = "unknown"
+
+      VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
     end
 
     # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
@@ -473,6 +495,17 @@ module Didit
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
     end
 
+    # Cross-jurisdiction verification status: `verified` when the registry status establishes standing (`active`),
+    # `failed` when it says the company is no longer standing (for example `dissolved`), otherwise `unknown`. `null`
+    # for a company that did not come from a registry and while a selection is still `pending`.
+    module KybListUbosResponse202KybRegistryVerificationStatus
+      VERIFIED = "verified"
+      FAILED = "failed"
+      UNKNOWN = "unknown"
+
+      VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
+    end
+
     # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
     # data, when the registry has no ownership record for this company, or when the resolved report of a `ubo` request
     # names no natural person as a beneficial owner.
@@ -635,6 +668,17 @@ module Didit
       NOT_APPLICABLE = "not_applicable"
 
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
+    end
+
+    # Cross-jurisdiction verification status: `verified` when the registry status establishes standing (`active`),
+    # `failed` when it says the company is no longer standing (for example `dissolved`), otherwise `unknown`. `null`
+    # for a company that did not come from a registry and while a selection is still `pending`.
+    module KybListUbosResponseKybRegistryVerificationStatus
+      VERIFIED = "verified"
+      FAILED = "failed"
+      UNKNOWN = "unknown"
+
+      VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
     end
 
     # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership
@@ -819,6 +863,17 @@ module Didit
       NOT_APPLICABLE = "not_applicable"
 
       VALUES = [VALID, INVALID, FORMAT_VALID, INVALID_FORMAT, COULD_NOT_VALIDATE, NOT_APPLICABLE].freeze
+    end
+
+    # Cross-jurisdiction verification status: `verified` when the registry status establishes standing (`active`),
+    # `failed` when it says the company is no longer standing (for example `dissolved`), otherwise `unknown`. `null`
+    # for a company that did not come from a registry and while a selection is still `pending`.
+    module KybSelectResponseKybRegistryVerificationStatus
+      VERIFIED = "verified"
+      FAILED = "failed"
+      UNKNOWN = "unknown"
+
+      VALUES = [VERIFIED, FAILED, UNKNOWN].freeze
     end
 
     # The tier actually delivered and billed. Lower than requested when the country's registries hold no ownership

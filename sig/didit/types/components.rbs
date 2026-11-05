@@ -2638,6 +2638,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionDecisionIdVerificationsFallbackFromAction
+      FALLBACK_TO_DOCUMENT: String
+      DECLINE: String
+
+      VALUES: Array[String]
+    end
+
     module SessionDecisionIdVerificationsFallbackFromMethod
       ID_LOOKUP: String
       WALLET: String

@@ -133,8 +133,9 @@ module Didit
       class Applications < Didit::Resource
         # Create Application
         #
-        # Create an application inside an organization. The response includes `api_key`; persist it now (recoverable
-        # via GET). Requires owner/admin JWT.
+        # Create an application inside an organization, in the data location you choose (`data_location`, the European
+        # Union by default; it can't be changed afterwards). The response includes `api_key`; persist it now
+        # (recoverable via GET). Requires owner/admin JWT.
         #
         # +POST /organizations/me/{org_id}/applications/+
         #
@@ -145,6 +146,10 @@ module Didit
         # @param terms_url [String] Terms of service URL shown in the verification flow.
         # @param privacy_url [String] Privacy policy URL shown in the verification flow.
         # @param description [String] Internal description for the application (not shown to end users).
+        # @param data_location [String] Where the application's verification data is stored and processed, chosen when
+        #   the application is created. `eu` is the European Union (Ireland), the default. `au` (Australia, Sydney) and
+        #   `mx` (Mexico) are coming soon: a request that names them answers 400 `This data location is not available
+        #   yet.` An organization's Sandbox application is always in the European Union.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
         def create(
@@ -155,6 +160,7 @@ module Didit
           terms_url: OMIT,
           privacy_url: OMIT,
           description: OMIT,
+          data_location: OMIT,
           request_options: nil
         )
           @client.request(
@@ -167,7 +173,8 @@ module Didit
               "redirect_uris" => redirect_uris,
               "terms_url" => terms_url,
               "privacy_url" => privacy_url,
-              "description" => description
+              "description" => description,
+              "data_location" => data_location
             },
             auth: :account_token,
             api: :account,
@@ -231,7 +238,9 @@ module Didit
         # Update Application
         #
         # Update application metadata (name, URLs, redirect URIs). `api_key` and `client_id` are never rotated.
-        # `products` is read-only: a `products` key in the body is ignored. Requires owner/admin JWT.
+        # `products` is read-only: a `products` key in the body is ignored. `data_location` can't be changed after the
+        # application is created, except once on the live application created with your organization, while it is
+        # unused (see the request body). Requires owner/admin JWT.
         #
         # +PATCH /organizations/me/{org_id}/applications/{app_id}/+
         #
@@ -243,6 +252,10 @@ module Didit
         # @param terms_url [String] Terms of service URL shown in the verification flow.
         # @param privacy_url [String] Privacy policy URL shown in the verification flow.
         # @param description [String] Internal description for the application.
+        # @param data_location [String] Where the application's verification data is stored and processed, chosen when
+        #   the application is created. `eu` is the European Union (Ireland), the default. `au` (Australia, Sydney) and
+        #   `mx` (Mexico) are coming soon: a request that names them answers 400 `This data location is not available
+        #   yet.` An organization's Sandbox application is always in the European Union.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
         def update(
@@ -254,6 +267,7 @@ module Didit
           terms_url: OMIT,
           privacy_url: OMIT,
           description: OMIT,
+          data_location: OMIT,
           request_options: nil
         )
           @client.request(
@@ -266,7 +280,8 @@ module Didit
               "redirect_uris" => redirect_uris,
               "terms_url" => terms_url,
               "privacy_url" => privacy_url,
-              "description" => description
+              "description" => description,
+              "data_location" => data_location
             },
             auth: :account_token,
             api: :account,

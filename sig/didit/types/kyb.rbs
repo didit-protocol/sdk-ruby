@@ -123,6 +123,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module KybListShareholdersResponse202KybRegistryVerificationStatus
+      VERIFIED: String
+      FAILED: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
     module KybListShareholdersResponse202RegistryTierDelivered
       BASIC: String
       SHAREHOLDERS: String
@@ -256,6 +264,14 @@ module Didit
       INVALID_FORMAT: String
       COULD_NOT_VALIDATE: String
       NOT_APPLICABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module KybListShareholdersResponseKybRegistryVerificationStatus
+      VERIFIED: String
+      FAILED: String
+      UNKNOWN: String
 
       VALUES: Array[String]
     end
@@ -397,6 +413,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module KybListUbosResponse202KybRegistryVerificationStatus
+      VERIFIED: String
+      FAILED: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
     module KybListUbosResponse202RegistryTierDelivered
       BASIC: String
       SHAREHOLDERS: String
@@ -530,6 +554,14 @@ module Didit
       INVALID_FORMAT: String
       COULD_NOT_VALIDATE: String
       NOT_APPLICABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module KybListUbosResponseKybRegistryVerificationStatus
+      VERIFIED: String
+      FAILED: String
+      UNKNOWN: String
 
       VALUES: Array[String]
     end
@@ -680,6 +712,14 @@ module Didit
       INVALID_FORMAT: String
       COULD_NOT_VALIDATE: String
       NOT_APPLICABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module KybSelectResponseKybRegistryVerificationStatus
+      VERIFIED: String
+      FAILED: String
+      UNKNOWN: String
 
       VALUES: Array[String]
     end

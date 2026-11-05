@@ -3172,6 +3172,14 @@ module Didit
       VALUES = [SESSION, IMPORTED, LIST_ENTRY, RETAINED_TEMPLATE].freeze
     end
 
+    # The configured action that was taken: `fallback_to_document` or `decline`.
+    module SessionDecisionIdVerificationsFallbackFromAction
+      FALLBACK_TO_DOCUMENT = "fallback_to_document"
+      DECLINE = "decline"
+
+      VALUES = [FALLBACK_TO_DOCUMENT, DECLINE].freeze
+    end
+
     # The method that failed.
     module SessionDecisionIdVerificationsFallbackFromMethod
       ID_LOOKUP = "id_lookup"
@@ -10208,8 +10216,9 @@ module Didit
       field :place_of_birth_latin, "place_of_birth_latin", :string
     end
 
-    # Why a non-document method ended the ID step. Set on the declined report when a lookup or a wallet sign-in failed
-    # and the country's fallback switch was `decline`. `null` otherwise.
+    # Why a non-document method did not end the ID step. Set when a lookup or a wallet sign-in failed: on the document
+    # verification the user continued with when the country's fallback switch was `fallback_to_document` (`action` is
+    # `fallback_to_document`), or on the declined report when it was `decline`. `null` otherwise.
     class SessionDecisionIdVerificationsFallbackFrom < Didit::Model
       field :method_, "method", :string
       field :reason, "reason", :string
