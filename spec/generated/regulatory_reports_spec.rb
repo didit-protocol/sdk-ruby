@@ -63,8 +63,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       }
     JSON
     result = client.regulatory_reports.create(
-      case: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      template: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      case: "c1a5e000-0000-4000-8000-000000000001",
+      template: "7ec00000-0000-4000-8000-000000000006"
     )
     request = expect_api_request(
       calls,
@@ -75,8 +75,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "case" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "template" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "case" => "c1a5e000-0000-4000-8000-000000000001",
+      "template" => "7ec00000-0000-4000-8000-000000000006"
     })
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -409,7 +409,9 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       }
     JSON
     result = client.regulatory_reports.update(
-      "5ec00000-0000-4000-8000-000000000007"
+      "5ec00000-0000-4000-8000-000000000007",
+      rentity_id: "FIU-US-00123",
+      currency_code_local: "USD"
     )
     request = expect_api_request(
       calls,
@@ -419,7 +421,10 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "rentity_id" => "FIU-US-00123",
+      "currency_code_local" => "USD"
+    })
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

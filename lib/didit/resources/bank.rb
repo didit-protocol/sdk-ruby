@@ -7,6 +7,10 @@ module Didit
     class Bank < Didit::Resource
       # Check a bank account
       #
+      # **Not available in production yet.** Bank Verification is switched off in production, so until it is switched
+      # on this endpoint answers `404` with `bank_verification_not_available`. Do not build on it yet. The rest of
+      # this description is what the endpoint does once it is available.
+      #
       # Check that a bank account belongs to the person or company you name, before you send money to it. No session
       # and no sign-in: send the name and the account, read the result. It is the [account
       # check](/core-technology/bank-verification/account-check) of the Bank Verification step, run from your backend.
@@ -26,10 +30,10 @@ module Didit
       # **Every request is a new check.** There is no idempotency key and no endpoint to read a check back, so a
       # retried request runs, and is billed, again. Store the response.
       #
-      # **Sandbox.** A sandbox key calls no bank and is charged nothing. The last 4 characters of the IBAN, else of
-      # the account number, choose the answer: `0001` a `close_match` with a `holder_name`, `0002` a `close_match`
-      # without one, `0003` and `0006` a `no_match`, `0004` `cannot_verify`, `0005` a `503` and `0009` a `400`. Any
-      # other ending is a `match`.
+      # **Sandbox.** Where Bank Verification is available, a sandbox key calls no bank and is charged nothing. The
+      # last 4 characters of the IBAN, else of the account number, choose the answer: `0001` a `close_match` with a
+      # `holder_name`, `0002` a `close_match` without one, `0003` and `0006` a `no_match`, `0004` `cannot_verify`,
+      # `0005` a `503` and `0009` a `400`. Any other ending is a `match`.
       #
       # **API keys.** A scoped API key needs write access to sessions.
       #
@@ -44,9 +48,13 @@ module Didit
       # @param holder [Hash] The name the account is checked against. Send exactly one of `full_name` and
       #   `business_name`.
       # @param vendor_data [String, nil] Your own reference for this check, returned unchanged.
+      # @param consent [Boolean] Set to `true` when the account holder has explicitly consented to this check.
+      #   Required in the countries whose account check needs that consent: without it the check is refused with a `400`
+      #   whose `field` is `consent` and whose `reason` is `required`, and nothing is billed. Elsewhere it is optional,
+      #   and Didit records it with the check's charge when you send it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BankAccountCheckResponse]
-      def account_check(country:, account:, holder:, vendor_data: OMIT, request_options: nil)
+      def account_check(country:, account:, holder:, vendor_data: OMIT, consent: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/bank/account-check/",
@@ -54,7 +62,8 @@ module Didit
             "country" => country,
             "account" => account,
             "holder" => holder,
-            "vendor_data" => vendor_data
+            "vendor_data" => vendor_data,
+            "consent" => consent
           },
           response: Types::BankAccountCheckResponse,
           request_options: request_options

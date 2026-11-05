@@ -73,6 +73,11 @@ module Didit
       # @param allowed_return_hosts [Array<String>] Replaces the whole list of Digital ID wallet return hosts. Bare
       #   hostnames only, such as `shop.example.com`: no scheme, port, path or wildcard. Values are lowercased and
       #   duplicates are dropped. Send `[]` to clear the list.
+      # @param allowed_domains [Array<String>] Replaces the whole list of allowed origins. Origins (for example
+      #   `https://app.example.com`; `http` only for `localhost`) the hosted verification flow may be embedded in and
+      #   may send the user back to with a session callback. Server-to-server calls are not affected. An empty list
+      #   means no restriction. Didit stores each origin in lower case without a default port. An invalid entry fails
+      #   with `400` o...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WebhookConfig]
       def update_config(
@@ -85,6 +90,7 @@ module Didit
         face_retention_days: OMIT,
         biometric_consent_mode: OMIT,
         allowed_return_hosts: OMIT,
+        allowed_domains: OMIT,
         request_options: nil
       )
         @client.request(
@@ -99,7 +105,8 @@ module Didit
             "face_retention_policy" => face_retention_policy,
             "face_retention_days" => face_retention_days,
             "biometric_consent_mode" => biometric_consent_mode,
-            "allowed_return_hosts" => allowed_return_hosts
+            "allowed_return_hosts" => allowed_return_hosts,
+            "allowed_domains" => allowed_domains
           },
           response: Types::WebhookConfig,
           request_options: request_options

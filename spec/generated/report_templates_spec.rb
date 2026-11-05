@@ -20,9 +20,14 @@ RSpec.describe Didit::Resources::ReportTemplates do
       }
     JSON
     result = client.report_templates.create(
-      name: "name-value",
-      jurisdiction: "jurisdiction-value",
-      report_type: "SAR"
+      name: "US SAR default",
+      jurisdiction: "US",
+      report_type: "SAR",
+      field_config: {
+        rentity_id: "FIU-US-00123",
+        submission_code: "E",
+        currency_code_local: "USD"
+      }
     )
     request = expect_api_request(
       calls,
@@ -33,9 +38,14 @@ RSpec.describe Didit::Resources::ReportTemplates do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "name" => "name-value",
-      "jurisdiction" => "jurisdiction-value",
-      "report_type" => "SAR"
+      "name" => "US SAR default",
+      "jurisdiction" => "US",
+      "report_type" => "SAR",
+      "field_config" => {
+        "rentity_id" => "FIU-US-00123",
+        "submission_code" => "E",
+        "currency_code_local" => "USD"
+      }
     })
     expect(result).to be_a(Didit::Types::ReportTemplateDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -139,7 +149,10 @@ RSpec.describe Didit::Resources::ReportTemplates do
       }
     JSON
     result = client.report_templates.update(
-      "7ec00000-0000-4000-8000-000000000006"
+      "7ec00000-0000-4000-8000-000000000006",
+      field_config: {
+        rentity_id: "FIU-US-00124"
+      }
     )
     request = expect_api_request(
       calls,
@@ -149,7 +162,11 @@ RSpec.describe Didit::Resources::ReportTemplates do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "field_config" => {
+        "rentity_id" => "FIU-US-00124"
+      }
+    })
     expect(result).to be_a(Didit::Types::ReportTemplateDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

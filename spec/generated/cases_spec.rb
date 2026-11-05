@@ -37,7 +37,11 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.apply_entity_action(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      action: "set_status"
+      client_reference: "e1a00000-0000-4000-8000-000000000001",
+      action: "add_tags",
+      tags: [
+        "source-of-funds-reviewed"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -48,7 +52,11 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "action" => "set_status"
+      "client_reference" => "e1a00000-0000-4000-8000-000000000001",
+      "action" => "add_tags",
+      "tags" => [
+        "source-of-funds-reviewed"
+      ]
     })
     expect(result).to be_a(Didit::Types::CaseActionCaseEntityActionResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -440,7 +448,7 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.assign(
       "c1a5e000-0000-4000-8000-000000000001",
-      assignee_user_id: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa"
     )
     request = expect_api_request(
       calls,
@@ -451,7 +459,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "assignee_user_id" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "assignee_user_id" => "9a000000-0000-4000-8000-0000000000aa"
     })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -472,9 +480,9 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.bulk_assign(
       case_uuids: [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+        "c1a5e000-0000-4000-8000-000000000001"
       ],
-      assignee_user_id: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa"
     )
     request = expect_api_request(
       calls,
@@ -486,9 +494,9 @@ RSpec.describe Didit::Resources::Cases do
     )
     expect_json_body(request, {
       "case_uuids" => [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+        "c1a5e000-0000-4000-8000-000000000001"
       ],
-      "assignee_user_id" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "assignee_user_id" => "9a000000-0000-4000-8000-0000000000aa"
     })
     expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -509,9 +517,10 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.bulk_update_status(
       case_uuids: [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+        "c1a5e000-0000-4000-8000-000000000001"
       ],
-      status: "OPEN"
+      status: "RESOLVED",
+      resolution: "FALSE_POSITIVE"
     )
     request = expect_api_request(
       calls,
@@ -523,9 +532,10 @@ RSpec.describe Didit::Resources::Cases do
     )
     expect_json_body(request, {
       "case_uuids" => [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+        "c1a5e000-0000-4000-8000-000000000001"
       ],
-      "status" => "OPEN"
+      "status" => "RESOLVED",
+      "resolution" => "FALSE_POSITIVE"
     })
     expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -716,7 +726,16 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.create(
-      title: "title-value"
+      title: "Manual - Jane Doe",
+      blueprint: "b1de0000-0000-4000-8000-000000000002",
+      priority: "HIGH",
+      subject: {
+        type: "user",
+        uuid: "5b9a0000-0000-4000-8000-00000000f00d"
+      },
+      tags: [
+        "review"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -727,7 +746,16 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "title" => "title-value"
+      "title" => "Manual - Jane Doe",
+      "blueprint" => "b1de0000-0000-4000-8000-000000000002",
+      "priority" => "HIGH",
+      "subject" => {
+        "type" => "user",
+        "uuid" => "5b9a0000-0000-4000-8000-00000000f00d"
+      },
+      "tags" => [
+        "review"
+      ]
     })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -968,7 +996,12 @@ RSpec.describe Didit::Resources::Cases do
         ]
       }
     JSON
-    result = client.cases.find_duplicates
+    result = client.cases.find_duplicates(
+      subject: {
+        type: "user",
+        uuid: "5b9a0000-0000-4000-8000-00000000f00d"
+      }
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -977,7 +1010,12 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "subject" => {
+        "type" => "user",
+        "uuid" => "5b9a0000-0000-4000-8000-00000000f00d"
+      }
+    })
     expect(result).to be_a(Didit::Types::CaseDuplicateCaseDuplicatePage)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1523,7 +1561,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.reject_resolution(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      notes: "Needs a clearer rationale before this can be approved."
     )
     request = expect_api_request(
       calls,
@@ -1533,7 +1572,9 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "notes" => "Needs a clearer rationale before this can be approved."
+    })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2672,7 +2713,7 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.transfer(
       "c1a5e000-0000-4000-8000-000000000001",
-      target_blueprint: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      target_blueprint: "b1de0000-0000-4000-8000-000000000002"
     )
     request = expect_api_request(
       calls,
@@ -2683,7 +2724,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "target_blueprint" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "target_blueprint" => "b1de0000-0000-4000-8000-000000000002"
     })
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -2974,10 +3015,20 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.blueprints.create(
-      name: "name-value",
+      name: "AML investigation",
       assignee_pool: [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
-      ]
+        "9a000000-0000-4000-8000-0000000000aa"
+      ],
+      assignment_method: "AUTOMATIC",
+      max_active_cases: 15,
+      require_resolution_note: true,
+      content_config: {
+        aml_control: {
+          enabled: true,
+          financial: true,
+          identity: false
+        }
+      }
     )
     request = expect_api_request(
       calls,
@@ -2988,10 +3039,20 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "name" => "name-value",
+      "name" => "AML investigation",
       "assignee_pool" => [
-        "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
-      ]
+        "9a000000-0000-4000-8000-0000000000aa"
+      ],
+      "assignment_method" => "AUTOMATIC",
+      "max_active_cases" => 15,
+      "require_resolution_note" => true,
+      "content_config" => {
+        "aml_control" => {
+          "enabled" => true,
+          "financial" => true,
+          "identity" => false
+        }
+      }
     })
     expect(result).to be_a(Didit::Types::CaseBlueprintDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3045,7 +3106,12 @@ RSpec.describe Didit::Resources::Cases do
         ]
       }
     JSON
-    result = client.cases.blueprints.install_presets
+    result = client.cases.blueprints.install_presets(
+      preset_keys: [
+        "aml_investigation",
+        "kyc"
+      ]
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -3054,7 +3120,12 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "preset_keys" => [
+        "aml_investigation",
+        "kyc"
+      ]
+    })
     expect(result).to be_a(Didit::Types::CaseBlueprintPresetInstallResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3390,8 +3461,10 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.blueprints.save_draft(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      changes: {}
+      expected_revision: "4e5f0000-0000-4000-8000-000000000003",
+      changes: {
+        max_active_cases: 20
+      }
     )
     request = expect_api_request(
       calls,
@@ -3403,8 +3476,10 @@ RSpec.describe Didit::Resources::Cases do
     )
     expect_json_body(request, {
       "expected_version" => 1,
-      "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "changes" => {}
+      "expected_revision" => "4e5f0000-0000-4000-8000-000000000003",
+      "changes" => {
+        "max_active_cases" => 20
+      }
     })
     expect(result).to be_a(Didit::Types::CasePublicationPolicyDraft)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3490,7 +3565,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.blueprints.update(
-      "b1de0000-0000-4000-8000-000000000002"
+      "b1de0000-0000-4000-8000-000000000002",
+      transfer_enabled: true
     )
     request = expect_api_request(
       calls,
@@ -3500,7 +3576,9 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "transfer_enabled" => true
+    })
     expect(result).to be_a(Didit::Types::CaseBlueprintDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3580,8 +3658,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.links.create(
       "c1a5e000-0000-4000-8000-000000000001",
-      entity_type: "session",
-      entity_uuid: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      entity_type: "transaction",
+      entity_uuid: "77000000-0000-4000-8000-000000000077"
     )
     request = expect_api_request(
       calls,
@@ -3592,8 +3670,8 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "entity_type" => "session",
-      "entity_uuid" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "entity_type" => "transaction",
+      "entity_uuid" => "77000000-0000-4000-8000-000000000077"
     })
     expect(result).to be_a(Didit::Types::CaseLink)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3671,7 +3749,7 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.notes.create(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      comment: "comment-value"
+      comment: "Proof of address matches the ID document."
     )
     request = expect_api_request(
       calls,
@@ -3682,7 +3760,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "comment" => "comment-value"
+      "comment" => "Proof of address matches the ID document."
     })
     expect(result).to be_a(Didit::Types::CaseCollaborationCaseNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3846,7 +3924,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.notes.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      is_pinned: true
     )
     request = expect_api_request(
       calls,
@@ -3856,7 +3935,9 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "is_pinned" => true
+    })
     expect(result).to be_a(Didit::Types::CaseCollaborationCaseNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3919,7 +4000,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.regulatory_reports.create(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      template: "7ec00000-0000-4000-8000-000000000006"
     )
     request = expect_api_request(
       calls,
@@ -3929,7 +4011,9 @@ RSpec.describe Didit::Resources::Cases do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "template" => "7ec00000-0000-4000-8000-000000000006"
+    })
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4298,15 +4382,15 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.routing_rules.create(
-      name: "name-value",
+      name: "AML screening alerts",
       conditions: [
         {
           field: "source",
           operator: "equals",
-          value: "value-value"
+          value: "AML_SCREENING"
         }
       ],
-      blueprint: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      blueprint: "b1de0000-0000-4000-8000-000000000002"
     )
     request = expect_api_request(
       calls,
@@ -4317,15 +4401,15 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "name" => "name-value",
+      "name" => "AML screening alerts",
       "conditions" => [
         {
           "field" => "source",
           "operator" => "equals",
-          "value" => "value-value"
+          "value" => "AML_SCREENING"
         }
       ],
-      "blueprint" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "blueprint" => "b1de0000-0000-4000-8000-000000000002"
     })
     expect(result).to be_a(Didit::Types::CaseRoutingRule)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -4619,8 +4703,10 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.routing_rules.save_draft(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      changes: {}
+      expected_revision: "4e5f0000-0000-4000-8000-000000000003",
+      changes: {
+        priority: 10
+      }
     )
     request = expect_api_request(
       calls,
@@ -4632,8 +4718,10 @@ RSpec.describe Didit::Resources::Cases do
     )
     expect_json_body(request, {
       "expected_version" => 1,
-      "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "changes" => {}
+      "expected_revision" => "4e5f0000-0000-4000-8000-000000000003",
+      "changes" => {
+        "priority" => 10
+      }
     })
     expect(result).to be_a(Didit::Types::RoutingPublicationPolicyDraft)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -4708,10 +4796,11 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.teams.create(
-      name: "name-value",
+      name: "AML analysts",
       members: [
         {
-          user_id: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+          user_id: "9a000000-0000-4000-8000-0000000000aa",
+          capacity: 10
         }
       ]
     )
@@ -4724,10 +4813,11 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "name" => "name-value",
+      "name" => "AML analysts",
       "members" => [
         {
-          "user_id" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+          "user_id" => "9a000000-0000-4000-8000-0000000000aa",
+          "capacity" => 10
         }
       ]
     })

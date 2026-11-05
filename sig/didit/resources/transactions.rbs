@@ -11,7 +11,7 @@ module Didit
       def create_sdk_token: (vendor_data: String, ?ttl_seconds: Integer, ?max_uses: Integer?, ?request_options: Didit::request_options?) -> Didit::Types::TransactionsCreateSdkTokenResponse
       def generate_pdf: (String transaction_uuid, ?request_options: Didit::request_options?) -> String
                       | (String transaction_uuid, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
-      def list: (?limit: Integer, ?offset: Integer, ?travel_rule_status: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionsListResponseResults]
+      def list: (?limit: Integer, ?offset: Integer, ?travel_rule_status: String, ?assignee: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionsListResponseResults]
       def list_networks: (String transaction_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
       def list_party_networks: (String transaction_uuid, String transaction_party_uuid, ?request_options: Didit::request_options?) -> Didit::Types::EntityNetworkMembershipList
       def list_related: (String transaction_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TransactionSummary]

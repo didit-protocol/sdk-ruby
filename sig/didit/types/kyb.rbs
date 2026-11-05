@@ -761,7 +761,7 @@ module Didit
       def addresses: () -> Array[Didit::Types::KYBRegistryAddress]?
       def industries: () -> Array[Didit::Types::KYBRegistryIndustry]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
@@ -770,6 +770,7 @@ module Didit
       def registry_ownership_status: () -> String?
       def ownership: () -> Didit::Types::KYBRegistryOwnership?
       def registry_tier: () -> String?
+      def registry_monitoring: () -> Didit::Types::KybListShareholdersResponse202KybRegistryRegistryMonitoring?
     end
 
     class KybListShareholdersResponse202KybRegistryBeneficialOwners < Didit::Model
@@ -817,6 +818,19 @@ module Didit
       def date_of_birth_month: () -> Integer?
     end
 
+    class KybListShareholdersResponse202KybRegistryRegistryMonitoring < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def unavailable_reason: () -> String?
+      def enrolled_at: () -> Time?
+      def cancelled_at: () -> Time?
+      def last_bill_date: () -> Date?
+      def next_bill_date: () -> Date?
+      def last_event_at: () -> Time?
+      def events_count: () -> Integer?
+      def watched_fields: () -> untyped
+    end
+
     class KybListShareholdersResponseKybRegistry < Didit::Model
       def uuid: () -> String?
       def node_id: () -> String?
@@ -858,7 +872,7 @@ module Didit
       def addresses: () -> Array[Didit::Types::KYBRegistryAddress]?
       def industries: () -> Array[Didit::Types::KYBRegistryIndustry]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
@@ -867,6 +881,7 @@ module Didit
       def registry_ownership_status: () -> String?
       def ownership: () -> Didit::Types::KYBRegistryOwnership?
       def registry_tier: () -> String?
+      def registry_monitoring: () -> Didit::Types::KybListShareholdersResponseKybRegistryRegistryMonitoring?
     end
 
     class KybListShareholdersResponseKybRegistryBeneficialOwners < Didit::Model
@@ -912,6 +927,19 @@ module Didit
       def date_of_birth: () -> Date?
       def date_of_birth_year: () -> Integer?
       def date_of_birth_month: () -> Integer?
+    end
+
+    class KybListShareholdersResponseKybRegistryRegistryMonitoring < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def unavailable_reason: () -> String?
+      def enrolled_at: () -> Time?
+      def cancelled_at: () -> Time?
+      def last_bill_date: () -> Date?
+      def next_bill_date: () -> Date?
+      def last_event_at: () -> Time?
+      def events_count: () -> Integer?
+      def watched_fields: () -> untyped
     end
 
     class KybListUbosResponse < Didit::Model
@@ -975,7 +1003,7 @@ module Didit
       def addresses: () -> Array[Didit::Types::KYBRegistryAddress]?
       def industries: () -> Array[Didit::Types::KYBRegistryIndustry]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
@@ -984,6 +1012,7 @@ module Didit
       def registry_ownership_status: () -> String?
       def ownership: () -> Didit::Types::KYBRegistryOwnership?
       def registry_tier: () -> String?
+      def registry_monitoring: () -> Didit::Types::KybListUbosResponse202KybRegistryRegistryMonitoring?
     end
 
     class KybListUbosResponse202KybRegistryBeneficialOwners < Didit::Model
@@ -1031,6 +1060,19 @@ module Didit
       def date_of_birth_month: () -> Integer?
     end
 
+    class KybListUbosResponse202KybRegistryRegistryMonitoring < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def unavailable_reason: () -> String?
+      def enrolled_at: () -> Time?
+      def cancelled_at: () -> Time?
+      def last_bill_date: () -> Date?
+      def next_bill_date: () -> Date?
+      def last_event_at: () -> Time?
+      def events_count: () -> Integer?
+      def watched_fields: () -> untyped
+    end
+
     class KybListUbosResponseKybRegistry < Didit::Model
       def uuid: () -> String?
       def node_id: () -> String?
@@ -1072,7 +1114,7 @@ module Didit
       def addresses: () -> Array[Didit::Types::KYBRegistryAddress]?
       def industries: () -> Array[Didit::Types::KYBRegistryIndustry]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
@@ -1081,6 +1123,7 @@ module Didit
       def registry_ownership_status: () -> String?
       def ownership: () -> Didit::Types::KYBRegistryOwnership?
       def registry_tier: () -> String?
+      def registry_monitoring: () -> Didit::Types::KybListUbosResponseKybRegistryRegistryMonitoring?
     end
 
     class KybListUbosResponseKybRegistryBeneficialOwners < Didit::Model
@@ -1126,6 +1169,19 @@ module Didit
       def date_of_birth: () -> Date?
       def date_of_birth_year: () -> Integer?
       def date_of_birth_month: () -> Integer?
+    end
+
+    class KybListUbosResponseKybRegistryRegistryMonitoring < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def unavailable_reason: () -> String?
+      def enrolled_at: () -> Time?
+      def cancelled_at: () -> Time?
+      def last_bill_date: () -> Date?
+      def next_bill_date: () -> Date?
+      def last_event_at: () -> Time?
+      def events_count: () -> Integer?
+      def watched_fields: () -> untyped
     end
 
     class KybSearchResponse < Didit::Model
@@ -1187,7 +1243,7 @@ module Didit
       def addresses: () -> Array[Didit::Types::KYBRegistryAddress]?
       def industries: () -> Array[Didit::Types::KYBRegistryIndustry]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
@@ -1196,6 +1252,7 @@ module Didit
       def registry_ownership_status: () -> String?
       def ownership: () -> Didit::Types::KYBRegistryOwnership?
       def registry_tier: () -> String?
+      def registry_monitoring: () -> Didit::Types::KybSelectResponseKybRegistryRegistryMonitoring?
     end
 
     class KybSelectResponseKybRegistryBeneficialOwners < Didit::Model
@@ -1241,6 +1298,19 @@ module Didit
       def date_of_birth: () -> Date?
       def date_of_birth_year: () -> Integer?
       def date_of_birth_month: () -> Integer?
+    end
+
+    class KybSelectResponseKybRegistryRegistryMonitoring < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def unavailable_reason: () -> String?
+      def enrolled_at: () -> Time?
+      def cancelled_at: () -> Time?
+      def last_bill_date: () -> Date?
+      def next_bill_date: () -> Date?
+      def last_event_at: () -> Time?
+      def events_count: () -> Integer?
+      def watched_fields: () -> untyped
     end
 
     type kyb_list_shareholders_params = { kyb_response_id: String, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?save_api_request: bool }

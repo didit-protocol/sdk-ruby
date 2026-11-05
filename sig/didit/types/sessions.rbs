@@ -35,6 +35,108 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsCreateKybPartyDraftParamsEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsCreateKybPartyDraftParamsRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsCreateKybPartyDraftParamsRoles
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsCreateKybPartyDraftResponsePartyEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsCreateKybPartyDraftResponsePartyRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsCreateKybPartyDraftResponsePartyRoles
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsCreateParamsCallbackMethod
       INITIATOR: String
       COMPLETER: String
@@ -314,6 +416,86 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsListKybExtractedPartiesResponsePartiesEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsListKybExtractedPartiesResponsePartiesRolesRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsListKybPartyDraftsResponsePartiesPartyEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsListKybPartyDraftsResponsePartiesPartyRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsListKybPartyDraftsResponsePartiesPartyRoles
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsListParamsApiService
       ID_VERIFICATION: String
       FACE_MATCH: String
@@ -362,6 +544,7 @@ module Didit
       IP_ANALYSIS: String
       AGE_ESTIMATION: String
       DATABASE_VALIDATION: String
+      GEOLOCATION: String
 
       VALUES: Array[String]
     end
@@ -453,6 +636,7 @@ module Didit
       KYB_REGISTRY: String
       KYB_KEY_PEOPLE: String
       KYB: String
+      GEOLOCATION: String
 
       VALUES: Array[String]
     end
@@ -482,6 +666,7 @@ module Didit
       KYB_REGISTRY: String
       KYB_KEY_PEOPLE: String
       KYB: String
+      GEOLOCATION: String
 
       VALUES: Array[String]
     end
@@ -792,6 +977,108 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsUpdateKybPartyDraftParamsEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUpdateKybPartyDraftParamsRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUpdateKybPartyDraftParamsRoles
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUpdateKybPartyDraftResponsePartyEntityType
+      PERSON: String
+      COMPANY: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUpdateKybPartyDraftResponsePartyRole
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUpdateKybPartyDraftResponsePartyRoles
+      DIRECTOR: String
+      NON_EXECUTIVE_DIRECTOR: String
+      SECRETARY: String
+      CHAIRMAN: String
+      UBO: String
+      SHAREHOLDER: String
+      REPRESENTATIVE: String
+      FOUNDER: String
+      LEGAL_ADVISOR: String
+      AUTHORIZED_SIGNATORY: String
+      TRUSTEE: String
+      BENEFICIARY: String
+      SETTLOR: String
+      PROTECTOR: String
+      COMPANY_OFFICER: String
+      INVESTOR: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsUpdateKybPartyResponseEntityType
       PERSON: String
       COMPANY: String
@@ -852,6 +1139,16 @@ module Didit
       KYB_REGISTRY: String
       KYB_KEY_PEOPLE: String
       KYB: String
+      GEOLOCATION: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionsUploadKybDocumentsParamsDocumentGroup
+      LEGAL_PRESENCE: String
+      COMPANY_DETAILS: String
+      OWNERSHIP_STRUCTURE: String
+      REPRESENTATIVES_AUTHORIZATION: String
 
       VALUES: Array[String]
     end
@@ -876,6 +1173,32 @@ module Didit
     class SessionsBulkUpdateAmlHitStatusResponse < Didit::Model
       def message: () -> String
       def updated_hits: () -> Array[String]
+    end
+
+    class SessionsCreateKybPartyDraftResponse < Didit::Model
+      def draft_id: () -> String
+      def created_at: () -> Time
+      def updated_at: () -> Time
+      def party: () -> Didit::Types::SessionsCreateKybPartyDraftResponseParty
+    end
+
+    class SessionsCreateKybPartyDraftResponseParty < Didit::Model
+      def entity_type: () -> String
+      def full_name: () -> String?
+      def first_name: () -> String?
+      def last_name: () -> String?
+      def role: () -> String?
+      def roles: () -> Array[String]?
+      def position: () -> String?
+      def date_of_birth: () -> Date?
+      def company_name: () -> String?
+      def registration_number: () -> String?
+      def email: () -> String?
+      def ownership_percent: () -> Float?
+      def nationality: () -> String
+      def phone_number: () -> String?
+      def custom_fields: () -> Hash[String, untyped]?
+      def skip_verification: () -> bool?
     end
 
     class SessionsCreateResponse < Didit::Model
@@ -958,6 +1281,73 @@ module Didit
       def overrides: () -> Array[Didit::Types::FeatureStatusOverride]
     end
 
+    class SessionsListKybExtractedPartiesResponse < Didit::Model
+      def parties: () -> Array[Didit::Types::SessionsListKybExtractedPartiesResponseParties]
+      def document_count: () -> Integer
+      def node_id: () -> String?
+    end
+
+    class SessionsListKybExtractedPartiesResponseParties < Didit::Model
+      def name: () -> String?
+      def entity_type: () -> String?
+      def first_name: () -> String?
+      def last_name: () -> String?
+      def appointment_date: () -> String?
+      def designation: () -> String?
+      def roles: () -> Array[Didit::Types::SessionsListKybExtractedPartiesResponsePartiesRoles]?
+      def documents: () -> Array[Didit::Types::SessionsListKybExtractedPartiesResponsePartiesDocuments]?
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesDocuments < Didit::Model
+      def document_uuid: () -> String?
+      def document_type: () -> String?
+      def document_subtype: () -> String?
+      def original_filename: () -> String?
+      def status: () -> String?
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesRoles < Didit::Model
+      def role: () -> String?
+      def ownership_percent: () -> Didit::Types::SessionsListKybExtractedPartiesResponsePartiesRolesOwnershipPercent?
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesRolesOwnershipPercent < Didit::Model
+      def text: () -> String?
+      def min: () -> Float?
+      def max: () -> Float?
+    end
+
+    class SessionsListKybPartyDraftsResponse < Didit::Model
+      def parties: () -> Array[Didit::Types::SessionsListKybPartyDraftsResponseParties]?
+      def node_id: () -> String?
+    end
+
+    class SessionsListKybPartyDraftsResponseParties < Didit::Model
+      def draft_id: () -> String
+      def created_at: () -> Time
+      def updated_at: () -> Time
+      def party: () -> Didit::Types::SessionsListKybPartyDraftsResponsePartiesParty
+    end
+
+    class SessionsListKybPartyDraftsResponsePartiesParty < Didit::Model
+      def entity_type: () -> String
+      def full_name: () -> String?
+      def first_name: () -> String?
+      def last_name: () -> String?
+      def role: () -> String?
+      def roles: () -> Array[String]?
+      def position: () -> String?
+      def date_of_birth: () -> Date?
+      def company_name: () -> String?
+      def registration_number: () -> String?
+      def email: () -> String?
+      def ownership_percent: () -> Float?
+      def nationality: () -> String
+      def phone_number: () -> String?
+      def custom_fields: () -> Hash[String, untyped]?
+      def skip_verification: () -> bool?
+    end
+
     class SessionsListResponse < Didit::Model
       def count: () -> Integer
       def `next`: () -> String?
@@ -982,6 +1372,11 @@ module Didit
       def phone_number: () -> Didit::Types::SessionsListResponseResultsPhoneNumber?
       def email_address: () -> Didit::Types::SessionsListResponseResultsEmailAddress?
       def additional_details: () -> Didit::Types::SessionsListResponseResultsAdditionalDetails?
+      def assignee: () -> Didit::Types::SessionsListResponseResultsAssignee?
+      def waiting_since: () -> Time?
+      def sla_due_at: () -> Time?
+      def top_warnings: () -> Array[Didit::Types::SessionsListResponseResultsTopWarnings]?
+      def warnings_count: () -> Integer?
       def workflow_id: () -> String?
       def workflow_type: () -> String?
       def workflow_label: () -> String?
@@ -1050,6 +1445,11 @@ module Didit
       def name_on_document: () -> String?
     end
 
+    class SessionsListResponseResultsAssignee < Didit::Model
+      def email: () -> String?
+      def assigned_at: () -> Time?
+    end
+
     class SessionsListResponseResultsEmailAddress < Didit::Model
       def email: () -> String
       def is_verified: () -> bool
@@ -1065,6 +1465,13 @@ module Didit
       def is_verified: () -> bool
     end
 
+    class SessionsListResponseResultsTopWarnings < Didit::Model
+      def risk: () -> String?
+      def feature: () -> String?
+      def log_type: () -> String?
+      def short_description: () -> String?
+    end
+
     class SessionsPreviewDecisionEmailResponse < Didit::Model
       def recipient: () -> String
       def recipient_source: () -> String
@@ -1074,6 +1481,7 @@ module Didit
       def sender_kind: () -> String
       def subject: () -> String
       def html: () -> String
+      def text: () -> String
       def language: () -> String
       def will_be_sent: () -> bool
       def not_sent_reason: () -> String?
@@ -1089,6 +1497,7 @@ module Didit
       def sender_kind: () -> String
       def subject: () -> String
       def html: () -> String
+      def text: () -> String
       def language: () -> String
       def will_be_sent: () -> bool
       def not_sent_reason: () -> String?
@@ -1124,6 +1533,16 @@ module Didit
 
     class SessionsSignaturesValidateResponse < Didit::Model
       def signatures: () -> Array[Didit::Types::SignatureResult]?
+    end
+
+    class SessionsSubmitKybPartiesResponse < Didit::Model
+      def valid: () -> bool?
+      def next_step: () -> String?
+      def status: () -> String?
+      def advanced: () -> bool?
+      def already_submitted: () -> bool?
+      def kyb_key_people_status: () -> String?
+      def parties: () -> Array[Didit::Types::KYBKeyPeopleParty]?
     end
 
     class SessionsUpdateAmlHitStatusResponse < Didit::Model
@@ -1227,11 +1646,37 @@ module Didit
       def addresses: () -> Array[Hash[String, untyped]]?
       def industries: () -> Array[Hash[String, untyped]]?
       def accounts: () -> Hash[String, untyped]?
-      def registry_data: () -> Hash[String, untyped]?
+      def registry_data: () -> Didit::Types::KYBRegistryData?
       def user_provided_data: () -> Hash[String, untyped]?
       def confirmed_by_user_at: () -> Time?
       def last_console_edit_at: () -> Time?
       def is_editable: () -> bool?
+    end
+
+    class SessionsUpdateKybPartyDraftResponse < Didit::Model
+      def draft_id: () -> String
+      def created_at: () -> Time
+      def updated_at: () -> Time
+      def party: () -> Didit::Types::SessionsUpdateKybPartyDraftResponseParty
+    end
+
+    class SessionsUpdateKybPartyDraftResponseParty < Didit::Model
+      def entity_type: () -> String
+      def full_name: () -> String?
+      def first_name: () -> String?
+      def last_name: () -> String?
+      def role: () -> String?
+      def roles: () -> Array[String]?
+      def position: () -> String?
+      def date_of_birth: () -> Date?
+      def company_name: () -> String?
+      def registration_number: () -> String?
+      def email: () -> String?
+      def ownership_percent: () -> Float?
+      def nationality: () -> String
+      def phone_number: () -> String?
+      def custom_fields: () -> Hash[String, untyped]?
+      def skip_verification: () -> bool?
     end
 
     class SessionsUpdateKybPartyResponse < Didit::Model
@@ -1274,6 +1719,13 @@ module Didit
       def session_id: () -> String?
     end
 
+    class SessionsUploadKybDocumentsResponse < Didit::Model
+      def valid: () -> bool?
+      def next_step: () -> String?
+      def kyb_status: () -> String?
+      def document_answer: () -> Hash[String, untyped]?
+    end
+
     type sessions_add_images_params = { file: Didit::upload, model_type: String, ?file_password: String }
 
     type sessions_batch_delete_params = { ?session_numbers: Array[String], ?delete_all: bool, ?retain_face_embeddings: bool?, ?face_retention_days: Integer, ?face_retention_deadline: Time | String, ?deletion_instruction: String, ?instruction_id: String, ?filter_status: (String | Array[String]), ?filter_vendor_data: String, ?filter_search: String, ?filter_workflow_id: (String | Array[String]), ?filter_date_from: Date | String, ?filter_date_to: Date | String, ?filter_country: (String | Array[String]), ?filter_document_type: (String | Array[String]), ?filter_document_name: (String | Array[String]), ?filter_region: (String | Array[String]), ?filter_didit_internal_id: String, ?filter_session_type: (String | Array[String]), ?filter_api_service: String, ?filter_screened_full_name: String, ?filter_warning: (String | Array[String]), ?filter_status_initialized_as_in_review: bool, ?filter_is_kyc_to_be_reviewed: bool, ?filter_euuid: String, ?filter_organization_name: (String | Array[String]) }
@@ -1282,7 +1734,9 @@ module Didit
 
     type sessions_bulk_update_aml_hit_status_params_hit_updates = { hit_id: String, review_status: String }
 
-    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?tags: Array[String], ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign, ?user_state: String, ?biometric_consent: Didit::Types::sessions_create_params_biometric_consent }
+    type sessions_create_kyb_party_draft_params = { entity_type: String, ?full_name: String, ?first_name: String, ?last_name: String, ?role: String, ?roles: Array[String], ?position: String, ?date_of_birth: (Date | String)?, ?company_name: String, ?registration_number: String, ?email: String, ?ownership_percent: (Float | Integer)?, nationality: String, ?phone_number: String, ?custom_fields: Hash[String | Symbol, untyped], ?skip_verification: bool }
+
+    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?multi_account_segment: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?tags: Array[String], ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign, ?user_state: String, ?biometric_consent: Didit::Types::sessions_create_params_biometric_consent }
 
     type sessions_create_params_biometric_consent = { given_at: Time | String, text_version: String }
 
@@ -1322,6 +1776,8 @@ module Didit
 
     type sessions_simulate_params = { ?new_status: String, ?comment: String, ?scenario: String, ?risk: String, ?node_id: String, ?send_webhooks: bool }
 
+    type sessions_submit_kyb_parties_params = { ?locale: String }
+
     type sessions_update_aml_hit_status_params = { hit_id: String, review_status: String, ?node_id: String }
 
     type sessions_update_aml_status_params = { status: String, ?node_id: String }
@@ -1336,6 +1792,8 @@ module Didit
 
     type sessions_update_kyb_company_data_params = { ?company_name: String, ?registration_number: String, ?country_code: String, ?region: String?, ?incorporation_date: Date | String, ?registration_date: (Date | String)?, ?dissolution_date: (Date | String)?, ?tax_number: String, ?legal_address: String, ?company_type: String, ?registry_status: String?, ?verification_status: String?, ?alternative_names: String, ?nature_of_business: String, ?registered_capital: String, ?registered_capital_amount: (Float | Integer)?, ?registered_capital_currency: String?, ?website: String, ?email: String, ?phone: String, ?legal_entity_identifier: String, ?location_of_registration: String, ?vat_number: String, ?control_scheme: String }
 
+    type sessions_update_kyb_party_draft_params = { ?entity_type: String, ?full_name: String, ?first_name: String, ?last_name: String, ?role: String, ?roles: Array[String], ?position: String, ?date_of_birth: (Date | String)?, ?company_name: String, ?registration_number: String, ?email: String, ?ownership_percent: (Float | Integer)?, ?nationality: String, ?phone_number: String, ?custom_fields: Hash[String | Symbol, untyped], ?skip_verification: bool }
+
     type sessions_update_kyb_party_params = { is_skipped: bool }
 
     type sessions_update_poa_data_params = { ?issuing_state: String?, ?document_type: String, ?document_language: String?, ?issuer: String?, ?issue_date: (Date | String)?, ?poa_address: String?, ?name_on_document: String?, ?extra_fields: (Hash[String | Symbol, untyped])?, ?poa_parsed_address: Didit::Types::sessions_update_poa_data_params_poa_parsed_address? }
@@ -1345,5 +1803,7 @@ module Didit
     type sessions_update_status_params = { new_status: String, ?comment: String, ?nodes_to_resubmit: Array[Didit::Types::sessions_update_status_params_nodes_to_resubmit], ?send_email: bool, ?email_address: String, ?email_language: String, ?email_preview_token: String }
 
     type sessions_update_status_params_nodes_to_resubmit = { node_id: String, feature: String }
+
+    type sessions_upload_kyb_documents_params = { documents: Array[Didit::upload], ?document_passwords: Array[String], ?document_group: String, ?locale: String }
   end
 end

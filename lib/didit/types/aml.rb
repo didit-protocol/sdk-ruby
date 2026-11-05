@@ -29,6 +29,25 @@ module Didit
       VALUES = [PERSON, COMPANY].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module AmlScreenResponseAmlHitsDatasets
+      PEP = "PEP"
+      PEP_LEVEL_1 = "PEP Level 1"
+      PEP_LEVEL_2 = "PEP Level 2"
+      PEP_LEVEL_3 = "PEP Level 3"
+      PEP_LEVEL_4 = "PEP Level 4"
+      SANCTIONS = "Sanctions"
+      ADVERSE_MEDIA = "Adverse Media"
+      WARNINGS_AND_REGULATORY_ENFORCEMENT = "Warnings and Regulatory Enforcement"
+      FITNESS_AND_PROBITY = "Fitness and Probity"
+      SIP = "SIP"
+      SIE = "SIE"
+      INSOLVENCY = "Insolvency"
+      OTHER_LISTS = "Other Lists"
+
+      VALUES = [PEP, PEP_LEVEL_1, PEP_LEVEL_2, PEP_LEVEL_3, PEP_LEVEL_4, SANCTIONS, ADVERSE_MEDIA, WARNINGS_AND_REGULATORY_ENFORCEMENT, FITNESS_AND_PROBITY, SIP, SIE, INSOLVENCY, OTHER_LISTS].freeze
+    end
+
     # `False Positive` - `match_score` below `aml_match_score_threshold`, excluded from risk assessment. `Unreviewed`
     # - possible match awaiting review. `Confirmed Match` / `Inconclusive` - set manually by a reviewer (via the
     # Business Console) on saved sessions; that review capability is not part of this spec.

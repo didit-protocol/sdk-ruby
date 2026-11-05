@@ -19,6 +19,10 @@ module Didit
       BASE: String
       OP: String
       ARB: String
+      AVAX: String
+      ADA: String
+      XLM: String
+      HBAR: String
       CELO: String
       MODE: String
       PLUME: String
@@ -35,6 +39,6 @@ module Didit
       VALUES: Array[String]
     end
 
-    type wallet_screening_screen_params = { wallet_address: String, blockchain: String, ?direction: String }
+    type wallet_screening_screen_params = { wallet_address: String, ?blockchain: String, ?direction: String }
   end
 end

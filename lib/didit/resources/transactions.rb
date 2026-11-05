@@ -206,16 +206,21 @@ module Didit
       # @param travel_rule_status [String] Return only transactions whose Travel Rule transfer is in this exact status
       #   (for example `ON_HOLD` or `AWAITING_COUNTERPARTY`). `count` follows this filter; `total_transactions` still
       #   counts every transaction in the application.
+      # @param assignee [String] Comma-separated; a transaction matches when it meets any value. `unassigned` is what
+      #   nobody holds yet, `rules` is what the rules decided on their own without a reviewer, and a member email
+      #   matches the reviewer assigned to it. `me` is the signed-in Console reviewer, so an API key sending `me` gets
+      #   `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Page<Didit::Types::TransactionsListResponseResults>]
-      def list(limit: OMIT, offset: OMIT, travel_rule_status: OMIT, request_options: nil)
+      def list(limit: OMIT, offset: OMIT, travel_rule_status: OMIT, assignee: OMIT, request_options: nil)
         @client.request(
           :get,
           "/v3/transactions/",
           query: {
             "limit" => limit,
             "offset" => offset,
-            "travel_rule_status" => travel_rule_status
+            "travel_rule_status" => travel_rule_status,
+            "assignee" => assignee
           },
           page: Types::TransactionsListResponseResults,
           request_options: request_options

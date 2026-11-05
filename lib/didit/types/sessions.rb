@@ -50,6 +50,114 @@ module Didit
       VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
     end
 
+    # Whether the party is an individual or a company.
+    module SessionsCreateKybPartyDraftParamsEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+    module SessionsCreateKybPartyDraftParamsRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsCreateKybPartyDraftParamsRoles
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Whether the party is an individual or a company.
+    module SessionsCreateKybPartyDraftResponsePartyEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+    module SessionsCreateKybPartyDraftResponsePartyRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsCreateKybPartyDraftResponsePartyRoles
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
     # Determines which device should handle the redirect to the provided callback URL. Use `initiator` to redirect
     # only the device that started the flow, `completer` for the device that finishes it, or `both` to allow either
     # device to trigger the callback. If you ever notice the callback not triggering reliably, we recommend setting
@@ -367,6 +475,91 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module SessionsListKybExtractedPartiesResponsePartiesEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsListKybExtractedPartiesResponsePartiesRolesRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Whether the party is an individual or a company.
+    module SessionsListKybPartyDraftsResponsePartiesPartyEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+    module SessionsListKybPartyDraftsResponsePartiesPartyRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsListKybPartyDraftsResponsePartiesPartyRoles
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module SessionsListParamsApiService
       ID_VERIFICATION = "ID_VERIFICATION"
       FACE_MATCH = "FACE_MATCH"
@@ -421,8 +614,9 @@ module Didit
       IP_ANALYSIS = "IP_ANALYSIS"
       AGE_ESTIMATION = "AGE_ESTIMATION"
       DATABASE_VALIDATION = "DATABASE_VALIDATION"
+      GEOLOCATION = "GEOLOCATION"
 
-      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACE_MATCH, POA, QUESTIONNAIRE, EMAIL_VERIFICATION, PHONE, AML, IP_ANALYSIS, AGE_ESTIMATION, DATABASE_VALIDATION].freeze
+      VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACE_MATCH, POA, QUESTIONNAIRE, EMAIL_VERIFICATION, PHONE, AML, IP_ANALYSIS, AGE_ESTIMATION, DATABASE_VALIDATION, GEOLOCATION].freeze
     end
 
     # Status of this feature. `Not Finished` until the step completes.
@@ -531,8 +725,9 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
       KYB = "KYB"
+      GEOLOCATION = "GEOLOCATION"
 
-      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
+      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB, GEOLOCATION].freeze
     end
 
     # Feature type of the node. The aliases `ID_VERIFICATION`, `POA`, `PHONE`, and `EMAIL` are normalized server-side
@@ -563,8 +758,9 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
       KYB = "KYB"
+      GEOLOCATION = "GEOLOCATION"
 
-      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
+      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB, GEOLOCATION].freeze
     end
 
     # Why confirming would send no email, or `null` when it will be sent. `no_user_action`: every selected step runs
@@ -926,6 +1122,114 @@ module Didit
     end
 
     # Whether the party is an individual or a company.
+    module SessionsUpdateKybPartyDraftParamsEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+    module SessionsUpdateKybPartyDraftParamsRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsUpdateKybPartyDraftParamsRoles
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Whether the party is an individual or a company.
+    module SessionsUpdateKybPartyDraftResponsePartyEntityType
+      PERSON = "person"
+      COMPANY = "company"
+
+      VALUES = [PERSON, COMPANY].freeze
+    end
+
+    # Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+    module SessionsUpdateKybPartyDraftResponsePartyRole
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SessionsUpdateKybPartyDraftResponsePartyRoles
+      DIRECTOR = "director"
+      NON_EXECUTIVE_DIRECTOR = "non_executive_director"
+      SECRETARY = "secretary"
+      CHAIRMAN = "chairman"
+      UBO = "ubo"
+      SHAREHOLDER = "shareholder"
+      REPRESENTATIVE = "representative"
+      FOUNDER = "founder"
+      LEGAL_ADVISOR = "legal_advisor"
+      AUTHORIZED_SIGNATORY = "authorized_signatory"
+      TRUSTEE = "trustee"
+      BENEFICIARY = "beneficiary"
+      SETTLOR = "settlor"
+      PROTECTOR = "protector"
+      COMPANY_OFFICER = "company_officer"
+      INVESTOR = "investor"
+      OTHER = "other"
+
+      VALUES = [DIRECTOR, NON_EXECUTIVE_DIRECTOR, SECRETARY, CHAIRMAN, UBO, SHAREHOLDER, REPRESENTATIVE, FOUNDER, LEGAL_ADVISOR, AUTHORIZED_SIGNATORY, TRUSTEE, BENEFICIARY, SETTLOR, PROTECTOR, COMPANY_OFFICER, INVESTOR, OTHER].freeze
+    end
+
+    # Whether the party is an individual or a company.
     module SessionsUpdateKybPartyResponseEntityType
       PERSON = "person"
       COMPANY = "company"
@@ -993,8 +1297,19 @@ module Didit
       KYB_REGISTRY = "KYB_REGISTRY"
       KYB_KEY_PEOPLE = "KYB_KEY_PEOPLE"
       KYB = "KYB"
+      GEOLOCATION = "GEOLOCATION"
 
-      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB].freeze
+      VALUES = [OCR, OCR_BACK, NFC, AML, FACE, LIVENESS, FACE_MATCH, IP_ANALYSIS, AGE_ESTIMATION, PROOF_OF_ADDRESS, PHONE_VERIFICATION, EMAIL_VERIFICATION, FACE_SEARCH, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_DOCUMENTS, ID_VERIFICATION, POA, PHONE, EMAIL, KYB_REGISTRY, KYB_KEY_PEOPLE, KYB, GEOLOCATION].freeze
+    end
+
+    # Required document group this upload answers.
+    module SessionsUploadKybDocumentsParamsDocumentGroup
+      LEGAL_PRESENCE = "LEGAL_PRESENCE"
+      COMPANY_DETAILS = "COMPANY_DETAILS"
+      OWNERSHIP_STRUCTURE = "OWNERSHIP_STRUCTURE"
+      REPRESENTATIVES_AUTHORIZATION = "REPRESENTATIVES_AUTHORIZATION"
+
+      VALUES = [LEGAL_PRESENCE, COMPANY_DETAILS, OWNERSHIP_STRUCTURE, REPRESENTATIVES_AUTHORIZATION].freeze
     end
 
     class SessionsAddImagesResponse < Didit::Model
@@ -1017,6 +1332,32 @@ module Didit
     class SessionsBulkUpdateAmlHitStatusResponse < Didit::Model
       field :message, "message", :string
       field :updated_hits, "updated_hits", [:array, :string]
+    end
+
+    class SessionsCreateKybPartyDraftResponse < Didit::Model
+      field :draft_id, "draft_id", :string
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+      field :party, "party", "SessionsCreateKybPartyDraftResponseParty"
+    end
+
+    class SessionsCreateKybPartyDraftResponseParty < Didit::Model
+      field :entity_type, "entity_type", :string
+      field :full_name, "full_name", :string
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :role, "role", :string
+      field :roles, "roles", [:array, :string]
+      field :position, "position", :string
+      field :date_of_birth, "date_of_birth", :date
+      field :company_name, "company_name", :string
+      field :registration_number, "registration_number", :string
+      field :email, "email", :string
+      field :ownership_percent, "ownership_percent", :float
+      field :nationality, "nationality", :string
+      field :phone_number, "phone_number", :string
+      field :custom_fields, "custom_fields", :any
+      field :skip_verification, "skip_verification", :boolean
     end
 
     class SessionsCreateResponse < Didit::Model
@@ -1099,6 +1440,73 @@ module Didit
       field :overrides, "overrides", [:array, "FeatureStatusOverride"]
     end
 
+    class SessionsListKybExtractedPartiesResponse < Didit::Model
+      field :parties, "parties", [:array, "SessionsListKybExtractedPartiesResponseParties"]
+      field :document_count, "document_count", :integer
+      field :node_id, "node_id", :string
+    end
+
+    class SessionsListKybExtractedPartiesResponseParties < Didit::Model
+      field :name, "name", :string
+      field :entity_type, "entity_type", :string
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :appointment_date, "appointment_date", :string
+      field :designation, "designation", :string
+      field :roles, "roles", [:array, "SessionsListKybExtractedPartiesResponsePartiesRoles"]
+      field :documents, "documents", [:array, "SessionsListKybExtractedPartiesResponsePartiesDocuments"]
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesDocuments < Didit::Model
+      field :document_uuid, "document_uuid", :string
+      field :document_type, "document_type", :string
+      field :document_subtype, "document_subtype", :string
+      field :original_filename, "original_filename", :string
+      field :status, "status", :string
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesRoles < Didit::Model
+      field :role, "role", :string
+      field :ownership_percent, "ownership_percent", "SessionsListKybExtractedPartiesResponsePartiesRolesOwnershipPercent"
+    end
+
+    class SessionsListKybExtractedPartiesResponsePartiesRolesOwnershipPercent < Didit::Model
+      field :text, "text", :string
+      field :min, "min", :float
+      field :max, "max", :float
+    end
+
+    class SessionsListKybPartyDraftsResponse < Didit::Model
+      field :parties, "parties", [:array, "SessionsListKybPartyDraftsResponseParties"]
+      field :node_id, "node_id", :string
+    end
+
+    class SessionsListKybPartyDraftsResponseParties < Didit::Model
+      field :draft_id, "draft_id", :string
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+      field :party, "party", "SessionsListKybPartyDraftsResponsePartiesParty"
+    end
+
+    class SessionsListKybPartyDraftsResponsePartiesParty < Didit::Model
+      field :entity_type, "entity_type", :string
+      field :full_name, "full_name", :string
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :role, "role", :string
+      field :roles, "roles", [:array, :string]
+      field :position, "position", :string
+      field :date_of_birth, "date_of_birth", :date
+      field :company_name, "company_name", :string
+      field :registration_number, "registration_number", :string
+      field :email, "email", :string
+      field :ownership_percent, "ownership_percent", :float
+      field :nationality, "nationality", :string
+      field :phone_number, "phone_number", :string
+      field :custom_fields, "custom_fields", :any
+      field :skip_verification, "skip_verification", :boolean
+    end
+
     class SessionsListResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
@@ -1123,6 +1531,11 @@ module Didit
       field :phone_number, "phone_number", "SessionsListResponseResultsPhoneNumber"
       field :email_address, "email_address", "SessionsListResponseResultsEmailAddress"
       field :additional_details, "additional_details", "SessionsListResponseResultsAdditionalDetails"
+      field :assignee, "assignee", "SessionsListResponseResultsAssignee"
+      field :waiting_since, "waiting_since", :datetime
+      field :sla_due_at, "sla_due_at", :datetime
+      field :top_warnings, "top_warnings", [:array, "SessionsListResponseResultsTopWarnings"]
+      field :warnings_count, "warnings_count", :integer
       field :workflow_id, "workflow_id", :string
       field :workflow_type, "workflow_type", :string
       field :workflow_label, "workflow_label", :string
@@ -1201,6 +1614,12 @@ module Didit
       field :name_on_document, "name_on_document", :string
     end
 
+    # The Console reviewer the session is assigned to, or `null` when nobody holds it.
+    class SessionsListResponseResultsAssignee < Didit::Model
+      field :email, "email", :string
+      field :assigned_at, "assigned_at", :datetime
+    end
+
     # Email associated with the session: the verified email when email verification ran, otherwise the contact email
     # provided at session creation. `null` when neither exists.
     class SessionsListResponseResultsEmailAddress < Didit::Model
@@ -1220,6 +1639,13 @@ module Didit
       field :is_verified, "is_verified", :boolean
     end
 
+    class SessionsListResponseResultsTopWarnings < Didit::Model
+      field :risk, "risk", :string
+      field :feature, "feature", :string
+      field :log_type, "log_type", :string
+      field :short_description, "short_description", :string
+    end
+
     class SessionsPreviewDecisionEmailResponse < Didit::Model
       field :recipient, "recipient", :string
       field :recipient_source, "recipient_source", :string
@@ -1229,6 +1655,7 @@ module Didit
       field :sender_kind, "sender_kind", :string
       field :subject, "subject", :string
       field :html, "html", :string
+      field :text, "text", :string
       field :language, "language", :string
       field :will_be_sent, "will_be_sent", :boolean
       field :not_sent_reason, "not_sent_reason", :string
@@ -1244,6 +1671,7 @@ module Didit
       field :sender_kind, "sender_kind", :string
       field :subject, "subject", :string
       field :html, "html", :string
+      field :text, "text", :string
       field :language, "language", :string
       field :will_be_sent, "will_be_sent", :boolean
       field :not_sent_reason, "not_sent_reason", :string
@@ -1279,6 +1707,16 @@ module Didit
 
     class SessionsSignaturesValidateResponse < Didit::Model
       field :signatures, "signatures", [:array, "SignatureResult"]
+    end
+
+    class SessionsSubmitKybPartiesResponse < Didit::Model
+      field :valid, "valid", :boolean
+      field :next_step, "next_step", :string
+      field :status, "status", :string
+      field :advanced, "advanced", :boolean
+      field :already_submitted, "already_submitted", :boolean
+      field :kyb_key_people_status, "kyb_key_people_status", :string
+      field :parties, "parties", [:array, "KYBKeyPeopleParty"]
     end
 
     class SessionsUpdateAmlHitStatusResponse < Didit::Model
@@ -1386,11 +1824,37 @@ module Didit
       field :addresses, "addresses", [:array, :any]
       field :industries, "industries", [:array, :any]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
       field :is_editable, "is_editable", :boolean
+    end
+
+    class SessionsUpdateKybPartyDraftResponse < Didit::Model
+      field :draft_id, "draft_id", :string
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+      field :party, "party", "SessionsUpdateKybPartyDraftResponseParty"
+    end
+
+    class SessionsUpdateKybPartyDraftResponseParty < Didit::Model
+      field :entity_type, "entity_type", :string
+      field :full_name, "full_name", :string
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :role, "role", :string
+      field :roles, "roles", [:array, :string]
+      field :position, "position", :string
+      field :date_of_birth, "date_of_birth", :date
+      field :company_name, "company_name", :string
+      field :registration_number, "registration_number", :string
+      field :email, "email", :string
+      field :ownership_percent, "ownership_percent", :float
+      field :nationality, "nationality", :string
+      field :phone_number, "phone_number", :string
+      field :custom_fields, "custom_fields", :any
+      field :skip_verification, "skip_verification", :boolean
     end
 
     # Key People party record - the same shape as an entry of `key_people_checks[].submitted.parties[]` on the
@@ -1436,6 +1900,13 @@ module Didit
 
     class SessionsUpdateStatusResponse < Didit::Model
       field :session_id, "session_id", :string
+    end
+
+    class SessionsUploadKybDocumentsResponse < Didit::Model
+      field :valid, "valid", :boolean
+      field :next_step, "next_step", :string
+      field :kyb_status, "kyb_status", :string
+      field :document_answer, "document_answer", :any
     end
   end
 end
