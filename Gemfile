@@ -12,7 +12,12 @@ gem "jwt", ENV["JWT_VERSION"] if ENV["JWT_VERSION"]
 group :test do
   gem "rack", "~> 3.1"
   gem "rspec", "~> 3.13"
-  gem "simplecov", "~> 1.3", require: false
+  # Development only: simplecov 1.x needs Ruby 3.3, the SDK still supports Ruby 3.1 and 3.2 (see gemspec).
+  if RUBY_VERSION >= "3.3"
+    gem "simplecov", "~> 1.3", require: false
+  else
+    gem "simplecov", "~> 0.22", require: false
+  end
   gem "webmock", "~> 3.25"
 end
 
