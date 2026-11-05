@@ -2633,7 +2633,11 @@ module Didit
         # another provider: Didit reads Sumsub, Onfido, Persona and ComplyCube with your read-only key, reads Veriff,
         # iDenfy and MetaMap records by the IDs you upload in `file`, and imports an export file in Didit's format for
         # the other providers. Record IDs are namespaced by provider (`sumsub:<id>`) so a re-run skips everything
-        # already in Didit. Imports are disabled by default and must be enabled per organization by Didit.
+        # already in Didit, and a record imported through a file with the provider's bare ID is recognised too, in
+        # both directions, so moving between a file import and a provider migration never imports a record twice. An
+        # application can run up to 4 import jobs at once; a job interrupted by a deploy or a worker restart continues
+        # from its last imported row by itself. Imports are disabled by default and must be enabled per organization
+        # by Didit.
         #
         # +POST /v3/session/imports/+
         #
