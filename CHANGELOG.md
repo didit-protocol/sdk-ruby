@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.0.0](https://github.com/didit-protocol/sdk-ruby/compare/v1.0.1...v2.0.0) (2026-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **spec:** the API spec sync changes the SDK surface.
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `signatures[].confirmation.channel`: can now be null
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `registry_checks[].company.registry_data`: can now be null
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `registry_checks[].ownership_structure`: can now be null
+    - `email.assess_risk` (`POST /v3/email/risk/`): response 200 `email.email_intelligence.reason_codes[]`: type changed from string to object
+    - `kyb.select` (`POST /v3/kyb/select/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `kyb.list_shareholders` (`POST /v3/kyb/shareholders/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `kyb.list_ubos` (`POST /v3/kyb/ubo/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `phone.assess_risk` (`POST /v3/phone/risk/`): response 200 `phone.phone_intelligence.reason_codes[]`: type changed from string to object
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `signatures[].confirmation.channel`: can now be null
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `registry_checks[].company.registry_data`: can now be null
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `registry_checks[].ownership_structure`: can now be null
+    - `sessions.signatures.validate` (`POST /v3/session/{sessionId}/signatures/{nodeId}/validate/`): response 200 `signatures[].confirmation.channel`: can now be null
+
+### API Spec Updates
+
+* **spec:** sync API spec 2026-11-04 ([5299349](https://github.com/didit-protocol/sdk-ruby/commit/529934919db87731a0d4f4eec5d51e8fd627cac0))
+* **spec:** sync API spec 2026-11-04 ([7282245](https://github.com/didit-protocol/sdk-ruby/commit/72822454ca1e4b130fe37d403ef6958ac4701433))
+* **spec:** sync API spec 2026-11-05 ([ced5cdf](https://github.com/didit-protocol/sdk-ruby/commit/ced5cdf2388483c754c2d0ecc137be3fa4c15421))
+* **spec:** sync API spec 2026-11-05 ([d0444ca](https://github.com/didit-protocol/sdk-ruby/commit/d0444caa414fe0cd5404e4241d9e57081adcb07e))
+
 ## [1.0.1](https://github.com/didit-protocol/sdk-ruby/compare/v1.0.0...v1.0.1) (2026-10-29)
 
 
