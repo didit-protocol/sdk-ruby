@@ -81,24 +81,7 @@ RSpec.describe Didit::Resources::Kyb do
             "next_account": "26 February 2026",
             "due_by_date": "26 August 2026"
           },
-          "registry_data": {
-            "name": "Tesco PLC",
-            "registration_number": "00445790",
-            "status": "active",
-            "type": "Public Limited Company",
-            "incorporation_date": "1947-11-27",
-            "tax_number": "GB412 8925 93",
-            "country_code": "GB",
-            "fetch_status": "resolved",
-            "industries_detail": [
-              {
-                "code": "47110",
-                "name": "Retail Sale In Non-specialised Stores With Food, Beverages Or Tobacco Predominating",
-                "description": null,
-                "meta_detail": []
-              }
-            ]
-          },
+          "registry_data": {},
           "user_provided_data": null,
           "confirmed_by_user_at": null,
           "last_console_edit_at": null,
@@ -110,7 +93,8 @@ RSpec.describe Didit::Resources::Kyb do
       }
     JSON
     result = client.kyb.list_shareholders(
-      kyb_response_id: "69aeeb95febb0f1704042259"
+      kyb_response_id: "69aeeb95febb0f1704042259",
+      vendor_data: "company-1234"
     )
     request = expect_api_request(
       calls,
@@ -121,7 +105,8 @@ RSpec.describe Didit::Resources::Kyb do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "kyb_response_id" => "69aeeb95febb0f1704042259"
+      "kyb_response_id" => "69aeeb95febb0f1704042259",
+      "vendor_data" => "company-1234"
     })
     expect(result).to be_a(Didit::Types::KybListShareholdersResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -204,22 +189,11 @@ RSpec.describe Didit::Resources::Kyb do
             "due_by_date": "26 August 2026"
           },
           "registry_data": {
-            "name": "Tesco PLC",
-            "registration_number": "00445790",
-            "status": "active",
-            "type": "Public Limited Company",
-            "incorporation_date": "1947-11-27",
-            "tax_number": "GB412 8925 93",
-            "country_code": "GB",
-            "fetch_status": "resolved",
-            "industries_detail": [
-              {
-                "code": "47110",
-                "name": "Retail Sale In Non-specialised Stores With Food, Beverages Or Tobacco Predominating",
-                "description": null,
-                "meta_detail": []
-              }
-            ]
+            "ubo_resolution": {
+              "parent_chain": [],
+              "subsidiaries": [],
+              "unresolved": []
+            }
           },
           "user_provided_data": null,
           "confirmed_by_user_at": null,
@@ -232,7 +206,8 @@ RSpec.describe Didit::Resources::Kyb do
       }
     JSON
     result = client.kyb.list_ubos(
-      kyb_response_id: "69aeeb95febb0f1704042259"
+      kyb_response_id: "69aeeb95febb0f1704042259",
+      vendor_data: "company-1234"
     )
     request = expect_api_request(
       calls,
@@ -243,7 +218,8 @@ RSpec.describe Didit::Resources::Kyb do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "kyb_response_id" => "69aeeb95febb0f1704042259"
+      "kyb_response_id" => "69aeeb95febb0f1704042259",
+      "vendor_data" => "company-1234"
     })
     expect(result).to be_a(Didit::Types::KybListUbosResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -289,7 +265,10 @@ RSpec.describe Didit::Resources::Kyb do
       }
     JSON
     result = client.kyb.search(
-      country_code: "GB"
+      country_code: "GB",
+      name: "Tesco",
+      search_type: "contains",
+      vendor_data: "company-1234"
     )
     request = expect_api_request(
       calls,
@@ -300,7 +279,10 @@ RSpec.describe Didit::Resources::Kyb do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "country_code" => "GB"
+      "country_code" => "GB",
+      "name" => "Tesco",
+      "search_type" => "contains",
+      "vendor_data" => "company-1234"
     })
     expect(result).to be_a(Didit::Types::KybSearchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -382,24 +364,7 @@ RSpec.describe Didit::Resources::Kyb do
             "next_account": "26 February 2026",
             "due_by_date": "26 August 2026"
           },
-          "registry_data": {
-            "name": "Tesco PLC",
-            "registration_number": "00445790",
-            "status": "active",
-            "type": "Public Limited Company",
-            "incorporation_date": "1947-11-27",
-            "tax_number": "GB412 8925 93",
-            "country_code": "GB",
-            "fetch_status": "resolved",
-            "industries_detail": [
-              {
-                "code": "47110",
-                "name": "Retail Sale In Non-specialised Stores With Food, Beverages Or Tobacco Predominating",
-                "description": null,
-                "meta_detail": []
-              }
-            ]
-          },
+          "registry_data": {},
           "user_provided_data": null,
           "confirmed_by_user_at": null,
           "last_console_edit_at": null,
@@ -411,7 +376,8 @@ RSpec.describe Didit::Resources::Kyb do
       }
     JSON
     result = client.kyb.select(
-      kyb_response_id: "69aeeb95febb0f1704042259"
+      kyb_response_id: "69aeeb95febb0f1704042259",
+      vendor_data: "company-1234"
     )
     request = expect_api_request(
       calls,
@@ -422,7 +388,8 @@ RSpec.describe Didit::Resources::Kyb do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "kyb_response_id" => "69aeeb95febb0f1704042259"
+      "kyb_response_id" => "69aeeb95febb0f1704042259",
+      "vendor_data" => "company-1234"
     })
     expect(result).to be_a(Didit::Types::KybSelectResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

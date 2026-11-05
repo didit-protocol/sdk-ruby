@@ -1500,7 +1500,11 @@ RSpec.describe Didit::Resources::TravelRule do
         "updated_at": "2026-01-02T03:04:05Z"
       }
     JSON
-    result = client.travel_rule.networks.update_questionnaire
+    result = client.travel_rule.networks.update_questionnaire(
+      legal_name: "Example VASP Ltd",
+      incorporation_country: "ES",
+      aml_ctf_policy_attested: true
+    )
     request = expect_api_request(
       calls,
       method: :put,
@@ -1509,7 +1513,11 @@ RSpec.describe Didit::Resources::TravelRule do
       auth: :api_key,
       accept: "application/json"
     )
-    expect_json_body(request, {})
+    expect_json_body(request, {
+      "legal_name" => "Example VASP Ltd",
+      "incorporation_country" => "ES",
+      "aml_ctf_policy_attested" => true
+    })
     expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1562,6 +1570,126 @@ RSpec.describe Didit::Resources::TravelRule do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     expect(result.results).to all(be_a(Didit::Types::TravelRuleTransferRow))
     exercise_readers(result.results)
+  end
+
+  it "travel_rule.unmatched_deposits.list sends GET /v3/travel-rule/unmatched/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "id": "7d3a1c55-0b9e-4d52-8a3c-1f6e2b9d4a08",
+            "transaction_id": "c41f9b2e-5a8d-4e0c-9f17-3b6d8a2e5c91",
+            "txn_id": "dep-2026-10-20-0007",
+            "txn_date": "2026-10-19T08:41:12Z",
+            "kind": "deposit",
+            "direction": "INBOUND",
+            "status": "AWAITING_COUNTERPARTY",
+            "rail": "TRP",
+            "asset": "ETH",
+            "amount": "1.25",
+            "originator_vasp": "",
+            "beneficiary_vasp": "Example Counterparty VASP",
+            "originator_wallet": "0x77ccff0cc624a53cd8b8d8703ced826710211ec7",
+            "beneficiary_wallet": "0xede2d7e4f5b097e6391ab6bbcf2f47a53f4778cb",
+            "originator_memo": "",
+            "beneficiary_memo": "",
+            "originator_wallet_type": "vasp",
+            "beneficiary_wallet_type": "vasp",
+            "matched_transaction_id": null,
+            "deadline_at": null,
+            "created_at": "2026-10-19T08:41:13Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.unmatched_deposits.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/unmatched/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleTransferRow))
+    exercise_readers(result.results)
+  end
+
+  it "travel_rule.unmatched_deposits.match sends POST /v3/travel-rule/unmatched/{transaction_uuid}/match/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "deposit": {
+          "id": "7d3a1c55-0b9e-4d52-8a3c-1f6e2b9d4a08",
+          "transaction_id": "c41f9b2e-5a8d-4e0c-9f17-3b6d8a2e5c91",
+          "txn_id": "dep-2026-10-20-0007",
+          "txn_date": "2026-10-19T08:41:12Z",
+          "kind": "deposit",
+          "direction": "INBOUND",
+          "status": "AWAITING_COUNTERPARTY",
+          "rail": "TRP",
+          "asset": "ETH",
+          "amount": "1.25",
+          "originator_vasp": "Example Counterparty VASP",
+          "beneficiary_vasp": "Example Counterparty VASP",
+          "originator_wallet": "0x77ccff0cc624a53cd8b8d8703ced826710211ec7",
+          "beneficiary_wallet": "0xede2d7e4f5b097e6391ab6bbcf2f47a53f4778cb",
+          "originator_memo": "",
+          "beneficiary_memo": "",
+          "originator_wallet_type": "vasp",
+          "beneficiary_wallet_type": "vasp",
+          "matched_transaction_id": "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24",
+          "deadline_at": null,
+          "created_at": "2026-10-19T08:41:13Z"
+        },
+        "message": {
+          "id": "2b8e6f10-9c3a-47d1-b5e2-0a4c7d9f3e66",
+          "transaction_id": "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24",
+          "txn_id": "msg-2026-10-20-0003",
+          "txn_date": "2026-10-19T08:41:12Z",
+          "kind": "message",
+          "direction": "INBOUND",
+          "status": "COMPLETED",
+          "rail": "TRP",
+          "asset": "ETH",
+          "amount": "1.25",
+          "originator_vasp": "Origin CASP SL",
+          "beneficiary_vasp": "Example Counterparty VASP",
+          "originator_wallet": "0x77ccff0cc624a53cd8b8d8703ced826710211ec7",
+          "beneficiary_wallet": "0xede2d7e4f5b097e6391ab6bbcf2f47a53f4778cb",
+          "originator_memo": "",
+          "beneficiary_memo": "",
+          "originator_wallet_type": "vasp",
+          "beneficiary_wallet_type": "vasp",
+          "matched_transaction_id": null,
+          "deadline_at": "2026-10-21T08:41:13Z",
+          "created_at": "2026-10-19T08:41:13Z"
+        }
+      }
+    JSON
+    result = client.travel_rule.unmatched_deposits.match(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      transaction_id: "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/unmatched/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/match/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "transaction_id" => "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleManualMatchResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "travel_rule.wallet_addresses.bulk_import sends POST /v3/travel-rule/wallet-addresses/import/" do
@@ -1811,7 +1939,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.wallet_proofs.decide(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      decision: "approve"
+      decision: "approve",
+      note: "Address matches the wallet app."
     )
     request = expect_api_request(
       calls,
@@ -1822,7 +1951,8 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "decision" => "approve"
+      "decision" => "approve",
+      "note" => "Address matches the wallet app."
     })
     expect(result).to be_a(Didit::Types::TravelRuleWalletProofReview)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

@@ -186,7 +186,7 @@ RSpec.describe Didit::Resources::WalletScreening do
     JSON
     result = client.wallet_screening.screen(
       wallet_address: "0x94f1b9b64e2932f6a2db338f616844400cd58e8a",
-      blockchain: "BTC"
+      blockchain: "ETH"
     )
     request = expect_api_request(
       calls,
@@ -198,7 +198,7 @@ RSpec.describe Didit::Resources::WalletScreening do
     )
     expect_json_body(request, {
       "wallet_address" => "0x94f1b9b64e2932f6a2db338f616844400cd58e8a",
-      "blockchain" => "BTC"
+      "blockchain" => "ETH"
     })
     expect(result).to be_a(Didit::Types::WalletScreeningResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

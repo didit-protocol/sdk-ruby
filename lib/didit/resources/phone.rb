@@ -27,8 +27,8 @@ module Didit
       # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return
       # `403` - this API never returns `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE
-      # endpoints.
+      # **Rate limit.** Shared write budget of 300 requests per minute per API key across POST/PATCH/DELETE endpoints
+      # (transaction creates and event ingestion have a separate budget of 600).
       #
       # **Social footprint.** Set `enable_social` to `true` to add a `phone_social` block: the online platforms this
       # number is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
@@ -143,6 +143,22 @@ module Didit
       # @param voip_number_action [String] What to do when the carrier lookup reports a virtual line type - `voip`,
       #   `isp`, or `vpn` (`phone.is_virtual`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records
       #   the risk in `phone.warnings`.
+      # @param enable_enrichment [Boolean] When `true`, also run phone intelligence on the number: a risk score, the
+      #   line type, whether it was recently ported and a trust index. Billed as one `phone_intelligence_api` unit per
+      #   request ($0.05 at list price) in addition to this endpoint's own price. The request returns `403` when your
+      #   balance cannot cover it.
+      # @param phone_intelligence_score_action [String] Action when the phone intelligence risk score is above the
+      #   threshold. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining.
+      #   Only takes effect when `enable_enrichment` is `true`.
+      # @param phone_type_risk_action [String] Action when the number is a high-risk line type. `DECLINE` flips the
+      #   final `status` to `Declined`; `NO_ACTION` records the signal without declining. Only takes effect when
+      #   `enable_enrichment` is `true`.
+      # @param recent_port_action [String] Action when the number was ported to another carrier recently. `DECLINE`
+      #   flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining. Only takes effect
+      #   when `enable_enrichment` is `true`.
+      # @param low_phone_trust_action [String] Action when the phone intelligence trust index is at or below the
+      #   threshold. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining.
+      #   Only takes effect when `enable_enrichment` is `true`.
       # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging,
       #   social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per
       #   request in addition to this endpoint's own price.
@@ -157,6 +173,11 @@ module Didit
         duplicated_phone_number_action: OMIT,
         disposable_number_action: OMIT,
         voip_number_action: OMIT,
+        enable_enrichment: OMIT,
+        phone_intelligence_score_action: OMIT,
+        phone_type_risk_action: OMIT,
+        recent_port_action: OMIT,
+        low_phone_trust_action: OMIT,
         enable_social: OMIT,
         phone_no_social_presence_action: OMIT,
         request_options: nil
@@ -170,6 +191,11 @@ module Didit
             "duplicated_phone_number_action" => duplicated_phone_number_action,
             "disposable_number_action" => disposable_number_action,
             "voip_number_action" => voip_number_action,
+            "enable_enrichment" => enable_enrichment,
+            "phone_intelligence_score_action" => phone_intelligence_score_action,
+            "phone_type_risk_action" => phone_type_risk_action,
+            "recent_port_action" => recent_port_action,
+            "low_phone_trust_action" => low_phone_trust_action,
             "enable_social" => enable_social,
             "phone_no_social_presence_action" => phone_no_social_presence_action
           },

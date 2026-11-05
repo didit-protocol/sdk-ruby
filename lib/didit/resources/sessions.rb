@@ -414,6 +414,11 @@ module Didit
       #   linked to the same user profile in the Users tab. (2) **Cross-session duplicate detection** - when checking
       #   for duplicated faces, documents, phone numbers, emails, IP addresses, or device fingerprints, sessions with
       #   the...
+      # @param multi_account_segment [String] Optional duplicate-detection realm inside your organization. Duplicate
+      #   face checks compare this session only with other sessions that carry the same segment, so separate account
+      #   bases (personal and business accounts, or one per B2B sub-client) do not flag a person who legitimately holds
+      #   one account in each. Omit it to use the single default realm, which is what every session uses today.
+      #   Blocklist...
       # @param callback [String] URL to redirect the user to after verification completes. Didit automatically appends
       #   `verificationSessionId` and `status` (Approved, Declined, In Review) as query parameters. Custom URL schemes
       #   (e.g. `myapp://`) are supported for mobile callbacks. If omitted, the workflow's default `callback_url` is
@@ -449,10 +454,10 @@ module Didit
       #   bundled magic values onto the session's input fields (contact_details, expected_details) so the mocked
       #   providers reproduce the scenario's outcome through the real workflow pipeline. See the scenario catalog at GET
       #   /v1/san...
-      # @param sign [Hash] Electronic Signature input for this session. `documents` are the documents to sign, for a
-      #   workflow whose Electronic Signature step takes documents from the session (`signature_documents_source`
-      #   `session` or `both`): up to 20 documents and 50 MB in total. `field_values` fills the fields whose `prefill`
-      #   is `api.<key>`, on workflow and session documents alike. Creating a session again for the same `...
+      # @param sign [Hash] E-signature input for this session. `documents` are the documents to sign, for a workflow
+      #   whose E-signature step takes documents from the session (`signature_documents_source` `session` or `both`): up
+      #   to 20 documents and 50 MB in total. `field_values` fills the fields whose `prefill` is `api.<key>`, on
+      #   workflow and session documents alike. Creating a session again for the same `workflow_id` and `...
       # @param user_state [String] Where the person lives, when you know it: an ISO 3166-2 subdivision code (`US-IL`,
       #   `ES-M`) or a US state code or name (`IL`, `Illinois`). A state whose law requires explicit biometric consent
       #   (Illinois, Texas, Colorado) makes the verification flow ask for it before capturing a face, with trigger
@@ -466,6 +471,7 @@ module Didit
       def create(
         workflow_id:,
         vendor_data: OMIT,
+        multi_account_segment: OMIT,
         callback: OMIT,
         callback_method: OMIT,
         metadata: OMIT,
@@ -486,6 +492,7 @@ module Didit
           body: {
             "workflow_id" => workflow_id,
             "vendor_data" => vendor_data,
+            "multi_account_segment" => multi_account_segment,
             "callback" => callback,
             "callback_method" => callback_method,
             "metadata" => metadata,
@@ -504,6 +511,92 @@ module Didit
         )
       end
 
+      # Create a KYB party draft
+      #
+      # Add a party (a person or a company) to the list you are preparing for this KYB session. The same fields and
+      # rules as the hosted Key People screen apply: a person needs `full_name` or `first_name` and `last_name`, at
+      # least one role and a nationality; a company needs `company_name` and the country of incorporation in
+      # `nationality`. Nothing is declared or billed until `POST /v3/session/{sessionId}/kyb/parties/submit/`.
+      # Requires `write:businesses`.
+      #
+      # +POST /v3/session/{sessionId}/kyb/parties/drafts/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param entity_type [String] Whether the party is an individual or a company.
+      # @param nationality [String] Nationality of a person, or country of incorporation of a company. Required for
+      #   every party.
+      # @param full_name [String] Full name of a person. Send it, or `first_name` and `last_name`.
+      # @param first_name [String]
+      # @param last_name [String]
+      # @param role [String] Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+      # @param roles [Array<String>] Every role the party holds. A person needs at least one role (here or in `role`).
+      # @param position [String] Job title of a person.
+      # @param date_of_birth [Date, String, nil]
+      # @param company_name [String] Name of a company party. Required when `entity_type` is `company`.
+      # @param registration_number [String] Registration number of a company party.
+      # @param email [String] Where the verification link is sent. Required when the party has to complete
+      #   verification, which depends on the role settings and ownership thresholds of the workflow.
+      # @param ownership_percent [Numeric, nil] Share of the company the party owns.
+      # @param phone_number [String]
+      # @param custom_fields [Hash] Workflow-defined extra fields.
+      # @param skip_verification [Boolean] Ask to skip this party's verification. Honoured only when the party's role
+      #   allows skipping in the workflow's Key People settings.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsCreateKybPartyDraftResponse]
+      def create_kyb_party_draft(
+        session_id,
+        entity_type:,
+        nationality:,
+        full_name: OMIT,
+        first_name: OMIT,
+        last_name: OMIT,
+        role: OMIT,
+        roles: OMIT,
+        position: OMIT,
+        date_of_birth: OMIT,
+        company_name: OMIT,
+        registration_number: OMIT,
+        email: OMIT,
+        ownership_percent: OMIT,
+        phone_number: OMIT,
+        custom_fields: OMIT,
+        skip_verification: OMIT,
+        node_id: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/kyb/parties/drafts/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          body: {
+            "entity_type" => entity_type,
+            "nationality" => nationality,
+            "full_name" => full_name,
+            "first_name" => first_name,
+            "last_name" => last_name,
+            "role" => role,
+            "roles" => roles,
+            "position" => position,
+            "date_of_birth" => date_of_birth,
+            "company_name" => company_name,
+            "registration_number" => registration_number,
+            "email" => email,
+            "ownership_percent" => ownership_percent,
+            "phone_number" => phone_number,
+            "custom_fields" => custom_fields,
+            "skip_verification" => skip_verification
+          },
+          response: Types::SessionsCreateKybPartyDraftResponse,
+          request_options: request_options
+        )
+      end
+
       # Delete a verification session (KYC or KYB)
       #
       # Delete a single verification session, User Verification (KYC) or Business Verification (KYB), by its
@@ -517,9 +610,9 @@ module Didit
       # - All stored files owned by the session: document front/back photos (full, cropped, and privacy-blurred
       #   variants), document-capture videos, portrait crops, NFC chip portrait and signature images, face reference
       #   images, liveness videos, face-match source/target images, Proof of Address documents, and any extra uploaded
-      #   files (KYC); uploaded company documents and extra files (KYB). Electronic Signature documents, signed PDFs,
-      #   evidence PDFs and signature images (KYC and KYB): their download paths stop working. Previously issued media
-      #   URLs (`https://<media-host>/...`) stop resolving.
+      #   files (KYC); uploaded company documents and extra files (KYB). E-signature documents, signed PDFs, evidence
+      #   PDFs and signature images (KYC and KYB): their download paths stop working. Previously issued media URLs
+      #   (`https://<media-host>/...`) stop resolving.
       # - The session's face data. Its face embedding is deleted too, unless you choose to keep an image-free template
       #   (see **Face biometric data**).
       # - Webhook deliveries still queued for the session, and their retries. Webhooks already delivered are not
@@ -628,15 +721,40 @@ module Didit
         )
       end
 
+      # Delete a KYB party draft
+      #
+      # Drop one party draft. Declared parties are not affected. Requires `write:businesses`.
+      #
+      # +DELETE /v3/session/{sessionId}/kyb/parties/drafts/{draftId}/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param draft_id [String] UUID of the party draft (`draft_id` returned when it was created).
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [nil]
+      def delete_kyb_party_draft(session_id, draft_id, node_id: OMIT, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/session/{sessionId}/kyb/parties/drafts/{draftId}/",
+          path_params: { "sessionId" => session_id, "draftId" => draft_id },
+          query: {
+            "node_id" => node_id
+          },
+          request_options: request_options
+        )
+      end
+
       # Export AML screening history as CSV
       #
       # Download the same ongoing-monitoring history as `GET /v3/session/{sessionId}/aml-screening-history/` as a CSV
       # file, one line per completed re-screen, newest first, ready to hand to an auditor. The file is streamed whole
       # (no pagination) and starts with a header line; an empty cell means unknown, dataset dates are never estimated,
       # and a value that would start a spreadsheet formula is prefixed with an apostrophe. Works for KYC and KYB
-      # session IDs; pass `node_id` when the session ran more than one AML step. Errors are returned as JSON, not CSV.
-      # A scoped API key needs `decisions: read` and `media: read`: the response is a file, so a key without `media:
-      # read` gets `403`.
+      # session IDs; pass `node_id` when the session ran more than one AML step. Pass `month` to export one calendar
+      # month. Errors are returned as JSON, not CSV. A scoped API key needs `decisions: read` and `media: read`: the
+      # response is a file, so a key without `media: read` gets `403`.
       #
       # +GET /v3/session/{sessionId}/aml-screening-history/export/+
       #
@@ -646,19 +764,51 @@ module Didit
       #   route and returns an HTML `404`.
       # @param node_id [String] Workflow graph node ID of the AML check. Needed only when the session ran more than
       #   one AML step; without it the most recent AML check is used. An unknown node returns `404`.
+      # @param month [String] A UTC calendar month as `YYYY-MM`. Only screenings completed in that month are returned;
+      #   without it every month is returned. A malformed month returns `400`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
-      def export_aml_screening_history(session_id, node_id: OMIT, request_options: nil, &block)
+      def export_aml_screening_history(session_id, node_id: OMIT, month: OMIT, request_options: nil, &block)
         @client.request(
           :get,
           "/v3/session/{sessionId}/aml-screening-history/export/",
           path_params: { "sessionId" => session_id },
           query: {
-            "node_id" => node_id
+            "node_id" => node_id,
+            "month" => month
           },
           response: :binary,
           accept: "text/csv, application/json",
           request_options: request_options, &block
+        )
+      end
+
+      # Export every file of a session
+      #
+      # Start preparing one ZIP with every image, video and document of a User Verification (KYC) or Business
+      # Verification (KYB) session, in original quality: the files are stored in the ZIP as they were captured, never
+      # recompressed. Answers `202` with the export; read it with `GET
+      # /v3/session/{sessionId}/files-export/{exportId}/` until `status` is `READY`, then download `download_url`.
+      # While an export of the same session is still being prepared, that export is returned instead of a new one.
+      #
+      # The ZIP is deleted 24 hours after it is ready, and at once when the session is deleted. A deleted session
+      # cannot be exported. Every export and every download link handed out is written to the session's audit log. A
+      # scoped API key needs `media: read` and `decisions: read`; a console user needs the privilege to read sessions.
+      #
+      # +POST /v3/session/{sessionId}/files-export/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs. A deleted
+      #   session returns `404`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionFilesExport]
+      def export_files(session_id, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/files-export/",
+          path_params: { "sessionId" => session_id },
+          response: Types::SessionFilesExport,
+          request_options: request_options
         )
       end
 
@@ -723,6 +873,31 @@ module Didit
           response: :binary,
           accept: "application/pdf, application/json",
           request_options: request_options, &block
+        )
+      end
+
+      # Get a session files export
+      #
+      # Progress of an export started with `POST /v3/session/{sessionId}/files-export/`. Once `status` is `READY`,
+      # `download_url` is a signed URL of the ZIP that stays valid for a short time; read the export again for a new
+      # one until `expires_at`. Each read that hands out a download link is written to the session's audit log. An
+      # export of a deleted session returns `404`.
+      #
+      # +GET /v3/session/{sessionId}/files-export/{exportId}/+
+      #
+      # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
+      #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs. A deleted
+      #   session returns `404`.
+      # @param export_id [String] The `export_id` returned by `POST /v3/session/{sessionId}/files-export/`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionFilesExport]
+      def get_files_export(session_id, export_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/files-export/{exportId}/",
+          path_params: { "sessionId" => session_id, "exportId" => export_id },
+          response: Types::SessionFilesExport,
+          request_options: request_options
         )
       end
 
@@ -830,6 +1005,12 @@ module Didit
       # @param date_to [Date, String] Only sessions created up to this date (UTC), format `YYYY-MM-DD`. For KYC rows
       #   the entire day is included; for KYB rows the comparison is `created_at <= date_to` (midnight), so use the next
       #   day's date to include a full day of KYB sessions.
+      # @param tags [String] Comma-separated tag ids (`tags` of your application). Returns the sessions that carry any
+      #   of them. Ids that are not valid UUIDs are ignored, and when none is valid the list is empty.
+      # @param decided_from [Time, String] ISO 8601 datetime. Returns the sessions whose status last changed at or
+      #   after it. It filters on the time of the last status change, not on creation time.
+      # @param decided_to [Time, String] ISO 8601 datetime. Returns the sessions whose status last changed before it.
+      #   Combine with `decided_from` for a half-open window.
       # @param country [String] Comma-separated country filter. For KYC rows: ISO 3166-1 alpha-3 codes of the ID
       #   document's issuing state (e.g. `ESP,USA`), which may differ from nationality. For KYB rows: the registry
       #   company's country code.
@@ -877,6 +1058,9 @@ module Didit
         workflow_id: OMIT,
         date_from: OMIT,
         date_to: OMIT,
+        tags: OMIT,
+        decided_from: OMIT,
+        decided_to: OMIT,
         country: OMIT,
         document_type: OMIT,
         document_name: OMIT,
@@ -905,6 +1089,9 @@ module Didit
             "workflow_id" => workflow_id,
             "date_from" => date_from,
             "date_to" => date_to,
+            "tags" => tags,
+            "decided_from" => decided_from,
+            "decided_to" => decided_to,
             "country" => country,
             "document_type" => document_type,
             "document_name" => document_name,
@@ -932,8 +1119,8 @@ module Didit
       # IDs; pass `node_id` when the session ran more than one AML step. Only ongoing-monitoring re-screens are listed
       # (the first screening is part of the session decision) and runs from before this history existed are not
       # reconstructed, so a session without ongoing monitoring returns an empty list. `count` is exact up to 100 and
-      # capped at 100 above that, so follow `next` until it is `null`. A scoped API key needs `decisions: read`; see
-      # [Continuous AML
+      # capped at 100 above that, so follow `next` until it is `null`. Pass `month` to read one calendar month at a
+      # time. A scoped API key needs `decisions: read`; see [Continuous AML
       # monitoring](https://docs.didit.me/core-technology/aml-screening/continuous-monitoring-aml-screening).
       #
       # +GET /v3/session/{sessionId}/aml-screening-history/+
@@ -944,6 +1131,8 @@ module Didit
       #   route and returns an HTML `404`.
       # @param node_id [String] Workflow graph node ID of the AML check. Needed only when the session ran more than
       #   one AML step; without it the most recent AML check is used. An unknown node returns `404`.
+      # @param month [String] A UTC calendar month as `YYYY-MM`. Only screenings completed in that month are returned;
+      #   without it every month is returned. A malformed month returns `400`.
       # @param limit [Integer] Maximum number of screening runs per page. Defaults to 50. A value below 1 or a
       #   non-numeric value falls back to 50; a value above 1,000,000 returns `400`.
       # @param offset [Integer] Number of results to skip before the first returned one. Defaults to 0; a negative or
@@ -957,6 +1146,7 @@ module Didit
       def list_aml_screening_history(
         session_id,
         node_id: OMIT,
+        month: OMIT,
         limit: OMIT,
         offset: OMIT,
         ordering: OMIT,
@@ -968,6 +1158,7 @@ module Didit
           path_params: { "sessionId" => session_id },
           query: {
             "node_id" => node_id,
+            "month" => month,
             "limit" => limit,
             "offset" => offset,
             "ordering" => ordering
@@ -1043,6 +1234,63 @@ module Didit
           "/v3/session/{sessionId}/features/overrides/",
           path_params: { "sessionId" => session_id },
           response: Types::SessionsListFeatureOverridesResponse,
+          request_options: request_options
+        )
+      end
+
+      # List the parties named by the uploaded documents
+      #
+      # Return the shareholders and directors that the documents uploaded to this KYB session name, merged per person
+      # and attributed to the documents that named them. Show them to your applicant to confirm, then declare them
+      # with the party draft endpoints. A range stays a range: `ownership_percent.text` keeps the verbatim figure and
+      # `min` / `max` the numbers read from it. Nobody is labelled a UBO here; that is decided when the parties are
+      # submitted, from the role settings and ownership thresholds of the workflow. The same list is in the session
+      # decision as `document_verifications[].extracted_parties`. Requires `read:businesses` or `read:sessions`.
+      #
+      # +GET /v3/session/{sessionId}/kyb/extracted-parties/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsListKybExtractedPartiesResponse]
+      def list_kyb_extracted_parties(session_id, node_id: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/kyb/extracted-parties/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          response: Types::SessionsListKybExtractedPartiesResponse,
+          request_options: request_options
+        )
+      end
+
+      # List the KYB party drafts
+      #
+      # List the parties you are preparing for this KYB session, oldest first. A draft is not a declared party: it
+      # does not appear in the decision or the console and creates no verification session until you submit it with
+      # `POST /v3/session/{sessionId}/kyb/parties/submit/`. Requires `write:businesses`.
+      #
+      # +GET /v3/session/{sessionId}/kyb/parties/drafts/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsListKybPartyDraftsResponse]
+      def list_kyb_party_drafts(session_id, node_id: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/session/{sessionId}/kyb/parties/drafts/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          response: Types::SessionsListKybPartyDraftsResponse,
           request_options: request_options
         )
       end
@@ -1225,8 +1473,8 @@ module Didit
       # `ip_analyses`, `database_validations`, `questionnaire_responses`) is a JSON array whose items each carry a
       # `node_id` identifying the workflow graph node that produced them. Read NFC as `response.nfc_verifications[0]`
       # - never as a singular `nfc` field. A block is `null` until the workflow has run that feature at least once;
-      # features the workflow does not include never appear with data. Electronic Signature results are in
-      # `signatures`, which is present only when the workflow has an Electronic Signature step.
+      # features the workflow does not include never appear with data. E-signature results are in `signatures`, which
+      # is present only when the workflow has an E-signature step.
       #
       # **When to call.** The recommended pattern is event-driven: wait for the `status.updated` webhook that fires
       # when the session reaches a decision (`Approved`, `Declined`, `In Review`), then call this endpoint once to
@@ -1401,11 +1649,47 @@ module Didit
         )
       end
 
+      # Submit the KYB party drafts
+      #
+      # Declare the stored drafts as the company's key people. This is the hosted Key People step under your API key:
+      # Didit decides from the role settings and ownership thresholds of the workflow which parties must be verified,
+      # creates one individual KYC session (or a KYB sub-session for a corporate owner) for each of them, sends the
+      # emails the workflow asks for, and advances the session. Each child session is billed like in the hosted flow.
+      # The drafts are consumed. Repeating the call after a successful submit changes nothing and answers `200` with
+      # `already_submitted: true` and the parties that already exist. The session must be on the Key People step. Send
+      # each person's `kyc_session_url` to them, or embed it. Requires `write:businesses`.
+      #
+      # +POST /v3/session/{sessionId}/kyb/parties/submit/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param locale [String] Locale used to translate the response of the step the session advances to.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsSubmitKybPartiesResponse]
+      def submit_kyb_parties(session_id, locale: OMIT, node_id: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/kyb/parties/submit/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          body: {
+            "locale" => locale
+          },
+          response: Types::SessionsSubmitKybPartiesResponse,
+          request_options: request_options
+        )
+      end
+
       # Update an AML hit review status
       #
       # Set the review status of a **single AML hit** (a potential sanction / PEP / watchlist / adverse-media match)
       # returned by AML screening, without changing the overall session decision. Identify the hit by its `hit_id`
-      # (the `id` of an entry in the AML check's `hits` array - see the session decision).
+      # (the `id` of an entry in the AML check's `hits` array - see the session decision). A hit id returned in the
+      # earlier format is still accepted; the response always names the hit by its current `id`.
       #
       # `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or `Inconclusive`. Reviewer
       # decisions are preserved across ongoing-monitoring updates, so a hit you mark `False Positive` stays that way
@@ -1422,7 +1706,8 @@ module Didit
       #
       # @param session_id [String] UUID of the verification session. Accepts both user (KYC) and business (KYB)
       #   session IDs - the service resolves the ID across both session types.
-      # @param hit_id [String] The `id` of the hit in the AML check's `hits` array.
+      # @param hit_id [String] The `id` of the hit in the AML check's `hits` array (`hit_...`). A hit id returned in
+      #   the earlier format is still accepted.
       # @param review_status [String] The new review status for the hit.
       # @param node_id [String] Optional graph node ID. Use it (here or as a query parameter) when the session has
       #   multiple AML checks.
@@ -1942,6 +2227,92 @@ module Didit
         )
       end
 
+      # Edit a KYB party draft
+      #
+      # Change fields of one party draft. The edit is merged into the stored draft and the merged party is validated
+      # as a whole, so an edit that would leave the party incomplete is rejected. Changing `first_name` or `last_name`
+      # replaces the stored full name. Requires `write:businesses`.
+      #
+      # +PATCH /v3/session/{sessionId}/kyb/parties/drafts/{draftId}/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param draft_id [String] UUID of the party draft (`draft_id` returned when it was created).
+      # @param entity_type [String] Whether the party is an individual or a company.
+      # @param full_name [String] Full name of a person. Send it, or `first_name` and `last_name`.
+      # @param first_name [String]
+      # @param last_name [String]
+      # @param role [String] Role the party holds. Interchangeable with `roles`; when both are sent they are merged.
+      # @param roles [Array<String>] Every role the party holds. A person needs at least one role (here or in `role`).
+      # @param position [String] Job title of a person.
+      # @param date_of_birth [Date, String, nil]
+      # @param company_name [String] Name of a company party. Required when `entity_type` is `company`.
+      # @param registration_number [String] Registration number of a company party.
+      # @param email [String] Where the verification link is sent. Required when the party has to complete
+      #   verification, which depends on the role settings and ownership thresholds of the workflow.
+      # @param ownership_percent [Numeric, nil] Share of the company the party owns.
+      # @param nationality [String] Nationality of a person, or country of incorporation of a company. Required for
+      #   every party.
+      # @param phone_number [String]
+      # @param custom_fields [Hash] Workflow-defined extra fields.
+      # @param skip_verification [Boolean] Ask to skip this party's verification. Honoured only when the party's role
+      #   allows skipping in the workflow's Key People settings.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsUpdateKybPartyDraftResponse]
+      def update_kyb_party_draft(
+        session_id,
+        draft_id,
+        entity_type: OMIT,
+        full_name: OMIT,
+        first_name: OMIT,
+        last_name: OMIT,
+        role: OMIT,
+        roles: OMIT,
+        position: OMIT,
+        date_of_birth: OMIT,
+        company_name: OMIT,
+        registration_number: OMIT,
+        email: OMIT,
+        ownership_percent: OMIT,
+        nationality: OMIT,
+        phone_number: OMIT,
+        custom_fields: OMIT,
+        skip_verification: OMIT,
+        node_id: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :patch,
+          "/v3/session/{sessionId}/kyb/parties/drafts/{draftId}/",
+          path_params: { "sessionId" => session_id, "draftId" => draft_id },
+          query: {
+            "node_id" => node_id
+          },
+          body: {
+            "entity_type" => entity_type,
+            "full_name" => full_name,
+            "first_name" => first_name,
+            "last_name" => last_name,
+            "role" => role,
+            "roles" => roles,
+            "position" => position,
+            "date_of_birth" => date_of_birth,
+            "company_name" => company_name,
+            "registration_number" => registration_number,
+            "email" => email,
+            "ownership_percent" => ownership_percent,
+            "nationality" => nationality,
+            "phone_number" => phone_number,
+            "custom_fields" => custom_fields,
+            "skip_verification" => skip_verification
+          },
+          response: Types::SessionsUpdateKybPartyDraftResponse,
+          request_options: request_options
+        )
+      end
+
       # Update Proof of Address data extracted from the POA document on a verification session
       #
       # Correct the fields extracted from the user's Proof of Address document - utility bill, bank statement, or
@@ -2151,6 +2522,59 @@ module Didit
         )
       end
 
+      # Upload KYB documents to a session
+      #
+      # Upload one or more corporate documents (articles of incorporation, shareholder register, certificate of
+      # incorporation, ...) to the KYB Documents step of a Business Verification session, from your own server instead
+      # of the hosted page. Didit runs the hosted pipeline: compression, OCR, tampering and cross-document checks,
+      # document grouping, and advances the session when the required document groups are satisfied. The step costs
+      # one flat fee however many files you send. The session must be open and on the KYB Documents step, and the
+      # company chosen at the registry step must exist. Read the people the documents name with `GET
+      # /v3/session/{sessionId}/kyb/extracted-parties/`. Requires `write:businesses`.
+      #
+      # +POST /v3/session/{sessionId}/kyb/documents/+
+      #
+      # @param session_id [String] UUID of the Business Verification (KYB) session. It must belong to the application
+      #   of the API key.
+      # @param documents [Array<Pathname, IO, String, Didit::FilePart>] Files to upload: JPG, JPEG, PNG, TIFF, WEBP,
+      #   PDF or ZIP archives of them. PDFs up to 50 MB, photos up to 6 MB before compression.
+      # @param document_passwords [Array<String>] One entry per file in `documents`, in the same order: the password
+      #   of a protected PDF, empty for any other file.
+      # @param document_group [String] Required document group this upload answers.
+      # @param locale [String] Locale used to translate the response of the next step.
+      # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
+      #   node; by default Didit uses the session's own node.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::SessionsUploadKybDocumentsResponse]
+      def upload_kyb_documents(
+        session_id,
+        documents:,
+        document_passwords: OMIT,
+        document_group: OMIT,
+        locale: OMIT,
+        node_id: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/session/{sessionId}/kyb/documents/",
+          path_params: { "sessionId" => session_id },
+          query: {
+            "node_id" => node_id
+          },
+          body: {
+            "documents" => documents,
+            "document_passwords" => document_passwords,
+            "document_group" => document_group,
+            "locale" => locale
+          },
+          encoding: :multipart,
+          file_fields: %w[documents],
+          response: Types::SessionsUploadKybDocumentsResponse,
+          request_options: request_options
+        )
+      end
+
       # The +sessions.imports+ resource.
       class Imports < Didit::Resource
         # Cancel an import job
@@ -2209,7 +2633,11 @@ module Didit
         # another provider: Didit reads Sumsub, Onfido, Persona and ComplyCube with your read-only key, reads Veriff,
         # iDenfy and MetaMap records by the IDs you upload in `file`, and imports an export file in Didit's format for
         # the other providers. Record IDs are namespaced by provider (`sumsub:<id>`) so a re-run skips everything
-        # already in Didit. Imports are disabled by default and must be enabled per organization by Didit.
+        # already in Didit, and a record imported through a file with the provider's bare ID is recognised too, in
+        # both directions, so moving between a file import and a provider migration never imports a record twice. An
+        # application can run up to 4 import jobs at once; a job interrupted by a deploy or a worker restart continues
+        # from its last imported row by itself. Imports are disabled by default and must be enabled per organization
+        # by Didit.
         #
         # +POST /v3/session/imports/+
         #
@@ -2610,19 +3038,20 @@ module Didit
       class Signatures < Didit::Resource
         # Download a signed document
         #
-        # Download the signed PDF of one document of an Electronic Signature step. Use the `signed_file` path of
+        # Download the signed PDF of one document of an E-signature step. Use the `signed_file` path of
         # `signatures[].documents[]` in the decision. The PDF holds the document the signer was shown with their field
-        # values stamped, the evidence page (unless `signature_evidence_page` is off) and the PAdES signature with its
-        # timestamp. Didit checks the file against `sha256_signed` before returning it.
+        # values stamped and the evidence page (unless `signature_evidence_page` is off). An Advanced (AES) PDF also
+        # carries the PAdES signature with its timestamp; a Simple PDF has no digital signature, seal or timestamp.
+        # Didit checks the file against `sha256_signed` before returning it.
         #
         # Works for User Verification (KYC) and Business Verification (KYB) sessions. Needs `read:sessions`; your API
-        # key works. See the [Electronic Signature
+        # key works. See the [E-signature
         # report](/core-technology/electronic-signature/report-electronic-signature#download-the-signed-documents).
         #
         # +GET /v3/session/{sessionId}/signatures/{nodeId}/documents/{documentId}/file/+
         #
         # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
-        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param node_id [String] The E-signature step: `node_id` of the item in `signatures[]`.
         # @param document_id [String] `id` of the document in `signatures[].documents[]`.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [String, nil] the body bytes, or nil when a block receives the chunks
@@ -2639,10 +3068,10 @@ module Didit
 
         # Download the signature evidence
         #
-        # Download a signer's evidence PDF: the level and format, the signer and their verified identity session, the
-        # code confirmation, the IP address, each document with its original SHA-256 and field values, the
-        # certificate, the timestamp and the SHA-256 of every signed file. Use the `evidence_file` path of the
-        # signer's item in `signatures[]`.
+        # Download a signer's evidence PDF: the level and format, the signer, the IP address, each document with its
+        # original SHA-256 and field values and the SHA-256 of every signed file, plus, for an Advanced (AES)
+        # signature, the verified identity session, the code confirmation, the certificate and the timestamp. Use the
+        # `evidence_file` path of the signer's item in `signatures[]`.
         #
         # Always pass `signature_id` when a Business Verification step has several signers: without it, the route
         # picks one of the step's signers. Needs `read:sessions`; your API key works.
@@ -2650,7 +3079,7 @@ module Didit
         # +GET /v3/session/{sessionId}/signatures/{nodeId}/evidence/+
         #
         # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
-        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param node_id [String] The E-signature step: `node_id` of the item in `signatures[]`.
         # @param signature_id [String] `id` of the signer's item in `signatures[]`.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [String, nil] the body bytes, or nil when a block receives the chunks
@@ -2676,7 +3105,7 @@ module Didit
         # +GET /v3/session/{sessionId}/signatures/{nodeId}/fields/{fieldId}/image/+
         #
         # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
-        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param node_id [String] The E-signature step: `node_id` of the item in `signatures[]`.
         # @param field_id [String] The field on this signer's copy, as in the field's `image_url`.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [String, nil] the body bytes, or nil when a block receives the chunks
@@ -2693,8 +3122,9 @@ module Didit
 
         # Validate signatures again
         #
-        # Re-check the signed documents of an Electronic Signature step. Didit re-reads every signed PDF, checks its
-        # SHA-256 and validates the PAdES signature, the certificate, the revocation data and the timestamp, then
+        # Re-check the signed documents of an E-signature step. Didit re-reads every signed PDF, checks its SHA-256
+        # and, for an Advanced (AES) signature, validates the PAdES signature, the certificate, the revocation data
+        # and the timestamp (a Simple signature has no digital signature, so only the file integrity is checked), then
         # saves the result in each signer's `validation` and returns the updated items. Nothing is signed again. Send
         # `signature_id` to check one signer; without it, every signer of the step is checked, and the call fails if
         # any of them hasn't signed.
@@ -2704,7 +3134,7 @@ module Didit
         # +POST /v3/session/{sessionId}/signatures/{nodeId}/validate/+
         #
         # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
-        # @param node_id [String] The Electronic Signature step: `node_id` of the item in `signatures[]`.
+        # @param node_id [String] The E-signature step: `node_id` of the item in `signatures[]`.
         # @param signature_id [String] `id` of one signer's item in `signatures[]`.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionsSignaturesValidateResponse]

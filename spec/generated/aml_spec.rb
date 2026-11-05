@@ -73,6 +73,11 @@ RSpec.describe Didit::Resources::Aml do
     JSON
     result = client.aml.screen(
       full_name: "Antonio Ejemplo Modelo",
+      entity_type: "person",
+      date_of_birth: "1972-02-29",
+      nationality: "ES",
+      include_adverse_media: false,
+      vendor_data: "user-1234",
       idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
@@ -84,7 +89,12 @@ RSpec.describe Didit::Resources::Aml do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "full_name" => "Antonio Ejemplo Modelo"
+      "full_name" => "Antonio Ejemplo Modelo",
+      "entity_type" => "person",
+      "date_of_birth" => "1972-02-29",
+      "nationality" => "ES",
+      "include_adverse_media" => false,
+      "vendor_data" => "user-1234"
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::AmlScreenResponse)

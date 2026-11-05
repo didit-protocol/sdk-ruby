@@ -902,7 +902,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -911,6 +911,7 @@ module Didit
       field :registry_ownership_status, "registry_ownership_status", :string
       field :ownership, "ownership", "KYBRegistryOwnership"
       field :registry_tier, "registry_tier", :string
+      field :registry_monitoring, "registry_monitoring", "KybListShareholdersResponse202KybRegistryRegistryMonitoring"
     end
 
     class KybListShareholdersResponse202KybRegistryBeneficialOwners < Didit::Model
@@ -958,6 +959,20 @@ module Didit
       field :date_of_birth_month, "date_of_birth_month", :integer
     end
 
+    # The latest registry monitor for the company, or `null` when none exists.
+    class KybListShareholdersResponse202KybRegistryRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
+    end
+
     # Full registry company profile.
     class KybListShareholdersResponseKybRegistry < Didit::Model
       field :uuid, "uuid", :string
@@ -1000,7 +1015,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -1009,6 +1024,7 @@ module Didit
       field :registry_ownership_status, "registry_ownership_status", :string
       field :ownership, "ownership", "KYBRegistryOwnership"
       field :registry_tier, "registry_tier", :string
+      field :registry_monitoring, "registry_monitoring", "KybListShareholdersResponseKybRegistryRegistryMonitoring"
     end
 
     class KybListShareholdersResponseKybRegistryBeneficialOwners < Didit::Model
@@ -1054,6 +1070,20 @@ module Didit
       field :date_of_birth, "date_of_birth", :date
       field :date_of_birth_year, "date_of_birth_year", :integer
       field :date_of_birth_month, "date_of_birth_month", :integer
+    end
+
+    # The latest registry monitor for the company, or `null` when none exists.
+    class KybListShareholdersResponseKybRegistryRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
     end
 
     class KybListUbosResponse < Didit::Model
@@ -1118,7 +1148,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -1127,6 +1157,7 @@ module Didit
       field :registry_ownership_status, "registry_ownership_status", :string
       field :ownership, "ownership", "KYBRegistryOwnership"
       field :registry_tier, "registry_tier", :string
+      field :registry_monitoring, "registry_monitoring", "KybListUbosResponse202KybRegistryRegistryMonitoring"
     end
 
     class KybListUbosResponse202KybRegistryBeneficialOwners < Didit::Model
@@ -1174,6 +1205,20 @@ module Didit
       field :date_of_birth_month, "date_of_birth_month", :integer
     end
 
+    # The latest registry monitor for the company, or `null` when none exists.
+    class KybListUbosResponse202KybRegistryRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
+    end
+
     # Full registry company profile.
     class KybListUbosResponseKybRegistry < Didit::Model
       field :uuid, "uuid", :string
@@ -1216,7 +1261,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -1225,6 +1270,7 @@ module Didit
       field :registry_ownership_status, "registry_ownership_status", :string
       field :ownership, "ownership", "KYBRegistryOwnership"
       field :registry_tier, "registry_tier", :string
+      field :registry_monitoring, "registry_monitoring", "KybListUbosResponseKybRegistryRegistryMonitoring"
     end
 
     class KybListUbosResponseKybRegistryBeneficialOwners < Didit::Model
@@ -1270,6 +1316,20 @@ module Didit
       field :date_of_birth, "date_of_birth", :date
       field :date_of_birth_year, "date_of_birth_year", :integer
       field :date_of_birth_month, "date_of_birth_month", :integer
+    end
+
+    # The latest registry monitor for the company, or `null` when none exists.
+    class KybListUbosResponseKybRegistryRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
     end
 
     class KybSearchResponse < Didit::Model
@@ -1332,7 +1392,7 @@ module Didit
       field :addresses, "addresses", [:array, "KYBRegistryAddress"]
       field :industries, "industries", [:array, "KYBRegistryIndustry"]
       field :accounts, "accounts", :any
-      field :registry_data, "registry_data", :any
+      field :registry_data, "registry_data", "KYBRegistryData"
       field :user_provided_data, "user_provided_data", :any
       field :confirmed_by_user_at, "confirmed_by_user_at", :datetime
       field :last_console_edit_at, "last_console_edit_at", :datetime
@@ -1341,6 +1401,7 @@ module Didit
       field :registry_ownership_status, "registry_ownership_status", :string
       field :ownership, "ownership", "KYBRegistryOwnership"
       field :registry_tier, "registry_tier", :string
+      field :registry_monitoring, "registry_monitoring", "KybSelectResponseKybRegistryRegistryMonitoring"
     end
 
     class KybSelectResponseKybRegistryBeneficialOwners < Didit::Model
@@ -1386,6 +1447,20 @@ module Didit
       field :date_of_birth, "date_of_birth", :date
       field :date_of_birth_year, "date_of_birth_year", :integer
       field :date_of_birth_month, "date_of_birth_month", :integer
+    end
+
+    # The latest registry monitor for the company, or `null` when none exists.
+    class KybSelectResponseKybRegistryRegistryMonitoring < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :unavailable_reason, "unavailable_reason", :string
+      field :enrolled_at, "enrolled_at", :datetime
+      field :cancelled_at, "cancelled_at", :datetime
+      field :last_bill_date, "last_bill_date", :date
+      field :next_bill_date, "next_bill_date", :date
+      field :last_event_at, "last_event_at", :datetime
+      field :events_count, "events_count", :integer
+      field :watched_fields, "watched_fields", :any
     end
   end
 end

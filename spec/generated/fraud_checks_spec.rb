@@ -83,12 +83,24 @@ RSpec.describe Didit::Resources::FraudChecks do
       }
     JSON
     result = client.fraud_checks.create(
+      client_reference: "review-attempt-001",
       subject: {
         identifiers: [
           {
-            type: {},
-            value: "value-value"
+            type: "email",
+            value: "applicant@example.com"
           }
+        ],
+        attributes: {
+          first_name: "Alex",
+          last_name: "Example"
+        }
+      },
+      checks: {
+        include: [
+          "networks_same_org",
+          "networks_cross_org",
+          "email_risk"
         ]
       }
     )
@@ -101,12 +113,24 @@ RSpec.describe Didit::Resources::FraudChecks do
       accept: "application/json"
     )
     expect_json_body(request, {
+      "client_reference" => "review-attempt-001",
       "subject" => {
         "identifiers" => [
           {
-            "type" => {},
-            "value" => "value-value"
+            "type" => "email",
+            "value" => "applicant@example.com"
           }
+        ],
+        "attributes" => {
+          "first_name" => "Alex",
+          "last_name" => "Example"
+        }
+      },
+      "checks" => {
+        "include" => [
+          "networks_same_org",
+          "networks_cross_org",
+          "email_risk"
         ]
       }
     })
@@ -137,12 +161,24 @@ RSpec.describe Didit::Resources::FraudChecks do
       }
     JSON
     result = client.fraud_checks.plan(
+      client_reference: "review-attempt-001",
       subject: {
         identifiers: [
           {
-            type: {},
-            value: "value-value"
+            type: "email",
+            value: "applicant@example.com"
           }
+        ],
+        attributes: {
+          first_name: "Alex",
+          last_name: "Example"
+        }
+      },
+      checks: {
+        include: [
+          "networks_same_org",
+          "networks_cross_org",
+          "email_risk"
         ]
       }
     )
@@ -155,12 +191,24 @@ RSpec.describe Didit::Resources::FraudChecks do
       accept: "application/json"
     )
     expect_json_body(request, {
+      "client_reference" => "review-attempt-001",
       "subject" => {
         "identifiers" => [
           {
-            "type" => {},
-            "value" => "value-value"
+            "type" => "email",
+            "value" => "applicant@example.com"
           }
+        ],
+        "attributes" => {
+          "first_name" => "Alex",
+          "last_name" => "Example"
+        }
+      },
+      "checks" => {
+        "include" => [
+          "networks_same_org",
+          "networks_cross_org",
+          "email_risk"
         ]
       }
     })

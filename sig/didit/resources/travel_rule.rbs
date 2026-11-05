@@ -6,6 +6,7 @@ module Didit
       def counterparty_contacts: () -> Didit::Resources::TravelRule::CounterpartyContacts
       def networks: () -> Didit::Resources::TravelRule::Networks
       def transfers: () -> Didit::Resources::TravelRule::Transfers
+      def unmatched_deposits: () -> Didit::Resources::TravelRule::UnmatchedDeposits
       def wallet_addresses: () -> Didit::Resources::TravelRule::WalletAddresses
       def wallet_proofs: () -> Didit::Resources::TravelRule::WalletProofs
       def workspace: () -> Didit::Resources::TravelRule::Workspace
@@ -37,6 +38,10 @@ module Didit
       end
       class Transfers < Didit::Resource
         def list: (?direction: String, ?status: String, ?rail: String, ?kind: String, ?currency: String, ?start_date: Date | String, ?end_date: Date | String, ?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleTransferRow]
+      end
+      class UnmatchedDeposits < Didit::Resource
+        def list: (?direction: String, ?status: String, ?rail: String, ?kind: String, ?currency: String, ?start_date: Date | String, ?end_date: Date | String, ?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleTransferRow]
+        def match: (String transaction_uuid, transaction_id: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleManualMatchResponse
       end
       class WalletAddresses < Didit::Resource
         def bulk_import: (body: (Didit::Types::travel_rule_wallet_addresses_bulk_import_params_variant1 | Array[Didit::Types::wallet_address_import_row]), ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressImportReport

@@ -22,10 +22,48 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
+    # Action when the phone intelligence trust index is at or below the threshold. `DECLINE` flips the final `status`
+    # to `Declined`; `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is
+    # `true`.
+    module PhoneCheckCodeParamsLowPhoneTrustAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
+    # Action when the phone intelligence risk score is above the threshold. `DECLINE` flips the final `status` to
+    # `Declined`; `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is
+    # `true`.
+    module PhoneCheckCodeParamsPhoneIntelligenceScoreAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
     # Action when the social footprint check finds the number registered on none of the platforms it covers. Only
     # NO_ACTION and DECLINE are accepted on this endpoint; REVIEW is available on the workflow configuration key of
     # the same name.
     module PhoneCheckCodeParamsPhoneNoSocialPresenceAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
+    # Action when the number is a high-risk line type. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION`
+    # records the signal without declining. Only takes effect when `enable_enrichment` is `true`.
+    module PhoneCheckCodeParamsPhoneTypeRiskAction
+      NO_ACTION = "NO_ACTION"
+      DECLINE = "DECLINE"
+
+      VALUES = [NO_ACTION, DECLINE].freeze
+    end
+
+    # Action when the number was ported to another carrier recently. `DECLINE` flips the final `status` to `Declined`;
+    # `NO_ACTION` records the signal without declining. Only takes effect when `enable_enrichment` is `true`.
+    module PhoneCheckCodeParamsRecentPortAction
       NO_ACTION = "NO_ACTION"
       DECLINE = "DECLINE"
 

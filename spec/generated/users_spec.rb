@@ -497,7 +497,10 @@ RSpec.describe Didit::Resources::Users do
       }
     JSON
     result = client.users.set_ongoing_monitoring(
-      is_enabled: true
+      is_enabled: true,
+      didit_internal_id_list: [
+        "5b9a0000-0000-4000-8000-00000000f00d"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -508,7 +511,10 @@ RSpec.describe Didit::Resources::Users do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "is_enabled" => true
+      "is_enabled" => true,
+      "didit_internal_id_list" => [
+        "5b9a0000-0000-4000-8000-00000000f00d"
+      ]
     })
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

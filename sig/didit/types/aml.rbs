@@ -24,6 +24,24 @@ module Didit
       VALUES: Array[String]
     end
 
+    module AmlScreenResponseAmlHitsDatasets
+      PEP: String
+      PEP_LEVEL_1: String
+      PEP_LEVEL_2: String
+      PEP_LEVEL_3: String
+      PEP_LEVEL_4: String
+      SANCTIONS: String
+      ADVERSE_MEDIA: String
+      WARNINGS_AND_REGULATORY_ENFORCEMENT: String
+      FITNESS_AND_PROBITY: String
+      SIP: String
+      SIE: String
+      INSOLVENCY: String
+      OTHER_LISTS: String
+
+      VALUES: Array[String]
+    end
+
     module AmlScreenResponseAmlHitsReviewStatus
       FALSE_POSITIVE: String
       UNREVIEWED: String

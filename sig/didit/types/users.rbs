@@ -164,7 +164,7 @@ module Didit
       def created_at: () -> Time
     end
 
-    type users_batch_delete_params = { ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool }
+    type users_batch_delete_params = { ?vendor_data_list: Array[String], ?didit_internal_id_list: Array[String], ?delete_all: bool, ?retain_face_embeddings: bool, ?face_retention_days: Integer }
 
     type users_create_params = { vendor_data: String, ?full_name: String?, ?display_name: String?, ?date_of_birth: (Date | String)?, ?status: String, ?metadata: (Hash[String | Symbol, untyped])?, ?approved_emails: Array[String], ?approved_phones: Array[String], ?issuing_states: Array[String], ?first_name: String, ?last_name: String, ?email: String, ?phone_number: String, ?country: String, ?send_verification_link: bool, ?workflow_id: String, ?language: String }
 

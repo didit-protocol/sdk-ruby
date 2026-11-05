@@ -26,8 +26,8 @@ module Didit
       # **Authentication.** Send your application's API key in `x-api-key`. Missing or invalid credentials return
       # `403` - this API never returns `401`.
       #
-      # **Rate limit.** Shared write budget of 300 requests per minute per API key across all POST/PATCH/DELETE
-      # endpoints.
+      # **Rate limit.** Shared write budget of 300 requests per minute per API key across POST/PATCH/DELETE endpoints
+      # (transaction creates and event ingestion have a separate budget of 600).
       #
       # **Social footprint.** Set `enable_social` to `true` to add a `email_social` block: the online platforms this
       # address is registered on, with per-category counts and any profile details available. `profiles_registered: 0`
@@ -143,6 +143,18 @@ module Didit
       # @param disposable_email_action [String] What to do when the domain belongs to a disposable/temporary-mail
       #   provider (`email.is_disposable`). `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the
       #   risk in `email.warnings`.
+      # @param enable_enrichment [Boolean] When `true`, also run email intelligence on the address: a risk score and
+      #   its breach history. Billed as one `email_intelligence_api` unit per request ($0.05 at list price) in addition
+      #   to this endpoint's own price. The request returns `403` when your balance cannot cover it.
+      # @param email_intelligence_score_action [String] Action when the email intelligence risk score is above the
+      #   threshold. `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining.
+      #   Only takes effect when `enable_enrichment` is `true`.
+      # @param recent_email_breach_action [String] Action when the address appears in a recent known data breach.
+      #   `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining. Only takes
+      #   effect when `enable_enrichment` is `true`.
+      # @param frequent_email_breach_action [String] Action when the address appears in many known data breaches.
+      #   `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the signal without declining. Only takes
+      #   effect when `enable_enrichment` is `true`.
       # @param enable_social [Boolean] When true, also look up the social footprint of the address - the email,
       #   social, professional, e-commerce and entertainment platforms it is registered on. Billed as one `email_social`
       #   unit per request in addition to this endpoint's own price.
@@ -157,6 +169,10 @@ module Didit
         duplicated_email_action: OMIT,
         breached_email_action: OMIT,
         disposable_email_action: OMIT,
+        enable_enrichment: OMIT,
+        email_intelligence_score_action: OMIT,
+        recent_email_breach_action: OMIT,
+        frequent_email_breach_action: OMIT,
         enable_social: OMIT,
         email_no_social_presence_action: OMIT,
         request_options: nil
@@ -170,6 +186,10 @@ module Didit
             "duplicated_email_action" => duplicated_email_action,
             "breached_email_action" => breached_email_action,
             "disposable_email_action" => disposable_email_action,
+            "enable_enrichment" => enable_enrichment,
+            "email_intelligence_score_action" => email_intelligence_score_action,
+            "recent_email_breach_action" => recent_email_breach_action,
+            "frequent_email_breach_action" => frequent_email_breach_action,
             "enable_social" => enable_social,
             "email_no_social_presence_action" => email_no_social_presence_action
           },

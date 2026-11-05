@@ -151,6 +151,13 @@ module Didit
       field :results, "results", [:array, "TravelRuleTransferRow"]
     end
 
+    class TravelRuleUnmatchedDepositsListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleTransferRow"]
+    end
+
     class TravelRuleWalletAddressesListResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string

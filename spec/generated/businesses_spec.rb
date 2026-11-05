@@ -437,7 +437,10 @@ RSpec.describe Didit::Resources::Businesses do
       }
     JSON
     result = client.businesses.set_ongoing_monitoring(
-      is_enabled: true
+      is_enabled: true,
+      didit_internal_id_list: [
+        "b0000000-0000-4000-8000-0000000000b1"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -448,7 +451,10 @@ RSpec.describe Didit::Resources::Businesses do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "is_enabled" => true
+      "is_enabled" => true,
+      "didit_internal_id_list" => [
+        "b0000000-0000-4000-8000-0000000000b1"
+      ]
     })
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -470,7 +476,11 @@ RSpec.describe Didit::Resources::Businesses do
       }
     JSON
     result = client.businesses.set_session_ongoing_monitoring(
-      is_enabled: true
+      is_enabled: true,
+      session_numbers: [
+        "1001",
+        "1002"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -481,7 +491,11 @@ RSpec.describe Didit::Resources::Businesses do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "is_enabled" => true
+      "is_enabled" => true,
+      "session_numbers" => [
+        "1001",
+        "1002"
+      ]
     })
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))

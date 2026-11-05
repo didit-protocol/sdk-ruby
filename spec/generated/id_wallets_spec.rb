@@ -989,6 +989,84 @@ RSpec.describe Didit::Resources::IdWallets do
     exercise_readers(result)
   end
 
+  it "id_wallets.start_google_wallet sends POST /v3/id-verification/wallets/google-wallet/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "request_id": "00000000-0000-4000-8000-000000000001",
+        "wallet_verification": {
+          "wallet": {
+            "id": "google_wallet",
+            "name": "Google Wallet",
+            "issuing_authority": "Google Wallet (ID pass) and US state issuers (mobile driving licence)"
+          },
+          "country": "USA",
+          "status": "Not Finished",
+          "outcome": "pending",
+          "error": null,
+          "interaction": "digital_credentials",
+          "simulated": false,
+          "expires_at": "2026-01-01T10:10:00Z",
+          "next_action": {
+            "type": "request_digital_credential",
+            "digital_credentials": {
+              "protocol": "openid4vp-v1-signed",
+              "request": {
+                "requests": [
+                  {
+                    "protocol": "openid4vp-v1-signed",
+                    "data": {
+                      "request": "<compact JWS signed by Didit>"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "identity": null,
+          "attributes": null,
+          "level_of_assurance": null,
+          "verified_at": null,
+          "signature_valid": null,
+          "credential_type": "redacted-credential_type"
+        },
+        "vendor_data": "your-customer-reference",
+        "metadata": {
+          "reference": "example"
+        },
+        "created_at": "2026-01-01T10:00:00Z"
+      }
+    JSON
+    result = client.id_wallets.start_google_wallet(
+      country: "USA",
+      vendor_data: "your-customer-reference",
+      metadata: {
+        reference: "example"
+      },
+      origin: "https://app.example.com",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/id-verification/wallets/google-wallet/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "country" => "USA",
+      "vendor_data" => "your-customer-reference",
+      "metadata" => {
+        "reference" => "example"
+      },
+      "origin" => "https://app.example.com"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "id_wallets.start_govbr sends POST /v3/id-verification/wallets/govbr/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -1846,6 +1924,78 @@ RSpec.describe Didit::Resources::IdWallets do
       "return_url" => "https://app.example.com/identity/complete"
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "id_wallets.submit_verification_response sends POST /v3/id-verification/wallets/verifications/{request_id}/response/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "request_id": "00000000-0000-4000-8000-000000000001",
+        "wallet_verification": {
+          "wallet": {
+            "id": "google_wallet",
+            "name": "Google Wallet",
+            "issuing_authority": "Google Wallet (ID pass) and US state issuers (mobile driving licence)"
+          },
+          "country": "USA",
+          "status": "Approved",
+          "outcome": "verified",
+          "error": null,
+          "interaction": "digital_credentials",
+          "simulated": false,
+          "expires_at": "2026-01-01T10:10:00Z",
+          "next_action": null,
+          "identity": {
+            "full_name": "Alex Example",
+            "first_name": "Alex",
+            "last_name": "Example",
+            "date_of_birth": "1990-01-31",
+            "nationality": "USA",
+            "issuing_state": "USA"
+          },
+          "attributes": {
+            "document_number": "X0000000",
+            "document_expiry_date": "2030-01-31"
+          },
+          "level_of_assurance": "substantial",
+          "verified_at": "2026-01-01T10:01:00Z",
+          "signature_valid": true,
+          "credential_type": "redacted-credential_type"
+        },
+        "vendor_data": "your-customer-reference",
+        "metadata": {
+          "reference": "example"
+        },
+        "created_at": "2026-01-01T10:00:00Z"
+      }
+    JSON
+    result = client.id_wallets.submit_verification_response(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      response: {
+        protocol: "openid4vp-v1-signed",
+        data: {
+          response: "<compact JWE returned by the wallet>"
+        }
+      }
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/id-verification/wallets/verifications/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/response/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "response" => {
+        "protocol" => "openid4vp-v1-signed",
+        "data" => {
+          "response" => "<compact JWE returned by the wallet>"
+        }
+      }
+    })
     expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

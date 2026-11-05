@@ -11,8 +11,10 @@ module Didit
       # ownership bands) of one candidate returned by `POST /v3/kyb/search/`.
       #
       # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same
-      # application. The search runs on the Lite registry chain; when the country's ownership data lives at another
-      # registry Didit re-finds the company there by registration number, at no extra cost.
+      # application. Search at the tier you intend to buy (`tier` on `POST /v3/kyb/search/`), because the search runs
+      # on the registry chain that serves that tier and an empty Lite search is not proof that the registry does not
+      # hold the company. When the country's ownership data lives at another registry, Didit re-finds the company
+      # there by registration number, at no extra cost.
       #
       # **Billing.** Billed at the country's Shareholders price - see [KYB registry
       # pricing](/getting-started/kyb-registry-pricing). When the registry holds no shareholder record for the company
@@ -32,7 +34,8 @@ module Didit
       # +POST /v3/kyb/shareholders/+
       #
       # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
-      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral: use it shortly after the search that produced it.
+      #   Handles can be long, so store and send the value exactly as returned, without trimming or assuming a length.
       # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
       #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
@@ -68,8 +71,10 @@ module Didit
       # by `POST /v3/kyb/search/`.
       #
       # **Pairing with search.** Pass the candidate's `kyb_response_id` exactly as returned by a search of the same
-      # application. The search runs on the Lite registry chain; when the country's ownership data lives at another
-      # registry Didit re-finds the company there by registration number, at no extra cost.
+      # application. Search at the tier you intend to buy (`tier` on `POST /v3/kyb/search/`), because the search runs
+      # on the registry chain that serves that tier and an empty Lite search is not proof that the registry does not
+      # hold the company. When the country's ownership data lives at another registry, Didit re-finds the company
+      # there by registration number, at no extra cost.
       #
       # **Billing.** Billed at the country's UBO price - see [KYB registry
       # pricing](/getting-started/kyb-registry-pricing). The tier delivered is the highest the country and the
@@ -89,7 +94,8 @@ module Didit
       # +POST /v3/kyb/ubo/+
       #
       # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
-      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral: use it shortly after the search that produced it.
+      #   Handles can be long, so store and send the value exactly as returned, without trimming or assuming a length.
       # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
       #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
@@ -229,7 +235,8 @@ module Didit
       # +POST /v3/kyb/select/+
       #
       # @param kyb_response_id [String] Candidate handle from `POST /v3/kyb/search/`
-      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral - use it shortly after the search that produced it.
+      #   (`kyb_registry.companies[].kyb_response_id`). Ephemeral: use it shortly after the search that produced it.
+      #   Handles can be long, so store and send the value exactly as returned, without trimming or assuming a length.
       # @param vendor_data [String] Your identifier for this company; echoed back and stored with the business
       #   session.
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.

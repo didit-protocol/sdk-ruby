@@ -20,6 +20,11 @@ module Didit
         @transfers ||= Transfers.new(@client)
       end
 
+      # @return [Didit::Resources::TravelRule::UnmatchedDeposits]
+      def unmatched_deposits
+        @unmatched_deposits ||= UnmatchedDeposits.new(@client)
+      end
+
       # @return [Didit::Resources::TravelRule::WalletAddresses]
       def wallet_addresses
         @wallet_addresses ||= WalletAddresses.new(@client)
@@ -838,6 +843,97 @@ module Didit
               "offset" => offset
             },
             page: Types::TravelRuleTransferRow,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +travel_rule.unmatched_deposits+ resource.
+      class UnmatchedDeposits < Didit::Resource
+        # List unmatched Travel Rule deposits
+        #
+        # Inbound deposits that are still waiting for the originating VASP's Travel Rule data: their transfer is
+        # `AWAITING_COUNTERPARTY`, `NOT_ENOUGH_COUNTERPARTY_DATA` or `COUNTERPARTY_VASP_NOT_FOUND`, no received
+        # message is paired with them, and nobody matched them by hand. The rows and the filters are the same as in
+        # `GET /v3/travel-rule/transfers/`, newest first, paginated with `limit` (default 50) and `offset`. Pair a
+        # deposit with the message the originating VASP sent with `POST
+        # /v3/travel-rule/unmatched/{transaction_uuid}/match/`.
+        #
+        # +GET /v3/travel-rule/unmatched/+
+        #
+        # @param direction [String] INBOUND, OUTBOUND, or both comma-separated. Case-sensitive.
+        # @param status [String] One or more transfer statuses, comma-separated.
+        # @param rail [String] One or more of INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, TEST_VASP,
+        #   comma-separated.
+        # @param kind [String] withdrawal, deposit or message, comma-separated.
+        # @param currency [String] The transaction's currency, case-insensitive.
+        # @param start_date [Date, String] Transfers created on or after this day (UTC), YYYY-MM-DD.
+        # @param end_date [Date, String] Transfers created on or before this day (UTC), YYYY-MM-DD.
+        # @param counterparty [String] The `id` of a directory entry or Didit network member from GET
+        #   /v3/travel-rule/vasps/: your transfers with that counterparty. A value that is not a valid id answers 400.
+        # @param limit [Integer] Page size, default 50.
+        # @param offset [Integer] Rows to skip.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleTransferRow>]
+        def list(
+          direction: OMIT,
+          status: OMIT,
+          rail: OMIT,
+          kind: OMIT,
+          currency: OMIT,
+          start_date: OMIT,
+          end_date: OMIT,
+          counterparty: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/travel-rule/unmatched/",
+            query: {
+              "direction" => direction,
+              "status" => status,
+              "rail" => rail,
+              "kind" => kind,
+              "currency" => currency,
+              "start_date" => start_date,
+              "end_date" => end_date,
+              "counterparty" => counterparty,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleTransferRow,
+            request_options: request_options
+          )
+        end
+
+        # Match a Travel Rule deposit to a received message
+        #
+        # Pair an inbound deposit that is still waiting for originator data with the Travel Rule message the
+        # originating VASP sent for it. The deposit takes the message's originator data, counterparty VASP and rail,
+        # and both transfers record the match on their timelines. `transaction_uuid` is the deposit's `transaction_id`
+        # from `GET /v3/travel-rule/unmatched/`. `transaction_id` in the body is the received message's
+        # `transaction_id`, from a row of `GET /v3/travel-rule/transfers/?kind=message`; the transfer's own `id` is
+        # not found. The message must be for the same asset as the deposit. A deposit or message deleted from the
+        # Console answers `404`; one that has already moved on (matched, or no longer waiting) answers `409`.
+        #
+        # +POST /v3/travel-rule/unmatched/{transaction_uuid}/match/+
+        #
+        # @param transaction_uuid [String] The `transaction_id` of the unmatched deposit.
+        # @param transaction_id [String] The `transaction_id` of the received Travel Rule message (a row with `kind:
+        #   message`).
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleManualMatchResponse]
+        def match(transaction_uuid, transaction_id:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/unmatched/{transaction_uuid}/match/",
+            path_params: { "transaction_uuid" => transaction_uuid },
+            body: {
+              "transaction_id" => transaction_id
+            },
+            response: Types::TravelRuleManualMatchResponse,
             request_options: request_options
           )
         end

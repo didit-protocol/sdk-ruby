@@ -82,6 +82,35 @@ module Didit
           request_options: request_options
         )
       end
+
+      # Get today's verifications by hour
+      #
+      # Today's user verification (KYC) sessions, from local midnight in `tz`, counted per local hour they were
+      # created in, next to the same hours of the same weekday one week before, and split by the outcome each one
+      # holds now: approved, in review or declined. This is the volume card of the Business Console's Home.
+      #
+      # `total` is today so far. `previous_total_so_far` counts the comparison day only up to the same local time, so
+      # a change between them compares the same part of both days. The hours still to come today are `0`. A day on
+      # which the clocks change has 23 or 25 hours: the missing hour stays `0` and the repeated hour holds both.
+      #
+      # +GET /v3/organization/{organization_id}/application/{application_id}/analytics/today/+
+      #
+      # @param tz [String] IANA time zone whose midnight starts today, for example `Europe/Madrid` or
+      #   `America/Mexico_City`. Omit it for UTC.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::ApplicationAnalyticsToday]
+      def retrieve_today(tz: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/organization/{organization_id}/application/{application_id}/analytics/today/",
+          query: {
+            "tz" => tz
+          },
+          scope: :application,
+          response: Types::ApplicationAnalyticsToday,
+          request_options: request_options
+        )
+      end
     end
   end
 end
