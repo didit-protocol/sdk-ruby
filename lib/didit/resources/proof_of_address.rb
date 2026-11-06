@@ -19,9 +19,11 @@ module Didit
       # holder name, and address are extracted with LLM-based extraction. The address is parsed and geocoded into
       # `poa_parsed_address`. PDF/EXIF forensics screen for tampering - modification after digital signing, known PDF
       # editors, overlay-text manipulation, suspicious re-exports - surfacing `SUSPECTED_DOCUMENT_MANIPULATION` or
-      # `DOCUMENT_METADATA_MISMATCH`. Document age is validated against `poa_document_age_months`, and the language
-      # against `poa_languages_allowed`. If you pass `expected_address`, `expected_country`, or
-      # `expected_first_name`/`expected_last_name`, the extracted values are cross-checked and mismatches are flagged.
+      # `DOCUMENT_METADATA_MISMATCH`. A text field that was blanked and re-typed in another font, where the file
+      # itself holds no proof of whether its content changed, surfaces `POA_DOCUMENT_UNPROVEN_TEXT_REPLACEMENT`.
+      # Document age is validated against `poa_document_age_months`, and the language against `poa_languages_allowed`.
+      # If you pass `expected_address`, `expected_country`, or `expected_first_name`/`expected_last_name`, the
+      # extracted values are cross-checked and mismatches are flagged.
       #
       # **Decision logic.** `status` is `Approved` unless at least one warning resolves to a decline. Hard failures
       # always decline: `MISSING_ADDRESS_INFORMATION`, `POA_DOCUMENT_EXPIRED`, `INVALID_DOCUMENT_TYPE`,
@@ -94,7 +96,9 @@ module Didit
       #   `DOCUMENT_METADATA_MISMATCH` is produced by this endpoint.
       # @param poa_document_authenticity_action [String] What to do when document manipulation is suspected
       #   (`SUSPECTED_DOCUMENT_MANIPULATION`) - e.g. the PDF was modified after digital signing, processed by a known
-      #   PDF editor, shows overlay-text manipulation, or has inconsistent EXIF dates.
+      #   PDF editor, shows overlay-text manipulation, or has inconsistent EXIF dates. Also governs
+      #   `POA_DOCUMENT_UNPROVEN_TEXT_REPLACEMENT` (a re-typed text field the file cannot prove changed or unchanged):
+      #   `DECLINE` declines it too, `NO_ACTION` ke...
       # @param poa_unsupported_language_action [String] What to do when the document language is outside
       #   `poa_languages_allowed` (`UNSUPPORTED_DOCUMENT_LANGUAGE`).
       # @param poa_address_mismatch_action [String] What to do when the extracted details disagree with the

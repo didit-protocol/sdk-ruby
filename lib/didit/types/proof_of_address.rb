@@ -14,7 +14,8 @@ module Didit
 
     # What to do when document manipulation is suspected (`SUSPECTED_DOCUMENT_MANIPULATION`) - e.g. the PDF was
     # modified after digital signing, processed by a known PDF editor, shows overlay-text manipulation, or has
-    # inconsistent EXIF dates.
+    # inconsistent EXIF dates. Also governs `POA_DOCUMENT_UNPROVEN_TEXT_REPLACEMENT` (a re-typed text field the file
+    # cannot prove changed or unchanged): `DECLINE` declines it too, `NO_ACTION` keeps it as a warning.
     module ProofOfAddressVerifyParamsPoaDocumentAuthenticityAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
