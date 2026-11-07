@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "fileutils"
 require "json"
 require "optparse"
 
@@ -133,7 +134,7 @@ module DiditCodegen
         kept = kept.strip
         added = lines - nested(kept)
         rest = [kept, Report.nested(added)].reject(&:empty?).join("\n")
-        rest.empty? ? "BEGIN_COMMIT_OVERRIDE\n#{first}\nEND_COMMIT_OVERRIDE" : "BEGIN_COMMIT_OVERRIDE\n#{first}\n\n#{rest}\nEND_COMMIT_OVERRIDE"
+        "BEGIN_COMMIT_OVERRIDE\n#{first}#{"\n\n#{rest}" unless rest.empty?}\nEND_COMMIT_OVERRIDE"
       end
 
       def nested(text)
