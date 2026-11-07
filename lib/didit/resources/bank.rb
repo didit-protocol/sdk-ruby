@@ -7,10 +7,6 @@ module Didit
     class Bank < Didit::Resource
       # Check a bank account
       #
-      # **Not available in production yet.** Bank Verification is switched off in production, so until it is switched
-      # on this endpoint answers `404` with `bank_verification_not_available`. Do not build on it yet. The rest of
-      # this description is what the endpoint does once it is available.
-      #
       # Check that a bank account belongs to the person or company you name, before you send money to it. No session
       # and no sign-in: send the name and the account, read the result. It is the [account
       # check](/core-technology/bank-verification/account-check) of the Bank Verification step, run from your backend.
@@ -30,16 +26,16 @@ module Didit
       # **Every request is a new check.** There is no idempotency key and no endpoint to read a check back, so a
       # retried request runs, and is billed, again. Store the response.
       #
-      # **Sandbox.** Where Bank Verification is available, a sandbox key calls no bank and is charged nothing. The
-      # last 4 characters of the IBAN, else of the account number, choose the answer: `0001` a `close_match` with a
-      # `holder_name`, `0002` a `close_match` without one, `0003` and `0006` a `no_match`, `0004` `cannot_verify`,
-      # `0005` a `503` and `0009` a `400`. Any other ending is a `match`.
+      # **Sandbox.** Use a sandbox API key with the sample account details. A sandbox key calls no bank and is charged
+      # nothing. The last 4 characters of the IBAN, else of the account number, choose the answer: `0001` a
+      # `close_match` with a `holder_name`, `0002` a `close_match` without one, `0003` and `0006` a `no_match`, `0004`
+      # `cannot_verify`, `0005` a `503` and `0009` a `400`. Any other ending is a `match`.
       #
       # **API keys.** A scoped API key needs write access to sessions.
       #
       # +POST /v3/bank/account-check/+
       #
-      # @param country [String] The account's country, as an ISO 3166-1 alpha-3 code, for example `GBR`. Lowercase is
+      # @param country [String] The account's country, as an ISO 3166-1 alpha-3 code, for example `NGA`. Lowercase is
       #   accepted.
       # @param account [Hash] The account the way its country writes it: an `iban`, or an `account_number` with the
       #   bank or branch code the country needs (`sort_code`, `routing_number`, `transit_institution`, `bsb`, `ifsc`,
