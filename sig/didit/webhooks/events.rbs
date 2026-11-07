@@ -1,0 +1,125 @@
+module Didit
+  module Webhooks
+    EVENT_CLASSES: Hash[String, singleton(Event)]
+
+    class Event < Didit::Model
+      @verified_by: String?
+
+      def self.build: (Hash[untyped, untyped] payload, ?String? verified_by) -> Event
+
+      attr_reader verified_by: String?
+
+      def initialize: (?Hash[String | Symbol, untyped] data, ?verified_by: String?) -> void
+      def event_id: () -> String?
+      def webhook_type: () -> String?
+      def timestamp: () -> Integer?
+      def created_at: () -> Integer?
+      def application_id: () -> String?
+      def environment: () -> String?
+      def body_authenticated?: () -> bool
+    end
+
+    class SessionEvent < Event
+      def session_id: () -> String?
+      def business_session_id: () -> String?
+      def session_kind: () -> String?
+      def status: () -> String?
+      def workflow_id: () -> String?
+      def workflow_version: () -> untyped
+      def vendor_data: () -> String?
+      def metadata: () -> untyped
+      def decision: () -> Didit::Types::SessionDecision?
+      def resubmit_info: () -> untyped
+    end
+
+    class StatusUpdatedEvent < SessionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class DataUpdatedEvent < SessionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class UserEvent < Event
+      def vendor_user_id: () -> String?
+      def vendor_data: () -> String?
+      def status: () -> String?
+    end
+
+    class UserStatusUpdatedEvent < UserEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class UserDataUpdatedEvent < UserEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BusinessEvent < Event
+      def vendor_business_id: () -> String?
+      def vendor_data: () -> String?
+      def status: () -> String?
+    end
+
+    class BusinessStatusUpdatedEvent < BusinessEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BusinessDataUpdatedEvent < BusinessEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TransactionEvent < Event
+      def transaction_id: () -> String?
+      def txn_id: () -> String?
+      def status: () -> String?
+      def score: () -> Float?
+      def severity: () -> String?
+      def amount: () -> untyped
+      def currency: () -> String?
+      def direction: () -> String?
+      def action_required: () -> bool?
+    end
+
+    class TransactionCreatedEvent < TransactionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TransactionStatusUpdatedEvent < TransactionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TravelRuleStatusUpdatedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def transaction_id: () -> String?
+      def txn_id: () -> String?
+      def travel_rule_status: () -> String?
+      def rail: () -> String?
+      def direction: () -> String?
+    end
+
+    class ActivityCreatedEvent < Event
+      WEBHOOK_TYPE: String
+    end
+
+    class WorkflowComplianceChangedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def workflow_id: () -> String?
+    end
+
+    class KybRegistrySearchResolvedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def request_id: () -> String?
+      def vendor_data: () -> String?
+      def metadata: () -> untyped
+      def search_status: () -> String?
+      def search_resolved: () -> bool?
+      def kyb_registry: () -> untyped
+    end
+
+    class UnknownEvent < Event
+    end
+  end
+end
