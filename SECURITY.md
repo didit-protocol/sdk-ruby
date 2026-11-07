@@ -24,8 +24,7 @@ We are glad to credit you in the advisory if you wish.
 
 ## Supported versions
 
-Security fixes go into the latest 0.x minor release of `didit-sdk`.
-Before 1.0.0 a minor release may contain breaking changes, so upgrade to the latest 0.x to receive fixes.
+Security fixes go into the latest minor release of `didit-sdk`.
 
 ## Scope
 

@@ -9,8 +9,8 @@ module DiditCodegen
       include MethodChanges
       include OperationChanges
 
-      # +downloads+ maps "verification.json" and "account.json" to the downloaded bytes;
-      # +date+ is YYYY-MM-DD; +now+ is the fetch time recorded in SOURCE.json.
+      # +downloads+ maps each file of UPSTREAM to the downloaded bytes; +date+ is YYYY-MM-DD;
+      # +now+ is the fetch time recorded in SOURCE.json.
       def initialize(root, downloads, date:, now:)
         @root = root
         @openapi = File.join(root, "openapi")
@@ -52,8 +52,10 @@ module DiditCodegen
         end
         @old_docs = UPSTREAM.keys.to_h { |file| [file, Doc.new(file, parse_old(old_bytes[file]))] }
         @new_docs = UPSTREAM.keys.to_h { |file| [file, Doc.new(file, new_data[file])] }
-        @old_ops = operations(@old_docs)
-        @new_ops = operations(@new_docs)
+        @old_ops = operations(@old_docs, GENERATED)
+        @new_ops = operations(@new_docs, GENERATED)
+        @old_hand_written = operations(@old_docs, UPSTREAM.keys - GENERATED)
+        @new_hand_written = operations(@new_docs, UPSTREAM.keys - GENERATED)
       end
 
       def parse_old(bytes)
@@ -62,8 +64,8 @@ module DiditCodegen
         {}
       end
 
-      def operations(docs)
-        docs.each_with_object({}) { |(file, doc), out| out.merge!(doc.operations(file, PREFIXES.fetch(file))) }
+      def operations(docs, files)
+        files.each_with_object({}) { |file, out| out.merge!(docs.fetch(file).operations(file, PREFIXES.fetch(file))) }
       end
 
       def analyse
@@ -73,6 +75,7 @@ module DiditCodegen
         drop_returning_entries
         describe_other_operations
         describe_changed_operations
+        describe_hand_written_operations
         describe_schemas
       end
 
