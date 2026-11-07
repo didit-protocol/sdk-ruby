@@ -1,0 +1,20 @@
+module Didit
+  class RawResponse
+    @parser: ^() -> untyped
+    @parsed: bool
+    @value: untyped
+
+    attr_reader status: Integer
+    attr_reader headers: Hash[String, String]
+    attr_reader body: String?
+    attr_reader retries_taken: Integer
+    attr_reader elapsed: Float
+
+    def initialize: (status: Integer, headers: Hash[String, String], body: String?, retries_taken: Integer,
+                     elapsed: Float, parser: ^() -> untyped) -> void
+    def status_code: () -> Integer
+    def request_id: () -> String?
+    def parse: () -> untyped
+    def inspect: () -> String
+  end
+end

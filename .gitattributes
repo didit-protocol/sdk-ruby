@@ -1,0 +1,22 @@
+# LF everywhere, so generated code and fixtures compare byte for byte on every OS (CI runs on Windows too).
+* text=auto eol=lf
+
+# Upstream copies and the other API documents stay exactly as committed.
+/openapi/*.json -text
+
+# Binary fixtures.
+*.gem binary
+*.jpeg binary
+*.jpg binary
+*.pdf binary
+*.png binary
+
+# Generated from openapi/ by codegen/ (bundle exec rake generate): collapsed in pull request diffs.
+/lib/didit/resources/** linguist-generated=true
+/lib/didit/resources.rb linguist-generated=true
+/lib/didit/types/** linguist-generated=true
+/lib/didit/types.rb linguist-generated=true
+/sig/didit/resources/** linguist-generated=true
+/sig/didit/resources.rbs linguist-generated=true
+/sig/didit/types/** linguist-generated=true
+/spec/generated/** linguist-generated=true
