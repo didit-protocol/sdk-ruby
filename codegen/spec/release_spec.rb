@@ -107,7 +107,9 @@ RSpec.describe "Spec sync releases" do
   describe "the pinned upstream changes" do
     define_method(:sync_pair) do |pair|
       Dir.mktmpdir("didit-release") do |root|
-        write_repo(root, verification: document({}))
+        # The other two documents stay as they are.
+        account = document({ "/organizations/me/" => { "get" => { "responses" => { "200" => { "description" => "ok" } } } } })
+        write_repo(root, verification: document({}), account: account)
         FileUtils.cp(File.join(fixtures, pair, "before.json"), File.join(root, "openapi", "verification.json"))
         downloads = %w[account.json authentication.json].to_h { |f| [f, File.binread(File.join(root, "openapi", f))] }
         downloads["verification.json"] = File.binread(File.join(fixtures, pair, "after.json"))
