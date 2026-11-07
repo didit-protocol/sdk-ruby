@@ -7,11 +7,13 @@ title = "didit-protocol/sdk-ruby"
 useDefault = true
 
 [[allowlists]]
-description = "Upstream copies, synced byte for byte by the spec sync workflow and never edited by hand"
+description = "Upstream copies (synced byte for byte, never edited by hand) and the pinned earlier copies the spec sync tests use"
 paths = [
   '''^openapi/verification\.json$''',
   '''^openapi/account\.json$''',
+  '''^openapi/authentication\.json$''',
   '''^openapi/webhook-vectors\.json$''',
+  '''^codegen/spec/fixtures/spec-sync/[0-9-]+/(before|after)\.json$''',
 ]
 
 [[allowlists]]
