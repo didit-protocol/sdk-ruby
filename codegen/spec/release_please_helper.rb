@@ -6,7 +6,8 @@ require "json"
 # far as the release notes and the version bump go, read from release-please-config.json.
 module ReleasePlease
   CONFIG = File.expand_path("../../release-please-config.json", __dir__)
-  STANDARD = "(?:feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)"
+  # A blank line before a commit header of a standard type starts another commit.
+  SPLIT = /\r?\n\r?\n(?=(?:feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\(.*?\))?: )/
 
   module_function
 
@@ -41,7 +42,7 @@ module ReleasePlease
       main += rest.join("END_NESTED_COMMIT")
       inner
     end
-    main.split(/\r?\n\r?\n(?=#{STANDARD}(?:\(.*?\))?: )/).reject(&:empty?) + nested
+    main.split(SPLIT).reject(&:empty?) + nested
   end
 
   # [bump, {section => descriptions}]: hidden types leave the notes

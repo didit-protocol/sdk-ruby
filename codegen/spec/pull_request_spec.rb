@@ -124,8 +124,10 @@ RSpec.describe DiditCodegen::Sync::PullRequest do
       end
     end
 
+    attr_reader :dir
+
     def path(name)
-      File.join(@dir, name)
+      File.join(dir, name)
     end
 
     def run_main(*args, err: StringIO.new)
