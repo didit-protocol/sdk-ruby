@@ -7,7 +7,9 @@ require_relative "release_please_helper"
 # How a spec sync releases (docs/DESIGN.md sections 3.1 and 13): the type and the breaking
 # changes of two real upstream changes, and the release-please configuration.
 RSpec.describe DiditCodegen::Sync::Report, "#release" do
-  fixtures = File.expand_path("fixtures/spec-sync", __dir__)
+  def fixtures
+    File.expand_path("fixtures/spec-sync", __dir__)
+  end
 
   # openapi/verification.json at these didit-protocol/sdk-python commits, and the start of its SHA-256.
   let(:pinned) do
@@ -42,7 +44,7 @@ RSpec.describe DiditCodegen::Sync::Report, "#release" do
   end
 
   # The report of the sync from <pair>/before.json to <pair>/after.json, the other documents unchanged.
-  define_method(:sync_pair) do |pair|
+  def sync_pair(pair)
     Dir.mktmpdir("didit-release") do |root|
       ok = { "get" => { "responses" => { "200" => { "description" => "ok" } } } }
       write_repo(root, verification: document({}), account: document({ "/organizations/me/" => ok }))
