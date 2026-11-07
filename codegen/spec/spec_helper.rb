@@ -64,9 +64,8 @@ module CodegenFixtures
   def authentication_operation(summary, method, auth, status = "200")
     response = { "description" => "ok" }
     unless status == "204"
-      response["content"] = {
-        "application/json" => { "schema" => { "type" => "object", "properties" => { "sub" => { "type" => "string" } } } }
-      }
+      schema = { "type" => "object", "properties" => { "sub" => { "type" => "string" } } }
+      response["content"] = { "application/json" => { "schema" => schema } }
     end
     { "summary" => summary, "operationId" => method, "responses" => { status => response },
       "x-didit-sdk" => { "resource" => "authentication", "method" => method, "auth" => auth, "server" => true } }
