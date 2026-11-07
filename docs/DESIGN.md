@@ -56,6 +56,7 @@ The Authentication runtime (section 10) has no OpenAPI document yet; mintlify-do
 ### 3.1 Spec sync
 
 Every repository has `.github/workflows/spec-sync.yml`, run daily and on `workflow_dispatch`.
+mintlify-docs starts it in all seven repositories through `workflow_dispatch` as soon as docs.didit.me serves a changed OpenAPI document (`server-sdk-spec-sync.yml` there); mintlify-docs `main` documents only what production serves, so no SDK gets an operation or field before the API serves it.
 It downloads the upstream files, and when any of them changed it regenerates the code, runs the full test suite and opens a pull request titled `chore(spec): sync API spec YYYY-MM-DD`.
 The pull request body lists added, removed and changed operations and schemas, and calls out anything breaking.
 A new server operation without SDK naming fails the generator with a message that names the operation; the fix is an entry in `overlay.json` (or upstream).
@@ -248,7 +249,9 @@ Ruby: `net/http` from the standard library, `jwt` only for Authentication.
 - Releases are cut by release-please from conventional commits; `CHANGELOG.md` is generated and never edited by hand.
 - Release workflows publish with trusted publishing where the registry supports it (PyPI, npm with provenance, RubyGems and NuGet), Maven Central through the Central Portal with signed artifacts (token and signing key in the `maven-central` environment), Packagist through its GitHub hook, and Go module tags announced to proxy.golang.org.
 - 1.0.0 shipped on 2026-10-29 with Alex's approval, and the repositories are public.
-- Every release after that publishes straight from the repository: merging the release-please pull request is the approval, and the workflow creates the vX.Y.Z tag and publishes.
+- Every release after that publishes straight from the repository, with no person in the loop for API changes (Alex, 2026-11-07). `.github/workflows/bot-pull-requests.yml` starts CI on the spec sync and release-please pull requests and turns on auto-merge with squash, so each merges once the required `CI passed` check passes. Merging the release pull request creates the vX.Y.Z tag and publishes, and the release workflow then waits until the registry serves the version, or fails.
+- A pull request opened with `GITHUB_TOKEN` gets its `pull_request` CI run only after a maintainer approves it (the repositories are public), so that workflow starts `ci.yml` with `workflow_dispatch`. GitHub leaves the check runs of a manual run off the pull request, so that run's `report` job sets its result as the commit status `CI passed` on the head commit, which the pull request shows and the required check reads. A merge made by that auto-merge starts no push workflow, so the `report` job, and `bot-pull-requests.yml` every 30 minutes, start the release workflows on `main` when the newest commit has no run of them.
+- A person decides, and the pull request gets the `needs-alex` label instead of auto-merge, when a spec sync failed a check, when a pull request asks for a major version (a release pull request for a new major version, or a sync commit with `!` or a `BREAKING CHANGE:` footer), or when it carries commits from people. The `do-not-merge` label, or turning auto-merge off by hand, keeps any of these pull requests from merging.
 - A release created with `GITHUB_TOKEN` does not trigger other workflows, so a repository that publishes from a separate `release.yml` has release-please start it with `workflow_dispatch` for the new tag. No personal access token is stored.
 
 ## 14. Documentation and positioning
