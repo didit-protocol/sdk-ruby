@@ -9906,6 +9906,7 @@ module Didit
     class SessionDecisionDocumentVerificationsItemsDocumentMetadataOverlayManipulation < Didit::Model
       field :detected, "detected", :boolean
       field :analyzed, "analyzed", :boolean
+      field :analysis_incomplete, "analysis_incomplete", :boolean
       field :signals, "signals", [:array, :string]
       field :manipulated_regions, "manipulated_regions", [:array, "SessionDecisionDocumentVerificationsItemsDocumentMetadataOverlayManipulationManipulatedRegions"]
     end
@@ -11007,6 +11008,7 @@ module Didit
     class SessionDecisionPoaVerificationsDocumentMetadataOverlayManipulation < Didit::Model
       field :detected, "detected", :boolean
       field :analyzed, "analyzed", :boolean
+      field :analysis_incomplete, "analysis_incomplete", :boolean
       field :signals, "signals", [:array, :string]
       field :manipulated_regions, "manipulated_regions", [:array, "SessionDecisionPoaVerificationsDocumentMetadataOverlayManipulationManipulatedRegions"]
     end
