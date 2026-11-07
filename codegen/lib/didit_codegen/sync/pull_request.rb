@@ -166,9 +166,7 @@ module DiditCodegen
       # +line+ added to "Later syncs", a section placed before "Release".
       def later_sync(text, line)
         found = LATER_SECTION.match(text)
-        if found
-          return "#{text[0...found.begin(0)]}#{found[0].rstrip}\n#{line}\n\n#{text[found.end(0)..]}"
-        end
+        return "#{text[0...found.begin(0)]}#{found[0].rstrip}\n#{line}\n\n#{text[found.end(0)..]}" if found
 
         stop = OVERRIDE.match(text)&.begin(0) || text.length
         at = text.rindex(RELEASE_HEADING, stop) || stop

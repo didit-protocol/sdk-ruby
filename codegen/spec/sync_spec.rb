@@ -721,8 +721,9 @@ RSpec.describe DiditCodegen::Sync do
       expect(breaking).to include(DiditCodegen::Sync::Report::BREAKING_INTRO, *expected)
       expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
       expect(commit_message).not_to include("BREAKING CHANGE")
-      expect(commit_message).to include(*expected.map { |text| "BEGIN_NESTED_COMMIT\napi(spec): #{text}\nEND_NESTED_COMMIT" })
-      expect(release).to include(*expected.map { |text| "BEGIN_NESTED_COMMIT\napi(spec): #{text}\nEND_NESTED_COMMIT" })
+      nested = expected.map { |text| "BEGIN_NESTED_COMMIT\napi(spec): #{text}\nEND_NESTED_COMMIT" }
+      expect(commit_message).to include(*nested)
+      expect(release).to include(*nested)
       expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
       # A type change of a property named like a schema keyword is not "documentation only".
       expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
@@ -806,13 +807,11 @@ RSpec.describe DiditCodegen::Sync do
       changed["components"]["schemas"]["Money"]["properties"]["amount"]["nullable"] = true
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(breaking.lines.grep(/billing\.retrieve_balance/)).to eq(
-        [
-          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `current.amount`: can now be " \
-          "null\n",
-          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `previous.amount`: can now be " \
-          "null\n"
-        ]
+      expect(breaking.lines(chomp: true).grep(/billing\.retrieve_balance/)).to eq(
+        %w[current previous].map do |field|
+          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `#{field}.amount`: can now " \
+            "be null"
+        end
       )
     end
   end
@@ -833,12 +832,11 @@ RSpec.describe DiditCodegen::Sync do
       overlay_before = File.binread(openapi("overlay.json"))
       expect(sync).to eq(0)
       expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(changed))
-      expect(read_json("SOURCE.json")["authentication.json"]).to eq(
-        "url" => "https://docs.didit.me/openapi-authentication.json", "sha256" => sha("authentication.json"),
-        "fetched_at" => fetched_at
-      )
-      expect(File.binread(openapi("overlay.json"))).to eq(overlay_before)
-      expect(File.exist?(openapi("deprecated-operations.json"))).to be(false)
+      expect(read_json("SOURCE.json")["authentication.json"])
+        .to eq("url" => "https://docs.didit.me/openapi-authentication.json", "sha256" => sha("authentication.json"),
+               "fetched_at" => fetched_at)
+      expect([File.binread(openapi("overlay.json")), File.exist?(openapi("deprecated-operations.json"))])
+        .to eq([overlay_before, false])
       expect(Dir.glob("{lib,sig,spec}/**/*authentication*", base: root)).to eq([])
       follow = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
       expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
@@ -862,8 +860,8 @@ RSpec.describe DiditCodegen::Sync do
       upstream(authentication: authentication_document)
       expect(sync).to eq(0)
       expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(authentication_document))
-      expect(summary).to include("| `openapi/authentication.json` | https://docs.didit.me/openapi-authentication.json | " \
-                                 "`none` | `#{sha("authentication.json")}` |")
+      expect(summary).to include("| `openapi/authentication.json` | https://docs.didit.me/openapi-authentication." \
+                                 "json | `none` | `#{sha("authentication.json")}` |")
       expect(section("Operations")).to include(
         "### Added (3)",
         "`authentication POST /token/`: `authentication.exchange_code`, `authentication.refresh`; update"

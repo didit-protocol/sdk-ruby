@@ -23,26 +23,19 @@ module AuthenticationContract
   LOCAL = %i[verify_access_token verify_id_token issuer client_id timeout leeway close inspect to_s].freeze
   LOCAL_CLASS = %i[from_publishable_key create_pkce create_state create_nonce].freeze
   ACCESS_TOKEN = "synthetic-access-token-0001"
-  # Each method called with synthetic arguments, and the class of what it returns.
+  # Each method's synthetic arguments and keywords, and the class of what it returns.
   CALLS = {
-    discovery: [->(auth) { auth.discovery }, Hash],
-    jwks: [->(auth) { auth.jwks }, Hash],
-    exchange_code: [
-      lambda do |auth|
-        auth.exchange_code("synthetic-code", code_verifier: "synthetic-code-verifier",
-                                             redirect_uri: "https://app.example.com/callback")
-      end,
-      Didit::Authentication::TokenResponse
-    ],
-    refresh: [->(auth) { auth.refresh("synthetic-refresh-token") }, Didit::Authentication::TokenResponse],
-    get_session: [->(auth) { auth.get_session(ACCESS_TOKEN) }, Didit::Authentication::Session],
-    revoke_session: [->(auth) { auth.revoke_session(ACCESS_TOKEN) }, NilClass],
-    create_step_up: [
-      ->(auth) { auth.create_step_up(ACCESS_TOKEN, action: "payout", amount: "900.00", currency: "USD") },
-      Didit::Authentication::StepUp
-    ],
-    retrieve_step_up: [->(auth) { auth.retrieve_step_up(ACCESS_TOKEN, "synthetic-step-up") },
-                       Didit::Authentication::StepUp]
+    discovery: [[], {}, Hash],
+    jwks: [[], {}, Hash],
+    exchange_code: [["synthetic-code"],
+                    { code_verifier: "synthetic-code-verifier", redirect_uri: "https://app.example.com/callback" },
+                    Didit::Authentication::TokenResponse],
+    refresh: [["synthetic-refresh-token"], {}, Didit::Authentication::TokenResponse],
+    get_session: [[ACCESS_TOKEN], {}, Didit::Authentication::Session],
+    revoke_session: [[ACCESS_TOKEN], {}, NilClass],
+    create_step_up: [[ACCESS_TOKEN], { action: "payout", amount: "900.00", currency: "USD" },
+                     Didit::Authentication::StepUp],
+    retrieve_step_up: [[ACCESS_TOKEN, "synthetic-step-up"], {}, Didit::Authentication::StepUp]
   }.freeze
 
   module_function
@@ -99,25 +92,31 @@ module AuthenticationContract
     [status.to_i, JSON.generate(value)]
   end
 
-  # WebMock routes answering every operation of the document with its documented response.
+  # [verb, path pattern, status, body] answering every operation of the document.
   def routes
     out = []
     each_operation { |path, verb, op| out << [verb, pattern(path), *example(op)] }
     out
   end
+
+  # The WebMock response for +request+: its operation's documented response.
+  def respond(routes, request)
+    verb = request.method.to_s.upcase
+    _, _, status, body = routes.find { |route_verb, path, _, _| route_verb == verb && path.match?(request.uri.path) }
+    raise "openapi/authentication.json has no operation #{verb} #{request.uri}" if status.nil?
+
+    { status: status, body: body.to_s, headers: body ? { "Content-Type" => "application/json" } : {} }
+  end
 end
 
-RSpec.describe Didit::Authentication, "contract with openapi/authentication.json" do
+RSpec.describe "Authentication contract" do
   let(:requests) { [] }
 
   before do
     routes = AuthenticationContract.routes
     stub_request(:any, /\A#{Regexp.escape(AuthenticationContract.issuer)}/).to_return do |request|
       requests << request
-      _, _, status, body = routes.find { |verb, path, _, _| verb == request.method.to_s.upcase && path.match?(request.uri.path) }
-      raise "openapi/authentication.json has no operation #{request.method.upcase} #{request.uri}" if status.nil?
-
-      { status: status, body: body.to_s, headers: body ? { "Content-Type" => "application/json" } : {} }
+      AuthenticationContract.respond(routes, request)
     end
   end
 
@@ -130,18 +129,18 @@ RSpec.describe Didit::Authentication, "contract with openapi/authentication.json
   end
 
   it "has no other public method" do
-    expect(described_class.public_instance_methods(false).sort)
+    expect(Didit::Authentication.public_instance_methods(false).sort)
       .to eq((AuthenticationContract::METHODS.values + AuthenticationContract::LOCAL).sort)
-    expect(described_class.singleton_methods(false).sort).to eq(AuthenticationContract::LOCAL_CLASS.sort)
+    expect(Didit::Authentication.singleton_methods(false).sort).to eq(AuthenticationContract::LOCAL_CLASS.sort)
   end
 
   it "sends each operation and reads its documented response" do
     AuthenticationContract.operations.each do |name, operation|
       method = AuthenticationContract::METHODS.fetch(name)
-      call, result_class = AuthenticationContract::CALLS.fetch(method)
+      arguments, keywords, result_class = AuthenticationContract::CALLS.fetch(method)
       requests.clear
 
-      result = call.call(described_class.new(AuthenticationContract.issuer))
+      result = Didit::Authentication.new(AuthenticationContract.issuer).public_send(method, *arguments, **keywords)
 
       expect(result).to be_a(result_class), name
       request = requests.last
