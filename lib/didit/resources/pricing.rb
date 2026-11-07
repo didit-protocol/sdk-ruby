@@ -8,9 +8,8 @@ module Didit
       # Get bank verification prices (public, unauthenticated)
       #
       # Returns the list price of each Bank Verification method in every country: bank sign-in with its balance and
-      # transactions add-ons, and the account check. Bank Verification is not enabled in production yet, so a bank
-      # step is refused on production workflows until it is; treat these prices as a list price, not as an offer you
-      # can buy today. Use it to quote a bank step before you build a workflow, or to show bank prices in your own
+      # transactions add-ons, and the account check. A method a country does not offer today shows as not available,
+      # with no price. Use it to quote a bank step before you build a workflow, or to show bank prices in your own
       # product.
       #
       # Public: send no auth header. The response contains no organization data and is the same for every caller. It

@@ -12,16 +12,16 @@ RSpec.describe Didit::Resources::Bank do
         "request_id": "c2f4a9e0-7b1d-4c3a-9e55-1d0a6b8f2a47",
         "result": "close_match",
         "holder_name": "MARIA R OLIVEIRA",
-        "account": "****6819",
+        "account": "****0001",
         "vendor_data": "payout_20481",
         "created_at": "2026-10-21T14:32:08Z"
       }
     JSON
     result = client.bank.account_check(
-      country: "GBR",
+      country: "NGA",
       account: {
-        sort_code: "20-45-67",
-        account_number: "31926819"
+        bank_code: "000014",
+        account_number: "0123450001"
       },
       holder: {
         full_name: "Maria Oliveira"
@@ -37,10 +37,10 @@ RSpec.describe Didit::Resources::Bank do
       accept: "application/json"
     )
     expect_json_body(request, {
-      "country" => "GBR",
+      "country" => "NGA",
       "account" => {
-        "sort_code" => "20-45-67",
-        "account_number" => "31926819"
+        "bank_code" => "000014",
+        "account_number" => "0123450001"
       },
       "holder" => {
         "full_name" => "Maria Oliveira"
