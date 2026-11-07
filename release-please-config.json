@@ -11,11 +11,11 @@
       "include-component-in-tag": false,
       "include-v-in-tag": true,
       "changelog-sections": [
+        { "type": "api", "section": "API changes that can break typed code" },
         { "type": "feat", "section": "Features" },
         { "type": "fix", "section": "Bug Fixes" },
         { "type": "perf", "section": "Performance Improvements" },
         { "type": "revert", "section": "Reverts" },
-        { "type": "chore", "scope": "spec", "section": "API Spec Updates" },
         { "type": "docs", "section": "Documentation", "hidden": true },
         { "type": "style", "section": "Styles", "hidden": true },
         { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
