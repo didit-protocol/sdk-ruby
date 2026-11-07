@@ -770,6 +770,118 @@ RSpec.describe DiditCodegen::Sync do
       expect(sync).to eq(0)
       expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): details changed")
     end
+
+    def top_up_schema(doc)
+      doc.dig("paths", "/v3/billing/top-up/", "post", "requestBody", "content", "application/json", "schema")
+    end
+
+    it "counts every type change, in either direction, typed string formats included" do
+      before = verification
+      before["components"]["schemas"]["BillingBalance"]["properties"]["balance"] = { "type" => "number" }
+      top_up_schema(before)["properties"]["amount"] = { "type" => "integer" }
+      repo(verification: before)
+      changed = JSON.parse(JSON.generate(before))
+      changed["components"]["schemas"]["BillingBalance"]["properties"]["balance"] = { "type" => "integer" }
+      top_up_schema(changed)["properties"]["amount"] = { "type" => "number" }
+      top_up_schema(changed)["properties"]["note"] = { "type" => "string", "format" => "date" }
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(breaking).to include(
+        "`billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200 `balance`: type changed from number " \
+        "to integer",
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `amount`: type changed from integer to number",
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `note`: type changed from string to string(date)"
+      )
+    end
+
+    it "lists a change of a shared schema at every field that uses it, once for all success statuses" do
+      before = verification
+      before["components"]["schemas"]["Money"] = { "type" => "object",
+                                                   "properties" => { "amount" => { "type" => "string" } } }
+      before["components"]["schemas"]["BillingBalance"]["properties"]
+        .merge!("current" => ref("Money"), "previous" => ref("Money"))
+      before["paths"]["/v3/billing/balance/"]["get"]["responses"].merge!(ok(ref("BillingBalance"), "202"))
+      repo(verification: before)
+      changed = JSON.parse(JSON.generate(before))
+      changed["components"]["schemas"]["Money"]["properties"]["amount"]["nullable"] = true
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(breaking.lines.grep(/billing\.retrieve_balance/)).to eq(
+        [
+          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `current.amount`: can now be " \
+          "null\n",
+          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `previous.amount`: can now be " \
+          "null\n"
+        ]
+      )
+    end
+  end
+
+  describe "authentication.json (docs/DESIGN.md section 10)" do
+    def session_schema(doc)
+      doc.dig("paths", "/session/", "get", "responses", "200", "content", "application/json", "schema")
+    end
+
+    it "is synced like the other documents, generates nothing and asks the hand-written module to follow" do
+      repo
+      changed = authentication_document
+      changed["paths"]["/session/"].delete("delete")
+      changed["paths"]["/token/"]["post"]["x-didit-sdk"]["variants"].pop
+      changed["paths"]["/step-up/"] = { "post" => authentication_operation("Step up", "create_step_up", "none") }
+      session_schema(changed)["properties"]["sub"] = { "type" => "integer" }
+      upstream(authentication: changed)
+      overlay_before = File.binread(openapi("overlay.json"))
+      expect(sync).to eq(0)
+      expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(changed))
+      expect(read_json("SOURCE.json")["authentication.json"]).to eq(
+        "url" => "https://docs.didit.me/openapi-authentication.json", "sha256" => sha("authentication.json"),
+        "fetched_at" => fetched_at
+      )
+      expect(File.binread(openapi("overlay.json"))).to eq(overlay_before)
+      expect(File.exist?(openapi("deprecated-operations.json"))).to be(false)
+      expect(Dir.glob("{lib,sig,spec}/**/*authentication*", base: root)).to eq([])
+      follow = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
+      expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
+      expect(section("Breaking changes")).to include(
+        "`authentication.revoke_session` (`authentication DELETE /session/`) was removed upstream, and the method " \
+        "with it",
+        "`authentication.refresh` (`authentication POST /token/`) is no longer an SDK method upstream",
+        "`authentication.get_session` (`authentication GET /session/`): response 200 `sub`: type changed from " \
+        "string to integer"
+      )
+      expect(section("Operations")).to include(
+        "`authentication POST /step-up/`: `authentication.create_step_up`; #{follow}",
+        "`authentication DELETE /session/` (`authentication.revoke_session`): #{follow}"
+      )
+      expect(section("SDK naming")).to include("`authentication POST /token/`: `x-didit-sdk` changed from")
+    end
+
+    it "is added by the first sync that finds it" do
+      repo
+      FileUtils.rm(openapi("authentication.json"))
+      upstream(authentication: authentication_document)
+      expect(sync).to eq(0)
+      expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(authentication_document))
+      expect(summary).to include("| `openapi/authentication.json` | https://docs.didit.me/openapi-authentication.json | " \
+                                 "`none` | `#{sha("authentication.json")}` |")
+      expect(section("Operations")).to include(
+        "### Added (3)",
+        "`authentication POST /token/`: `authentication.exchange_code`, `authentication.refresh`; update"
+      )
+      expect(section("Breaking changes")).to include("None detected.")
+    end
+
+    it "makes a documentation-only change a chore" do
+      repo
+      changed = authentication_document
+      changed["paths"]["/session/"]["get"]["description"] = "The live session behind the access token."
+      upstream(authentication: changed)
+      expect(sync).to eq(0)
+      expect(summary).to start_with("chore(spec): sync API spec 2026-10-18\n")
+      expect(section("Operations")).to include(
+        "`authentication GET /session/` (`authentication.get_session`): documentation only"
+      )
+    end
   end
 
   describe "the summary limits" do
