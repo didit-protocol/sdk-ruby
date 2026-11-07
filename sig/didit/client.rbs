@@ -1,0 +1,61 @@
+module Didit
+  class Client
+    include Resources::ClientMethods
+
+    DEFAULT_BASE_URL: String
+    DEFAULT_ACCOUNT_BASE_URL: String
+    DEFAULT_TIMEOUT: Float
+    DEFAULT_MAX_RETRIES: Integer
+
+    self.@deprecation_lock: Thread::Mutex
+    self.@deprecation_warned: Set[String]
+
+    def self.deprecation_lock: () -> Thread::Mutex
+    def self.deprecation_warned: () -> Set[String]
+
+    @config: Internal::Config
+    @transport: Internal::Transport
+    @raw: bool
+
+    def initialize: (?api_key: String?, ?organization_id: String?, ?application_id: String?, ?base_url: String?,
+                     ?account_base_url: String?, ?account_token: String?, ?timeout: Numeric, ?max_retries: Integer,
+                     ?default_headers: Hash[String, String], ?logger: untyped, ?http_client: Internal::http_client?) -> void
+
+    def base_url: () -> String
+    def account_base_url: () -> String
+    def organization_id: () -> String?
+    def application_id: () -> String?
+    def timeout: () -> Float
+    def max_retries: () -> Integer
+
+    def with_options: (?api_key: String?, ?account_token: String?, ?organization_id: String?,
+                       ?application_id: String?, ?base_url: String?, ?account_base_url: String?,
+                       ?timeout: Numeric, ?max_retries: Integer, ?default_headers: Hash[String, String],
+                       ?logger: untyped) -> Client
+    def with_raw_response: () -> Client
+    def raw_response?: () -> bool
+    def close: () -> nil
+    def inspect: () -> String
+    def to_s: () -> String
+
+    def request: (Symbol http_method, String path, ?path_params: Hash[String, untyped], ?query: Hash[String, untyped]?,
+                  ?body: untyped, ?encoding: Symbol, ?file_fields: Array[String], ?headers: Hash[String, untyped],
+                  ?auth: Symbol, ?api: Symbol, ?scope: Symbol?, ?response: Didit::type_spec?, ?page: Didit::type_spec?,
+                  ?accept: String, ?request_options: Didit::request_options?) ?{ (String chunk) -> void } -> untyped
+
+    def fetch_page: (Internal::Request::Prepared prepared, URI::Generic uri, Didit::type_spec item, Array[untyped] seen) -> Page[untyped]
+    def deprecated: (String name, String note) -> nil
+
+    attr_reader config: Internal::Config
+    attr_reader transport: Internal::Transport
+
+    def setup: (Internal::Config config, Internal::Transport transport, raw: bool) -> self
+
+    private
+
+    def copy: (Internal::Config config, raw: bool) -> Client
+    def parse: (Internal::Request::Prepared prepared, Internal::Transport::Response response, untyped type, untyped page) -> untyped
+    def check_status: (Internal::Request::Prepared prepared, Internal::Transport::Response response) -> Internal::Transport::Response
+    def parse_json: (Internal::Request::Prepared prepared, Internal::Transport::Response response) -> untyped
+  end
+end

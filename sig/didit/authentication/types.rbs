@@ -1,0 +1,114 @@
+module Didit
+  class Authentication
+    class OrganizationClaim < Didit::Model
+      def id: () -> String?
+      def role: () -> String?
+    end
+
+    class ActorClaim < Didit::Model
+      def sub: () -> String?
+      def agent: () -> String?
+      def scopes: () -> Array[String]?
+    end
+
+    class VerifiedClaims < Didit::Model
+      def level: () -> String?
+      def over_18: () -> bool?
+      def over_21: () -> bool?
+      def given_name: () -> String?
+      def family_name: () -> String?
+      def birthdate: () -> String?
+      def nationality: () -> String?
+      def country: () -> String?
+      def document_verified: () -> bool?
+      def liveness: () -> bool?
+    end
+
+    class TokenClaims < Didit::Model
+      def iss: () -> String?
+      def sub: () -> String?
+      def aud: () -> (String | Array[String] | nil)
+      def sid: () -> String?
+      def jti: () -> String?
+      def iat: () -> (Integer | Float | nil)
+      def exp: () -> (Integer | Float | nil)
+      def nbf: () -> (Integer | Float | nil)
+      def vendor_data: () -> String?
+      def amr: () -> Array[String]?
+      def org: () -> OrganizationClaim?
+      def verified: () -> VerifiedClaims?
+      def act: () -> ActorClaim?
+    end
+
+    class AccessTokenClaims < TokenClaims
+      def client_id: () -> String?
+    end
+
+    class IdTokenClaims < TokenClaims
+      def auth_time: () -> (Integer | Float | nil)
+      def nonce: () -> String?
+      def email: () -> String?
+      def email_verified: () -> bool?
+      def name: () -> String?
+      def phone_number: () -> String?
+    end
+
+    class TokenResponse < Didit::Model
+      SECRET_FIELDS: Array[String]
+
+      def access_token: () -> String?
+      def token_type: () -> String?
+      def expires_in: () -> Integer?
+      def refresh_token: () -> String?
+      def id_token: () -> String?
+      def scope: () -> String?
+      def session_id: () -> String?
+    end
+
+    class SessionCustomRole < Didit::Model
+      def key: () -> String?
+      def permissions: () -> Array[String]?
+    end
+
+    class SessionOrganization < Didit::Model
+      def organization_id: () -> String?
+      def organization_name: () -> String?
+      def role: () -> String?
+      def custom_role: () -> SessionCustomRole?
+    end
+
+    class Session < Didit::Model
+      def sub: () -> String?
+      def sid: () -> String?
+      def application_id: () -> String?
+      def vendor_data: () -> String?
+      def amr: () -> Array[String]?
+      def mfa_verified: () -> bool?
+      def email: () -> String?
+      def email_verified: () -> bool?
+      def phone: () -> String?
+      def verified_identity: () -> Hash[String, untyped]?
+      def verified: () -> VerifiedClaims?
+      def expires_at: () -> Time?
+      def post_logout_redirect_uri: () -> String?
+      def organizations: () -> Array[SessionOrganization]?
+    end
+
+    class StepUp < Didit::Model
+      def required: () -> bool?
+      def id: () -> String?
+      def rule: () -> String?
+      def verification_method: () -> String?
+      def status: () -> String?
+      def level: () -> String?
+      def amount: () -> String?
+      def currency: () -> String?
+      def created_at: () -> Time?
+      def completed_at: () -> Time?
+      def expires_at: () -> Time?
+      def verification_url: () -> String?
+      def expires_in: () -> Integer?
+      def approved?: () -> bool
+    end
+  end
+end
