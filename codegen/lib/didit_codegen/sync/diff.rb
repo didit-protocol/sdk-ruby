@@ -55,10 +55,15 @@ module DiditCodegen
 
     # The field-level differences between two versions of an operation: parameters,
     # request body and success responses, nested objects and $refs included. Each note
-    # is [text, breaking]. A change breaks callers when code written against the SDK can
-    # stop working: a removed or newly required request field, a removed response field,
-    # a type change, an enum value removed from a request (response enums are open,
-    # docs/DESIGN.md section 5.1).
+    # is [text, breaking]. A change is breaking when it can break typed code
+    # (docs/DESIGN.md section 3.1): a field or parameter whose type changed (in either
+    # direction), a field that can now be null, a removed field, parameter or enum value,
+    # and a newly required parameter or request field.
+    #
+    # A schema that several fields share ($ref) is compared at every field that uses it, so
+    # each path that changed is listed; only a $ref already being compared further up the
+    # same path (a recursive schema) is not entered again. Notes that several success
+    # statuses share are listed once, as "response 200, 202".
     class Details
       include Shapes
 
@@ -68,7 +73,7 @@ module DiditCodegen
         @old = old
         @new = new
         @notes = []
-        @seen = {}
+        @active = {}
       end
 
       # @return [Array<Array(String, Boolean)>]
@@ -130,24 +135,27 @@ module DiditCodegen
           (old_ok.keys - new_ok.keys).each { |s| note("response #{s}: removed", false) }
           (new_ok.keys - old_ok.keys).each { |s| note("response #{s}: added", false) }
         end
-        pairs.each { |old_status, new_status| response(old_ok[old_status], new_ok[new_status], new_status) }
+        by_status = pairs.map do |old_status, new_status|
+          [new_status, collect { response(old_ok[old_status], new_ok[new_status], new_status) }]
+        end
+        merge_statuses(by_status)
       end
 
       # Compares two schemas; +mode+ is :request or :response.
       def schema(old_schema, new_schema, label, path, mode, depth = 0)
-        return if depth > MAX_DEPTH || !first_visit?(old_schema, new_schema, mode)
+        return if depth > MAX_DEPTH
 
-        before = flatten(@old, old_schema)
-        after = flatten(@new, new_schema)
-        where = at(label, path)
-        return if type_changed?(before, after, where, mode)
-        return unless before.is_a?(Hash) && after.is_a?(Hash)
+        key = [old_schema, new_schema].map { |s| s.is_a?(Hash) ? s["$ref"] : nil }
+        return compare(old_schema, new_schema, label, path, mode, depth) if key.none?
+        # A recursive schema: its fields are compared where the recursion starts.
+        return if @active.key?(key + [mode])
 
-        nullability(before, after, where, mode)
-        enum(before, after, where, mode)
-        properties(before, after, label, path, mode, depth) if before["properties"] || after["properties"]
-        variants(before, after, where)
-        nested(before, after, label, path, mode, depth)
+        @active[key + [mode]] = true
+        begin
+          compare(old_schema, new_schema, label, path, mode, depth)
+        ensure
+          @active.delete(key + [mode])
+        end
       end
 
       private
@@ -165,14 +173,41 @@ module DiditCodegen
         path.empty? ? name : "#{path}.#{name}"
       end
 
-      def first_visit?(old_schema, new_schema, mode)
-        refs = [old_schema, new_schema].map { |s| s.is_a?(Hash) ? s["$ref"] : nil }
-        return true if refs.none?
+      def compare(old_schema, new_schema, label, path, mode, depth)
+        before = flatten(@old, old_schema)
+        after = flatten(@new, new_schema)
+        where = at(label, path)
+        return if type_changed?(before, after, where)
+        return unless before.is_a?(Hash) && after.is_a?(Hash)
 
-        key = refs + [mode]
-        return false if @seen.key?(key)
+        nullability(before, after, where, mode)
+        enum(before, after, where, mode)
+        properties(before, after, label, path, mode, depth) if before["properties"] || after["properties"]
+        variants(before, after, where)
+        nested(before, after, label, path, mode, depth)
+      end
 
-        @seen[key] = true
+      # The notes the block adds, taken out of @notes.
+      def collect
+        kept = @notes
+        @notes = []
+        yield
+        @notes
+      ensure
+        @notes = kept
+      end
+
+      # +by_status+ is [[status, notes]]; a note that several statuses have is listed once,
+      # with all of them ("response 200, 202 `field`: ...").
+      def merge_statuses(by_status)
+        statuses = {}
+        by_status.each do |status, notes|
+          notes.each do |text, breaking|
+            rest = text.delete_prefix("response #{status}")
+            (statuses[[rest, breaking]] ||= []) << status
+          end
+        end
+        statuses.each { |(rest, breaking), list| note("response #{list.uniq.join(", ")}#{rest}", breaking) }
       end
 
       def added_body(body)
@@ -217,23 +252,15 @@ module DiditCodegen
         end
       end
 
-      def type_changed?(before, after, where, mode)
+      # Any type change, in either direction, changes the generated type (docs/DESIGN.md
+      # section 3.1); a typed string format (date, date-time, binary) counts as a type.
+      def type_changed?(before, after, where)
         old_kind = kind(@old, before)
         new_kind = kind(@new, after)
         return false if old_kind.empty? || new_kind.empty? || old_kind == new_kind
 
-        note("#{where}: type changed from #{old_kind} to #{new_kind}", !harmless?(old_kind, new_kind, mode))
+        note("#{where}: type changed from #{old_kind} to #{new_kind}", true)
         true
-      end
-
-      # Widening what a request accepts, or narrowing what a response returns, breaks nobody.
-      def harmless?(old_kind, new_kind, mode)
-        if mode == :request
-          (old_kind == "integer" && new_kind == "number") ||
-            (old_kind == "string" && %w[string(date) string(date-time)].include?(new_kind))
-        else
-          old_kind == "number" && new_kind == "integer"
-        end
       end
 
       def nullability(before, after, where, mode)
@@ -247,9 +274,8 @@ module DiditCodegen
         old_values = before["enum"]
         new_values = after["enum"]
         if old_values.is_a?(Array) && new_values.is_a?(Array)
-          (old_values - new_values).compact.each do |value|
-            note("#{where}: enum value `#{value}` removed", mode == :request)
-          end
+          # Also in a response: the generated constant of the value goes away.
+          (old_values - new_values).compact.each { |value| note("#{where}: enum value `#{value}` removed", true) }
           added = (new_values - old_values).compact
           note("#{where}: enum #{values(added)} added", false) unless added.empty?
         elsif new_values.is_a?(Array)

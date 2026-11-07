@@ -3,14 +3,20 @@
 module DiditCodegen
   module Sync
     # Operations and schemas that changed upstream, field by field. Mixed into Syncer.
+    #
+    # Anything but documentation that changes in an operation or a component schema, and
+    # every added or removed operation, is something a caller can observe: it makes the sync
+    # feat(spec) (Report#observable, docs/DESIGN.md section 3.1).
     module OperationChanges
       PART_KEYS = %w[parameters requestBody responses x-didit-sdk].freeze
+      FOLLOW = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
 
       private
 
       # Added and removed operations that have no server method (server methods are
       # reported by MethodChanges), and the operations that have no SDK naming at all.
       def describe_other_operations
+        @report.observable = true if @new_ops.keys.sort != @old_ops.keys.sort
         (@new_ops.keys - @old_ops.keys).sort.each do |key|
           naming = new_naming(key)
           if naming.nil?
@@ -27,10 +33,18 @@ module DiditCodegen
       end
 
       def describe_changed_operations
+        changed_operations(@old_ops, @new_ops) do |key, old_ref, new_ref, docs_only|
+          describe_change(key, old_ref, new_ref, docs_only: docs_only, name: JsonText.ident(new_naming(key)))
+        end
+      end
+
+      # Yields each operation of +old_ops+ and +new_ops+ that changed, and whether only its
+      # documentation did.
+      def changed_operations(old_ops, new_ops)
         comparers = {}
-        (@old_ops.keys & @new_ops.keys).sort.each do |key|
-          old_ref = @old_ops[key]
-          new_ref = @new_ops[key]
+        (old_ops.keys & new_ops.keys).sort.each do |key|
+          old_ref = old_ops[key]
+          new_ref = new_ops[key]
           next if @unchanged.include?(new_ref.file)
 
           exact, structural = comparers[new_ref.file] ||= [
@@ -41,12 +55,13 @@ module DiditCodegen
           new_parts = parts(new_ref)
           next if parts_equal?(exact, old_parts, new_parts)
 
-          describe_change(key, old_ref, new_ref, docs_only: parts_equal?(structural, old_parts, new_parts))
+          yield key, old_ref, new_ref, parts_equal?(structural, old_parts, new_parts)
         end
       end
 
-      def describe_change(key, old_ref, new_ref, docs_only:)
-        name = JsonText.ident(new_naming(key))
+      # +name+ is the operation's server method, nil when the server SDKs do not expose it.
+      def describe_change(key, old_ref, new_ref, docs_only:, name:)
+        @report.observable = true unless docs_only
         label = "`#{key}`#{name ? " (`#{name}`)" : " (not exposed by the server SDKs)"}"
         notes = Details.new(old_ref.doc, new_ref.doc).operation(old_ref, new_ref)
         if notes.empty?
@@ -57,6 +72,69 @@ module DiditCodegen
         breaking = name ? notes.select(&:last) : []
         @report.changed << nested("#{label}#{" **breaking**" unless breaking.empty?}", notes, exposed: !name.nil?)
         breaking.map(&:first).each { |text| @report.breaking << "`#{name}` (`#{key}`): #{text}" }
+      end
+
+      # Added, removed, renamed and changed operations of a document whose module is
+      # hand-written (authentication.json, docs/DESIGN.md section 10). Nothing is generated,
+      # named in overlay.json or deprecated for them: spec/authentication/contract_spec.rb
+      # fails until the module follows.
+      def describe_hand_written_operations
+        old_ops = @old_hand_written
+        new_ops = @new_hand_written
+        (new_ops.keys - old_ops.keys).sort.each { |key| hand_written_added(key, new_ops[key]) }
+        (old_ops.keys - new_ops.keys).sort.each { |key| hand_written_removed(key, old_ops[key]) }
+        (old_ops.keys & new_ops.keys).sort.each { |key| hand_written_naming(key, old_ops[key], new_ops[key]) }
+        changed_operations(old_ops, new_ops) do |key, old_ref, new_ref, docs_only|
+          describe_change(key, old_ref, new_ref, docs_only: docs_only, name: JsonText.ident(new_ref.upstream_naming))
+        end
+      end
+
+      def hand_written_added(key, ref)
+        @report.observable = true
+        names = hand_written_methods(ref)
+        @report.added << if names.empty?
+                           "`#{key}`: not exposed by the server SDKs"
+                         else
+                           "`#{key}`: #{code_list(names)}; #{FOLLOW}"
+                         end
+      end
+
+      def hand_written_removed(key, ref)
+        @report.observable = true
+        names = hand_written_methods(ref)
+        return @report.removed << "`#{key}`: not exposed by the server SDKs" if names.empty?
+
+        @report.removed << "`#{key}` (#{code_list(names)}): #{FOLLOW}"
+        names.each { |name| @report.breaking << "`#{name}` (`#{key}`) was removed upstream, and the method with it" }
+      end
+
+      def hand_written_naming(key, old_ref, new_ref)
+        before = old_ref.upstream_naming
+        after = new_ref.upstream_naming
+        return if JsonText.normalize(before) == JsonText.normalize(after)
+
+        @report.observable = true
+        @report.naming << "`#{key}`: `x-didit-sdk` changed from `#{JsonText.compact(before)}` to " \
+                          "`#{JsonText.compact(after)}`; #{FOLLOW}"
+        (hand_written_methods(old_ref) - hand_written_methods(new_ref)).each do |name|
+          @report.breaking << "`#{name}` (`#{key}`) is no longer an SDK method upstream"
+        end
+      end
+
+      # The server method of a hand-written operation and those of its variants.
+      def hand_written_methods(ref)
+        naming = ref.upstream_naming
+        name = JsonText.ident(naming)
+        return [] if name.nil?
+
+        variants = Array(naming["variants"]).filter_map do |variant|
+          "#{naming["resource"]}.#{variant["method"]}" if variant.is_a?(Hash) && variant["method"].is_a?(String)
+        end
+        [name, *variants].uniq
+      end
+
+      def code_list(names)
+        names.map { |name| "`#{name}`" }.join(", ")
       end
 
       # What an operation sends and receives, plus everything else it documents.
@@ -81,12 +159,16 @@ module DiditCodegen
           old_doc = @old_docs[file]
           new_schemas = @new_docs[file].schemas
           old_schemas = old_doc.schemas
-          (new_schemas.keys - old_schemas.keys).sort.each { |n| @report.schemas << "`#{n}` added (#{file})" }
-          removed_schemas(file, old_schemas.keys - new_schemas.keys)
+          added = new_schemas.keys - old_schemas.keys
+          removed = old_schemas.keys - new_schemas.keys
+          @report.observable = true unless added.empty? && removed.empty?
+          added.sort.each { |n| @report.schemas << "`#{n}` added (#{file})" }
+          removed_schemas(file, removed)
           (old_schemas.keys & new_schemas.keys).sort.each do |n|
             next if old_schemas[n] == new_schemas[n]
 
             docs_only = Sync.strip_docs(old_schemas[n]) == Sync.strip_docs(new_schemas[n])
+            @report.observable = true unless docs_only
             @report.schemas << "`#{n}` changed (#{file})#{", documentation only" if docs_only}"
           end
         end

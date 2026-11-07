@@ -3,7 +3,8 @@
 module DiditCodegen
   module Sync
     # What happened to each public SDK method (docs/DESIGN.md section 3.1: never delete one
-    # silently). Mixed into Syncer.
+    # silently). Mixed into Syncer. A method that is added, moved, renamed, deprecated or
+    # deleted is something a caller can observe (Report#observable).
     module MethodChanges
       private
 
@@ -27,6 +28,7 @@ module DiditCodegen
         if JsonText.normalize(entry) == JsonText.normalize(upstream)
           "`#{key}`: overlay entry deleted, upstream carries the same `x-didit-sdk`"
         else
+          @report.observable = true
           "`#{key}`: overlay entry deleted, upstream `x-didit-sdk` differs and wins: " \
             "`#{JsonText.compact(entry)}` -> `#{JsonText.compact(upstream)}`"
         end
@@ -56,6 +58,7 @@ module DiditCodegen
         @new_names.each do |name, key|
           next if @old_names.key?(name)
 
+          @report.observable = true
           if !@old_ops.key?(key)
             @report.added << "`#{key}`: `#{name}`"
           elsif JsonText.ident(old_naming(key)).nil?
@@ -95,6 +98,7 @@ module DiditCodegen
       end
 
       def moved(name, old_key, new_key)
+        @report.observable = true
         before = @old_ops[old_key]
         after = @new_ops[new_key]
         notes = Details.new(before.doc, after.doc).operation(before, after)
@@ -193,6 +197,7 @@ module DiditCodegen
           key = @new_names[name]
           next if key.nil? || @fresh.include?(name)
 
+          @report.observable = true
           @state.entries.delete(name)
           @report.deprecations_dropped << "`#{name}`: provided again by `#{key}`; its deprecation entry was deleted"
         end
