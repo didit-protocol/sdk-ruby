@@ -1,0 +1,14 @@
+# The parts of the jwt gem (>= 2.7, < 4) that Didit::Authentication uses: the gem
+# ships no signatures. Only Didit::Authentication::Jws calls it.
+module JWT
+  def self.decode: (String jwt, ?untyped key, ?bool verify, ?Hash[Symbol, untyped] options) -> Array[untyped]
+
+  class DecodeError < StandardError
+  end
+
+  class VerificationError < DecodeError
+  end
+
+  class IncorrectAlgorithm < DecodeError
+  end
+end

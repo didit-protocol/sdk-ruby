@@ -1,0 +1,20 @@
+module Didit
+  class Authentication
+    class Pkce
+      METHOD: String
+      VERIFIER: Regexp
+
+      attr_reader code_verifier: String
+      attr_reader code_challenge: String
+      attr_reader code_challenge_method: String
+
+      def self.generate: () -> Pkce
+      def self.s256_challenge: (String verifier) -> String
+
+      def initialize: (untyped code_verifier) -> void
+      def to_h: () -> { code_verifier: String, code_challenge: String, code_challenge_method: String }
+      def inspect: () -> String
+      def to_s: () -> String
+    end
+  end
+end
