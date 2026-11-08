@@ -10,13 +10,15 @@ module DiditCodegen
       include OperationChanges
 
       # +downloads+ maps each file of UPSTREAM to the downloaded bytes; +date+ is YYYY-MM-DD;
-      # +now+ is the fetch time recorded in SOURCE.json.
-      def initialize(root, downloads, date:, now:)
+      # +now+ is the fetch time recorded in SOURCE.json. With +generate+ false the SDK is not
+      # regenerated (Sync.classify).
+      def initialize(root, downloads, date:, now:, generate: true)
         @root = root
         @openapi = File.join(root, "openapi")
         @downloads = UPSTREAM.keys.to_h { |file| [file, downloads.fetch(file).b] }
         @date = date
         @now = now
+        @generate = generate
       end
 
       # @return [Result]
@@ -30,7 +32,7 @@ module DiditCodegen
         prepare(old_bytes, new_data, changed)
         analyse
         @state.write(@downloads, changed, @now.getutc.strftime("%Y-%m-%dT%H:%M:%SZ"))
-        Result.new(changed: true, report: @report, generator_error: regenerate)
+        Result.new(changed: true, report: @report, generator_error: (regenerate if @generate))
       end
 
       private
@@ -77,6 +79,30 @@ module DiditCodegen
         describe_changed_operations
         describe_hand_written_operations
         describe_schemas
+        @report.observable = observable?
+      end
+
+      # Whether a caller can observe the sync (docs/DESIGN.md section 3.1), decided like
+      # sdk-python: an operation added or removed, an SDK naming that changed, or a changed
+      # document that differs in more than its documentation (Schemas.observable). A breaking
+      # change makes the sync feat too (Report#type).
+      def observable?
+        return true if @old_ops.keys.sort != @new_ops.keys.sort
+        return true if @old_hand_written.keys.sort != @new_hand_written.keys.sort
+        return true if (@old_ops.keys & @new_ops.keys).any? { |key| naming_changed?(old_naming(key), new_naming(key)) }
+
+        hand_written = @old_hand_written.keys & @new_hand_written.keys
+        return true if hand_written.any? do |key|
+          naming_changed?(@old_hand_written[key].upstream_naming, @new_hand_written[key].upstream_naming)
+        end
+
+        (UPSTREAM.keys - @unchanged).any? do |file|
+          Schemas.observable(@old_docs[file].data) != Schemas.observable(@new_docs[file].data)
+        end
+      end
+
+      def naming_changed?(before, after)
+        JsonText.normalize(before) != JsonText.normalize(after)
       end
 
       def old_naming(key)
