@@ -1,0 +1,81 @@
+module Didit
+  class Authentication
+    # One audience (the application id) or several, any of which is accepted.
+    type audience = String | Array[String]
+    # A money amount (String, Integer, Float or BigDecimal); sent as a decimal string.
+    type amount = String | Numeric
+
+    DEFAULT_TIMEOUT: Integer
+    DEFAULT_LEEWAY: Integer
+    DISCOVERY_PATH: String
+    JWKS_PATH: String
+    SESSION_PATH: String
+    STEP_UP_PATH: String
+    FETCH_ERRORS: Array[singleton(DiditError)]
+    UNRESERVED: Regexp
+    DECIMAL: Regexp
+    NUMBER: Regexp
+
+    def self.from_publishable_key: (String publishable_key, ?client_id: String?, ?timeout: Numeric, ?leeway: Numeric,
+                                    ?http_client: Internal::http_client?, ?clock: (^() -> (Integer | Float))?) -> Authentication
+    def self.create_pkce: () -> Pkce
+    def self.create_state: () -> String
+    def self.create_nonce: () -> String
+
+    attr_reader issuer: String
+    attr_reader client_id: String?
+    attr_reader timeout: Float
+    attr_reader leeway: Float
+
+    @clock: ^() -> (Integer | Float)
+    @cache: IssuerCache
+    @http: Http
+    @lock: Thread::Mutex
+    @token_issuer: String?
+
+    def initialize: (String issuer, ?client_id: String?, ?timeout: Numeric, ?leeway: Numeric,
+                     ?http_client: Internal::http_client?, ?clock: (^() -> (Integer | Float))?) -> void
+
+    def verify_access_token: (untyped token, ?audience: audience?) -> AccessTokenClaims
+    def verify_id_token: (untyped token, nonce: String?, ?audience: audience?) -> IdTokenClaims
+    def exchange_code: (String code, code_verifier: String, redirect_uri: String) -> TokenResponse
+    def refresh: (String refresh_token) -> TokenResponse
+    def get_session: (String access_token) -> Session
+    def revoke_session: (String access_token) -> nil
+    def create_step_up: (String access_token, action: String, ?amount: amount?, ?currency: String?,
+                         ?return_to: String?) -> StepUp
+    def retrieve_step_up: (String access_token, String step_up_id) -> StepUp
+    def discovery: () -> Hash[String, untyped]
+    def jwks: () -> Hash[String, untyped]
+    def close: () -> nil
+    def inspect: () -> String
+    def to_s: () -> String
+
+    private
+
+    def verify: (untyped token, Symbol kind, Array[String]? audience, String? nonce) -> Hash[String, untyped]
+    def token_issuer: () -> String
+    def expected_audience: (untyped audience, required: bool) -> Array[String]?
+    def current_discovery: () -> Discovery
+    def discovery_locked: () -> Discovery
+    def key_set: (String? kid) -> KeySet
+    def key_set_locked: (String? kid) -> KeySet
+    def keys_unavailable: () -> APIConnectionError
+    def parse_discovery: (Http::Call call, Internal::Transport::Response response) -> Discovery
+    def issuer_endpoint: (Http::Call call, Internal::Transport::Response response, Hash[String, untyped] data,
+                          String name) -> String
+    def endpoint_uri: (untyped value) -> URI::HTTP?
+    def token_request: (Hash[String, String] form, Array[String] secrets) -> TokenResponse
+    def bearer_call: (String http_method, URI::Generic uri, untyped access_token,
+                      ?json: Hash[String, untyped]?) -> Http::Call
+    def send_object: (Http::Call call) -> Hash[String, untyped]
+    def issuer_uri: (String path) -> URI::Generic
+    def required_text: (untyped value, String name) -> String
+    def optional_text: (untyped value, String name) -> String
+    def amount_text: (untyped amount) -> String
+    def plain_decimal: (String text) -> String?
+    def checked_client_id: (untyped client_id) -> String?
+    def checked_timeout: (untyped timeout) -> Float
+    def checked_leeway: (untyped leeway) -> Float
+  end
+end
