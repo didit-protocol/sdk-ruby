@@ -321,7 +321,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(section("Breaking changes")).to include("None detected.")
       expect(section("Operations")).to include(
         "`GET /v3/billing/balance/` (`billing.retrieve_balance`)\n  - query parameter `currency`: added",
-        "response 201 `expires_at`: field added", "response 201 `status`: enum value `Declined` added"
+        "response `expires_at`: added", "response `status`: enum values added [\"Declined\"]"
       )
       expect(section("Schemas")).to include("`Extra` added (verification.json)",
                                             "`Session` changed (verification.json)\n")
@@ -358,7 +358,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(generated("lib/didit/resources/billing.rb")).to include("def top_up(")
     end
 
-    it "lets a different upstream value win and says old -> new" do
+    it "lets a different upstream value win and says old -> new; an auth change is listed, not counted" do
       repo
       changed = verification
       changed["paths"]["/v3/billing/top-up/"]["post"]["x-didit-sdk"] = naming("billing", "top_up",
@@ -372,8 +372,8 @@ RSpec.describe DiditCodegen::Sync do
         "`#{JSON.generate(naming("billing", "top_up", "auth" => "account_token"))}`",
         "auth changed from `api_key` to `account_token`"
       )
-      expect(section("Breaking changes")).to include("`billing.top_up` (`POST /v3/billing/top-up/`): now " \
-                                                     "authenticates with `account_token` instead of `api_key`")
+      expect(section("Breaking changes")).to include("None detected.")
+      expect(github_output).to include("type=feat")
     end
   end
 
