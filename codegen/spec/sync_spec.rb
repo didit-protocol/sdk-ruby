@@ -478,7 +478,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(generated("lib/didit/resources/billing.rb")).to include("+GET /v4/billing/balance/+")
     end
 
-    it "reports what a moved operation changed" do
+    it "reports what a moved operation changed, and counts it under the new path" do
       repo
       changed = verification
       item = changed["paths"].delete("/v3/billing/balance/")
@@ -490,7 +490,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(sync).to eq(0)
       expect(section("Breaking changes")).to include("`billing.retrieve_balance` moved from " \
                                                      "`GET /v3/billing/balance/` to `GET /v4/billing/balance/`: " \
-                                                     "query parameter `currency`: new required parameter")
+                                                     "query parameter `currency`: added (required)")
     end
 
     it "removes an operation that stopped being a server operation at once" do
@@ -508,7 +508,7 @@ RSpec.describe DiditCodegen::Sync do
     end
   end
 
-  describe "renamed operations" do
+  describe "renamed operations (listed, not counted: docs/DESIGN.md section 3.1)" do
     it "keeps the old name as a deprecated alias, and renaming back drops it" do
       repo
       changed = verification
@@ -523,8 +523,8 @@ RSpec.describe DiditCodegen::Sync do
                                  "# @deprecated Renamed to billing.get_balance on 2026-10-18")
       expect(section("Operations")).to include("`GET /v3/billing/balance/`: `billing.retrieve_balance` renamed to " \
                                                "`billing.get_balance`")
-      expect(section("Breaking changes")).to include("`billing.retrieve_balance` was renamed upstream to " \
-                                                     "`billing.get_balance`")
+      expect(section("Breaking changes")).to include("None detected.")
+      expect(github_output).to include("type=feat")
 
       changed["paths"]["/v3/billing/balance/"]["get"]["x-didit-sdk"] = naming("billing", "retrieve_balance")
       upstream(verification: changed)
@@ -544,10 +544,12 @@ RSpec.describe DiditCodegen::Sync do
       changed["paths"]["/v3/billing/top-up/"]["post"]["x-didit-sdk"] = naming("billing", "retrieve_balance")
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Breaking changes")).to include(
-        "`billing.top_up` now calls `GET /v3/billing/balance/` instead of `POST /v3/billing/top-up/`",
-        "`billing.retrieve_balance` now calls `POST /v3/billing/top-up/` instead of `GET /v3/billing/balance/`"
+      expect(section("Operations")).to include(
+        "`billing.top_up` **(review)**: now calls `GET /v3/billing/balance/` instead of `POST /v3/billing/top-up/`",
+        "`billing.retrieve_balance` **(review)**: now calls `POST /v3/billing/top-up/` instead of " \
+        "`GET /v3/billing/balance/`"
       )
+      expect(section("Breaking changes")).to include("None detected.")
       expect(File.exist?(openapi("deprecated-operations.json"))).to be(false)
     end
   end
@@ -672,8 +674,9 @@ RSpec.describe DiditCodegen::Sync do
       File.write(openapi("verification.json"), JSON.generate(named))
       upstream(verification: verification)
       expect(sync).to eq(2)
-      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`) has no SDK naming any " \
-                                                     "more")
+      # Listed, not counted: the generator fails until the operation is named again.
+      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): lost its SDK naming")
+      expect(section("Breaking changes")).to include("None detected.")
       suggestion = JSON.parse(section("Action needed")[/```json\n(.*?)```/m, 1])
       expect(suggestion).to eq("POST /v3/session/" => naming("sessions", "create"))
     end
