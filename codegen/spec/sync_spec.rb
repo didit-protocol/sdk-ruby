@@ -729,10 +729,13 @@ RSpec.describe DiditCodegen::Sync do
       expect(commit_message).to include(*nested)
       expect(release).to include(*nested)
       expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
-      # The same changes as openapi/breaking-vectors.json spells them.
+      # The same changes as openapi/breaking-vectors.json spells them; the decision returns a
+      # Session too.
       expect(DiditCodegen::Sync.classify(verification, break_everything(verification))).to eq(
         ["feat(spec)", [
+          "GET /v3/session/{sessionId}/decision/ response status: enum value \"In Progress\" removed",
           "GET /v3/session/{sessionId}/decision/ response title: type string -> integer",
+          "GET /v3/session/{sessionId}/decision/ response url: removed",
           "POST /v3/billing/top-up/ request body currency: now required",
           "POST /v3/session/ request body callback: now required",
           "POST /v3/session/ request body language: enum value \"fr\" removed",
@@ -939,7 +942,7 @@ RSpec.describe DiditCodegen::Sync do
 
     # What .github/workflows/spec-sync.yml assembles: the summary without its title line, the
     # checks, the run link and the release section.
-    def body(report)
+    def pull_request_body(report)
       checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
       "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{report.release}"
     end
@@ -960,7 +963,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(lines).to eq(report.breaking.map { |text| "api(spec): #{text}" })
       expect(lines.size).to eq(120)
       expect(report.summary).to end_with("the spec sync workflow log has all of it._\n")
-      expect(body(report).length).to be < 65_536
+      expect(pull_request_body(report).length).to be < 65_536
     end
 
     it "leaves the block out when it cannot fit, and the sync commit message carries every line" do
@@ -969,7 +972,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(release).not_to include("BEGIN_COMMIT_OVERRIDE", "END_COMMIT_OVERRIDE", "NESTED_COMMIT")
       expect(release).to include("The 400 lines for \"#{DiditCodegen::Sync::Report::API_CHANGES_SECTION}\" do not " \
                                  "fit this description", "use the message of this branch's sync commit")
-      expect(body(report).length).to be < 65_536
+      expect(pull_request_body(report).length).to be < 65_536
       bump, notes = ReleasePlease.release(ReleasePlease.commits(report.commit_message))
       expect(bump).to eq("minor")
       expect(notes.fetch(DiditCodegen::Sync::Report::API_CHANGES_SECTION)).to eq(report.breaking)

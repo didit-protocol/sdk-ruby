@@ -107,6 +107,45 @@ RSpec.describe DiditCodegen::Sync::PullRequest do
     expect(later.body.scan("## Breaking changes").size).to eq(1)
   end
 
+  # The report of a sync with +count+ long breaking changes named after +prefix+.
+  def long_report(date, prefix, count)
+    report = DiditCodegen::Sync::Report.new(date)
+    count.times do |i|
+      report.count("`x.#{prefix}#{i}` (`POST /v3/#{prefix}#{i}/`): response `#{"f" * 380}`: can now be null")
+    end
+    report
+  end
+
+  it "reads this sync's lines from its commit message when its description has no release block" do
+    report = long_report("2026-11-06", "a", 2)
+    body = ReleasePlease.published_body(report).sub(/^BEGIN_COMMIT_OVERRIDE\n.*\nEND_COMMIT_OVERRIDE\n/m, "")
+    expect(body).not_to include("BEGIN_COMMIT_OVERRIDE")
+    result = described_class.continue("chore(spec): sync API spec 2026-11-05", own_body("2026-11-05"), body,
+                                      report.commit_message)
+    expect(result.title).to eq("feat(spec): sync API spec 2026-11-06")
+    expect(release(result).last.fetch(DiditCodegen::Sync::Report::API_CHANGES_SECTION)).to eq(report.breaking)
+    expect { described_class.continue("t", own_body("2026-11-05"), body) }
+      .to raise_error(DiditCodegen::Sync::InputError, /no release block/)
+  end
+
+  it "leaves the block out once the lines no longer fit, and keeps every line in the commit messages" do
+    first = long_report("2026-11-05", "a", 50)
+    second = long_report("2026-11-06", "b", 50)
+    result = continue_from(first.title, ReleasePlease.published_body(first), ReleasePlease.published_body(second))
+    expect(result.body.length).to be <= DiditCodegen::Sync::Report::MAX_BODY
+    expect(result.body).not_to include("BEGIN_COMMIT_OVERRIDE", "NESTED_COMMIT", DiditCodegen::Sync::Report::RELEASE_NOTE)
+    expect(result.body).to include("The 100 lines for \"#{DiditCodegen::Sync::Report::API_CHANGES_SECTION}\" do not " \
+                                   "fit this description", "use the messages of this branch's sync commits")
+    squash = "#{first.commit_message}\n#{second.commit_message}"
+    expect(ReleasePlease.release(ReleasePlease.commits(squash)).last.fetch(DiditCodegen::Sync::Report::API_CHANGES_SECTION))
+      .to eq(first.breaking + second.breaking)
+    # A later sync keeps it that way rather than starting a block that misses the earlier lines.
+    later = described_class.continue(result.title, result.body, own_body("2026-11-07", breaking: %w[c]))
+    expect(later.title).to eq("feat(spec): sync API spec 2026-11-07")
+    expect(later.body).not_to include("BEGIN_COMMIT_OVERRIDE")
+    expect(later.body).to include(item("c"), "do not fit this description")
+  end
+
   it "keeps a first line someone wrote" do
     previous = "BEGIN_COMMIT_OVERRIDE\nfeat(webhooks): verify the new event\nEND_COMMIT_OVERRIDE\n"
     result = continue_from("feat(spec): sync API spec 2026-11-05", previous, own_body("2026-11-06"))
@@ -146,6 +185,15 @@ RSpec.describe DiditCodegen::Sync::PullRequest do
       expect(File.read(path("out/body.md")))
         .to include("BEGIN_COMMIT_OVERRIDE\nfeat(spec): sync API spec 2026-11-06\nEND_COMMIT_OVERRIDE")
       expect(File.read(path("out/comment.md"))).to start_with("## Breaking changes\n")
+    end
+
+    it "reads the commit message when the body has no release block" do
+      File.write(path("body.md"), "## Release\n\nNo block.\n")
+      File.write(path("commit.txt"), "feat(spec): sync API spec 2026-11-06\n\nSynced.\n")
+      expect(run_main("--previous", path("previous.json"), "--body", path("body.md"), "--out", path("out"),
+                      "--commit-message", path("commit.txt"))).to eq(0)
+      expect(File.read(path("out/body.md")))
+        .to include("BEGIN_COMMIT_OVERRIDE\nfeat(spec): sync API spec 2026-11-06\nEND_COMMIT_OVERRIDE")
     end
 
     it "exits 1 without a release block or without its options" do
