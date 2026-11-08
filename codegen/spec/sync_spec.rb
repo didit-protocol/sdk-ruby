@@ -5,6 +5,7 @@ require "open3"
 require "rbconfig"
 require "stringio"
 require "webmock/rspec"
+require_relative "release_please_helper"
 
 # The spec sync (codegen/spec_sync.rb) on small synthetic repositories. Nothing here reads
 # the live openapi/ files or touches the network.
@@ -860,17 +861,19 @@ RSpec.describe DiditCodegen::Sync do
       follow = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
       expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
       expect(section("Breaking changes")).to include(
-        "`authentication.revoke_session` (`authentication DELETE /session/`) was removed upstream, and the method " \
+        "`authentication DELETE /session/` (`authentication.revoke_session`) was removed upstream, and its method " \
         "with it",
-        "`authentication.refresh` (`authentication POST /token/`) is no longer an SDK method upstream",
-        "`authentication.get_session` (`authentication GET /session/`): response 200 `sub`: type changed from " \
-        "string to integer"
+        "`authentication.get_session` (`authentication GET /session/`): response `sub`: type changed from string " \
+        "to integer"
       )
       expect(section("Operations")).to include(
         "`authentication POST /step-up/`: `authentication.create_step_up`; #{follow}",
         "`authentication DELETE /session/` (`authentication.revoke_session`): #{follow}"
       )
-      expect(section("SDK naming")).to include("`authentication POST /token/`: `x-didit-sdk` changed from")
+      # A method gone from an operation that stays is listed, not counted (as in sdk-python).
+      expect(section("SDK naming")).to include("`authentication POST /token/`: `x-didit-sdk` changed from",
+                                               "; no longer SDK methods: `authentication.refresh`; #{follow}")
+      expect(section("Breaking changes")).not_to include("authentication.refresh")
     end
 
     it "is added by the first sync that finds it" do
@@ -921,7 +924,8 @@ RSpec.describe DiditCodegen::Sync do
       report = DiditCodegen::Sync::Report.new(date)
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
       report.action_needed = ["x" * 70_000, {}]
-      %i[breaking added removed renamed moved changed schemas naming].each do |list|
+      report.observable = true
+      %i[added removed renamed moved changed schemas naming].each do |list|
         100.times { |i| report.send(list) << "`item #{i}` #{"y" * 300}" }
       end
       text = report.summary
@@ -933,22 +937,43 @@ RSpec.describe DiditCodegen::Sync do
       expect(report.summary(limit: false).length).to be > 40_000
     end
 
-    it "keeps the pull request body (summary, checks and release section) under GitHub's 65 536 characters" do
+    # What .github/workflows/spec-sync.yml assembles: the summary without its title line, the
+    # checks, the run link and the release section.
+    def body(report)
+      checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
+      "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{report.release}"
+    end
+
+    def report_with(count, length)
       report = DiditCodegen::Sync::Report.new(date)
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
-      400.times { |i| report.breaking << "`thing.method_#{i}` (`GET /v3/things/#{i}/`) moved to `#{"/v3/x" * 80}/`" }
-      400.times { |i| report.moved << "`GET /v3/things/#{i}/` #{"z" * 300}" }
+      count.times { |i| report.count("`thing.method_#{i}` (`GET /v3/things/#{i}/`): #{"x" * length}") }
+      count.times { |i| report.moved << "`GET /v3/things/#{i}/` #{"z" * 300}" }
+      report
+    end
+
+    it "keeps every release line in the pull request body, which stays under GitHub's 65 536 characters" do
+      report = report_with(120, 300)
       release = report.release
       expect(release.length).to be <= DiditCodegen::Sync::Report::MAX_RELEASE
       lines = release[/^BEGIN_COMMIT_OVERRIDE\n(.*)\nEND_COMMIT_OVERRIDE\n\z/m, 1].scan(/^api\(spec\): .*$/)
-      expect(lines.size).to be_between(10, 399)
-      expect(lines.last).to eq("api(spec): #{400 - lines.size + 1} more changes, listed in the spec sync pull request")
-      expect(report.commit_message.scan("BEGIN_NESTED_COMMIT").size).to eq(lines.size)
-      # What .github/workflows/spec-sync.yml assembles: the summary without its title line,
-      # the checks, the run link and the release section.
-      checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
-      body = "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{release}"
-      expect(body.length).to be < 65_536
+      expect(lines).to eq(report.breaking.map { |text| "api(spec): #{text}" })
+      expect(lines.size).to eq(120)
+      expect(report.summary).to end_with("the spec sync workflow log has all of it._\n")
+      expect(body(report).length).to be < 65_536
+    end
+
+    it "leaves the block out when it cannot fit, and the sync commit message carries every line" do
+      report = report_with(400, 450)
+      release = report.release
+      expect(release).not_to include("BEGIN_COMMIT_OVERRIDE", "END_COMMIT_OVERRIDE", "NESTED_COMMIT")
+      expect(release).to include("The 400 lines for \"#{DiditCodegen::Sync::Report::API_CHANGES_SECTION}\" do not " \
+                                 "fit this description", "use the message of this branch's sync commit")
+      expect(body(report).length).to be < 65_536
+      bump, notes = ReleasePlease.release(ReleasePlease.commits(report.commit_message))
+      expect(bump).to eq("minor")
+      expect(notes.fetch(DiditCodegen::Sync::Report::API_CHANGES_SECTION)).to eq(report.breaking)
+      expect(report.breaking.size).to eq(400)
     end
   end
 
