@@ -294,7 +294,7 @@ module DiditCodegen
         PATHS.each do |key, suffix|
           next unless old[key].is_a?(Hash) || new[key].is_a?(Hash)
 
-          diff_schema(hash(old[key]), hash(new[key]), where, path + suffix, request: request, out: out, depth: depth + 1)
+          diff_schema(mapping(old[key]), mapping(new[key]), where, path + suffix, request: request, out: out, depth: depth + 1)
         end
         diff_variants(old, new, where, path, request: request, out: out, depth: depth, retyped: false)
         out << change(where, path, "other constraints changed (format, pattern, limits or default)") if out.size == start
@@ -306,7 +306,7 @@ module DiditCodegen
         @shapes[schema] ||= shape(schema)
       end
 
-      def hash(value)
+      def mapping(value)
         value.is_a?(Hash) ? value : {}
       end
 
@@ -401,8 +401,8 @@ module DiditCodegen
       # True when the field's visibility changed.
       def visibility(old_prop, new_prop, where, at, request, required, out)
         flag = request ? "readOnly" : "writeOnly"
-        was = hash(old_prop)[flag] == true
-        now = hash(new_prop)[flag] == true
+        was = mapping(old_prop)[flag] == true
+        now = mapping(new_prop)[flag] == true
         return false if was == now
 
         label = request ? "read-only" : "write-only"
