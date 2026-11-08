@@ -731,7 +731,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
       # The same changes as openapi/breaking-vectors.json spells them; the decision returns a
       # Session too.
-      expect(DiditCodegen::Sync.classify(verification, break_everything(verification))).to eq(
+      expect(described_class.classify(verification, break_everything(verification))).to eq(
         ["feat(spec)", [
           "GET /v3/session/{sessionId}/decision/ response status: enum value \"In Progress\" removed",
           "GET /v3/session/{sessionId}/decision/ response title: type string -> integer",
