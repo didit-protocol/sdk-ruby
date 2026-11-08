@@ -18,8 +18,10 @@
 # the commit message. The title is "feat(spec): ..." when a caller can observe the change and
 # "chore(spec): ..." when only documentation changed; the summary opens with the changes that
 # can break typed code, and the Release section holds the block release-please reads instead
-# of the commits: the title, then one "api(spec): ..." line per breaking change (sections 3.1
-# and 13). Never "!" and never a BREAKING CHANGE footer. When the generator fails (for example
+# of the commits: the title, then one "api(spec): ..." line per breaking change, every one of
+# them (sections 3.1 and 13; when they do not fit the pull request description, the section
+# asks to squash with the commit message, which holds them too). What counts follows the
+# shared cases of openapi/breaking-vectors.json. Never "!" and never a BREAKING CHANGE footer. When the generator fails (for example
 # on a new operation without SDK naming) the files are still written, the summary gets an
 # "Action needed" section and the exit code is 2. With $GITHUB_OUTPUT set it appends
 # changed=, type= (feat or chore, when changed), breaking= and date= to it.

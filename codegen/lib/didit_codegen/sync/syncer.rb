@@ -89,19 +89,17 @@ module DiditCodegen
       def observable?
         return true if @old_ops.keys.sort != @new_ops.keys.sort
         return true if @old_hand_written.keys.sort != @new_hand_written.keys.sort
-        return true if (@old_ops.keys & @new_ops.keys).any? { |key| naming_changed?(old_naming(key), new_naming(key)) }
+        return true if (@old_ops.keys & @new_ops.keys).any? { |key| naming_differs?(old_naming(key), new_naming(key)) }
 
-        hand_written = @old_hand_written.keys & @new_hand_written.keys
-        return true if hand_written.any? do |key|
-          naming_changed?(@old_hand_written[key].upstream_naming, @new_hand_written[key].upstream_naming)
+        hand_written = (@old_hand_written.keys & @new_hand_written.keys).any? do |key|
+          naming_differs?(@old_hand_written[key].upstream_naming, @new_hand_written[key].upstream_naming)
         end
-
-        (UPSTREAM.keys - @unchanged).any? do |file|
+        hand_written || (UPSTREAM.keys - @unchanged).any? do |file|
           Schemas.observable(@old_docs[file].data) != Schemas.observable(@new_docs[file].data)
         end
       end
 
-      def naming_changed?(before, after)
+      def naming_differs?(before, after)
         JsonText.normalize(before) != JsonText.normalize(after)
       end
 
