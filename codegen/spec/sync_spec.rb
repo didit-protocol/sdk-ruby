@@ -709,17 +709,17 @@ RSpec.describe DiditCodegen::Sync do
       upstream(verification: break_everything(verification))
       expect(sync).to eq(0)
       expected = [
-        "`sessions.create` (`POST /v3/session/`): request body `vendor_data`: field removed",
+        "`sessions.create` (`POST /v3/session/`): request body `vendor_data`: removed",
         "`sessions.create` (`POST /v3/session/`): request body `callback`: now required",
-        "`sessions.create` (`POST /v3/session/`): request body `language`: enum value `fr` removed",
+        "`sessions.create` (`POST /v3/session/`): request body `language`: enum value \"fr\" removed",
         "`sessions.create` (`POST /v3/session/`): request body `title`: type changed from string to integer",
-        "`sessions.create` (`POST /v3/session/`): response 201 `url`: field removed",
-        "`sessions.create` (`POST /v3/session/`): response 201 `title`: type changed from string to integer",
+        "`sessions.create` (`POST /v3/session/`): response `url`: removed",
+        "`sessions.create` (`POST /v3/session/`): response `title`: type changed from string to integer",
         # Also in a response: the generated constant of the value goes away (docs/DESIGN.md section 3.1).
-        "`sessions.create` (`POST /v3/session/`): response 201 `status`: enum value `In Progress` removed",
-        "`sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `title`: type " \
+        "`sessions.create` (`POST /v3/session/`): response `status`: enum value \"In Progress\" removed",
+        "`sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response `title`: type " \
         "changed from string to integer",
-        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `currency`: new required field"
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `currency`: added (required)"
       ]
       expect(breaking).to include(DiditCodegen::Sync::Report::BREAKING_INTRO, *expected)
       expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
@@ -728,6 +728,20 @@ RSpec.describe DiditCodegen::Sync do
       expect(commit_message).to include(*nested)
       expect(release).to include(*nested)
       expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
+      # The same changes as openapi/breaking-vectors.json spells them.
+      expect(DiditCodegen::Sync.classify(verification, break_everything(verification))).to eq(
+        ["feat(spec)", [
+          "GET /v3/session/{sessionId}/decision/ response title: type string -> integer",
+          "POST /v3/billing/top-up/ request body currency: now required",
+          "POST /v3/session/ request body callback: now required",
+          "POST /v3/session/ request body language: enum value \"fr\" removed",
+          "POST /v3/session/ request body title: type string -> integer",
+          "POST /v3/session/ request body vendor_data: removed",
+          "POST /v3/session/ response status: enum value \"In Progress\" removed",
+          "POST /v3/session/ response title: type string -> integer",
+          "POST /v3/session/ response url: removed"
+        ]]
+      )
       # A type change of a property named like a schema keyword is not "documentation only".
       expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
                                             "`SessionRequest` changed (verification.json)\n")
@@ -759,8 +773,8 @@ RSpec.describe DiditCodegen::Sync do
       changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`): response 201 " \
-                                                     "`title`: type changed from string to integer")
+      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`): response `title`: " \
+                                                     "type changed from string to integer")
       expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
                                             "`SessionRequest` changed (verification.json)\n")
       expect(section("Operations")).not_to include("documentation only")
@@ -772,7 +786,9 @@ RSpec.describe DiditCodegen::Sync do
       changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): details changed")
+      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`)\n  - request body `title`: " \
+                                               "other constraints changed (format, pattern, limits or default)")
+      expect(section("Breaking changes")).to include("None detected.")
     end
 
     def top_up_schema(doc)
@@ -791,10 +807,11 @@ RSpec.describe DiditCodegen::Sync do
       upstream(verification: changed)
       expect(sync).to eq(0)
       expect(breaking).to include(
-        "`billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200 `balance`: type changed from number " \
-        "to integer",
+        "`billing.retrieve_balance` (`GET /v3/billing/balance/`): response `balance`: type changed from number to " \
+        "integer",
         "`billing.top_up` (`POST /v3/billing/top-up/`): request body `amount`: type changed from integer to number",
-        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `note`: type changed from string to string(date)"
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `note`: type changed from string to " \
+        "string (date)"
       )
     end
 
@@ -812,8 +829,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(sync).to eq(0)
       expect(breaking.lines(chomp: true).grep(/billing\.retrieve_balance/)).to eq(
         %w[current previous].map do |field|
-          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response 200, 202 `#{field}.amount`: can now " \
-            "be null"
+          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response `#{field}.amount`: can now be null"
         end
       )
     end
