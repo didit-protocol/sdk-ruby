@@ -126,7 +126,7 @@ module DiditCodegen
         request_body(old_ref.op, new_ref.op, found)
         responses(successes(@old, old_ref.op), successes(@new, new_ref.op), found)
         if old_ref.op["deprecated"] != true && new_ref.op["deprecated"] == true
-          found << Change.new("operation", "", "marked deprecated upstream", false, "")
+          found << change("operation", "", "marked deprecated upstream")
         end
         found.uniq
       end

@@ -94,7 +94,9 @@ module DiditCodegen
         hand_written = (@old_hand_written.keys & @new_hand_written.keys).any? do |key|
           naming_differs?(@old_hand_written[key].upstream_naming, @new_hand_written[key].upstream_naming)
         end
-        hand_written || (UPSTREAM.keys - @unchanged).any? do |file|
+        return true if hand_written
+
+        (UPSTREAM.keys - @unchanged).any? do |file|
           Schemas.observable(@old_docs[file].data) != Schemas.observable(@new_docs[file].data)
         end
       end
