@@ -4,9 +4,9 @@ module DiditCodegen
   module Sync
     # Operations and schemas that changed upstream, field by field. Mixed into Syncer.
     #
-    # Anything but documentation that changes in an operation or a component schema, and
-    # every added or removed operation, is something a caller can observe: it makes the sync
-    # feat(spec) (Report#observable, docs/DESIGN.md section 3.1).
+    # The changes of an operation count only when a server method calls it before and after
+    # the sync: those of an operation with server: false are listed, never counted
+    # (docs/DESIGN.md section 3.1).
     module OperationChanges
       PART_KEYS = %w[parameters requestBody responses x-didit-sdk].freeze
       FOLLOW = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
@@ -16,7 +16,6 @@ module DiditCodegen
       # Added and removed operations that have no server method (server methods are
       # reported by MethodChanges), and the operations that have no SDK naming at all.
       def describe_other_operations
-        @report.observable = true if @new_ops.keys.sort != @old_ops.keys.sort
         (@new_ops.keys - @old_ops.keys).sort.each do |key|
           naming = new_naming(key)
           if naming.nil?
@@ -34,7 +33,8 @@ module DiditCodegen
 
       def describe_changed_operations
         changed_operations(@old_ops, @new_ops) do |key, old_ref, new_ref, docs_only|
-          describe_change(key, old_ref, new_ref, docs_only: docs_only, name: JsonText.ident(new_naming(key)))
+          namings = [old_naming(key), new_naming(key)]
+          describe_change(key, old_ref, new_ref, docs_only: docs_only, namings: namings)
         end
       end
 
@@ -59,25 +59,39 @@ module DiditCodegen
         end
       end
 
-      # +name+ is the operation's server method, nil when the server SDKs do not expose it.
-      def describe_change(key, old_ref, new_ref, docs_only:, name:)
-        @report.observable = true unless docs_only
-        label = "`#{key}`#{name ? " (`#{name}`)" : " (not exposed by the server SDKs)"}"
-        notes = Details.new(old_ref.doc, new_ref.doc).operation(old_ref, new_ref)
-        if notes.empty?
+      # +namings+ is the operation's SDK naming before and after the sync. Its changes count
+      # when each is a server operation or has no naming at all (the generator fails until it is
+      # named, so the method cannot ship without them).
+      def describe_change(key, old_ref, new_ref, docs_only:, namings:)
+        exposed = namings.all? { |naming| naming.nil? || (naming.is_a?(Hash) && naming["server"] == true) }
+        name = JsonText.ident(namings.last) || JsonText.ident(namings.first)
+        label = if !exposed then "`#{key}` (not exposed by the server SDKs)"
+                elsif name then "`#{key}` (`#{name}`)"
+                else "`#{key}` (no SDK naming)"
+                end
+        changes = Details.new(old_ref.doc, new_ref.doc).operation(old_ref, new_ref)
+        if changes.empty?
           what = docs_only ? "documentation only" : "details changed (formats, limits, error responses or similar)"
           @report.changed << "#{label}: #{what}"
           return
         end
-        breaking = name ? notes.select(&:last) : []
-        @report.changed << nested("#{label}#{" **breaking**" unless breaking.empty?}", notes, exposed: !name.nil?)
-        breaking.map(&:first).each { |text| @report.breaking << "`#{name}` (`#{key}`): #{text}" }
+        changes = changes.map(&:listed) unless exposed
+        breaking = changes.select(&:breaking)
+        @report.changed << nested("#{label}#{" **breaking**" unless breaking.empty?}", changes)
+        breaking.each { |change| count_change(key, name, change) }
+      end
+
+      # Records a counted Change of the operation +key+, whose server method is +name+.
+      def count_change(key, name, change, prefix: nil)
+        prefix ||= name ? "`#{name}` (`#{key}`)" : "`#{key}`"
+        @report.count("#{prefix}: #{change.text}", change.normalized(key))
       end
 
       # Added, removed, renamed and changed operations of a document whose module is
       # hand-written (authentication.json, docs/DESIGN.md section 10). Nothing is generated,
       # named in overlay.json or deprecated for them: spec/authentication/contract_spec.rb
-      # fails until the module follows.
+      # fails until the module follows. A removed operation with server methods counts; a
+      # change of its SDK naming is listed (as sdk-python does).
       def describe_hand_written_operations
         old_ops = @old_hand_written
         new_ops = @new_hand_written
@@ -85,12 +99,12 @@ module DiditCodegen
         (old_ops.keys - new_ops.keys).sort.each { |key| hand_written_removed(key, old_ops[key]) }
         (old_ops.keys & new_ops.keys).sort.each { |key| hand_written_naming(key, old_ops[key], new_ops[key]) }
         changed_operations(old_ops, new_ops) do |key, old_ref, new_ref, docs_only|
-          describe_change(key, old_ref, new_ref, docs_only: docs_only, name: JsonText.ident(new_ref.upstream_naming))
+          describe_change(key, old_ref, new_ref, docs_only: docs_only,
+                                                 namings: [old_ref.upstream_naming, new_ref.upstream_naming])
         end
       end
 
       def hand_written_added(key, ref)
-        @report.observable = true
         names = hand_written_methods(ref)
         @report.added << if names.empty?
                            "`#{key}`: not exposed by the server SDKs"
@@ -100,12 +114,13 @@ module DiditCodegen
       end
 
       def hand_written_removed(key, ref)
-        @report.observable = true
         names = hand_written_methods(ref)
         return @report.removed << "`#{key}`: not exposed by the server SDKs" if names.empty?
 
         @report.removed << "`#{key}` (#{code_list(names)}): #{FOLLOW}"
-        names.each { |name| @report.breaking << "`#{name}` (`#{key}`) was removed upstream, and the method with it" }
+        methods = names.size == 1 ? "its method" : "its methods"
+        @report.count("`#{key}` (#{code_list(names)}) was removed upstream, and #{methods} with it",
+                      "#{key}: operation removed")
       end
 
       def hand_written_naming(key, old_ref, new_ref)
@@ -113,12 +128,10 @@ module DiditCodegen
         after = new_ref.upstream_naming
         return if JsonText.normalize(before) == JsonText.normalize(after)
 
-        @report.observable = true
+        gone = hand_written_methods(old_ref) - hand_written_methods(new_ref)
+        gone = gone.empty? ? "" : "; no longer SDK methods: #{code_list(gone)}"
         @report.naming << "`#{key}`: `x-didit-sdk` changed from `#{JsonText.compact(before)}` to " \
-                          "`#{JsonText.compact(after)}`; #{FOLLOW}"
-        (hand_written_methods(old_ref) - hand_written_methods(new_ref)).each do |name|
-          @report.breaking << "`#{name}` (`#{key}`) is no longer an SDK method upstream"
-        end
+                          "`#{JsonText.compact(after)}`#{gone}; #{FOLLOW}"
       end
 
       # The server method of a hand-written operation and those of its variants.
@@ -161,14 +174,12 @@ module DiditCodegen
           old_schemas = old_doc.schemas
           added = new_schemas.keys - old_schemas.keys
           removed = old_schemas.keys - new_schemas.keys
-          @report.observable = true unless added.empty? && removed.empty?
           added.sort.each { |n| @report.schemas << "`#{n}` added (#{file})" }
           removed_schemas(file, removed)
           (old_schemas.keys & new_schemas.keys).sort.each do |n|
             next if old_schemas[n] == new_schemas[n]
 
             docs_only = Sync.strip_docs(old_schemas[n]) == Sync.strip_docs(new_schemas[n])
-            @report.observable = true unless docs_only
             @report.schemas << "`#{n}` changed (#{file})#{", documentation only" if docs_only}"
           end
         end
@@ -177,12 +188,12 @@ module DiditCodegen
       def removed_schemas(file, names)
         return if names.empty?
 
+        # Listed, not counted (docs/DESIGN.md section 3.1): the operations that used it say what
+        # changed for each of their fields.
         used = @old_docs[file].reachable_schemas(old_server_nodes(file))
         names.sort.each do |n|
-          @report.schemas << "`#{n}` removed (#{file})"
-          next unless used.include?(n)
-
-          @report.breaking << "schema `#{n}` (#{file}) was removed; the SDK type generated from it goes away"
+          type = "; the SDK type generated from it goes away" if used.include?(n)
+          @report.schemas << "`#{n}` removed (#{file})#{type}"
         end
       end
 

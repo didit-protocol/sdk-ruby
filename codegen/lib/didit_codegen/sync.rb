@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require "digest"
+require "fileutils"
 require "json"
+require "tmpdir"
 require_relative "../didit_codegen"
 
 module DiditCodegen
@@ -119,11 +121,36 @@ module DiditCodegen
     def run(root, downloads, date:, now:)
       Syncer.new(root, downloads, date: date, now: now).run
     end
+
+    # What the sync makes of verification.json changing from +before+ to +after+ (two parsed
+    # documents, every operation named by its own x-didit-sdk) in an SDK at version 1.0.0:
+    # [type, breaking], the type "feat(spec)" or "chore(spec)" and the counted breaking
+    # changes, normalized, distinct and sorted. openapi/breaking-vectors.json, generated in
+    # sdk-python, holds the expected result of each of its cases.
+    def classify(before, after)
+      Dir.mktmpdir("didit-classify") do |root|
+        openapi = File.join(root, "openapi")
+        FileUtils.mkdir_p([openapi, File.join(root, "lib", "didit")])
+        File.binwrite(File.join(root, VERSION_FILE), "VERSION = \"1.0.0\"\n")
+        File.binwrite(File.join(openapi, "overlay.json"), JSON.generate("operations" => {}))
+        File.binwrite(File.join(openapi, "verification.json"), JSON.generate(before))
+        downloads = { "verification.json" => JSON.generate(after) }
+        # The other documents, the same before and after.
+        other = JSON.generate("openapi" => "3.0.3", "info" => { "title" => "unchanged", "version" => "1" },
+                              "paths" => { "/unchanged/" => {} })
+        (UPSTREAM.keys - downloads.keys).each do |file|
+          File.binwrite(File.join(openapi, file), other)
+          downloads[file] = other
+        end
+        report = Syncer.new(root, downloads, date: "2026-01-01", now: Time.utc(2026), generate: false).run.report
+        report ? ["#{report.type}(spec)", report.normalized.uniq.sort] : ["chore(spec)", []]
+      end
+    end
   end
 end
 
 require_relative "sync/document"
-require_relative "sync/shapes"
+require_relative "sync/schemas"
 require_relative "sync/diff"
 require_relative "sync/freeze"
 require_relative "sync/json_text"
