@@ -131,15 +131,15 @@ module DiditCodegen
       Dir.mktmpdir("didit-classify") do |root|
         openapi = File.join(root, "openapi")
         FileUtils.mkdir_p([openapi, File.join(root, "lib", "didit")])
-        File.write(File.join(root, VERSION_FILE), "VERSION = \"1.0.0\"\n")
-        File.write(File.join(openapi, "overlay.json"), JSON.generate("operations" => {}))
-        File.write(File.join(openapi, "verification.json"), JSON.generate(before))
+        File.binwrite(File.join(root, VERSION_FILE), "VERSION = \"1.0.0\"\n")
+        File.binwrite(File.join(openapi, "overlay.json"), JSON.generate("operations" => {}))
+        File.binwrite(File.join(openapi, "verification.json"), JSON.generate(before))
         downloads = { "verification.json" => JSON.generate(after) }
         # The other documents, the same before and after.
         other = JSON.generate("openapi" => "3.0.3", "info" => { "title" => "unchanged", "version" => "1" },
                               "paths" => { "/unchanged/" => {} })
         (UPSTREAM.keys - downloads.keys).each do |file|
-          File.write(File.join(openapi, file), other)
+          File.binwrite(File.join(openapi, file), other)
           downloads[file] = other
         end
         report = Syncer.new(root, downloads, date: "2026-01-01", now: Time.utc(2026), generate: false).run.report
