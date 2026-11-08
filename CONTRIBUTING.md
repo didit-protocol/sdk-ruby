@@ -14,7 +14,8 @@ bundle install
 
 | Path | What | Edited by hand |
 |---|---|---|
-| `openapi/verification.json`, `openapi/account.json`, `openapi/webhook-vectors.json` | Upstream copies | Never (spec sync only) |
+| `openapi/verification.json`, `openapi/account.json`, `openapi/authentication.json`, `openapi/webhook-vectors.json` | Upstream copies | Never (spec sync only) |
+| `openapi/breaking-vectors.json` | The breaking-change cases every server SDK shares (DESIGN section 3.1), generated in sdk-python | Never: copied byte for byte from sdk-python when a rule changes there, with its SHA-256 in `openapi/SOURCE.json` |
 | `openapi/overlay.json` | SDK naming (`x-didit-sdk`) for operations that do not carry it upstream yet | Yes |
 | `openapi/deprecated-operations.json` | Removed or renamed operations, kept as deprecated methods for one minor version | Spec sync only |
 | `codegen/` | The generator and its tests (`codegen/spec`) | Yes |
@@ -48,12 +49,19 @@ To add or change an endpoint, change the backend and its OpenAPI document there;
 - `openapi/overlay.json` holds the naming of operations that do not carry `x-didit-sdk` upstream. Keys are `"<METHOD> <path>"` for `verification.json` and `"account <METHOD> <path>"` for `account.json`; each value has `resource` (dot path of snake_case names), `method`, `auth`, `server` and, for application-scoped paths, `scope` (DESIGN section 4). When upstream carries `x-didit-sdk`, the upstream value wins and the overlay entry is deleted.
 - A new server operation without naming makes the generator fail with a message that names it. The fix is an overlay entry, or `x-didit-sdk` upstream.
 - A removed or renamed operation is never deleted silently: the spec sync records it in `openapi/deprecated-operations.json` and the generator keeps it as a deprecated method for one minor version (DESIGN section 3.1).
+- `openapi/authentication.json` describes the hand-written `Didit::Authentication` (DESIGN section 10), which is never generated, named in the overlay or deprecated: when a sync adds, removes or renames one of its operations, `spec/authentication/contract_spec.rb` fails until you update the module and that test in the same pull request.
 - After any change in `openapi/` or `codegen/`, run `bundle exec rake generate` and commit the result with the change.
 
 ## The spec sync
 
-`.github/workflows/spec-sync.yml` runs daily. When an upstream document changed, it regenerates the code, runs the checks and opens a pull request titled `chore(spec): sync API spec YYYY-MM-DD` whose body lists added, removed and changed operations and schemas and calls out anything breaking. The gems, the generator and the checks run in a job with a read-only token; a second job, which installs nothing, pushes the commit and opens or updates the pull request.
-You may push commits to the branch of that pull request (for example an overlay entry when the generator asks for one). Later syncs do not overwrite a branch that holds commits from people; merge or close the pull request and the next sync picks up anything that changed since. If a run pushed the branch but could not open the pull request (for example before the Actions setting below was ticked), the next run opens it.
+`.github/workflows/spec-sync.yml` runs daily. When an upstream document changed, it regenerates the code, runs the checks and opens a pull request titled `<type>(spec): sync API spec YYYY-MM-DD`. The gems, the generator and the checks run in a job with a read-only token; a second job, which installs nothing, pushes the commit and opens or updates the pull request.
+
+- The type follows DESIGN sections 3.1 and 13: `feat(spec)` when a caller can observe the change (a minor release, also when it can break typed code), `chore(spec)` when only documentation changed (no release on its own), and never `!` or a `BREAKING CHANGE:` footer, because an API change is never a major version.
+- The description opens with "Breaking changes", every change that can break typed code, then lists added, removed and changed operations and schemas. It ends with a `BEGIN_COMMIT_OVERRIDE` block: release-please reads it instead of the commits, so the type and one `api(spec)` line per breaking change, every one of them (the release notes section "API changes that can break typed code"), survive a squash merge with the title. Keep that block when you edit the description, and merge with "Squash and merge": after a merge commit the release notes repeat each line for the merge commit and for every commit of the pull request. When the lines do not fit the description, it has no block and says so: squash with the message of the sync commit, which holds the same lines.
+- What counts as a breaking change follows the rules of DESIGN section 3.1, the same in all seven SDKs: `codegen/spec/breaking_vectors_spec.rb` runs every case of `openapi/breaking-vectors.json` through the detector. A case that looks wrong is fixed in sdk-python first and copied here again; it is never edited or skipped here.
+- You may push commits to the branch of that pull request (for example an overlay entry when the generator asks for one). Later syncs never overwrite a branch that holds commits from people: they add their commit on top, add their breaking changes and release lines to the description (keeping `feat(spec)` once any sync on the branch needs it) and list their other changes in a comment.
+- If a run pushed the branch but could not open the pull request (for example before the Actions setting below was ticked), the next run opens it.
+- A manual run (`workflow_dispatch`) started from another branch syncs that branch on `chore/spec-sync-<branch>` and opens its pull request into that branch, so a change to the sync can be tried before it merges. Close that pull request without merging it.
 
 ## Checks and live smoke tests
 
@@ -69,7 +77,7 @@ DIDIT_SANDBOX_API_KEY=... bundle exec rspec --tag live
 
 ## Commits and releases
 
-Pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/) with the type that matches the semver impact: `fix:` is a patch, `feat:` a minor version, and `feat!:` or a `BREAKING CHANGE:` footer a major version (a minor version while the SDK is 0.x). `chore(spec):` sync pull requests appear in the changelog and release at least a patch version; other `chore`, `ci`, `docs`, `test`, `refactor`, `style` and `build` commits release nothing on their own. Dependabot pull requests are `chore(deps)` and `ci`; retitle one that changes a runtime dependency in `didit-sdk.gemspec` to `fix(deps): ...` so that it ships.
+Pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/) with the type that matches the semver impact (DESIGN section 13): `fix:` is a patch, `feat:` a minor version, and `feat!:` or a `BREAKING CHANGE:` footer a major version, which is only for a change to the SDK's own design (renaming or removing a method the API still has, client configuration, errors, retries, pagination, webhook verification, a dropped Ruby version). A change that mirrors the API is a minor version even when it can break typed code; spec sync pull requests list it under "API changes that can break typed code". `chore` (`chore(spec)` documentation-only syncs and dependency updates too), `ci`, `docs`, `test`, `refactor`, `style` and `build` commits release nothing on their own. Dependabot pull requests are `chore(deps)` and `ci`; retitle one that changes a runtime dependency in `didit-sdk.gemspec` to `fix(deps): ...` so that it ships.
 
 Pull requests are squash-merged, so the title becomes the commit that release-please reads. Public API changes need tests and a README update.
 

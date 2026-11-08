@@ -4,14 +4,44 @@ require "json"
 
 module DiditCodegen
   module Sync
-    # What one spec sync changed, rendered as the pull request summary and the commit message.
+    # What one spec sync changed, rendered as the pull request summary, the "Release" section
+    # that ends the pull request body and the commit message (docs/DESIGN.md sections 3.1 and 13).
+    #
+    # The type is feat (a minor release) when a caller can observe anything that changed, also
+    # when it can break typed code, and chore (no release on its own) when only documentation
+    # changed. Never "!" and never a BREAKING CHANGE footer: each breaking change becomes one
+    # api(spec) line, every one of them, which release-please-config.json lists under
+    # API_CHANGES_SECTION.
     class Report
       MAX_ITEMS = 100
       # GitHub refuses a pull request body or comment over 65,536 characters. The body is the
-      # summary, the checks (about 1,000 characters) and the breaking-change footer.
-      MAX_SUMMARY = 50_000
-      MAX_FOOTER_ITEMS = 20
-      MAX_FOOTER = 10_000
+      # summary, the checks (about 1,000 characters) and the release section: the summary is
+      # cut to fit, and a release section longer than MAX_RELEASE leaves out its override block
+      # (the sync commit message holds every line).
+      MAX_BODY = 64_000
+      MAX_SUMMARY = 40_000
+      MAX_RELEASE = 56_000
+      API_CHANGE_TYPE = "api"
+      API_CHANGES_SECTION = "API changes that can break typed code"
+      BREAKING_INTRO = "These changes mirror the API and can break typed code. They ship in a minor version " \
+                       "(docs/DESIGN.md section 13), and the release notes list them under " \
+                       "\"#{API_CHANGES_SECTION}\".".freeze
+      # The first line of the "Release" section, by type.
+      RELEASES = {
+        "feat" => "`feat(spec)`: callers can observe what changed, so this releases a minor version.",
+        "chore" => "`chore(spec)`: only documentation changed, so this releases nothing on its own; it ships " \
+                   "with the next release."
+      }.freeze
+      RELEASE_NOTE = "Release Please reads the block below instead of the commits, so the type and the lines " \
+                     "survive a squash merge with the title; keep it when you edit this description. Merge with " \
+                     "\"Squash and merge\": after a merge commit the release notes repeat each line for the merge " \
+                     "commit and for every commit of this pull request."
+      # Instead of RELEASE_NOTE and the block when they do not fit. Never names the block's
+      # markers: release-please takes any of them as the start of a block.
+      NO_BLOCK_NOTE = "The %<count>d lines for \"#{API_CHANGES_SECTION}\" do not fit this description, so it has " \
+                      "no override block and Release Please reads the merged commit instead. Merge with \"Squash " \
+                      "and merge\" and use the message of this branch's sync commit as the commit message: it " \
+                      "holds every line, each as its own nested commit.".freeze
       LISTS = %i[
         breaking added removed renamed moved changed schemas naming deprecations_added deprecations_expired
         deprecations_dropped
@@ -31,15 +61,28 @@ module DiditCodegen
       ].freeze
 
       attr_reader :date, :files, *LISTS
+      # The counted changes as openapi/breaking-vectors.json spells them (Change#normalized).
+      attr_reader :normalized
       # [message, {operation key => suggested overlay entry}] when the generator failed.
       attr_accessor :action_needed, :generated
+      # True when the sync changed something a caller can observe: an operation added or
+      # removed, an SDK naming, or more than the documentation of a document (Syncer).
+      attr_accessor :observable
+
+      # Nested commits for release-please: it splits a message into several commits at these
+      # blocks, also for a type outside its standard list such as API_CHANGE_TYPE.
+      def self.nested(lines)
+        lines.map { |line| "BEGIN_NESTED_COMMIT\n#{line}\nEND_NESTED_COMMIT" }.join("\n")
+      end
 
       def initialize(date)
         @date = date
         @files = []
         LISTS.each { |list| instance_variable_set(:"@#{list}", []) }
+        @normalized = []
         @action_needed = nil
         @generated = nil
+        @observable = false
       end
 
       # One row of the file table; +new_sha+ equals +old_sha+ when the file did not change.
@@ -47,21 +90,55 @@ module DiditCodegen
         @files << [file, url, old_sha, new_sha]
       end
 
+      # Records a change that can break typed code: +text+ for the pull request and the release
+      # notes, and +line+ as openapi/breaking-vectors.json spells it (nil when no upstream change
+      # causes it).
+      def count(text, line = nil)
+        @breaking << text
+        @normalized << line if line
+      end
+
       def breaking?
         !@breaking.empty?
       end
 
-      def title
-        "chore(spec): sync API spec #{date}"
+      # "feat" or "chore" (docs/DESIGN.md section 3.1).
+      def type
+        observable || breaking? ? "feat" : "chore"
       end
 
-      # The pull request title, a blank line and the body, at most MAX_SUMMARY characters
-      # unless +limit+ is false.
+      def title
+        "#{type}(spec): sync API spec #{date}"
+      end
+
+      # The commits release-please reads for this sync: the sync itself, then one api(spec)
+      # line per breaking change, every one of them (docs/DESIGN.md section 3.1).
+      def release_lines
+        [title, *@breaking.uniq.map { |item| "#{API_CHANGE_TYPE}(spec): #{item}" }]
+      end
+
+      # The "Release" section that ends the pull request body: how this sync releases and the
+      # override block release-please reads instead of the commits of the pull request. When the
+      # block is longer than MAX_RELEASE, the section asks to squash with the sync commit's
+      # message, which holds the same lines, instead.
+      def release
+        head, *rest = release_lines
+        block = rest.empty? ? head : "#{head}\n\n#{Report.nested(rest)}"
+        text = ["## Release", "", RELEASES.fetch(type), RELEASE_NOTE, "", "BEGIN_COMMIT_OVERRIDE", block,
+                "END_COMMIT_OVERRIDE", ""].join("\n")
+        return text if text.length <= MAX_RELEASE
+
+        ["## Release", "", RELEASES.fetch(type), format(NO_BLOCK_NOTE, count: rest.size), ""].join("\n")
+      end
+
+      # The pull request title, a blank line and the body, unless +limit+ is false at most
+      # MAX_SUMMARY characters and short enough for the release section to follow (MAX_BODY).
       def summary(limit: true)
         text = "#{title}\n\n#{body}"
-        return text if !limit || text.length <= MAX_SUMMARY
+        max = [MAX_SUMMARY, MAX_BODY - release.length].min
+        return text if !limit || text.length <= max
 
-        truncate(text)
+        truncate(text, max)
       end
 
       def commit_message
@@ -76,9 +153,7 @@ module DiditCodegen
                end
         return out unless breaking?
 
-        out << "\nBREAKING CHANGE: the API spec sync changes the SDK surface.\n"
-        out << footer_items.join("\n")
-        out << "\n"
+        out << "\n#{Report.nested(release_lines.drop(1))}\n"
       end
 
       private
@@ -88,9 +163,9 @@ module DiditCodegen
       end
 
       def body
-        out = [intro, "", table, ""]
+        out = breaking_section
         out.concat(action_section) if action_needed
-        out.concat(section("Breaking changes", @breaking, empty: "None detected."))
+        out.push("## Upstream documents", "", intro, "", table, "")
         out.concat(operations_section)
         out.concat(section("Schemas", @schemas, empty: "No component schema changed."))
         out.concat(section("SDK naming", @naming, empty: "No overlay entry changed."))
@@ -138,6 +213,12 @@ module DiditCodegen
         ["## #{heading}", "", *(items.empty? ? [empty] : capped(items)), ""]
       end
 
+      def breaking_section
+        return section("Breaking changes", @breaking, empty: "None detected.") unless breaking?
+
+        ["## Breaking changes", "", BREAKING_INTRO, "", *capped(@breaking.uniq), ""]
+      end
+
       def operations_section
         out = ["## Operations", ""]
         OPERATION_LISTS.each do |list, label, explanation|
@@ -171,18 +252,9 @@ module DiditCodegen
         out
       end
 
-      # At most MAX_FOOTER_ITEMS breaking changes in at most MAX_FOOTER characters.
-      def footer_items
-        items = @breaking.first(MAX_FOOTER_ITEMS).map { |item| "- #{item}" }
-        items.pop while items.sum { |line| line.length + 1 } > MAX_FOOTER - 100
-        rest = @breaking.size - items.size
-        items << "- ... and #{rest} more (see the pull request)" if rest.positive?
-        items
-      end
-
-      def truncate(text)
-        note = "\n_The summary was truncated at #{MAX_SUMMARY} characters; the spec sync workflow log has all of it._\n"
-        cut = text[0, MAX_SUMMARY - note.length - 8]
+      def truncate(text, max)
+        note = "\n_The summary was truncated at #{max} characters; the spec sync workflow log has all of it._\n"
+        cut = text[0, max - note.length - 8]
         cut = cut[0, cut.rindex("\n") || cut.length]
         cut += "\n```" if cut.scan(/^```/).size.odd?
         "#{cut}\n#{note}"

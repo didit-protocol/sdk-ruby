@@ -261,7 +261,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md): generated versus hand-written code, `bun
 
 ## Versioning
 
-[Semantic versioning](https://semver.org). The SDK stays on 0.x until its first public release; while on 0.x, a breaking change bumps the minor version. Releases are cut by release-please and the changelog is generated.
+[Semantic versioning](https://semver.org), with one rule for API changes (DESIGN section 13):
+
+- A change that mirrors the Didit API ships in a minor version, even when it can break typed code: a type change, a field that can now be null, or a removed field, operation or enum value. The API already behaves that way for every caller, so an older SDK version is not safer. The release notes list these changes under "API changes that can break typed code"; read that section before you upgrade, because a `~> 2.1` requirement installs new minor versions.
+- A major version is only for a change to the SDK's own design: renaming or removing a method or resource the API still has, changing client configuration, errors, retries, pagination or webhook verification, or dropping a Ruby version.
+- A method whose operation was removed upstream stays one more minor version, marked deprecated.
+- A change limited to the API documentation releases nothing on its own; it ships with the next release.
+
+The gem moved to 2.0.0 on 2026-11-05 under an earlier rule and continues from there. Releases are cut by release-please and the changelog is generated.
 
 ## Links
 

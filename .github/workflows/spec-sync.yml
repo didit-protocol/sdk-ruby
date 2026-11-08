@@ -2,9 +2,23 @@
 #
 # Daily and on demand: codegen/spec_sync.rb downloads the upstream OpenAPI documents into
 # openapi/ and, when they changed, regenerates the SDK; this workflow then runs every check
-# and opens (or updates) the pull request "chore(spec): sync API spec YYYY-MM-DD" from the
+# and opens (or updates) the pull request "<type>(spec): sync API spec YYYY-MM-DD" from the
 # branch chore/spec-sync. A failed check, or a generator failure (for example a new operation
 # without SDK naming), still publishes the pull request, as a draft, and fails the run.
+#
+# The type follows docs/DESIGN.md sections 3.1 and 13: feat(spec) when a caller can observe
+# the change (a minor release, also when it can break typed code), chore(spec) when only
+# documentation changed (no release on its own); never "!" and never a BREAKING CHANGE
+# footer. The pull request body opens with "Breaking changes" and ends with a
+# BEGIN_COMMIT_OVERRIDE block: release-please reads it instead of the commits, so the type,
+# and one api(spec) line per breaking change, every one of them, for the release notes section
+# "API changes that can break typed code", survive a squash merge with the title. The sync
+# commit's message holds the same lines; when they do not fit the description, it leaves the
+# block out and asks to squash with that message, which release-please then reads.
+#
+# The scheduled run syncs the default branch. A manual run started from another branch syncs
+# that branch instead, on its own branch chore/spec-sync-<branch>, and opens its pull request
+# into that branch, so a change to the sync can be tried before it merges.
 #
 # Two jobs, so that third-party code never runs next to a token that can write. The sync job
 # installs the gems, runs the generator and the checks with a read-only token, commits the
@@ -23,8 +37,10 @@
 # Commits that people push to chore/spec-sync (docs/DESIGN.md section 15: hand-written changes
 # go there) are never overwritten. While the open sync pull request has a commit whose author
 # or committer is not github-actions[bot], the sync runs on top of that branch, pushes a plain
-# fast-forward and posts its summary as a comment. Otherwise it rebuilds the branch from the
-# default branch and replaces it only if nobody pushed to it since this run started
+# fast-forward, adds its breaking changes and release lines to the description (feat wins over
+# chore; codegen/sync_pull_request.rb) and posts its other changes as a comment. Otherwise it
+# rebuilds the branch from the default branch and replaces it only if nobody pushed to it
+# since this run started
 # (--force-with-lease). Nothing is pushed when only openapi/SOURCE.json (the fetch time) differs
 # from the branch; the pull request is still opened when none is open, for example after a run
 # that pushed the branch but could not open the pull request. Pull requests from forks are
@@ -50,9 +66,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  BRANCH: chore/spec-sync
-
 jobs:
   sync:
     name: Sync the API spec and run the checks
@@ -68,6 +81,7 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     outputs:
       base: ${{ steps.base.outputs.base }}
+      branch: ${{ steps.base.outputs.branch }}
       mode: ${{ steps.base.outputs.mode }}
       remote_sha: ${{ steps.base.outputs.remote_sha }}
       pr: ${{ steps.base.outputs.pr }}
@@ -82,6 +96,7 @@ jobs:
           {
             echo "OUT=$RUNNER_TEMP/spec-sync"
             echo "SUMMARY=$RUNNER_TEMP/spec-sync-summary.md"
+            echo "RELEASE=$RUNNER_TEMP/spec-sync-release.md"
             echo "COMMIT_MESSAGE=$RUNNER_TEMP/spec-sync-commit.txt"
             echo "CHECKS=$RUNNER_TEMP/spec-sync-checks.md"
           } >> "$GITHUB_ENV"
@@ -91,7 +106,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          # Every branch, so that origin/chore/spec-sync is known as it was when this run started.
+          # Every branch, so that the sync branch is known as it was when this run started.
           fetch-depth: 0
 
       - name: Choose where the sync starts
@@ -100,10 +115,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # The sync always starts from the default branch, also when it is dispatched from
-          # another branch (a scheduled run's event payload has no repository object, so ask).
+          # The default branch (a scheduled run's event payload has no repository object, so
+          # ask). A manual run on another branch syncs that branch on its own sync branch.
           BASE="$(gh api "repos/$GITHUB_REPOSITORY" --jq '.default_branch')"
-          echo "BASE=$BASE" >> "$GITHUB_ENV"
+          BRANCH=chore/spec-sync
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ "$GITHUB_REF_TYPE" = branch ] \
+            && [ "$GITHUB_REF_NAME" != "$BASE" ]; then
+            BASE="$GITHUB_REF_NAME"
+            BRANCH="chore/spec-sync-$(printf '%s' "$BASE" | tr -c 'A-Za-z0-9._-' '-')"
+          fi
+          {
+            echo "BASE=$BASE"
+            echo "BRANCH=$BRANCH"
+          } >> "$GITHUB_ENV"
           git switch --quiet --force-create "$BASE" "origin/$BASE"
           remote_sha="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH" || true)"
           # --head matches the branch name in forks too; only this repository's branch counts.
@@ -127,6 +151,7 @@ jobs:
           echo "START=$start" >> "$GITHUB_ENV"
           {
             echo "base=$BASE"
+            echo "branch=$BRANCH"
             echo "mode=$mode"
             echo "remote_sha=$remote_sha"
             echo "pr=$pr"
@@ -140,17 +165,22 @@ jobs:
 
       - name: Download the upstream documents and regenerate
         id: sync
-        # codegen/spec_sync.rb writes changed=, breaking= and date= to $GITHUB_OUTPUT.
+        # codegen/spec_sync.rb writes changed=, type= (feat or chore), breaking= and date= to
+        # $GITHUB_OUTPUT, the summary (title first) to $SUMMARY and the Release section that ends
+        # the pull request body to $RELEASE.
         # Exit 1: a download or input problem, nothing was written (the run fails here).
         # Exit 2: the documents were written but the generator failed; the summary has an
         # "Action needed" section and the pull request is published as a draft.
         run: |
           set -uo pipefail
           code=0
-          ruby codegen/spec_sync.rb --summary "$SUMMARY" --commit-message "$COMMIT_MESSAGE" || code=$?
-          if [ -f "$SUMMARY" ]; then
-            cat "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          ruby codegen/spec_sync.rb --summary "$SUMMARY" --release "$RELEASE" --commit-message "$COMMIT_MESSAGE" \
+            || code=$?
+          for file in "$SUMMARY" "$RELEASE"; do
+            if [ -f "$file" ]; then
+              { cat "$file"; echo; } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
           case "$code" in
             0) echo "generator_failed=false" >> "$GITHUB_OUTPUT" ;;
             2)
@@ -193,10 +223,23 @@ jobs:
         id: commit
         if: steps.sync.outputs.changed == 'true'
         env:
+          GH_TOKEN: ${{ github.token }}
           MODE: ${{ steps.base.outputs.mode }}
           REMOTE_SHA: ${{ steps.base.outputs.remote_sha }}
+          PR: ${{ steps.base.outputs.pr }}
+          SYNC_TYPE: ${{ steps.sync.outputs.type }}
         run: |
           set -euo pipefail
+          # A change that mirrors the API is never a major version (docs/DESIGN.md section 13).
+          case "$SYNC_TYPE" in
+            feat | chore) ;;
+            *) echo "::error::The sync reported type '$SYNC_TYPE', want feat or chore."; exit 1 ;;
+          esac
+          if [ "$(head -n 1 "$COMMIT_MESSAGE")" != "$(head -n 1 "$SUMMARY")" ] \
+            || grep -q -E '^BREAKING[ -]CHANGE:' "$COMMIT_MESSAGE"; then
+            echo "::error::The sync commit must carry the pull request title, with no '!' and no BREAKING CHANGE footer."
+            exit 1
+          fi
           git config user.name "$BOT_NAME"
           git config user.email "$BOT_EMAIL"
           if [ "$MODE" = rebuild ]; then
@@ -220,20 +263,23 @@ jobs:
           git bundle create "$OUT/sync.bundle" "^$START" "refs/heads/$BRANCH"
 
           head -n 1 "$SUMMARY" > "$OUT/title.txt"
-          sed -n '/^BREAKING CHANGE:/,$p' "$COMMIT_MESSAGE" > "$OUT/footer.txt"
-          # codegen/spec_sync.rb keeps the summary and the footer short enough for GitHub's
-          # 65,536-character limit on a pull request body or comment.
+          # codegen/spec_sync.rb keeps the summary and the Release section short enough for
+          # GitHub's 65,536-character limit on a pull request body or comment (the Release section
+          # leaves its block out when the lines do not fit). The Release section, with the block
+          # release-please reads, stays last.
           {
             tail -n +3 "$SUMMARY"
             cat "$CHECKS"
-            printf '\nPublished by [spec sync run %s](%s).\n' "$GITHUB_RUN_ID" "$RUN_URL"
-            # A squash merge takes the pull request body as the commit message: keep the
-            # Conventional Commits footer last, so release-please sees the breaking change.
-            if [ -s "$OUT/footer.txt" ]; then
-              printf '\n'
-              cat "$OUT/footer.txt"
-            fi
+            printf '\nPublished by [spec sync run %s](%s).\n\n' "$GITHUB_RUN_ID" "$RUN_URL"
+            cat "$RELEASE"
           } > "$OUT/body.md"
+          if [ "$MODE" = continue ]; then
+            # The open pull request keeps its description: this sync's breaking changes and
+            # release lines join it, and its summary goes into a comment.
+            gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json title,body > "$RUNNER_TEMP/previous.json"
+            ruby codegen/sync_pull_request.rb --previous "$RUNNER_TEMP/previous.json" --body "$OUT/body.md" \
+              --commit-message "$COMMIT_MESSAGE" --out "$OUT/continued"
+          fi
           {
             echo "publish=true"
             echo "push=$push"
@@ -255,7 +301,7 @@ jobs:
           exit 1
 
   publish:
-    name: Publish chore/spec-sync and open or update the pull request
+    name: Publish the sync branch and open or update the pull request
     needs: sync
     if: needs.sync.outputs.publish == 'true'
     runs-on: ubuntu-latest
@@ -277,10 +323,11 @@ jobs:
           name: spec-sync
           path: ${{ runner.temp }}/spec-sync
 
-      - name: Publish chore/spec-sync and open or update the pull request
+      - name: Publish the sync branch and open or update the pull request
         env:
           PUSH_TOKEN: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
           BASE: ${{ needs.sync.outputs.base }}
+          BRANCH: ${{ needs.sync.outputs.branch }}
           MODE: ${{ needs.sync.outputs.mode }}
           REMOTE_SHA: ${{ needs.sync.outputs.remote_sha }}
           PR: ${{ needs.sync.outputs.pr }}
@@ -293,7 +340,6 @@ jobs:
           OUT="$RUNNER_TEMP/spec-sync"
           BODY="$OUT/body.md"
           title="$(cat "$OUT/title.txt")"
-          footer="$(cat "$OUT/footer.txt")"
           git fetch --quiet "$OUT/sync.bundle" "refs/heads/$BRANCH:refs/spec-sync/commit"
 
           if [ "$PUSH" = true ]; then
@@ -334,18 +380,11 @@ jobs:
             exit 0
           fi
           if [ "$MODE" = continue ]; then
-            # The description still lists the changes since the default branch; this sync's
-            # own changes go into a comment. A breaking footer is added to the description
-            # when it has none, so that a squash merge still carries it.
-            gh pr edit "$PR" --title "$title"
-            gh pr comment "$PR" --body-file "$BODY"
-            if [ -n "$footer" ]; then
-              current="$(gh pr view "$PR" --json body --jq '.body')"
-              if ! printf '%s\n' "$current" | grep -q '^BREAKING CHANGE:'; then
-                printf '%s\n\n%s\n' "$current" "$footer" > "$BODY"
-                gh pr edit "$PR" --body-file "$BODY"
-              fi
-            fi
+            # The sync job merged this sync's breaking changes and release lines into the
+            # description (feat wins over chore); its other changes go into a comment.
+            gh pr edit "$PR" --title "$(head -n 1 "$OUT/continued/title.txt")" \
+              --body-file "$OUT/continued/body.md"
+            gh pr comment "$PR" --body-file "$OUT/continued/comment.md"
           else
             gh pr edit "$PR" --title "$title" --body-file "$BODY"
           fi

@@ -9,14 +9,16 @@ module DiditCodegen
       include MethodChanges
       include OperationChanges
 
-      # +downloads+ maps "verification.json" and "account.json" to the downloaded bytes;
-      # +date+ is YYYY-MM-DD; +now+ is the fetch time recorded in SOURCE.json.
-      def initialize(root, downloads, date:, now:)
+      # +downloads+ maps each file of UPSTREAM to the downloaded bytes; +date+ is YYYY-MM-DD;
+      # +now+ is the fetch time recorded in SOURCE.json. With +generate+ false the SDK is not
+      # regenerated (Sync.classify).
+      def initialize(root, downloads, date:, now:, generate: true)
         @root = root
         @openapi = File.join(root, "openapi")
         @downloads = UPSTREAM.keys.to_h { |file| [file, downloads.fetch(file).b] }
         @date = date
         @now = now
+        @generate = generate
       end
 
       # @return [Result]
@@ -30,7 +32,7 @@ module DiditCodegen
         prepare(old_bytes, new_data, changed)
         analyse
         @state.write(@downloads, changed, @now.getutc.strftime("%Y-%m-%dT%H:%M:%SZ"))
-        Result.new(changed: true, report: @report, generator_error: regenerate)
+        Result.new(changed: true, report: @report, generator_error: (regenerate if @generate))
       end
 
       private
@@ -52,8 +54,10 @@ module DiditCodegen
         end
         @old_docs = UPSTREAM.keys.to_h { |file| [file, Doc.new(file, parse_old(old_bytes[file]))] }
         @new_docs = UPSTREAM.keys.to_h { |file| [file, Doc.new(file, new_data[file])] }
-        @old_ops = operations(@old_docs)
-        @new_ops = operations(@new_docs)
+        @old_ops = operations(@old_docs, GENERATED)
+        @new_ops = operations(@new_docs, GENERATED)
+        @old_hand_written = operations(@old_docs, UPSTREAM.keys - GENERATED)
+        @new_hand_written = operations(@new_docs, UPSTREAM.keys - GENERATED)
       end
 
       def parse_old(bytes)
@@ -62,8 +66,8 @@ module DiditCodegen
         {}
       end
 
-      def operations(docs)
-        docs.each_with_object({}) { |(file, doc), out| out.merge!(doc.operations(file, PREFIXES.fetch(file))) }
+      def operations(docs, files)
+        files.each_with_object({}) { |file, out| out.merge!(docs.fetch(file).operations(file, PREFIXES.fetch(file))) }
       end
 
       def analyse
@@ -73,7 +77,32 @@ module DiditCodegen
         drop_returning_entries
         describe_other_operations
         describe_changed_operations
+        describe_hand_written_operations
         describe_schemas
+        @report.observable = observable?
+      end
+
+      # Whether a caller can observe the sync (docs/DESIGN.md section 3.1), decided like
+      # sdk-python: an operation added or removed, an SDK naming that changed, or a changed
+      # document that differs in more than its documentation (Schemas.observable). A breaking
+      # change makes the sync feat too (Report#type).
+      def observable?
+        return true if @old_ops.keys.sort != @new_ops.keys.sort
+        return true if @old_hand_written.keys.sort != @new_hand_written.keys.sort
+        return true if (@old_ops.keys & @new_ops.keys).any? { |key| naming_differs?(old_naming(key), new_naming(key)) }
+
+        hand_written = (@old_hand_written.keys & @new_hand_written.keys).any? do |key|
+          naming_differs?(@old_hand_written[key].upstream_naming, @new_hand_written[key].upstream_naming)
+        end
+        return true if hand_written
+
+        (UPSTREAM.keys - @unchanged).any? do |file|
+          Schemas.observable(@old_docs[file].data) != Schemas.observable(@new_docs[file].data)
+        end
+      end
+
+      def naming_differs?(before, after)
+        JsonText.normalize(before) != JsonText.normalize(after)
       end
 
       def old_naming(key)

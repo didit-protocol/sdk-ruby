@@ -26,11 +26,14 @@ module DiditCodegen
     # A read-only view of one OpenAPI document. Unlike DiditCodegen::Document it never
     # raises: a dangling or circular $ref resolves to nil, and the generator reports it.
     class Doc
+      MAX_INLINE = 64
+
       attr_reader :name, :data
 
       def initialize(name, data)
         @name = name
         @data = data.is_a?(Hash) ? data : {}
+        @inlined = {}
       end
 
       # The node a local JSON pointer names, or nil.
@@ -64,6 +67,26 @@ module DiditCodegen
           node = found.is_a?(Hash) && !siblings.empty? ? found.merge(siblings) : found
         end
         node
+      end
+
+      # +node+ with every local $ref inlined, like sdk-python's dereference, so that the
+      # breaking-change detection (Details) reads the same schemas in every SDK: the siblings of a
+      # $ref apply on top of its target, and without +ref_titles+ the title of a referenced schema
+      # is dropped (the generated code names it after its component). A dangling $ref becomes
+      # {"x-unresolved-ref" => ref}, and past MAX_INLINE levels a node becomes {}, which ends a
+      # recursive schema. Inlined targets are shared, never copied: do not modify the result.
+      def dereference(node, depth = 0, ref_titles: true)
+        return {} if depth > MAX_INLINE
+
+        case node
+        when Hash
+          ref = node["$ref"]
+          return inline(node, ref, depth, ref_titles) if ref.is_a?(String)
+
+          node.transform_values { |value| dereference(value, depth + 1, ref_titles: ref_titles) }
+        when Array then node.map { |value| dereference(value, depth + 1, ref_titles: ref_titles) }
+        else node
+        end
       end
 
       def schemas
@@ -109,6 +132,25 @@ module DiditCodegen
           end
         end
         seen.keys.select { |ref| ref.start_with?(SCHEMA_REF) }.map { |ref| ref.delete_prefix(SCHEMA_REF) }
+      end
+
+      private
+
+      # The target of +ref+ inlined at +depth+ (the same for every $ref to it at that depth),
+      # with the siblings of +node+ on top.
+      def inline(node, ref, depth, ref_titles)
+        key = [ref, depth, ref_titles]
+        unless @inlined.key?(key)
+          found = target(ref)
+          @inlined[key] = found.nil? ? nil : dereference(found, depth + 1, ref_titles: ref_titles)
+        end
+        resolved = @inlined[key]
+        return { "x-unresolved-ref" => ref } if resolved.nil?
+        return resolved unless resolved.is_a?(Hash)
+
+        dropped = ref_titles ? ["$ref"] : %w[$ref title]
+        resolved = resolved.except("title") unless ref_titles
+        resolved.merge(node.except(*dropped))
       end
     end
   end

@@ -1,21 +1,35 @@
 # frozen_string_literal: true
 
 require "digest"
+require "fileutils"
 require "json"
+require "tmpdir"
 require_relative "../didit_codegen"
 
 module DiditCodegen
   # The spec sync (docs/DESIGN.md section 3.1): takes freshly downloaded upstream documents,
   # updates openapi/ (the upstream copies, SOURCE.json, overlay.json and
-  # deprecated-operations.json), regenerates the SDK and describes what changed.
+  # deprecated-operations.json), regenerates the SDK and describes what changed, with the
+  # type and the release notes lines of section 13.
   module Sync
     UPSTREAM = {
       "verification.json" => "https://docs.didit.me/openapi-25.json",
-      "account.json" => "https://docs.didit.me/openapi-auth.json"
+      "account.json" => "https://docs.didit.me/openapi-auth.json",
+      "authentication.json" => "https://docs.didit.me/openapi-authentication.json"
     }.freeze
     # Names accepted by --from-dir besides the openapi/ ones: the upstream file names.
-    UPSTREAM_NAMES = { "verification.json" => "openapi-25.json", "account.json" => "openapi-auth.json" }.freeze
-    PREFIXES = { "verification.json" => "", "account.json" => "account " }.freeze
+    UPSTREAM_NAMES = {
+      "verification.json" => "openapi-25.json", "account.json" => "openapi-auth.json",
+      "authentication.json" => "openapi-authentication.json"
+    }.freeze
+    PREFIXES = {
+      "verification.json" => "", "account.json" => "account ", "authentication.json" => "authentication "
+    }.freeze
+    # The documents the generator reads. authentication.json describes the hand-written
+    # Didit::Authentication instead (docs/DESIGN.md section 10), which
+    # spec/authentication/contract_spec.rb holds to it: nothing is generated, named in
+    # overlay.json or deprecated for its operations.
+    GENERATED = %w[verification.json account.json].freeze
     SCHEMA_REF = "#/components/schemas/"
     DEPRECATED_FILE = "deprecated-operations.json"
     DEPRECATED_DESCRIPTION =
@@ -107,11 +121,36 @@ module DiditCodegen
     def run(root, downloads, date:, now:)
       Syncer.new(root, downloads, date: date, now: now).run
     end
+
+    # What the sync makes of verification.json changing from +before+ to +after+ (two parsed
+    # documents, every operation named by its own x-didit-sdk) in an SDK at version 1.0.0:
+    # [type, breaking], the type "feat(spec)" or "chore(spec)" and the counted breaking
+    # changes, normalized, distinct and sorted. openapi/breaking-vectors.json, generated in
+    # sdk-python, holds the expected result of each of its cases.
+    def classify(before, after)
+      Dir.mktmpdir("didit-classify") do |root|
+        openapi = File.join(root, "openapi")
+        FileUtils.mkdir_p([openapi, File.join(root, "lib", "didit")])
+        File.binwrite(File.join(root, VERSION_FILE), "VERSION = \"1.0.0\"\n")
+        File.binwrite(File.join(openapi, "overlay.json"), JSON.generate("operations" => {}))
+        File.binwrite(File.join(openapi, "verification.json"), JSON.generate(before))
+        downloads = { "verification.json" => JSON.generate(after) }
+        # The other documents, the same before and after.
+        other = JSON.generate("openapi" => "3.0.3", "info" => { "title" => "unchanged", "version" => "1" },
+                              "paths" => { "/unchanged/" => {} })
+        (UPSTREAM.keys - downloads.keys).each do |file|
+          File.binwrite(File.join(openapi, file), other)
+          downloads[file] = other
+        end
+        report = Syncer.new(root, downloads, date: "2026-01-01", now: Time.utc(2026), generate: false).run.report
+        report ? ["#{report.type}(spec)", report.normalized.uniq.sort] : ["chore(spec)", []]
+      end
+    end
   end
 end
 
 require_relative "sync/document"
-require_relative "sync/shapes"
+require_relative "sync/schemas"
 require_relative "sync/diff"
 require_relative "sync/freeze"
 require_relative "sync/json_text"
@@ -122,3 +161,4 @@ require_relative "sync/methods"
 require_relative "sync/changes"
 require_relative "sync/syncer"
 require_relative "sync/cli"
+require_relative "sync/pull_request"

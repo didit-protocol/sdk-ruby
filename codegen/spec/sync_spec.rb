@@ -5,6 +5,7 @@ require "open3"
 require "rbconfig"
 require "stringio"
 require "webmock/rspec"
+require_relative "release_please_helper"
 
 # The spec sync (codegen/spec_sync.rb) on small synthetic repositories. Nothing here reads
 # the live openapi/ files or touches the network.
@@ -176,7 +177,8 @@ RSpec.describe DiditCodegen::Sync do
   # Writes the fixture repository; overlay.json gets the seeded one-space layout.
   def repo(overlay: base_overlay, deprecated: nil, version: "0.1.0", **docs)
     write_repo(root, verification: docs.fetch(:verification) { verification },
-                     account: docs.fetch(:account) { account }, deprecated: deprecated, version: version)
+                     account: docs.fetch(:account) { account }, authentication: docs[:authentication],
+                     deprecated: deprecated, version: version)
     overlay_file = { "description" => "test overlay", "version" => 1, "operations" => overlay.sort.to_h }
     File.write(openapi("overlay.json"), JSON.pretty_generate(overlay_file, indent: " "))
     File.write(openapi("SOURCE.json"), source_text(sha("verification.json"), sha("account.json")))
@@ -199,9 +201,10 @@ RSpec.describe DiditCodegen::Sync do
   end
 
   # The documents the next sync downloads; unspecified ones are the current openapi/ copies.
-  def upstream(verification: nil, account: nil)
+  def upstream(verification: nil, account: nil, authentication: nil)
     FileUtils.mkdir_p(upstream_dir)
-    { "verification.json" => verification, "account.json" => account }.each do |file, doc|
+    docs = { "verification.json" => verification, "account.json" => account, "authentication.json" => authentication }
+    docs.each do |file, doc|
       bytes = if doc.nil? then File.binread(openapi(file))
               elsif doc.is_a?(String) then doc
               else JSON.generate(doc)
@@ -215,13 +218,14 @@ RSpec.describe DiditCodegen::Sync do
        .to_h { |p| [p, File.binread(File.join(root, p))] }
   end
 
-  attr_reader :out, :err, :summary, :commit_message, :github_output
+  attr_reader :out, :err, :summary, :release, :commit_message, :github_output
 
   # Runs the CLI in-process on the fixture repository; returns the exit code.
   def sync(*args, env: {}, downloader: nil)
     @out = out_io = StringIO.new
     @err = err_io = StringIO.new
     summary_file = File.join(root, "summary.md")
+    release_file = File.join(root, "release.md")
     commit_file = File.join(root, "commit.txt")
     output_file = File.join(root, "github_output")
     options = { root: root, env: { "GITHUB_OUTPUT" => output_file }.merge(env), out: out_io, err: err_io,
@@ -229,9 +233,11 @@ RSpec.describe DiditCodegen::Sync do
     options[:downloader] = downloader if downloader
     source = downloader ? [] : ["--from-dir", upstream_dir]
     code = DiditCodegen::Sync::CLI.new(**options).run(
-      [*source, "--summary", summary_file, "--commit-message", commit_file, "--date", date, *args]
+      [*source, "--summary", summary_file, "--release", release_file, "--commit-message", commit_file, "--date",
+       date, *args]
     )
-    @summary, @commit_message, output = [summary_file, commit_file, output_file].map { |f| take(f) }
+    @summary, @release, @commit_message, output = [summary_file, release_file, commit_file, output_file]
+                                                  .map { |f| take(f) }
     @github_output = output&.lines(chomp: true)
     code
   end
@@ -263,7 +269,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(out.string).to eq("No upstream change\n")
       expect(snapshot).to eq(before)
       expect(github_output).to eq(["changed=false", "breaking=false", "date=#{date}"])
-      expect(commit_message).to be_nil
+      expect([commit_message, release]).to eq([nil, nil])
     end
   end
 
@@ -298,27 +304,32 @@ RSpec.describe DiditCodegen::Sync do
       expect(DiditCodegen::Generator.new(root).check.values.flatten).to be_empty
     end
 
-    it "summarises the changes" do
+    it "summarises the changes, opening with the breaking ones" do
       old_sha = sha("verification.json")
       account_sha = sha("account.json")
+      authentication_sha = sha("authentication.json")
       expect(sync).to eq(0)
-      expect(summary.lines.first(2)).to eq(["chore(spec): sync API spec 2026-10-18\n", "\n"])
+      expect(summary.lines.first(4)).to eq(["feat(spec): sync API spec 2026-10-18\n", "\n", "## Breaking changes\n",
+                                            "\n"])
       expect(summary).to include(
         "| File | URL | Old SHA-256 | New SHA-256 |\n|---|---|---|---|\n",
         "| `openapi/verification.json` | https://docs.didit.me/openapi-25.json | `#{old_sha}` | " \
         "`#{sha("verification.json")}` |\n",
-        "| `openapi/account.json` | https://docs.didit.me/openapi-auth.json | `#{account_sha}` | unchanged |\n"
+        "| `openapi/account.json` | https://docs.didit.me/openapi-auth.json | `#{account_sha}` | unchanged |\n",
+        "| `openapi/authentication.json` | https://docs.didit.me/openapi-authentication.json | " \
+        "`#{authentication_sha}` | unchanged |\n"
       )
       expect(section("Breaking changes")).to include("None detected.")
       expect(section("Operations")).to include(
         "`GET /v3/billing/balance/` (`billing.retrieve_balance`)\n  - query parameter `currency`: added",
-        "response 201 `expires_at`: field added", "response 201 `status`: enum value `Declined` added"
+        "response `expires_at`: added", "response `status`: enum values added [\"Declined\"]"
       )
       expect(section("Schemas")).to include("`Extra` added (verification.json)",
                                             "`Session` changed (verification.json)\n")
-      expect(commit_message).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
-      expect(commit_message).not_to include("BREAKING CHANGE")
-      expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
+      expect(commit_message).to start_with("feat(spec): sync API spec 2026-10-18\n\n")
+      expect(commit_message).not_to include("BREAKING CHANGE", "BEGIN_NESTED_COMMIT")
+      expect(release).to end_with("BEGIN_COMMIT_OVERRIDE\nfeat(spec): sync API spec 2026-10-18\nEND_COMMIT_OVERRIDE\n")
+      expect(github_output).to eq(["changed=true", "type=feat", "breaking=false", "date=2026-10-18"])
     end
 
     it "updates SOURCE.json in its exact layout and keeps the webhook-vectors.json entry" do
@@ -348,7 +359,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(generated("lib/didit/resources/billing.rb")).to include("def top_up(")
     end
 
-    it "lets a different upstream value win and says old -> new" do
+    it "lets a different upstream value win and says old -> new; an auth change is listed, not counted" do
       repo
       changed = verification
       changed["paths"]["/v3/billing/top-up/"]["post"]["x-didit-sdk"] = naming("billing", "top_up",
@@ -362,8 +373,8 @@ RSpec.describe DiditCodegen::Sync do
         "`#{JSON.generate(naming("billing", "top_up", "auth" => "account_token"))}`",
         "auth changed from `api_key` to `account_token`"
       )
-      expect(section("Breaking changes")).to include("`billing.top_up` (`POST /v3/billing/top-up/`): now " \
-                                                     "authenticates with `account_token` instead of `api_key`")
+      expect(section("Breaking changes")).to include("None detected.")
+      expect(github_output).to include("type=feat")
     end
   end
 
@@ -387,7 +398,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(entry.dig("operation", "responses", "200", "content", "application/json", "schema", "properties"))
         .to eq(schemas["BillingBalance"]["properties"])
       expect(read_json("overlay.json")["operations"]).not_to have_key("GET /v3/billing/balance/")
-      expect(github_output).to eq(["changed=true", "breaking=true", "date=2026-10-18"])
+      expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
     end
 
     it "keeps the method in the generated code, marked deprecated, and says so" do
@@ -403,8 +414,9 @@ RSpec.describe DiditCodegen::Sync do
       expect(section("Operations")).to include("### Removed (1)", "`GET /v3/billing/balance/` " \
                                                                   "(`billing.retrieve_balance`): deprecated")
       expect(section("Deprecations")).to include("### Added (1)", "`billing.retrieve_balance`: deprecated")
-      expect(commit_message).to include("\n\nBREAKING CHANGE: the API spec sync changes the SDK surface.\n- " \
-                                        "`billing.retrieve_balance`")
+      expect(commit_message).to start_with("feat(spec): sync API spec 2026-10-18\n")
+      expect(commit_message).to include("\n\nBEGIN_NESTED_COMMIT\napi(spec): `billing.retrieve_balance`")
+      expect(commit_message).not_to include("BREAKING CHANGE")
     end
 
     it "dereferences path-item parameters and scrubs credential-like examples" do
@@ -467,7 +479,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(generated("lib/didit/resources/billing.rb")).to include("+GET /v4/billing/balance/+")
     end
 
-    it "reports what a moved operation changed" do
+    it "reports what a moved operation changed, and counts it under the new path" do
       repo
       changed = verification
       item = changed["paths"].delete("/v3/billing/balance/")
@@ -479,7 +491,7 @@ RSpec.describe DiditCodegen::Sync do
       expect(sync).to eq(0)
       expect(section("Breaking changes")).to include("`billing.retrieve_balance` moved from " \
                                                      "`GET /v3/billing/balance/` to `GET /v4/billing/balance/`: " \
-                                                     "query parameter `currency`: new required parameter")
+                                                     "query parameter `currency`: added (required)")
     end
 
     it "removes an operation that stopped being a server operation at once" do
@@ -497,7 +509,7 @@ RSpec.describe DiditCodegen::Sync do
     end
   end
 
-  describe "renamed operations" do
+  describe "renamed operations (listed, not counted: docs/DESIGN.md section 3.1)" do
     it "keeps the old name as a deprecated alias, and renaming back drops it" do
       repo
       changed = verification
@@ -512,8 +524,8 @@ RSpec.describe DiditCodegen::Sync do
                                  "# @deprecated Renamed to billing.get_balance on 2026-10-18")
       expect(section("Operations")).to include("`GET /v3/billing/balance/`: `billing.retrieve_balance` renamed to " \
                                                "`billing.get_balance`")
-      expect(section("Breaking changes")).to include("`billing.retrieve_balance` was renamed upstream to " \
-                                                     "`billing.get_balance`")
+      expect(section("Breaking changes")).to include("None detected.")
+      expect(github_output).to include("type=feat")
 
       changed["paths"]["/v3/billing/balance/"]["get"]["x-didit-sdk"] = naming("billing", "retrieve_balance")
       upstream(verification: changed)
@@ -533,10 +545,12 @@ RSpec.describe DiditCodegen::Sync do
       changed["paths"]["/v3/billing/top-up/"]["post"]["x-didit-sdk"] = naming("billing", "retrieve_balance")
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Breaking changes")).to include(
-        "`billing.top_up` now calls `GET /v3/billing/balance/` instead of `POST /v3/billing/top-up/`",
-        "`billing.retrieve_balance` now calls `POST /v3/billing/top-up/` instead of `GET /v3/billing/balance/`"
+      expect(section("Operations")).to include(
+        "`billing.top_up` **(review)**: now calls `GET /v3/billing/balance/` instead of `POST /v3/billing/top-up/`",
+        "`billing.retrieve_balance` **(review)**: now calls `POST /v3/billing/top-up/` instead of " \
+        "`GET /v3/billing/balance/`"
       )
+      expect(section("Breaking changes")).to include("None detected.")
       expect(File.exist?(openapi("deprecated-operations.json"))).to be(false)
     end
   end
@@ -635,8 +649,8 @@ RSpec.describe DiditCodegen::Sync do
         "GET /v3/session/{sessionId}/signatures/{nodeId}/" => naming("sessions.signatures", "retrieve")
       )
       expect(section("Operations")).to include("`#{key}`: **no SDK naming**")
-      expect(summary).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
-      expect(github_output).to eq(["changed=true", "breaking=false", "date=2026-10-18"])
+      expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n\n")
+      expect(github_output).to eq(["changed=true", "type=feat", "breaking=false", "date=2026-10-18"])
     end
 
     it "reports a generator crash the same way: documents written, Action needed, exit 2" do
@@ -661,8 +675,9 @@ RSpec.describe DiditCodegen::Sync do
       File.write(openapi("verification.json"), JSON.generate(named))
       upstream(verification: verification)
       expect(sync).to eq(2)
-      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`) has no SDK naming any " \
-                                                     "more")
+      # Listed, not counted: the generator fails until the operation is named again.
+      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): lost its SDK naming")
+      expect(section("Breaking changes")).to include("None detected.")
       suggestion = JSON.parse(section("Action needed")[/```json\n(.*?)```/m, 1])
       expect(suggestion).to eq("POST /v3/session/" => naming("sessions", "create"))
     end
@@ -690,28 +705,52 @@ RSpec.describe DiditCodegen::Sync do
       changed
     end
 
-    it "lists every change that breaks code written against the SDK" do
+    it "lists every change that can break typed code, as a minor release" do
       repo
       upstream(verification: break_everything(verification))
       expect(sync).to eq(0)
-      expect(breaking).to include(
-        "`sessions.create` (`POST /v3/session/`): request body `vendor_data`: field removed",
+      expected = [
+        "`sessions.create` (`POST /v3/session/`): request body `vendor_data`: removed",
         "`sessions.create` (`POST /v3/session/`): request body `callback`: now required",
-        "`sessions.create` (`POST /v3/session/`): request body `language`: enum value `fr` removed",
+        "`sessions.create` (`POST /v3/session/`): request body `language`: enum value \"fr\" removed",
         "`sessions.create` (`POST /v3/session/`): request body `title`: type changed from string to integer",
-        "`sessions.create` (`POST /v3/session/`): response 201 `url`: field removed",
-        "`sessions.create` (`POST /v3/session/`): response 201 `title`: type changed from string to integer",
-        "`sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `title`: type " \
+        "`sessions.create` (`POST /v3/session/`): response `url`: removed",
+        "`sessions.create` (`POST /v3/session/`): response `title`: type changed from string to integer",
+        # Also in a response: the generated constant of the value goes away (docs/DESIGN.md section 3.1).
+        "`sessions.create` (`POST /v3/session/`): response `status`: enum value \"In Progress\" removed",
+        "`sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response `title`: type " \
         "changed from string to integer",
-        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `currency`: new required field"
-      )
-      # Response enums are open (docs/DESIGN.md section 5.1): a removed value breaks nobody.
-      expect(breaking).not_to include("`In Progress` removed")
-      expect(section("Operations")).to include("response 201 `status`: enum value `In Progress` removed\n")
-      expect(commit_message).to include("BREAKING CHANGE:", "request body `title`: type changed")
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `currency`: added (required)"
+      ]
+      expect(breaking).to include(DiditCodegen::Sync::Report::BREAKING_INTRO, *expected)
+      expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
+      expect(commit_message).not_to include("BREAKING CHANGE")
+      nested = expected.map { |text| "BEGIN_NESTED_COMMIT\napi(spec): #{text}\nEND_NESTED_COMMIT" }
+      expect(commit_message).to include(*nested)
+      expect(release).to include(*nested)
+      expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
       # A type change of a property named like a schema keyword is not "documentation only".
       expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
                                             "`SessionRequest` changed (verification.json)\n")
+    end
+
+    it "reports the same changes in the form of openapi/breaking-vectors.json" do
+      # The decision returns a Session too.
+      expect(described_class.classify(verification, break_everything(verification))).to eq(
+        ["feat(spec)", [
+          "GET /v3/session/{sessionId}/decision/ response status: enum value \"In Progress\" removed",
+          "GET /v3/session/{sessionId}/decision/ response title: type string -> integer",
+          "GET /v3/session/{sessionId}/decision/ response url: removed",
+          "POST /v3/billing/top-up/ request body currency: now required",
+          "POST /v3/session/ request body callback: now required",
+          "POST /v3/session/ request body language: enum value \"fr\" removed",
+          "POST /v3/session/ request body title: type string -> integer",
+          "POST /v3/session/ request body vendor_data: removed",
+          "POST /v3/session/ response status: enum value \"In Progress\" removed",
+          "POST /v3/session/ response title: type string -> integer",
+          "POST /v3/session/ response url: removed"
+        ]]
+      )
     end
 
     it "notices documentation-only changes, also of properties named like keywords" do
@@ -724,6 +763,11 @@ RSpec.describe DiditCodegen::Sync do
       expect(section("Breaking changes")).to include("None detected.")
       expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): documentation only")
       expect(section("Schemas")).to include("`Session` changed (verification.json), documentation only")
+      # Documentation only: chore(spec), which releases nothing on its own.
+      expect(summary).to start_with("chore(spec): sync API spec 2026-10-18\n")
+      expect(release).to include(DiditCodegen::Sync::Report::RELEASES["chore"],
+                                 "BEGIN_COMMIT_OVERRIDE\nchore(spec): sync API spec 2026-10-18\nEND_COMMIT_OVERRIDE")
+      expect(github_output).to eq(["changed=true", "type=chore", "breaking=false", "date=2026-10-18"])
     end
 
     # "title", "description" and "example" are documentation keywords of a schema, but inside
@@ -735,8 +779,8 @@ RSpec.describe DiditCodegen::Sync do
       changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`): response 201 " \
-                                                     "`title`: type changed from string to integer")
+      expect(section("Breaking changes")).to include("`sessions.create` (`POST /v3/session/`): response `title`: " \
+                                                     "type changed from string to integer")
       expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
                                             "`SessionRequest` changed (verification.json)\n")
       expect(section("Operations")).not_to include("documentation only")
@@ -748,7 +792,119 @@ RSpec.describe DiditCodegen::Sync do
       changed["components"]["schemas"]["SessionRequest"]["properties"]["title"]["format"] = "email"
       upstream(verification: changed)
       expect(sync).to eq(0)
-      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`): details changed")
+      expect(section("Operations")).to include("`POST /v3/session/` (`sessions.create`)\n  - request body `title`: " \
+                                               "other constraints changed (format, pattern, limits or default)")
+      expect(section("Breaking changes")).to include("None detected.")
+    end
+
+    def top_up_schema(doc)
+      doc.dig("paths", "/v3/billing/top-up/", "post", "requestBody", "content", "application/json", "schema")
+    end
+
+    it "counts every type change, in either direction, typed string formats included" do
+      before = verification
+      before["components"]["schemas"]["BillingBalance"]["properties"]["balance"] = { "type" => "number" }
+      top_up_schema(before)["properties"]["amount"] = { "type" => "integer" }
+      repo(verification: before)
+      changed = JSON.parse(JSON.generate(before))
+      changed["components"]["schemas"]["BillingBalance"]["properties"]["balance"] = { "type" => "integer" }
+      top_up_schema(changed)["properties"]["amount"] = { "type" => "number" }
+      top_up_schema(changed)["properties"]["note"] = { "type" => "string", "format" => "date" }
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(breaking).to include(
+        "`billing.retrieve_balance` (`GET /v3/billing/balance/`): response `balance`: type changed from number to " \
+        "integer",
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `amount`: type changed from integer to number",
+        "`billing.top_up` (`POST /v3/billing/top-up/`): request body `note`: type changed from string to " \
+        "string (date)"
+      )
+    end
+
+    it "lists a change of a shared schema at every field that uses it, once for all success statuses" do
+      before = verification
+      before["components"]["schemas"]["Money"] = { "type" => "object",
+                                                   "properties" => { "amount" => { "type" => "string" } } }
+      before["components"]["schemas"]["BillingBalance"]["properties"]
+        .merge!("current" => ref("Money"), "previous" => ref("Money"))
+      before["paths"]["/v3/billing/balance/"]["get"]["responses"].merge!(ok(ref("BillingBalance"), "202"))
+      repo(verification: before)
+      changed = JSON.parse(JSON.generate(before))
+      changed["components"]["schemas"]["Money"]["properties"]["amount"]["nullable"] = true
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(breaking.lines(chomp: true).grep(/billing\.retrieve_balance/)).to eq(
+        %w[current previous].map do |field|
+          "- `billing.retrieve_balance` (`GET /v3/billing/balance/`): response `#{field}.amount`: can now be null"
+        end
+      )
+    end
+  end
+
+  describe "authentication.json (docs/DESIGN.md section 10)" do
+    def session_schema(doc)
+      doc.dig("paths", "/session/", "get", "responses", "200", "content", "application/json", "schema")
+    end
+
+    it "is synced like the other documents, generates nothing and asks the hand-written module to follow" do
+      repo
+      changed = authentication_document
+      changed["paths"]["/session/"].delete("delete")
+      changed["paths"]["/token/"]["post"]["x-didit-sdk"]["variants"].pop
+      changed["paths"]["/step-up/"] = { "post" => authentication_operation("Step up", "create_step_up", "none") }
+      session_schema(changed)["properties"]["sub"] = { "type" => "integer" }
+      upstream(authentication: changed)
+      overlay_before = File.binread(openapi("overlay.json"))
+      expect(sync).to eq(0)
+      expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(changed))
+      expect(read_json("SOURCE.json")["authentication.json"])
+        .to eq("url" => "https://docs.didit.me/openapi-authentication.json", "sha256" => sha("authentication.json"),
+               "fetched_at" => fetched_at)
+      expect([File.binread(openapi("overlay.json")), File.exist?(openapi("deprecated-operations.json")),
+              Dir.glob("{lib,sig,spec}/**/*authentication*", base: root)]).to eq([overlay_before, false, []])
+      follow = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
+      expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
+      expect(section("Breaking changes")).to include(
+        "`authentication DELETE /session/` (`authentication.revoke_session`) was removed upstream, and its method " \
+        "with it",
+        "`authentication.get_session` (`authentication GET /session/`): response `sub`: type changed from string " \
+        "to integer"
+      )
+      expect(section("Operations")).to include(
+        "`authentication POST /step-up/`: `authentication.create_step_up`; #{follow}",
+        "`authentication DELETE /session/` (`authentication.revoke_session`): #{follow}"
+      )
+      # A method gone from an operation that stays is listed, not counted (as in sdk-python).
+      expect(section("SDK naming")).to include("`authentication POST /token/`: `x-didit-sdk` changed from",
+                                               "; no longer SDK methods: `authentication.refresh`; #{follow}")
+      expect(section("Breaking changes")).not_to include("authentication.refresh")
+    end
+
+    it "is added by the first sync that finds it" do
+      repo
+      FileUtils.rm(openapi("authentication.json"))
+      upstream(authentication: authentication_document)
+      expect(sync).to eq(0)
+      expect(File.binread(openapi("authentication.json"))).to eq(JSON.generate(authentication_document))
+      expect(summary).to include("| `openapi/authentication.json` | https://docs.didit.me/openapi-authentication." \
+                                 "json | `none` | `#{sha("authentication.json")}` |")
+      expect(section("Operations")).to include(
+        "### Added (3)",
+        "`authentication POST /token/`: `authentication.exchange_code`, `authentication.refresh`; update"
+      )
+      expect(section("Breaking changes")).to include("None detected.")
+    end
+
+    it "makes a documentation-only change a chore" do
+      repo
+      changed = authentication_document
+      changed["paths"]["/session/"]["get"]["description"] = "The live session behind the access token."
+      upstream(authentication: changed)
+      expect(sync).to eq(0)
+      expect(summary).to start_with("chore(spec): sync API spec 2026-10-18\n")
+      expect(section("Operations")).to include(
+        "`authentication GET /session/` (`authentication.get_session`): documentation only"
+      )
     end
   end
 
@@ -768,35 +924,60 @@ RSpec.describe DiditCodegen::Sync do
       expect(added.scan(%r{^- `GET /v3/things}).size).to eq(100)
     end
 
-    it "caps the summary at 50 000 characters with a truncation note" do
+    it "caps the summary at 40 000 characters with a truncation note" do
       report = DiditCodegen::Sync::Report.new(date)
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
       report.action_needed = ["x" * 70_000, {}]
-      %i[breaking added removed renamed moved changed schemas naming].each do |list|
+      report.observable = true
+      %i[added removed renamed moved changed schemas naming].each do |list|
         100.times { |i| report.send(list) << "`item #{i}` #{"y" * 300}" }
       end
       text = report.summary
-      expect(text.length).to be <= 50_000
-      expect(text).to start_with("chore(spec): sync API spec 2026-10-18\n\n")
-      expect(text).to end_with("_The summary was truncated at 50000 characters; the spec sync workflow log has " \
+      expect(text.length).to be <= 40_000
+      expect(text).to start_with("feat(spec): sync API spec 2026-10-18\n\n## Breaking changes\n")
+      expect(text).to end_with("_The summary was truncated at 40000 characters; the spec sync workflow log has " \
                                "all of it._\n")
       expect(text.scan(/^```/).size).to be_even
-      expect(report.summary(limit: false).length).to be > 50_000
+      expect(report.summary(limit: false).length).to be > 40_000
     end
 
-    it "keeps the pull request body (summary, checks and footer) under GitHub's 65 536 characters" do
+    # What .github/workflows/spec-sync.yml assembles: the summary without its title line, the
+    # checks, the run link and the release section.
+    def pull_request_body(report)
+      checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
+      "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{report.release}"
+    end
+
+    def report_with(count, length)
       report = DiditCodegen::Sync::Report.new(date)
       report.add_file("verification.json", "https://example.com/a.json", "a" * 64, "b" * 64)
-      400.times { |i| report.breaking << "`thing.method_#{i}` (`GET /v3/things/#{i}/`) moved to `#{"/v3/x" * 80}/`" }
-      400.times { |i| report.moved << "`GET /v3/things/#{i}/` #{"z" * 300}" }
-      footer = report.commit_message[/^BREAKING CHANGE:.*/m]
-      expect(footer.length).to be <= 10_000
-      expect(footer).to end_with("more (see the pull request)\n")
-      # What .github/workflows/spec-sync.yml assembles: the summary without its title line,
-      # the checks, the run link and the footer.
-      checks = "\n## Checks\n\n#{"- [ ] `bundle exec rake codegen:spec`: **failed**, see the workflow run\n" * 6}"
-      body = "#{report.summary.lines.drop(2).join}#{checks}\nPublished by a spec sync run.\n\n#{footer}"
-      expect(body.length).to be < 65_536
+      count.times { |i| report.count("`thing.method_#{i}` (`GET /v3/things/#{i}/`): #{"x" * length}") }
+      count.times { |i| report.moved << "`GET /v3/things/#{i}/` #{"z" * 300}" }
+      report
+    end
+
+    it "keeps every release line in the pull request body, which stays under GitHub's 65 536 characters" do
+      report = report_with(120, 300)
+      release = report.release
+      expect(release.length).to be <= DiditCodegen::Sync::Report::MAX_RELEASE
+      lines = release[/^BEGIN_COMMIT_OVERRIDE\n(.*)\nEND_COMMIT_OVERRIDE\n\z/m, 1].scan(/^api\(spec\): .*$/)
+      expect(lines).to eq(report.breaking.map { |text| "api(spec): #{text}" })
+      expect(lines.size).to eq(120)
+      expect(report.summary).to end_with("the spec sync workflow log has all of it._\n")
+      expect(pull_request_body(report).length).to be < 65_536
+    end
+
+    it "leaves the block out when it cannot fit, and the sync commit message carries every line" do
+      report = report_with(400, 450)
+      release = report.release
+      expect(release).not_to include("BEGIN_COMMIT_OVERRIDE", "END_COMMIT_OVERRIDE", "NESTED_COMMIT")
+      expect(release).to include("The 400 lines for \"#{DiditCodegen::Sync::Report::API_CHANGES_SECTION}\" do not " \
+                                 "fit this description", "use the message of this branch's sync commit")
+      expect(pull_request_body(report).length).to be < 65_536
+      bump, notes = ReleasePlease.release(ReleasePlease.commits(report.commit_message))
+      expect(bump).to eq("minor")
+      expect(notes.fetch(DiditCodegen::Sync::Report::API_CHANGES_SECTION)).to eq(report.breaking)
+      expect(report.breaking.size).to eq(400)
     end
   end
 
@@ -818,6 +999,7 @@ RSpec.describe DiditCodegen::Sync do
       changed["info"]["version"] = "2"
       File.write(File.join(upstream_dir, "openapi-25.json"), JSON.generate(changed))
       FileUtils.cp(openapi("account.json"), File.join(upstream_dir, "openapi-auth.json"))
+      FileUtils.cp(openapi("authentication.json"), File.join(upstream_dir, "openapi-authentication.json"))
       expect(sync).to eq(0)
       expect(File.read(openapi("verification.json"), encoding: "UTF-8")).to eq(JSON.generate(changed))
     end
@@ -831,13 +1013,15 @@ RSpec.describe DiditCodegen::Sync do
       expect(err.string).to include("--bogus")
     end
 
-    it "downloads both documents when --from-dir is not given" do
+    it "downloads the three documents when --from-dir is not given" do
       repo
       changed = JSON.generate(verification.merge("info" => { "title" => "t", "version" => "9" }))
       downloader = instance_double(DiditCodegen::Sync::Downloader)
       allow(downloader).to receive(:fetch).with("https://docs.didit.me/openapi-25.json").and_return(changed.b)
       allow(downloader).to receive(:fetch).with("https://docs.didit.me/openapi-auth.json")
                                           .and_return(File.binread(openapi("account.json")))
+      allow(downloader).to receive(:fetch).with("https://docs.didit.me/openapi-authentication.json")
+                                          .and_return(File.binread(openapi("authentication.json")))
       expect(sync(downloader: downloader)).to eq(0)
       expect(File.read(openapi("verification.json"), encoding: "UTF-8")).to eq(changed)
     end
