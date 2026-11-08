@@ -5,14 +5,15 @@ require "optparse"
 
 module DiditCodegen
   module Sync
-    # ruby codegen/spec_sync.rb [--from-dir DIR] [--summary FILE] [--commit-message FILE] [--date YYYY-MM-DD]
+    # ruby codegen/spec_sync.rb [--from-dir DIR] [--summary FILE] [--release FILE] [--commit-message FILE]
+    #                           [--date YYYY-MM-DD]
     #
     # Exit codes: 0 synced (or no upstream change), 1 a download or input problem (nothing
     # written), 2 the synced documents were written but the generator failed (the summary
     # says what to fix under "Action needed").
     class CLI
-      USAGE = "usage: ruby codegen/spec_sync.rb [--from-dir DIR] [--summary FILE] [--commit-message FILE] " \
-              "[--date YYYY-MM-DD]"
+      USAGE = "usage: ruby codegen/spec_sync.rb [--from-dir DIR] [--summary FILE] [--release FILE] " \
+              "[--commit-message FILE] [--date YYYY-MM-DD]"
 
       def initialize(root:, env: ENV, out: $stdout, err: $stderr, now: -> { Time.now.utc },
                      downloader: Downloader.new)
@@ -47,11 +48,15 @@ module DiditCodegen
         options = {}
         parser = OptionParser.new do |o|
           o.banner = USAGE
-          o.on("--from-dir DIR", "read verification.json and account.json from DIR instead of downloading") do |v|
+          o.on("--from-dir DIR", "read verification.json, account.json and authentication.json from DIR instead " \
+                                 "of downloading") do |v|
             options[:from_dir] = v
           end
           o.on("--summary FILE", "write the pull request title and body (Markdown) to FILE") do |v|
             options[:summary] = v
+          end
+          o.on("--release FILE", "write the Release section that ends the pull request body to FILE") do |v|
+            options[:release] = v
           end
           o.on("--commit-message FILE", "write the commit message to FILE") { |v| options[:commit_message] = v }
           o.on("--date YYYY-MM-DD", "the sync date (default: today, UTC)") { |v| options[:date] = check_date(v) }
@@ -92,17 +97,18 @@ module DiditCodegen
       def unchanged(options, date)
         @out.puts("No upstream change")
         write_file(options[:summary], "No upstream change\n")
-        github_output(changed: false, breaking: false, date: date)
+        github_output(changed: false, type: nil, breaking: false, date: date)
         0
       end
 
       def report(result, options, date)
         report = result.report
         write_file(options[:summary], report.summary)
+        write_file(options[:release], report.release)
         write_file(options[:commit_message], report.commit_message)
-        github_output(changed: true, breaking: report.breaking?, date: date)
+        github_output(changed: true, type: report.type, breaking: report.breaking?, date: date)
         # The log keeps the whole summary, also when the pull request body is truncated.
-        @out.puts(report.summary(limit: false))
+        @out.puts(report.summary(limit: false), "", report.release)
         return 0 unless result.generator_error
 
         @err.puts("spec-sync: the synced documents were written, but the generator failed:\n" \
@@ -114,12 +120,13 @@ module DiditCodegen
         File.write(path, text, mode: "wb") if path
       end
 
-      def github_output(changed:, breaking:, date:)
+      def github_output(changed:, type:, breaking:, date:)
         path = @env["GITHUB_OUTPUT"]
         return if path.nil? || path.empty?
 
         File.open(path, "a", encoding: "UTF-8") do |f|
           f.puts("changed=#{changed}")
+          f.puts("type=#{type}") if type
           f.puts("breaking=#{breaking}")
           f.puts("date=#{date}")
         end

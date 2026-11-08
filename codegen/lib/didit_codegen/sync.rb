@@ -7,15 +7,27 @@ require_relative "../didit_codegen"
 module DiditCodegen
   # The spec sync (docs/DESIGN.md section 3.1): takes freshly downloaded upstream documents,
   # updates openapi/ (the upstream copies, SOURCE.json, overlay.json and
-  # deprecated-operations.json), regenerates the SDK and describes what changed.
+  # deprecated-operations.json), regenerates the SDK and describes what changed, with the
+  # type and the release notes lines of section 13.
   module Sync
     UPSTREAM = {
       "verification.json" => "https://docs.didit.me/openapi-25.json",
-      "account.json" => "https://docs.didit.me/openapi-auth.json"
+      "account.json" => "https://docs.didit.me/openapi-auth.json",
+      "authentication.json" => "https://docs.didit.me/openapi-authentication.json"
     }.freeze
     # Names accepted by --from-dir besides the openapi/ ones: the upstream file names.
-    UPSTREAM_NAMES = { "verification.json" => "openapi-25.json", "account.json" => "openapi-auth.json" }.freeze
-    PREFIXES = { "verification.json" => "", "account.json" => "account " }.freeze
+    UPSTREAM_NAMES = {
+      "verification.json" => "openapi-25.json", "account.json" => "openapi-auth.json",
+      "authentication.json" => "openapi-authentication.json"
+    }.freeze
+    PREFIXES = {
+      "verification.json" => "", "account.json" => "account ", "authentication.json" => "authentication "
+    }.freeze
+    # The documents the generator reads. authentication.json describes the hand-written
+    # Didit::Authentication instead (docs/DESIGN.md section 10), which
+    # spec/authentication/contract_spec.rb holds to it: nothing is generated, named in
+    # overlay.json or deprecated for its operations.
+    GENERATED = %w[verification.json account.json].freeze
     SCHEMA_REF = "#/components/schemas/"
     DEPRECATED_FILE = "deprecated-operations.json"
     DEPRECATED_DESCRIPTION =
@@ -122,3 +134,4 @@ require_relative "sync/methods"
 require_relative "sync/changes"
 require_relative "sync/syncer"
 require_relative "sync/cli"
+require_relative "sync/pull_request"
