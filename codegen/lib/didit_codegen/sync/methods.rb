@@ -105,7 +105,9 @@ module DiditCodegen
         changes = Details.new(before.doc, after.doc).operation(before, after)
         breaking = changes.select(&:breaking)
         head = "`#{name}`#{" **breaking**" unless breaking.empty?}: moved from `#{old_key}` to `#{new_key}`"
-        @report.moved << (changes.empty? ? "#{head}; same parameters, request body and response" : nested(head, changes))
+        @report.moved << if changes.empty? then "#{head}; same parameters, request body and response"
+                         else nested(head, changes)
+                         end
         breaking.each do |change|
           count_change(new_key, name, change, prefix: "`#{name}` moved from `#{old_key}` to `#{new_key}`")
         end

@@ -59,7 +59,6 @@ module DiditCodegen
       end
     end
 
-
     # One difference of an operation. +where+ is "response", "request body", a parameter's
     # location ("query") or "operation"; +path+ is the field ("results[].name", a parameter's
     # name first, "" for a whole body); +kind+ is what the summary says. +breaking+ when
@@ -134,26 +133,29 @@ module DiditCodegen
 
       private
 
-      def change(where, path, kind, breaking = false, code = "")
-        Change.new(where, path, kind, breaking, breaking ? code : "")
+      # A Change that counts when it has a +code+.
+      def change(where, path, kind, code = nil)
+        Change.new(where, path, kind, !code.nil?, code.to_s)
       end
 
       # Path-item and operation parameters by [location, name] (the operation wins), dereferenced.
       def parameter_map(doc, ref)
         raw = list(ref.item["parameters"]) + list(ref.op["parameters"])
-        doc.dereference(raw, ref_titles: false).grep(Hash).to_h { |param| [[param["in"].to_s, param["name"].to_s], param] }
+        doc.dereference(raw, ref_titles: false).grep(Hash).to_h do |param|
+          [[param["in"].to_s, param["name"].to_s], param]
+        end
       end
 
       def parameters(old_params, new_params, found)
-        (old_params.keys - new_params.keys).sort.each { |key| found << change(*key, "removed", true, "removed") }
+        (old_params.keys - new_params.keys).sort.each { |key| found << change(*key, "removed", "removed") }
         (new_params.keys - old_params.keys).sort.each do |key|
           required = new_params[key]["required"] == true
-          found << change(*key, required ? "added (required)" : "added", required, "now required")
+          found << change(*key, required ? "added (required)" : "added", ("now required" if required))
         end
         (old_params.keys & new_params.keys).sort.each do |key|
           was = old_params[key]["required"] == true
           now = new_params[key]["required"] == true
-          found << change(*key, "now required", true, "now required") if now && !was
+          found << change(*key, "now required", "now required") if now && !was
           found << change(*key, "no longer required") if was && !now
           diff_schema(present(old_params[key]["schema"], {}), present(new_params[key]["schema"], {}), *key,
                       request: true, out: found)
@@ -165,7 +167,7 @@ module DiditCodegen
         new_body = present(new_op["requestBody"], {})
         was = required?(@old, old_body)
         now = required?(@new, new_body)
-        found << change("request body", "", "now required", true, "body now required") if now && !was
+        found << change("request body", "", "now required", "body now required") if now && !was
         found << change("request body", "", "no longer required") if was && !now
         diff_content(content(@old, old_body), content(@new, new_body), "request body", request: true, out: found)
       end
@@ -181,7 +183,9 @@ module DiditCodegen
         media = node.is_a?(Hash) ? node["content"] : nil
         return {} unless media.is_a?(Hash)
 
-        media.each_with_object({}) { |(type, entry), out| out[type] = present(entry["schema"], {}) if entry.is_a?(Hash) }
+        media.each_with_object({}) do |(type, entry), out|
+          out[type] = present(entry["schema"], {}) if entry.is_a?(Hash)
+        end
       end
 
       # The content of each 2xx response, by status.
@@ -231,7 +235,7 @@ module DiditCodegen
         added.each do |status|
           if new[status].empty? && !bodies(old).empty? && !returns_null?(old)
             label = old.key?(status) ? "lost its body" : "has no body"
-            found << change("response", "", "can now be null (status #{status} #{label})", true, "can now be null")
+            found << change("response", "", "can now be null (status #{status} #{label})", "can now be null")
           elsif !old.key?(status)
             other = !new[status].empty? && !bodies(old).include?(shape(new[status], names: true))
             found << change("response", "", "status #{status} added#{" with another body" if other}")
@@ -244,14 +248,14 @@ module DiditCodegen
         what = if new.key?(status) then old[status].empty? ? "now has a body" : "lost its body"
                else "removed"
                end
-        if old[status].empty? && !bodies(new).empty? && !returns_null?(new)
-          found << change("response", "", "can no longer be null (status #{status} #{what})")
-        elsif !old[status].empty? && !bodies(new).include?(shape(old[status], names: true))
-          found << change("response", "", "type changed: status #{status} #{what}, and no other status returns its body",
-                          true, "type #{status_types(old)} -> #{status_types(new)}")
-        else
-          found << change("response", "", "status #{status} #{what}")
-        end
+        found << if old[status].empty? && !bodies(new).empty? && !returns_null?(new)
+                   change("response", "", "can no longer be null (status #{status} #{what})")
+                 elsif !old[status].empty? && !bodies(new).include?(shape(old[status], names: true))
+                   change("response", "", "type changed: status #{status} #{what}, and no other status returns " \
+                                          "its body", "type #{status_types(old)} -> #{status_types(new)}")
+                 else
+                   change("response", "", "status #{status} #{what}")
+                 end
       end
 
       def bodies(responses)
@@ -287,17 +291,20 @@ module DiditCodegen
         nullability(old, new, where, path, request, out)
         old = single(old)
         new = single(new)
-        return if both && type_changed(old, new, where, path, request: request, out: out, depth: depth)
+        return if both && type_changed?(old, new, where, path, request: request, out: out, depth: depth)
 
         enum_changes(old, new, where, path, out)
         fields(old, new, where, path, request: request, out: out, depth: depth)
         PATHS.each do |key, suffix|
           next unless old[key].is_a?(Hash) || new[key].is_a?(Hash)
 
-          diff_schema(mapping(old[key]), mapping(new[key]), where, path + suffix, request: request, out: out, depth: depth + 1)
+          diff_schema(mapping(old[key]), mapping(new[key]), where, path + suffix, request: request, out: out,
+                                                                                  depth: depth + 1)
         end
         diff_variants(old, new, where, path, request: request, out: out, depth: depth, retyped: false)
-        out << change(where, path, "other constraints changed (format, pattern, limits or default)") if out.size == start
+        return unless out.size == start
+
+        out << change(where, path, "other constraints changed (format, pattern, limits or default)")
       end
 
       def shape_of(schema)
@@ -313,14 +320,14 @@ module DiditCodegen
       def nullability(old, new, where, path, request, out)
         if nullable?(new) && !nullable?(old)
           # A request that accepts null only widens what a caller may send.
-          out << change(where, path, "can now be null", !request, "can now be null")
+          out << change(where, path, "can now be null", ("can now be null" unless request))
         elsif nullable?(old) && !nullable?(new)
           out << change(where, path, request ? "no longer accepts null" : "can no longer be null")
         end
       end
 
       # Notes a type change, "any" against a type included; true when there is one.
-      def type_changed(old, new, where, path, request:, out:, depth:)
+      def type_changed?(old, new, where, path, request:, out:, depth:)
         old_kinds = kinds(old)
         new_kinds = kinds(new)
         before = type_names(old, old_kinds)
@@ -328,7 +335,7 @@ module DiditCodegen
         return false if (old_kinds.empty? && new_kinds.empty?) || before == after
 
         code = "type #{type_names(old, old_kinds, "|")} -> #{type_names(new, new_kinds, "|")}"
-        out << change(where, path, "type changed from #{before} to #{after}", true, code)
+        out << change(where, path, "type changed from #{before} to #{after}", code)
         # A union's variants can change too, also when an untyped variant made it "any"; the
         # type change already covers those removed. A schema untyped as a whole has none.
         if (!old_kinds.empty? || !variants(old).empty?) && (!new_kinds.empty? || !variants(new).empty?)
@@ -343,7 +350,7 @@ module DiditCodegen
         if old_enum && new_enum
           (old_enum - new_enum).each do |value|
             kind = "enum value #{dump(value)} removed"
-            out << change(where, path, kind, true, kind)
+            out << change(where, path, kind, kind)
           end
           added = new_enum - old_enum
           out << change(where, path, "enum values added #{dump_list(added)}") unless added.empty?
@@ -368,14 +375,17 @@ module DiditCodegen
         # A union's fields live in its variants (diff_variants).
         return unless (!old_props.empty? && !new_props.empty?) || (variants(old).empty? && variants(new).empty?)
 
-        (old_props.keys - new_props.keys).sort.each { |name| out << change(where, join(path, name), "removed", true, "removed") }
+        (old_props.keys - new_props.keys).sort.each do |name|
+          out << change(where, join(path, name), "removed", "removed")
+        end
         (new_props.keys - old_props.keys).sort.each do |name|
           required = request && new_required.include?(name)
-          out << change(where, join(path, name), required ? "added (required)" : "added", required, "now required")
+          out << change(where, join(path, name), required ? "added (required)" : "added", ("now required" if required))
         end
         (old_props.keys & new_props.keys).sort.each do |name|
           at = join(path, name)
-          next if visibility(old_props[name], new_props[name], where, at, request, new_required.include?(name), out)
+          next if visibility_changed?(old_props[name], new_props[name], where, at, request, new_required.include?(name),
+                                      out)
 
           required_change(old_required.include?(name), new_required.include?(name), where, at, request, out)
           diff_schema(old_props[name], new_props[name], where, at, request: request, out: out, depth: depth + 1)
@@ -388,18 +398,18 @@ module DiditCodegen
 
       def required_change(was, now, where, at, request, out)
         if now && !was
-          out << change(where, at, request ? "now required" : "now always present", request, "now required")
+          out << change(where, at, request ? "now required" : "now always present", ("now required" if request))
         elsif was && !now
           # A response field that may be missing breaks code that reads it.
-          out << change(where, at, request ? "no longer required" : "no longer always present", !request,
-                        "no longer required")
+          out << change(where, at, request ? "no longer required" : "no longer always present",
+                        ("no longer required" unless request))
         end
       end
 
       # The Ruby SDK's own rule: a field that becomes read-only in a request or write-only in a
       # response leaves the generated type (removed), one that stops being one joins it (added).
       # True when the field's visibility changed.
-      def visibility(old_prop, new_prop, where, at, request, required, out)
+      def visibility_changed?(old_prop, new_prop, where, at, request, required, out)
         flag = request ? "readOnly" : "writeOnly"
         was = mapping(old_prop)[flag] == true
         now = mapping(new_prop)[flag] == true
@@ -407,10 +417,10 @@ module DiditCodegen
 
         label = request ? "read-only" : "write-only"
         out << if now
-                 change(where, at, "removed (now #{label})", true, "removed")
+                 change(where, at, "removed (now #{label})", "removed")
                else
                  counted = request && required
-                 change(where, at, "added (#{"required, " if counted}no longer #{label})", counted, "now required")
+                 change(where, at, "added (#{"required, " if counted}no longer #{label})", ("now required" if counted))
                end
         true
       end
@@ -435,7 +445,7 @@ module DiditCodegen
           out << change(where, at, "variant type renamed from #{before} to #{after}") if before != after
         end
         if !removed.empty? && !retyped
-          out << change(where, path, "type changed: #{removed.size} #{keyword} variant(s) removed", true,
+          out << change(where, path, "type changed: #{removed.size} #{keyword} variant(s) removed",
                         "type #{union_names(old_variants)} -> #{union_names(new_variants)}")
         end
         out << change(where, path, "#{added.size} #{keyword} variant(s) added") unless added.empty?

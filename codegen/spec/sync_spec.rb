@@ -729,8 +729,13 @@ RSpec.describe DiditCodegen::Sync do
       expect(commit_message).to include(*nested)
       expect(release).to include(*nested)
       expect(github_output).to eq(["changed=true", "type=feat", "breaking=true", "date=2026-10-18"])
-      # The same changes as openapi/breaking-vectors.json spells them; the decision returns a
-      # Session too.
+      # A type change of a property named like a schema keyword is not "documentation only".
+      expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
+                                            "`SessionRequest` changed (verification.json)\n")
+    end
+
+    it "reports the same changes in the form of openapi/breaking-vectors.json" do
+      # The decision returns a Session too.
       expect(described_class.classify(verification, break_everything(verification))).to eq(
         ["feat(spec)", [
           "GET /v3/session/{sessionId}/decision/ response status: enum value \"In Progress\" removed",
@@ -746,9 +751,6 @@ RSpec.describe DiditCodegen::Sync do
           "POST /v3/session/ response url: removed"
         ]]
       )
-      # A type change of a property named like a schema keyword is not "documentation only".
-      expect(section("Schemas")).to include("`Session` changed (verification.json)\n",
-                                            "`SessionRequest` changed (verification.json)\n")
     end
 
     it "notices documentation-only changes, also of properties named like keywords" do
@@ -858,9 +860,8 @@ RSpec.describe DiditCodegen::Sync do
       expect(read_json("SOURCE.json")["authentication.json"])
         .to eq("url" => "https://docs.didit.me/openapi-authentication.json", "sha256" => sha("authentication.json"),
                "fetched_at" => fetched_at)
-      expect([File.binread(openapi("overlay.json")), File.exist?(openapi("deprecated-operations.json"))])
-        .to eq([overlay_before, false])
-      expect(Dir.glob("{lib,sig,spec}/**/*authentication*", base: root)).to eq([])
+      expect([File.binread(openapi("overlay.json")), File.exist?(openapi("deprecated-operations.json")),
+              Dir.glob("{lib,sig,spec}/**/*authentication*", base: root)]).to eq([overlay_before, false, []])
       follow = "update `lib/didit/authentication.rb` and `spec/authentication/contract_spec.rb` in this pull request"
       expect(summary).to start_with("feat(spec): sync API spec 2026-10-18\n")
       expect(section("Breaking changes")).to include(

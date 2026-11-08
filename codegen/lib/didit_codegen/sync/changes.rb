@@ -65,7 +65,10 @@ module DiditCodegen
       def describe_change(key, old_ref, new_ref, docs_only:, namings:)
         exposed = namings.all? { |naming| naming.nil? || (naming.is_a?(Hash) && naming["server"] == true) }
         name = JsonText.ident(namings.last) || JsonText.ident(namings.first)
-        label = "`#{key}` (#{exposed ? (name ? "`#{name}`" : "no SDK naming") : "not exposed by the server SDKs"})"
+        label = if !exposed then "`#{key}` (not exposed by the server SDKs)"
+                elsif name then "`#{key}` (`#{name}`)"
+                else "`#{key}` (no SDK naming)"
+                end
         changes = Details.new(old_ref.doc, new_ref.doc).operation(old_ref, new_ref)
         if changes.empty?
           what = docs_only ? "documentation only" : "details changed (formats, limits, error responses or similar)"
@@ -115,8 +118,9 @@ module DiditCodegen
         return @report.removed << "`#{key}`: not exposed by the server SDKs" if names.empty?
 
         @report.removed << "`#{key}` (#{code_list(names)}): #{FOLLOW}"
-        @report.count("`#{key}` (#{code_list(names)}) was removed upstream, and #{names.size == 1 ? "its method" : "its methods"} " \
-                      "with it", "#{key}: operation removed")
+        methods = names.size == 1 ? "its method" : "its methods"
+        @report.count("`#{key}` (#{code_list(names)}) was removed upstream, and #{methods} with it",
+                      "#{key}: operation removed")
       end
 
       def hand_written_naming(key, old_ref, new_ref)
@@ -125,9 +129,9 @@ module DiditCodegen
         return if JsonText.normalize(before) == JsonText.normalize(after)
 
         gone = hand_written_methods(old_ref) - hand_written_methods(new_ref)
+        gone = gone.empty? ? "" : "; no longer SDK methods: #{code_list(gone)}"
         @report.naming << "`#{key}`: `x-didit-sdk` changed from `#{JsonText.compact(before)}` to " \
-                          "`#{JsonText.compact(after)}`#{"; no longer SDK methods: #{code_list(gone)}" unless gone.empty?}; " \
-                          "#{FOLLOW}"
+                          "`#{JsonText.compact(after)}`#{gone}; #{FOLLOW}"
       end
 
       # The server method of a hand-written operation and those of its variants.
@@ -188,7 +192,8 @@ module DiditCodegen
         # changed for each of their fields.
         used = @old_docs[file].reachable_schemas(old_server_nodes(file))
         names.sort.each do |n|
-          @report.schemas << "`#{n}` removed (#{file})#{"; the SDK type generated from it goes away" if used.include?(n)}"
+          type = "; the SDK type generated from it goes away" if used.include?(n)
+          @report.schemas << "`#{n}` removed (#{file})#{type}"
         end
       end
 
