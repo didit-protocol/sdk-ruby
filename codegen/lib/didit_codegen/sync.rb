@@ -123,7 +123,7 @@ module DiditCodegen
 end
 
 require_relative "sync/document"
-require_relative "sync/shapes"
+require_relative "sync/schemas"
 require_relative "sync/diff"
 require_relative "sync/freeze"
 require_relative "sync/json_text"
