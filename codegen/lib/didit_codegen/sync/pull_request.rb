@@ -11,15 +11,19 @@ module DiditCodegen
     # of the first sync; "Breaking changes" and the release block gain this sync's entries,
     # and feat wins over chore in the title and the "Release" section, so the description and
     # release-please cover every sync on the branch. This sync's own summary goes into a
-    # comment, which "Later syncs" points to.
+    # comment, which "Later syncs" points to. Every line stays: when the release block no
+    # longer fits the description, it is left out and the sync commits' messages, which hold
+    # the same lines, become the squash commit message.
     #
-    #   ruby codegen/sync_pull_request.rb --previous PR.json --body BODY.md --out DIR
+    #   ruby codegen/sync_pull_request.rb --previous PR.json --body BODY.md --out DIR [--commit-message FILE]
     #
     # PR.json is what `gh pr view --json title,body` prints; BODY.md is the description this
     # sync would have on its own (the summary without its title, the checks and the Release
-    # section). Writes DIR/title.txt, DIR/body.md and DIR/comment.md.
+    # section); FILE is this sync's commit message, read when BODY.md has no release block
+    # because its lines did not fit. Writes DIR/title.txt, DIR/body.md and DIR/comment.md.
     module PullRequest
-      USAGE = "usage: ruby codegen/sync_pull_request.rb --previous PR.json --body BODY.md --out DIR"
+      USAGE = "usage: ruby codegen/sync_pull_request.rb --previous PR.json --body BODY.md --out DIR " \
+              "[--commit-message FILE]"
       OVERRIDE = /^BEGIN_COMMIT_OVERRIDE\n(.*?)\nEND_COMMIT_OVERRIDE$/m
       NESTED = /BEGIN_NESTED_COMMIT\n(.*?)\nEND_NESTED_COMMIT/m
       SYNC_HEADER = /\A(?<type>[a-z]+)\(spec\): sync API spec (?<date>\d{4}-\d{2}-\d{2})\z/
@@ -29,6 +33,12 @@ module DiditCodegen
       INCOMPLETE = "The description had no such list before the sync of "
       CONTINUED = "Release Please reads the block below instead of the commits; later syncs on top of this branch " \
                   "add their lines to it. Keep it when you edit this description, and merge with \"Squash and merge\"."
+      # In a description whose release block was left out because it did not fit.
+      NO_BLOCK = "do not fit this description, so it has no override block"
+      TOO_LONG = "The %<count>d lines for \"#{Report::API_CHANGES_SECTION}\" #{NO_BLOCK} and Release Please reads " \
+                 "the merged commit instead. Merge with \"Squash and merge\" and use the messages of this branch's " \
+                 "sync commits, one after the other, as the commit message: together they hold every line, each as " \
+                 "its own nested commit.".freeze
 
       Result = Struct.new(:title, :body, :comment)
 
@@ -40,8 +50,9 @@ module DiditCodegen
         previous = JSON.parse(File.read(options.fetch(:previous), encoding: "UTF-8"))
         raise InputError, "#{options[:previous]} is not a JSON object." unless previous.is_a?(Hash)
 
+        commit_message = options[:commit_message] && File.read(options[:commit_message], encoding: "UTF-8")
         result = continue(previous["title"].to_s, previous["body"].to_s,
-                          File.read(options.fetch(:body), encoding: "UTF-8"))
+                          File.read(options.fetch(:body), encoding: "UTF-8"), commit_message)
         out = options.fetch(:out)
         FileUtils.mkdir_p(out)
         { "title.txt" => "#{result.title}\n", "body.md" => result.body, "comment.md" => result.comment }
@@ -64,6 +75,9 @@ module DiditCodegen
           end
           o.on("--body FILE", "the description this sync would have on its own") { |v| options[:body] = v }
           o.on("--out DIR", "where to write title.txt, body.md and comment.md") { |v| options[:out] = v }
+          o.on("--commit-message FILE", "this sync's commit message, read when the body has no release block") do |v|
+            options[:commit_message] = v
+          end
         end.parse(argv)
         raise OptionParser::InvalidArgument, "unexpected arguments: #{rest.join(" ")}" unless rest.empty?
 
@@ -74,33 +88,48 @@ module DiditCodegen
       end
 
       # The title, description and comment for this sync's +body+ pushed on top of the open
-      # pull request +previous_title+ / +previous_body+.
+      # pull request +previous_title+ / +previous_body+. +commit_message+ is this sync's commit
+      # message, which holds its release lines when +body+ has no release block.
       #
-      # @raise [InputError] when +body+ has no release block of a spec sync
-      def continue(previous_title, previous_body, body)
+      # @raise [InputError] when neither +body+ nor +commit_message+ has the release lines of a spec sync
+      def continue(previous_title, previous_body, body, commit_message = nil)
         previous_body = previous_body.gsub("\r\n", "\n")
-        this, lines = own_release(body)
+        this, lines = own_release(body, commit_message)
         previous = OVERRIDE.match(previous_body)
         type = merged_type(this[:type], previous, previous_title)
         title = "#{type}(spec): sync API spec #{this[:date]}"
-        text = with_block(previous_body, previous, title, lines, type)
+        # A description whose block did not fit stays without one: the commit messages hold the lines.
+        text = if previous.nil? && previous_body.include?(NO_BLOCK) then previous_body
+               else with_block(previous_body, previous, title, lines, type)
+               end
         Report::RELEASES.each_value { |release| text = text.gsub(release) { Report::RELEASES.fetch(type) } }
         text = breaking_so_far(text, body, this[:date])
         text = later_sync(text, "- #{this[:date]} (`#{this[:type]}(spec)`): its operation and schema changes are " \
                                 "in the comment it added.")
-        Result.new(title, text, comment(body, previous.nil?))
+        Result.new(title, fit(text), comment(body, previous.nil?))
       end
 
-      # The first line of this sync's release block, parsed, and its nested lines.
-      def own_release(body)
+      # The first line of this sync's release block, parsed, and its nested lines: from +body+,
+      # or from +commit_message+ when the block did not fit +body+.
+      def own_release(body, commit_message)
         found = OVERRIDE.match(body)
-        raise InputError, "the pull request text has no release block." if found.nil?
+        raise InputError, "the pull request text has no release block." if found.nil? && commit_message.nil?
 
-        head, rest = found[1].split("\n", 2)
+        head, rest = (found ? found[1] : commit_message).split("\n", 2)
         this = SYNC_HEADER.match(head.to_s)
         raise InputError, "unexpected first line of the release block: #{head.inspect}" if this.nil?
 
         [this, nested(rest.to_s)]
+      end
+
+      # +text+ without its release block when it is longer than Report::MAX_BODY.
+      def fit(text)
+        found = OVERRIDE.match(text)
+        return text if found.nil? || text.length <= Report::MAX_BODY
+
+        note = format(TOO_LONG, count: nested(found[1]).size)
+        text = text[0...found.begin(0)] + note + text[found.end(0)..]
+        [Report::RELEASE_NOTE, CONTINUED].reduce(text) { |out, sentence| out.sub("\n#{sentence}\n", "\n") }
       end
 
       # feat once any sync on the branch needs it. Without a release block nobody recorded

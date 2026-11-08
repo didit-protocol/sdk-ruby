@@ -3,8 +3,12 @@
 module DiditCodegen
   module Sync
     # What happened to each public SDK method (docs/DESIGN.md section 3.1: never delete one
-    # silently). Mixed into Syncer. A method that is added, moved, renamed, deprecated or
-    # deleted is something a caller can observe (Report#observable).
+    # silently). Mixed into Syncer. Counted: an operation removed with its method (kept as a
+    # deprecated method for one minor version, it still goes), an operation that is no longer
+    # a server operation, the changes of a moved operation under its new path, and a deprecated
+    # method deleted after its last version. Listed: an added method, a renamed one (the old name
+    # stays as a deprecated alias), a name that now calls another operation, an auth change and a
+    # lost SDK naming (the generator fails until it is named again).
     module MethodChanges
       private
 
@@ -28,13 +32,13 @@ module DiditCodegen
         if JsonText.normalize(entry) == JsonText.normalize(upstream)
           "`#{key}`: overlay entry deleted, upstream carries the same `x-didit-sdk`"
         else
-          @report.observable = true
           "`#{key}`: overlay entry deleted, upstream `x-didit-sdk` differs and wins: " \
             "`#{JsonText.compact(entry)}` -> `#{JsonText.compact(upstream)}`"
         end
       end
 
-      # Deprecated methods whose remove_in version has shipped are deleted now.
+      # Deprecated methods whose remove_in version has shipped are deleted now. This counts
+      # without a line of openapi/breaking-vectors.json: no upstream change causes it.
       def expire_entries
         @state.entries.keys.sort.each do |name|
           entry = @state.entries[name]
@@ -45,8 +49,7 @@ module DiditCodegen
           since = entry["deprecated_since"] || "an earlier version"
           @report.deprecations_expired << "`#{name}`: deleted; deprecated since #{since} and kept through " \
                                           "version #{remove_in} (the SDK is at #{@version})"
-          @report.breaking << "`#{name}` is deleted: it was deprecated since #{since} and kept through version " \
-                              "#{remove_in}"
+          @report.count("`#{name}` is deleted: it was deprecated since #{since} and kept through version #{remove_in}")
         end
       end
 
@@ -58,7 +61,6 @@ module DiditCodegen
         @new_names.each do |name, key|
           next if @old_names.key?(name)
 
-          @report.observable = true
           if !@old_ops.key?(key)
             @report.added << "`#{key}`: `#{name}`"
           elsif JsonText.ident(old_naming(key)).nil?
@@ -94,36 +96,36 @@ module DiditCodegen
         return if before == after
 
         @report.naming << "`#{key}` (`#{name}`): auth changed from `#{before}` to `#{after}`"
-        @report.breaking << "`#{name}` (`#{key}`): now authenticates with `#{after}` instead of `#{before}`"
       end
 
+      # Its changes count under the new path.
       def moved(name, old_key, new_key)
-        @report.observable = true
         before = @old_ops[old_key]
         after = @new_ops[new_key]
-        notes = Details.new(before.doc, after.doc).operation(before, after)
-        breaking = notes.select(&:last)
+        changes = Details.new(before.doc, after.doc).operation(before, after)
+        breaking = changes.select(&:breaking)
         head = "`#{name}`#{" **breaking**" unless breaking.empty?}: moved from `#{old_key}` to `#{new_key}`"
-        @report.moved << (notes.empty? ? "#{head}; same parameters, request body and response" : nested(head, notes))
-        breaking.map(&:first).each do |text|
-          @report.breaking << "`#{name}` moved from `#{old_key}` to `#{new_key}`: #{text}"
+        @report.moved << if changes.empty? then "#{head}; same parameters, request body and response"
+                         else nested(head, changes)
+                         end
+        breaking.each do |change|
+          count_change(new_key, name, change, prefix: "`#{name}` moved from `#{old_key}` to `#{new_key}`")
         end
       end
 
       def reassigned(name, old_key, new_key)
         now = JsonText.ident(new_naming(old_key))
         rest = now ? "; `#{old_key}` is `#{now}` now" : ""
-        @report.renamed << "`#{name}` **breaking**: now calls `#{new_key}` instead of `#{old_key}`#{rest}"
-        @report.breaking << "`#{name}` now calls `#{new_key}` instead of `#{old_key}`, a different operation " \
-                            "(no deprecated alias is possible: the name is taken)"
+        @report.renamed << "`#{name}` **(review)**: now calls `#{new_key}` instead of `#{old_key}`, a different " \
+                           "operation under the same name (no deprecated alias is possible: the name is taken)#{rest}"
       end
 
       def removed(name, key)
         deprecate(name, key, "removed")
         @report.removed << "`#{key}` (`#{name}`): deprecated, kept through version #{@remove_in} " \
                            "(openapi/#{DEPRECATED_FILE})"
-        @report.breaking << "`#{name}` (`#{key}`) was removed upstream; the method is deprecated and kept " \
-                            "through version #{@remove_in}"
+        @report.count("`#{name}` (`#{key}`) was removed upstream; the method is deprecated and kept through " \
+                      "version #{@remove_in}", "#{key}: operation removed")
       end
 
       # The operation is still upstream, but its server naming changed.
@@ -132,12 +134,11 @@ module DiditCodegen
         if after.nil?
           @report.removed << "`#{key}` (`#{name}`): lost its SDK naming; the generator fails until it is named " \
                              "again (see Action needed)"
-          @report.breaking << "`#{name}` (`#{key}`) has no SDK naming any more"
         elsif after["server"] != true
           @report.removed << "`#{key}` (`#{name}`): no longer a server operation (auth `#{after["auth"]}`); the " \
                              "method is removed now, without a deprecation period"
-          @report.breaking << "`#{name}` (`#{key}`) is removed: the operation now needs `#{after["auth"]}`, and " \
-                              "server SDKs never expose such operations (docs/DESIGN.md section 4)"
+          @report.count("`#{name}` (`#{key}`) is removed: the operation now needs `#{after["auth"]}`, and server " \
+                        "SDKs never expose such operations (docs/DESIGN.md section 4)", "#{key}: operation removed")
         else
           renamed(name, key, JsonText.ident(after))
         end
@@ -147,8 +148,6 @@ module DiditCodegen
         deprecate(name, key, "renamed", replacement)
         @report.renamed << "`#{key}`: `#{name}` renamed to `#{replacement}`; `#{name}` stays as a deprecated " \
                            "alias through version #{@remove_in}"
-        @report.breaking << "`#{name}` was renamed upstream to `#{replacement}` (`#{key}`); the old name is " \
-                            "deprecated and kept through version #{@remove_in}"
       end
 
       # Records +name+ in deprecated-operations.json with a frozen copy of the old operation.
@@ -197,16 +196,15 @@ module DiditCodegen
           key = @new_names[name]
           next if key.nil? || @fresh.include?(name)
 
-          @report.observable = true
           @state.entries.delete(name)
           @report.deprecations_dropped << "`#{name}`: provided again by `#{key}`; its deprecation entry was deleted"
         end
       end
 
-      # "head" with one sub-bullet per note, breaking notes first, at most 20.
-      def nested(head, notes, exposed: true)
-        ordered = notes.partition(&:last).flatten(1)
-        lines = ordered.first(20).map { |text, breaking| "  - #{text}#{" (breaking)" if breaking && exposed}" }
+      # "head" with one sub-bullet per Change, breaking ones first, at most 20.
+      def nested(head, changes)
+        ordered = changes.partition(&:breaking).flatten(1)
+        lines = ordered.first(20).map { |change| "  - #{change.text}#{" (breaking)" if change.breaking}" }
         lines << "  - ... and #{ordered.size - 20} more differences" if ordered.size > 20
         "#{head}\n#{lines.join("\n")}"
       end

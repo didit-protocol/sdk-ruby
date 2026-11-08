@@ -21,25 +21,27 @@ RSpec.describe DiditCodegen::Sync::Report, "#release" do
     }
   end
 
-  # The API change of 2026-11-04 as every server SDK reports it: [operation, field, kind].
+  # The API change of 2026-11-04 as every server SDK reports it, in the form of
+  # openapi/breaking-vectors.json.
   let(:api_change) do
-    decision = "GET /v3/session/{sessionId}/decision/"
-    import_shared = "POST /v3/session/import-shared/"
+    decision = "GET /v3/session/{sessionId}/decision/ response"
+    import_shared = "POST /v3/session/import-shared/ response"
     [
-      [decision, "registry_checks[].company.registry_data", "now-null"],
-      [decision, "registry_checks[].ownership_structure", "now-null"],
-      [decision, "signatures[].confirmation.channel", "now-null"],
-      ["POST /v3/email/risk/", "email.email_intelligence.reason_codes[]", "string->object"],
-      ["POST /v3/email/risk/", "email.enrichment.reason_codes[]", "string->object"],
-      ["POST /v3/kyb/select/", "kyb_registry.registry_data", "now-null"],
-      ["POST /v3/kyb/shareholders/", "kyb_registry.registry_data", "now-null"],
-      ["POST /v3/kyb/ubo/", "kyb_registry.registry_data", "now-null"],
-      ["POST /v3/phone/risk/", "phone.enrichment.reason_codes[]", "string->object"],
-      ["POST /v3/phone/risk/", "phone.phone_intelligence.reason_codes[]", "string->object"],
-      [import_shared, "registry_checks[].company.registry_data", "now-null"],
-      [import_shared, "registry_checks[].ownership_structure", "now-null"],
-      [import_shared, "signatures[].confirmation.channel", "now-null"],
-      ["POST /v3/session/{sessionId}/signatures/{nodeId}/validate/", "signatures[].confirmation.channel", "now-null"]
+      "#{decision} registry_checks[].company.registry_data: can now be null",
+      "#{decision} registry_checks[].ownership_structure: can now be null",
+      "#{decision} signatures[].confirmation.channel: can now be null",
+      "POST /v3/email/risk/ response email.email_intelligence.reason_codes[]: type string -> object",
+      "POST /v3/email/risk/ response email.enrichment.reason_codes[]: type string -> object",
+      "POST /v3/kyb/select/ response kyb_registry.registry_data: can now be null",
+      "POST /v3/kyb/shareholders/ response kyb_registry.registry_data: can now be null",
+      "POST /v3/kyb/ubo/ response kyb_registry.registry_data: can now be null",
+      "POST /v3/phone/risk/ response phone.enrichment.reason_codes[]: type string -> object",
+      "POST /v3/phone/risk/ response phone.phone_intelligence.reason_codes[]: type string -> object",
+      "#{import_shared} registry_checks[].company.registry_data: can now be null",
+      "#{import_shared} registry_checks[].ownership_structure: can now be null",
+      "#{import_shared} signatures[].confirmation.channel: can now be null",
+      "POST /v3/session/{sessionId}/signatures/{nodeId}/validate/ response signatures[].confirmation.channel: " \
+      "can now be null"
     ]
   end
 
@@ -57,19 +59,6 @@ RSpec.describe DiditCodegen::Sync::Report, "#release" do
     end
   end
 
-  # [operation, field, kind] of a breaking change in a changed operation's response.
-  def triple(text)
-    found = text.match(/\A`[^`]+` \(`(?<key>[^`]+)`\): response [\d, ]+ `(?<field>[^`]+)`: (?<what>.+)\z/)
-    raise "unexpected breaking change: #{text}" if found.nil?
-
-    types = found[:what].match(/\Atype changed from (\S+) to (\S+)\z/)
-    kind = if found[:what] == "can now be null" then "now-null"
-           elsif types then "#{types[1]}->#{types[2]}"
-           else found[:what]
-           end
-    [found[:key], found[:field], kind]
-  end
-
   def listed_breaking(summary)
     summary[/^## Breaking changes\n(.*?)^## /m, 1].lines(chomp: true).grep(/\A- /)
   end
@@ -84,14 +73,13 @@ RSpec.describe DiditCodegen::Sync::Report, "#release" do
     it "releases the API change of 2026-11-04 as feat(spec) with exactly its 14 breaking changes" do
       report = sync_pair("2026-11-04")
       expect(report.title).to eq("feat(spec): sync API spec 2026-11-04")
-      expect(report.breaking.map { |text| triple(text) }.sort).to eq(api_change.sort)
+      expect(report.normalized.sort).to eq(api_change.sort)
       expect(report.breaking.size).to eq(14)
       expect(listed_breaking(report.summary)).to eq(report.breaking.map { |text| "- #{text}" })
       expect(report.breaking).to include(
-        "`email.assess_risk` (`POST /v3/email/risk/`): response 200 `email.enrichment.reason_codes[]`: type " \
-        "changed from string to object",
-        "`kyb.list_shareholders` (`POST /v3/kyb/shareholders/`): response 200, 202 `kyb_registry.registry_data`: " \
-        "can now be null"
+        "`email.assess_risk` (`POST /v3/email/risk/`): response `email.enrichment.reason_codes[]`: type changed " \
+        "from string to object",
+        "`kyb.list_shareholders` (`POST /v3/kyb/shareholders/`): response `kyb_registry.registry_data`: can now be null"
       )
     end
 
