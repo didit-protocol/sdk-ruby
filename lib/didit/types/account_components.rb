@@ -116,6 +116,10 @@ module Didit
       field :expires_in, "expires_in", :integer
       field :organization, "organization", "OrganizationSummary"
       field :application, "application", "ApplicationCredentialsSummary"
+      field :v_2fa_required, "2fa_required", :boolean
+      field :temp_token, "temp_token", :string
+      field :has_authenticator, "has_authenticator", :boolean
+      field :has_passkeys, "has_passkeys", :boolean
     end
   end
 end
