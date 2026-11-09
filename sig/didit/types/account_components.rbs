@@ -99,6 +99,10 @@ module Didit
       def expires_in: () -> Integer?
       def organization: () -> Didit::Types::OrganizationSummary?
       def application: () -> Didit::Types::ApplicationCredentialsSummary?
+      def v_2fa_required: () -> bool?
+      def temp_token: () -> String?
+      def has_authenticator: () -> bool?
+      def has_passkeys: () -> bool?
     end
   end
 end
