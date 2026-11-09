@@ -193,8 +193,8 @@ module Didit
       # @param phone [String] Phone number for phone-verification services.
       # @param landline [String] Landline number for phone-verification services.
       # @param email [String] Email address for identity-verification services.
-      # @param country_of_residence [String] ISO 3166-1 alpha-2 country of residence. Used by global
-      #   identity-enrichment services (e.g. `glb_identity_enrichment`) to focus the lookup.
+      # @param country_of_residence [String] ISO 3166-1 alpha-2 country of residence. It was used only by the retired
+      #   global identity-enrichment service (`glb_identity_enrichment`), which Didit no longer offers.
       # @param partial_match_action [String] What a `partial_match` does to `database_validation.status`. Defaults to
       #   `NO_ACTION` (status stays `Approved`, with a warning).
       # @param no_match_action [String] What a `no_match` does to `database_validation.status`. Defaults to `DECLINE`.

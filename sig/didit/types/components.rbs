@@ -8676,6 +8676,7 @@ module Didit
     class SessionDecisionDocumentVerificationsItemsDocumentMetadataOverlayManipulation < Didit::Model
       def detected: () -> bool?
       def analyzed: () -> bool?
+      def analysis_incomplete: () -> bool?
       def signals: () -> Array[String]?
       def manipulated_regions: () -> Array[Didit::Types::SessionDecisionDocumentVerificationsItemsDocumentMetadataOverlayManipulationManipulatedRegions]?
     end
@@ -9689,6 +9690,7 @@ module Didit
     class SessionDecisionPoaVerificationsDocumentMetadataOverlayManipulation < Didit::Model
       def detected: () -> bool?
       def analyzed: () -> bool?
+      def analysis_incomplete: () -> bool?
       def signals: () -> Array[String]?
       def manipulated_regions: () -> Array[Didit::Types::SessionDecisionPoaVerificationsDocumentMetadataOverlayManipulationManipulatedRegions]?
     end

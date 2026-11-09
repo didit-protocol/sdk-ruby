@@ -7121,6 +7121,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "$ref": "#/components/responses/DocumentProcessingBusy"
           }
         },
         "security": [
@@ -9018,6 +9021,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "$ref": "#/components/responses/DocumentProcessingBusy"
           }
         },
         "security": [
@@ -9741,6 +9747,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "$ref": "#/components/responses/DocumentProcessingBusy"
           }
         },
         "x-codeSamples": [
@@ -14709,7 +14718,7 @@
                   },
                   "country_of_residence": {
                     "type": "string",
-                    "description": "ISO 3166-1 alpha-2 country of residence. Used by global identity-enrichment services (e.g. `glb_identity_enrichment`) to focus the lookup.",
+                    "description": "ISO 3166-1 alpha-2 country of residence. It was used only by the retired global identity-enrichment service (`glb_identity_enrichment`), which Didit no longer offers.",
                     "example": "US"
                   },
                   "partial_match_action": {
@@ -15135,7 +15144,7 @@
                   },
                   "country_of_residence": {
                     "type": "string",
-                    "description": "ISO 3166-1 alpha-2 country of residence. Used by global identity-enrichment services (e.g. `glb_identity_enrichment`) to focus the lookup.",
+                    "description": "ISO 3166-1 alpha-2 country of residence. It was used only by the retired global identity-enrichment service (`glb_identity_enrichment`), which Didit no longer offers.",
                     "example": "US"
                   },
                   "partial_match_action": {
@@ -78986,6 +78995,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "$ref": "#/components/responses/DocumentProcessingBusy"
           }
         },
         "security": [
@@ -88365,6 +88377,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "$ref": "#/components/responses/DocumentProcessingBusy"
           }
         },
         "x-codeSamples": [
@@ -111362,6 +111377,10 @@
                           "type": "boolean",
                           "description": "Whether the PDF could be analyzed."
                         },
+                        "analysis_incomplete": {
+                          "type": "boolean",
+                          "description": "Present and true only when the file could not be checked in full. What was checked keeps its findings where it can, and the document raises the unproven text replacement warning."
+                        },
                         "signals": {
                           "type": "array",
                           "items": {
@@ -114278,6 +114297,10 @@
                               "analyzed": {
                                 "type": "boolean",
                                 "description": "Whether the PDF could be analyzed."
+                              },
+                              "analysis_incomplete": {
+                                "type": "boolean",
+                                "description": "Present and true only when the file could not be checked in full. What was checked keeps its findings where it can, and the document raises the unproven text replacement warning."
                               },
                               "signals": {
                                 "type": "array",
@@ -127660,6 +127683,44 @@
                   "code": "insufficient_credits"
                 }
               }
+            }
+          }
+        }
+      },
+      "DocumentProcessingBusy": {
+        "description": "Too many documents are being processed right now, so this upload was not processed: nothing was stored and no attempt was used. Send the same file again after the number of seconds in `Retry-After`. Branch on `code`, not on the message text.",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds to wait before sending the same request again.",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "detail",
+                "code"
+              ],
+              "properties": {
+                "detail": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "document_processing_busy"
+                  ]
+                }
+              }
+            },
+            "example": {
+              "detail": "We are busy processing documents. Please try again in a moment.",
+              "code": "document_processing_busy"
             }
           }
         }
