@@ -189,6 +189,22 @@ module Didit
       VALUES: Array[String]
     end
 
+    module AgentIdentityType
+      API_KEY: String
+      MCP_CONNECTION: String
+      MEMBER_TOKEN: String
+
+      VALUES: Array[String]
+    end
+
+    module AgentTopUpStatus
+      PAID: String
+      OPEN: String
+      DECLINED: String
+
+      VALUES: Array[String]
+    end
+
     module ApplicationAnalyticsWidgetGroupingMode
       DAY: String
       WEEK: String
@@ -369,6 +385,13 @@ module Didit
       DECLINED: String
       IN_REVIEW: String
       EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module BillingTopUpChargeOutcome
+      PAID: String
+      PROCESSING: String
 
       VALUES: Array[String]
     end
@@ -2197,6 +2220,8 @@ module Didit
       IFT: String
       CBR: String
       TFR: String
+      FFR: String
+      PNMR: String
 
       VALUES: Array[String]
     end
@@ -2225,6 +2250,8 @@ module Didit
       IFT: String
       CBR: String
       TFR: String
+      FFR: String
+      PNMR: String
 
       VALUES: Array[String]
     end
@@ -5588,6 +5615,34 @@ module Didit
       def country: () -> String?
     end
 
+    class AgentIdentity < Didit::Model
+      def `type`: () -> String
+      def id: () -> String
+      def label: () -> String
+    end
+
+    class AgentTopUp < Didit::Model
+      def id: () -> String
+      def status: () -> String
+      def credit_amount: () -> String
+      def subtotal: () -> String?
+      def tax: () -> String?
+      def total: () -> String?
+      def currency: () -> String?
+      def card: () -> Didit::Types::AgentTopUpCard?
+      def agent: () -> Didit::Types::AgentIdentity
+      def created_at: () -> Time
+    end
+
+    class AgentTopUpCard < Didit::Model
+      def brand: () -> String
+      def last4: () -> String
+    end
+
+    class AgentTopUpSettings < Didit::Model
+      def enabled: () -> bool
+    end
+
     class ApplicationAnalyticsCountryCount < Didit::Model
       def country: () -> String?
       def country_code: () -> String?
@@ -5977,6 +6032,12 @@ module Didit
       def is_fallback: () -> bool?
       def provider_connection_id: () -> String?
       def requested_scopes: () -> Array[String]?
+    end
+
+    class BillingTopUpCharge < Didit::Model
+      def outcome: () -> String
+      def top_up: () -> Didit::Types::AgentTopUp
+      def detail: () -> String?
     end
 
     class BiometricRetention < Didit::Model

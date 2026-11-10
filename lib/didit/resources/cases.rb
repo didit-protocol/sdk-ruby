@@ -1426,6 +1426,10 @@ module Didit
         #
         # Create a draft FIU report for the case: DRAFT status, auto-populated from the optional template plus the
         # case's subject, linked transactions, and narrative. Validate then finalize to produce the goAML XML and PDF.
+        # FFR (Confirmed Name Match Report, formerly the Funds Freeze Report) and PNMR (Partial Name Match Report) are
+        # activity reports: they report the case's subject, not transactions, so a draft links no transactions by
+        # default and the narrative, reason and action are written from the sanctions matches on the case's AML
+        # screenings.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/regulatory-reports/+
         #
@@ -1436,6 +1440,7 @@ module Didit
         # @param template [String, nil] Report template UUID; its field_config seeds the draft before case-derived
         #   data is merged in.
         # @param transactions [Array<String>, nil] Transactions to attach; defaults to the case's linked transactions.
+        #   For FFR and PNMR reports it defaults to none and none are required.
         # @param rentity_id [String, nil]
         # @param rentity_branch [String, nil]
         # @param submission_code [String]

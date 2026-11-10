@@ -214,6 +214,25 @@ module Didit
       VALUES = [ADMINISTRATIVE_AREA, LOCALITY, THOROUGHFARE, PREMISE, DELIVERY_POINT].freeze
     end
 
+    # `api_key` is a full-access API key, `mcp_connection` is an MCP client signed in with Log in with Didit, and
+    # `member_token` is a member's programmatic token (used by the local MCP server).
+    module AgentIdentityType
+      API_KEY = "api_key"
+      MCP_CONNECTION = "mcp_connection"
+      MEMBER_TOKEN = "member_token"
+
+      VALUES = [API_KEY, MCP_CONNECTION, MEMBER_TOKEN].freeze
+    end
+
+    # `paid`: the card was charged. `open`: the payment is still being confirmed. `declined`: nothing was charged.
+    module AgentTopUpStatus
+      PAID = "paid"
+      OPEN = "open"
+      DECLINED = "declined"
+
+      VALUES = [PAID, OPEN, DECLINED].freeze
+    end
+
     # How the `*_time_series` lists are grouped: `day` for up to 14 days, `week` up to 90, `month` beyond. Measured
     # from the first day with sessions in the range.
     module ApplicationAnalyticsWidgetGroupingMode
@@ -432,6 +451,15 @@ module Didit
       EXPIRED = "Expired"
 
       VALUES = [NOT_FINISHED, APPROVED, DECLINED, IN_REVIEW, EXPIRED].freeze
+    end
+
+    # `paid`: the card was charged and the credit follows within seconds. `processing`: a request with the same
+    # `Idempotency-Key` is still being processed; retry with the same key.
+    module BillingTopUpChargeOutcome
+      PAID = "paid"
+      PROCESSING = "processing"
+
+      VALUES = [PAID, PROCESSING].freeze
     end
 
     # What was blocklisted.
@@ -2635,8 +2663,10 @@ module Didit
       IFT = "IFT"
       CBR = "CBR"
       TFR = "TFR"
+      FFR = "FFR"
+      PNMR = "PNMR"
 
-      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR].freeze
+      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR, FFR, PNMR].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -2666,8 +2696,10 @@ module Didit
       IFT = "IFT"
       CBR = "CBR"
       TFR = "TFR"
+      FFR = "FFR"
+      PNMR = "PNMR"
 
-      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR].freeze
+      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR, FFR, PNMR].freeze
     end
 
     # What kind of activity this entry records. `STATUS_UPDATED` rows come from manual decisions (`PATCH
@@ -6619,6 +6651,39 @@ module Didit
       field :country, "country", :string
     end
 
+    # The agent that made a top-up, derived by Didit from the credential used and never from the request body.
+    class AgentIdentity < Didit::Model
+      field :type, "type", :string
+      field :id, "id", :string
+      field :label, "label", :string
+    end
+
+    # A top-up made with the organization's saved card.
+    class AgentTopUp < Didit::Model
+      field :id, "id", :string
+      field :status, "status", :string
+      field :credit_amount, "credit_amount", :string
+      field :subtotal, "subtotal", :string
+      field :tax, "tax", :string
+      field :total, "total", :string
+      field :currency, "currency", :string
+      field :card, "card", "AgentTopUpCard"
+      field :agent, "agent", "AgentIdentity"
+      field :created_at, "created_at", :datetime
+    end
+
+    # The saved card that was charged.
+    class AgentTopUpCard < Didit::Model
+      field :brand, "brand", :string
+      field :last4, "last4", :string
+    end
+
+    # Whether agents can top up this organization with its saved card. One switch, "Connected AI agents can top up
+    # with your saved card", off by default.
+    class AgentTopUpSettings < Didit::Model
+      field :enabled, "enabled", :boolean
+    end
+
     class ApplicationAnalyticsCountryCount < Didit::Model
       field :country, "country", :string
       field :country_code, "country_code", :string
@@ -7043,6 +7108,13 @@ module Didit
       field :is_fallback, "is_fallback", :boolean
       field :provider_connection_id, "provider_connection_id", :string
       field :requested_scopes, "requested_scopes", [:array, :string]
+    end
+
+    # Result of a top-up charged to the organization's saved card.
+    class BillingTopUpCharge < Didit::Model
+      field :outcome, "outcome", :string
+      field :top_up, "top_up", "AgentTopUp"
+      field :detail, "detail", :string
     end
 
     # When the live biometric data of this session is deleted.

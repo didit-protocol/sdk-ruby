@@ -84,6 +84,8 @@ module Didit
       IFT: String
       CBR: String
       TFR: String
+      FFR: String
+      PNMR: String
 
       VALUES: Array[String]
     end

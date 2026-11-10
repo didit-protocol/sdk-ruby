@@ -12,7 +12,10 @@ RSpec.describe Didit::Resources::Billing do
         "balance": "1234.5600",
         "auto_refill_enabled": true,
         "auto_refill_amount": "500.00",
-        "auto_refill_threshold": "100.00"
+        "auto_refill_threshold": "100.00",
+        "agent_top_up": {
+          "enabled": true
+        }
       }
     JSON
     result = client.billing.retrieve_balance
@@ -38,7 +41,8 @@ RSpec.describe Didit::Resources::Billing do
       }
     JSON
     result = client.billing.top_up(
-      amount_in_dollars: 50
+      amount_in_dollars: 50,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -51,6 +55,7 @@ RSpec.describe Didit::Resources::Billing do
     expect_json_body(request, {
       "amount_in_dollars" => 50
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BillingTopUpResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

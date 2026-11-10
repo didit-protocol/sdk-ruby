@@ -3,11 +3,23 @@
 
 module Didit
   module Types
+    # How the top-up is paid. `checkout` (default) creates a hosted Checkout session and answers `200`. `saved_card`
+    # charges the organization's saved primary card off-session, requires the `Idempotency-Key` header and "Connected
+    # AI agents can top up with your saved card" to be on, and answers `201` or `202`. `success_url` and `cancel_url`
+    # apply to `checkout` only.
+    module BillingTopUpParamsPaymentMethod
+      CHECKOUT = "checkout"
+      SAVED_CARD = "saved_card"
+
+      VALUES = [CHECKOUT, SAVED_CARD].freeze
+    end
+
     class BillingRetrieveBalanceResponse < Didit::Model
       field :balance, "balance", :string
       field :auto_refill_enabled, "auto_refill_enabled", :boolean
       field :auto_refill_amount, "auto_refill_amount", :string
       field :auto_refill_threshold, "auto_refill_threshold", :string
+      field :agent_top_up, "agent_top_up", "AgentTopUpSettings"
     end
 
     class BillingTopUpResponse < Didit::Model

@@ -25,34 +25,76 @@ module Didit
 
       # Top up credits
       #
-      # Add credits via a hosted Stripe Checkout session (**\$50 to \$20,000** per top-up). Top-ups are available on
-      # the Free, Growth and Scale plans, added at face value with no discount or bonus, and last 12 months;
-      # Enterprise annual contracts cannot top up. Redirect the customer to the returned `checkout_session_url`.
+      # Add credits to the organization's balance (**\$50 to \$20,000** per top-up). Top-ups are available on the
+      # Free, Growth and Scale plans, added at face value with no discount or bonus, and last 12 months; Enterprise
+      # annual contracts cannot top up.
+      #
+      # Two payment methods, chosen with `payment_method`:
+      #
+      # - `checkout` (default): creates a hosted Stripe Checkout session. Redirect the customer to the returned
+      #   `checkout_session_url` (`200`).
+      # - `saved_card`: charges the organization's saved primary card off-session, now, at the normal self-serve
+      #   amounts. Send an `Idempotency-Key` header (required for this method). It answers `201` when the card was
+      #   charged, and `202` when a request with the same key is still being processed.
+      #
+      # **Agent top-ups (`saved_card`).** One switch controls them: "Connected AI agents can top up with your saved
+      # card". It is off by default and only a person signed in to the console can turn it on (Billing > Payment
+      # methods), never an API key or an agent. While it is on, agents and API keys can top up with the primary saved
+      # card. When it is off, the request returns `403` `agent_top_up_not_enabled` with a link a person can use to top
+      # up in the console.
+      #
+      # The balance is credited once the payment is confirmed, usually within seconds, and tax is added to the amount
+      # charged when it applies, so `total` can be higher than `credit_amount`. Read `GET /v3/billing/balance/` to
+      # confirm.
+      #
+      # **Idempotency.** Retrying with the same `Idempotency-Key` and the same amount returns the same top-up and
+      # never charges twice. The same key with another amount returns `409` `idempotency_key_conflict`.
+      #
+      # Every error of a `saved_card` request carries a `code` and a `detail`, and most also a `next_step` (read it
+      # only when it is present). When the step needs a person (for example `authentication_required`, where the
+      # card's bank asks the cardholder to approve and nothing is charged), `next_step.url` is a signed link to the
+      # console that opens the Top up dialog with the amount filled in and says which agent asked; nothing is charged
+      # until the person pays. Each top-up is marked with the agent's name in billing history and in the ordinary
+      # receipt email.
       #
       # +POST /v3/billing/top-up/+
       #
       # @param amount_in_dollars [Numeric] Amount to charge, in USD. **Must be from 50 to 20,000.** The balance
-      #   receives the same amount, with no discount or bonus. Tax is added automatically at checkout based on the
-      #   customer's billing address.
-      # @param success_url [String] URL the hosted checkout redirects the customer to after a successful payment.
-      #   Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default host is
-      #   unavailable. Append the literal placeholder `{CHECKOUT_SESSION_ID}` if you want the hosted checkout to
-      #   substitute the session ID.
-      # @param cancel_url [String] URL the hosted checkout redirects the customer to when they abort or close the
-      #   Checkout window. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the default
-      #   host is unavailable.
+      #   receives the same amount, with no discount or bonus. Tax is added automatically, at checkout or to the saved
+      #   card charge, based on the customer's billing address.
+      # @param success_url [String] Checkout only. URL the hosted checkout redirects the customer to after a
+      #   successful payment. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly; the
+      #   default host is unavailable. Append the literal placeholder `{CHECKOUT_SESSION_ID}` if you want the hosted
+      #   checkout to substitute the session ID.
+      # @param cancel_url [String] Checkout only. URL the hosted checkout redirects the customer to when they abort or
+      #   close the Checkout window. Currently defaults to `https://console.didit.me`. Pass a working URL explicitly;
+      #   the default host is unavailable.
+      # @param payment_method [String] How the top-up is paid. `checkout` (default) creates a hosted Checkout session
+      #   and answers `200`. `saved_card` charges the organization's saved primary card off-session, requires the
+      #   `Idempotency-Key` header and "Connected AI agents can top up with your saved card" to be on, and answers `201`
+      #   or `202`. `success_url` and `cancel_url` apply to `checkout` only.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::BillingTopUpResponse]
-      def top_up(amount_in_dollars:, success_url: OMIT, cancel_url: OMIT, request_options: nil)
+      # @return [Didit::Types::BillingTopUpResponse, Didit::Types::BillingTopUpCharge]
+      def top_up(
+        amount_in_dollars:,
+        success_url: OMIT,
+        cancel_url: OMIT,
+        payment_method: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/billing/top-up/",
           body: {
             "amount_in_dollars" => amount_in_dollars,
             "success_url" => success_url,
-            "cancel_url" => cancel_url
+            "cancel_url" => cancel_url,
+            "payment_method" => payment_method
           },
-          response: Types::BillingTopUpResponse,
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: { 200 => Types::BillingTopUpResponse, 201 => Types::BillingTopUpCharge, 202 => Types::BillingTopUpCharge },
           request_options: request_options
         )
       end

@@ -4,7 +4,7 @@ module Didit
   module Resources
     class Billing < Didit::Resource
       def retrieve_balance: (?request_options: Didit::request_options?) -> Didit::Types::BillingRetrieveBalanceResponse
-      def top_up: (amount_in_dollars: Float | Integer, ?success_url: String, ?cancel_url: String, ?request_options: Didit::request_options?) -> Didit::Types::BillingTopUpResponse
+      def top_up: (amount_in_dollars: Float | Integer, ?success_url: String, ?cancel_url: String, ?payment_method: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> (Didit::Types::BillingTopUpResponse | Didit::Types::BillingTopUpCharge)
     end
   end
 end
