@@ -1178,6 +1178,7 @@ module Didit
     autoload :SessionDecisionPhoneVerificationsCarrier, "didit/types/components"
     autoload :SessionDecisionPhoneVerificationsLifecycle, "didit/types/components"
     autoload :SessionDecisionPhoneVerificationsLifecycleDetails, "didit/types/components"
+    autoload :SessionDecisionPhoneVerificationsLifecycleDetailsDeliveryStatus, "didit/types/components"
     autoload :SessionDecisionPhoneVerificationsMatches, "didit/types/components"
     autoload :SessionDecisionPhoneVerificationsMatchesSource, "didit/types/components"
     autoload :SessionDecisionPhoneVerificationsStatus, "didit/types/components"

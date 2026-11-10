@@ -3818,6 +3818,16 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
+    # Send events: how the send ended. `unknown` once no delivery report can still arrive (the verification finished
+    # without one); absent while one can.
+    module SessionDecisionPhoneVerificationsLifecycleDetailsDeliveryStatus
+      DELIVERED = "delivered"
+      UNDELIVERABLE = "undeliverable"
+      UNKNOWN = "unknown"
+
+      VALUES = [DELIVERED, UNDELIVERABLE, UNKNOWN].freeze
+    end
+
     # Where this match came from. `session` means another verification session in your application matched on this
     # value. `list_entry` means the value was hit against an org-managed list (allowlist/blocklist) - see the
     # management API lists overview at `/management-api/lists/overview` for how to manage those lists.
@@ -10921,14 +10931,20 @@ module Didit
       field :fee, "fee", :float
     end
 
-    # Event-specific payload. Send events carry `status`, `reason`, `channel`, `actual_channel`; delivery events carry
-    # `channel`, `status`; code-check events carry `code_tried`, `status`; final status events carry `reason` - or
-    # `null` when there is no reason to report (e.g. `PHONE_VERIFICATION_APPROVED`).
+    # Event-specific payload. Send events carry `status`, `reason`, `channel`, `actual_channel`, `attempt` (the send's
+    # 0-based index, matching the order of the send events) and `delivery_status` (`delivered`, `undeliverable`, or
+    # `unknown` once no report can still arrive; absent while one can); delivery events carry `channel`, `status`,
+    # `attempt` and, on `PHONE_DELIVERY_UNDELIVERABLE`, `reason` (`expired`, `rejected`, `unreachable`, `blocked` or
+    # `unknown` for a message; `unreachable_number`, `no_answer`, `busy` or `undeliverable` for a call - always a
+    # fixed word, never a provider status or error code); code-check events carry `code_tried`, `status`; final status
+    # events carry `reason` - or `null` when there is no reason to report (e.g. `PHONE_VERIFICATION_APPROVED`).
     class SessionDecisionPhoneVerificationsLifecycleDetails < Didit::Model
       field :status, "status", :string
       field :reason, "reason", :string
       field :channel, "channel", :string
       field :actual_channel, "actual_channel", :string
+      field :attempt, "attempt", :integer
+      field :delivery_status, "delivery_status", :string
       field :code_tried, "code_tried", :string
     end
 

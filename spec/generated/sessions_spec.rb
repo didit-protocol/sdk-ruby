@@ -1919,7 +1919,8 @@ RSpec.describe Didit::Resources::Sessions do
                   "status": "Success",
                   "reason": null,
                   "channel": "sms",
-                  "actual_channel": "sms"
+                  "actual_channel": "sms",
+                  "attempt": 0
                 },
                 "fee": 0.1
               },
