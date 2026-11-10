@@ -110,7 +110,9 @@ RSpec.describe Didit::Resources::Phone do
                 "status": "Success",
                 "reason": null,
                 "channel": "whatsapp",
-                "actual_channel": "whatsapp"
+                "actual_channel": "whatsapp",
+                "attempt": 0,
+                "delivery_status": "delivered"
               },
               "fee": 0.0509
             },
@@ -119,7 +121,8 @@ RSpec.describe Didit::Resources::Phone do
               "timestamp": "2026-06-12T01:23:43.118220+00:00",
               "details": {
                 "channel": "whatsapp",
-                "status": "delivered"
+                "status": "delivered",
+                "attempt": 0
               },
               "fee": 0
             },

@@ -3182,6 +3182,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionDecisionPhoneVerificationsLifecycleDetailsDeliveryStatus
+      DELIVERED: String
+      UNDELIVERABLE: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
     module SessionDecisionPhoneVerificationsMatchesSource
       SESSION: String
       LIST_ENTRY: String
@@ -9615,6 +9623,8 @@ module Didit
       def reason: () -> String?
       def channel: () -> String?
       def actual_channel: () -> String?
+      def attempt: () -> Integer?
+      def delivery_status: () -> String?
       def code_tried: () -> String?
     end
 
