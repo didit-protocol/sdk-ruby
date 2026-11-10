@@ -2,11 +2,19 @@
 
 module Didit
   module Types
+    module BillingTopUpParamsPaymentMethod
+      CHECKOUT: String
+      SAVED_CARD: String
+
+      VALUES: Array[String]
+    end
+
     class BillingRetrieveBalanceResponse < Didit::Model
       def balance: () -> String
       def auto_refill_enabled: () -> bool
       def auto_refill_amount: () -> String?
       def auto_refill_threshold: () -> String?
+      def agent_top_up: () -> Didit::Types::AgentTopUpSettings?
     end
 
     class BillingTopUpResponse < Didit::Model
@@ -14,6 +22,6 @@ module Didit
       def checkout_session_url: () -> String
     end
 
-    type billing_top_up_params = { amount_in_dollars: Float | Integer, ?success_url: String, ?cancel_url: String }
+    type billing_top_up_params = { amount_in_dollars: Float | Integer, ?success_url: String, ?cancel_url: String, ?payment_method: String }
   end
 end

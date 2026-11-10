@@ -13,8 +13,10 @@ module Didit
       IFT = "IFT"
       CBR = "CBR"
       TFR = "TFR"
+      FFR = "FFR"
+      PNMR = "PNMR"
 
-      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR].freeze
+      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR, FFR, PNMR].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -35,8 +37,10 @@ module Didit
       IFT = "IFT"
       CBR = "CBR"
       TFR = "TFR"
+      FFR = "FFR"
+      PNMR = "PNMR"
 
-      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR].freeze
+      VALUES = [SAR, STR, CTR, TTR, UTR, IFT, CBR, TFR, FFR, PNMR].freeze
     end
 
     # Known values of an open enum: the API may send others.

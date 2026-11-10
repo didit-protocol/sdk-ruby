@@ -17,6 +17,7 @@ module Didit
       # @param report_type [String] Required unless a template is given; the template's report_type is used otherwise.
       # @param jurisdiction [String] Required unless a template is given.
       # @param transactions [Array<String>, nil] Transactions to attach; defaults to the case's linked transactions.
+      #   For FFR and PNMR reports it defaults to none and none are required.
       # @param rentity_id [String, nil]
       # @param rentity_branch [String, nil]
       # @param submission_code [String]
@@ -122,7 +123,7 @@ module Didit
       # Finalize report
       #
       # Re-validate, then render the goAML XML and PDF and upload both to S3. On SAR/STR/TFR reports, this also moves
-      # the case's transaction alerts from Pending SAR to SAR filed.
+      # the case's transaction alerts from Pending SAR to SAR filed. FFR and PNMR reports do not move alerts.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/finalize/+
       #
@@ -291,8 +292,12 @@ module Didit
       #
       # Check the report against the obligatory goAML header fields (reporting entity ID, submission code, local
       # currency, action taken, submission date), plus at least one attached transaction and a 2-letter jurisdiction,
-      # without generating any files. Also stores the result on the report: validation_errors and validated_at are
-      # updated, and a non-finalized report's status moves to VALIDATED (no errors) or back to DRAFT (errors).
+      # without generating any files. For jurisdiction AE, once those pass, the report's goAML XML is also checked
+      # against the UAE FIU's goAML XML schema and each problem is returned as a field and a message; finalize refuses
+      # a report that fails. FFR and PNMR reports need no attached transaction: they require the case to have a
+      # subject, otherwise validation_errors contains an error with field `subject`. Also stores the result on the
+      # report: validation_errors and validated_at are updated, and a non-finalized report's status moves to VALIDATED
+      # (no errors) or back to DRAFT (errors).
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/validate/+
       #
