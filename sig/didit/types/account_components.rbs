@@ -6,6 +6,7 @@ module Didit
       EU: String
       AU: String
       MX: String
+      AE: String
 
       VALUES: Array[String]
     end

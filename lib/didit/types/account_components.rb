@@ -4,15 +4,16 @@
 module Didit
   module Types
     # Where the application's verification data is stored and processed, chosen when the application is created. `eu`
-    # is the European Union (Ireland), the default. `au` (Australia, Sydney) and `mx` (Mexico) are coming soon: a
-    # request that names them answers 400 `This data location is not available yet.` An organization's Sandbox
-    # application is always in the European Union.
+    # is the European Union (Ireland), the default. `au` (Australia, Sydney), `mx` (Mexico) and `ae` (United Arab
+    # Emirates) are coming soon: a request that names them answers 400 `This data location is not available yet.` An
+    # organization's Sandbox application is always in the European Union.
     module ApplicationDataLocation
       EU = "eu"
       AU = "au"
       MX = "mx"
+      AE = "ae"
 
-      VALUES = [EU, AU, MX].freeze
+      VALUES = [EU, AU, MX, AE].freeze
     end
 
     # `identity` (Identity verification), `transactions` (Transaction monitoring) or `authentication`
