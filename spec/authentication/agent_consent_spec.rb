@@ -72,7 +72,7 @@ module AuthenticationHelper
         issuer.reply(:post, "/agents/consent/", 400, { "detail" => echoed })
         error = error_of do
           auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
-                                                    assertion: assertion)
+                                                  assertion: assertion)
         end
 
         [error.message, error.body.to_s].each do |text|
