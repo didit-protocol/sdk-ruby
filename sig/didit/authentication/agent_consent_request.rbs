@@ -9,6 +9,7 @@ module Didit
       MIN_SECRET_LENGTH: Integer
 
       def self.build: (String challenge, untyped decision, untyped assertion, untyped scopes, ?Hash[Symbol, untyped] extras) -> [Hash[String, untyped], Array[String]]
+      def self.encode_once: (Hash[String, untyped] body) -> Hash[String, untyped]
       def self.checked_assertion: (untyped assertion) -> Hash[untyped, untyped]
       def self.checked_organization_ids: (untyped ids) -> Array[String]
       def self.checked_lifetime: (untyped lifetime) -> Integer

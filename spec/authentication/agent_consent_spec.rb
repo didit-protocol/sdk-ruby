@@ -343,6 +343,19 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           expect(error.headers.to_s.downcase).not_to include("credentialstring")
         end
 
+        it "gives a fixed-message error when a nested serializer raises" do
+          extension = Object.new
+          extension.define_singleton_method(:to_json) { |*| raise "credential-string-0123456789 #{agent_challenge}" }
+          error = error_of do
+            auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                    assertion: { "id" => "x", "ext" => extension })
+          end
+
+          expect(error).to be_a(Didit::ConfigurationError)
+          expect(error.message).to eq("could not encode the agent consent request.")
+          expect(error.cause).to be_nil
+        end
+
         [Errno::ECONNRESET, RuntimeError].each do |raised|
           it "keeps no text or cause of a #{raised} transport failure" do
             credential = 'cred"ential\\string-0123456789'

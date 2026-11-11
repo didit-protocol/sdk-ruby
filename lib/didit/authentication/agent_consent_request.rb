@@ -30,8 +30,22 @@ module Didit
         body["lifetime"] = checked_lifetime(lifetime) unless lifetime.nil?
         # Encoded exactly once: the plain body decoded from these bytes is what is sent, and the secrets are
         # read from it, so a caller's object is never serialized a second time.
-        body = JSON.parse(JSON.generate(body))
+        body = encode_once(body)
         [body, [challenge, *assertion_secrets(body["assertion"])]]
+      end
+
+      # A nested object's serializer may put the challenge or a credential in its error message: any failure
+      # is a fixed-message error with no cause.
+      def self.encode_once(body)
+        encoded = nil
+        begin
+          encoded = JSON.parse(JSON.generate(body))
+        rescue StandardError, SystemStackError
+          encoded = nil
+        end
+        raise ConfigurationError, "could not encode the agent consent request." if encoded.nil?
+
+        encoded
       end
 
       def self.checked_organization_ids(ids)
