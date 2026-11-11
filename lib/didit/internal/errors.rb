@@ -24,32 +24,38 @@ module Didit
       # @param headers [Hash{String => String}] names in lower case
       # @param raw_body [String, nil]
       # @param redact [Array<String, nil>] secrets to replace with "[redacted]" in the message and body
-      # @param structured [Boolean] redact the parsed body, never its raw text (agent consent calls)
       # @return [Didit::APIStatusError]
-      def status_error(status:, headers:, raw_body:, redact: [], structured: false)
-        if structured
-          body = structured_body(raw_body, redact)
-          message = message_for(status, body)
-          # Header values are issuer-controlled too: one that contains a secret is replaced whole.
-          headers = headers.transform_values { |value| Util.redact_structured(value, redact) }
-        else
-          body = Util.redact(parse_body(raw_body), redact)
-          message = Util.redact(message_for(status, body), redact)
-        end
+      def status_error(status:, headers:, raw_body:, redact: [])
+        body = Util.redact(parse_body(raw_body), redact)
+        message = Util.redact(message_for(status, body), redact)
         klass = STATUS_ERRORS.fetch(status) { status >= 500 ? InternalServerError : APIStatusError }
         klass.new(message, status: status, headers: headers, body: body, request_id: Util.request_id(headers))
       end
 
-      # The response body with the secrets redacted structurally, never from its raw text: the parsed JSON
-      # with every string that contains a secret replaced whole, "[redacted]" when the body is not JSON,
-      # `[redacted]` when it is empty.
-      def structured_body(raw_body, secrets)
-        # An empty body is not JSON.
-        return Util::REDACTED if raw_body.nil? || raw_body.empty?
+      # The response of a call whose answer may echo secrets (the agent consent calls), sanitized once on
+      # receipt: status kept; each header whose name contains a secret dropped and the other values redacted;
+      # the body redacted structurally, never from its raw text (the parsed JSON with every string that
+      # contains a secret replaced whole, "[redacted]" when it is not JSON, cut at the size limit or empty).
+      # Every error of these calls is built from this response only.
+      #
+      # @return [Didit::Internal::Transport::Response]
+      def sanitized_response(response, secrets)
+        # @type var headers: Hash[String, String]
+        headers = {}
+        response.headers.each do |name, value|
+          headers[name] = Util.redact_structured(value, secrets) if Util.redact_structured(name, secrets) == name
+        end
+        Transport::Response.new(status: response.status, headers: headers,
+                                body: sanitized_body(response.body.to_s, secrets))
+      end
+
+      # @return [String] the redacted JSON text, or "[redacted]"
+      def sanitized_body(raw_body, secrets)
+        return Util::REDACTED if raw_body.empty?
 
         text = raw_body.dup.force_encoding(Encoding::UTF_8)
         text = text.scrub unless text.valid_encoding?
-        Util.redact_structured(JSON.parse(text), secrets)
+        JSON.generate(Util.redact_structured(JSON.parse(text), secrets))
       rescue JSON::ParserError
         Util::REDACTED
       end

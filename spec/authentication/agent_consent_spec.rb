@@ -298,6 +298,31 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           expect(error.headers.to_s).not_to include(credential)
         end
 
+        it "drops a header named after a secret" do
+          credential = "credential-string-0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, body: '{"error":"invalid_grant"}',
+              headers: { "Content-Type" => "application/json", "X-#{credential}" => credential, "X-Keep" => "fine" } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error.headers["x-keep"]).to eq("fine")
+          expect(error.headers.to_s).not_to include(credential)
+        end
+
+        it "keeps the request id redacted on a malformed 2xx body" do
+          credential = "credential-string-0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 200, body: "not json #{credential}",
+              headers: { "Content-Type" => "text/html", "X-Request-Id" => "req-#{credential}" } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error).to be_a(Didit::APIResponseValidationError)
+          expect(error.request_id).to eq("[redacted]")
+          expect([error.message, error.body.to_s, error.headers.to_s].join).not_to include(credential)
+        end
+
         [Errno::ECONNRESET, RuntimeError].each do |raised|
           it "keeps no text or cause of a #{raised} transport failure" do
             credential = 'cred"ential\\string-0123456789'

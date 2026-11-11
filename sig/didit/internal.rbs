@@ -24,8 +24,9 @@ module Didit
       STATUS_ERRORS: Hash[Integer, singleton(APIStatusError)]
       DETAIL_KEYS: Array[String]
 
-      def self?.status_error: (status: Integer, headers: Hash[String, String], raw_body: String?, ?redact: Array[String?], ?structured: bool) -> APIStatusError
-      def self?.structured_body: (String? raw_body, Array[String?] secrets) -> untyped
+      def self?.status_error: (status: Integer, headers: Hash[String, String], raw_body: String?, ?redact: Array[String?]) -> APIStatusError
+      def self?.sanitized_response: (Transport::Response response, Array[String?] secrets) -> Transport::Response
+      def self?.sanitized_body: (String raw_body, Array[String?] secrets) -> String
       def self?.parse_body: (String? raw_body) -> untyped
       def self?.message_for: (Integer status, untyped body) -> String
       def self?.detail_of: (untyped body) -> String?

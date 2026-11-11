@@ -68,7 +68,9 @@ module Didit
         error_class = APIConnectionError
         begin
           verb = VERBS.fetch(call.http_method)
-          return @transport.execute(verb, call.uri, headers_for(call), body_for(call), @timeout)
+          response = @transport.execute(verb, call.uri, headers_for(call), body_for(call), @timeout)
+          # Sanitized once, on receipt: every error of a consent call is built from this response only.
+          return call.structured ? Internal::Errors.sanitized_response(response, call.secrets) : response
         rescue Internal::Transport::Failure => e
           error_class = e.timeout? ? APITimeoutError : APIConnectionError
         rescue StandardError
@@ -97,8 +99,7 @@ module Didit
         body = response.body.to_s
         unless (200..299).cover?(response.status)
           raise Internal::Errors.status_error(
-            status: response.status, headers: response.headers, raw_body: body, redact: call.secrets,
-            structured: call.structured
+            status: response.status, headers: response.headers, raw_body: body, redact: redactions(call)
           )
         end
         return nil if response.status == 204 || body.empty?
@@ -124,11 +125,7 @@ module Didit
       # @return [Didit::APIResponseValidationError]
       def validation_error(call, response, message)
         body = response.body.to_s
-        shown = if call.structured
-                  Internal::Errors.structured_body(body, call.secrets)
-                else
-                  body.empty? ? nil : Internal::Util.redact(text_of(body), call.secrets)
-                end
+        shown = body.empty? ? nil : Internal::Util.redact(text_of(body), redactions(call))
         APIResponseValidationError.new(
           message, status: response.status, headers: response.headers, body: shown,
                    request_id: Internal::Util.request_id(response.headers)
@@ -136,6 +133,11 @@ module Didit
       end
 
       private
+
+      # A structured call's response is already sanitized, so nothing is replaced again.
+      def redactions(call)
+        call.structured ? [] : call.secrets
+      end
 
       def headers_for(call)
         headers = {

@@ -32,6 +32,7 @@ module Didit
 
       def headers_for: (Call call) -> Hash[String, String]
       def body_for: (Call call) -> String?
+      def redactions: (Call call) -> Array[String]
       def text_of: (String body) -> String
     end
   end
