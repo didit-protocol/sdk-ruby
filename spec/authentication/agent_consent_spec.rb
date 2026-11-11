@@ -340,6 +340,15 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           end
         end
 
+        it "treats a very deeply nested body as not JSON" do
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, headers: { "Content-Type" => "application/json" }, body: ("[" * 10_000) + ("]" * 10_000) }
+          end
+          error = submit_with({ "id" => "short" })
+
+          expect(error.body).to eq("[redacted]")
+        end
+
         it "replaces a non-JSON body with [redacted] on the error" do
           issuer.route(:post, "/agents/consent/") do
             { status: 502, headers: { "Content-Type" => "text/html" },

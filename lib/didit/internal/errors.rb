@@ -56,7 +56,8 @@ module Didit
         text = raw_body.dup.force_encoding(Encoding::UTF_8)
         text = text.scrub unless text.valid_encoding?
         JSON.generate(Util.redact_structured(JSON.parse(text), secrets))
-      rescue JSON::ParserError
+      rescue JSON::ParserError, SystemStackError
+        # Not JSON, or nested past the parser's or the walk's depth limit: not JSON.
         Util::REDACTED
       end
 
