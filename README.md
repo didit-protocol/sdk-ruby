@@ -199,7 +199,7 @@ Webhooks `transaction.created`, `transaction.status.updated` and `travel_rule.st
 
 ## Authentication
 
-Didit Authentication gives your application an OpenID Connect issuer for your users. The `Didit::Authentication` module is for your backend: it verifies the tokens your frontend sends, exchanges codes, refreshes tokens, checks sessions and creates step-up verifications. It never uses the API key.
+Didit Authentication gives your application an OpenID Connect issuer for your users. The `Didit::Authentication` module is for your backend: it verifies the tokens your frontend sends, exchanges codes, refreshes tokens, checks sessions, creates step-up verifications and approves or denies agent access requests. It never uses the API key.
 
 ```ruby
 auth = Didit::Authentication.new("https://acme.auth.didit.me", client_id: ENV["DIDIT_APPLICATION_ID"])
@@ -218,6 +218,10 @@ auth.get_session(access_token)                            # instant revocation c
 auth.revoke_session(access_token)
 step_up = auth.create_step_up(access_token, action: "payout", amount: "250.00", currency: "EUR", return_to: url)
 auth.retrieve_step_up(access_token, step_up.id).approved? # act only on status "approved"
+
+options = auth.create_agent_approval_options(access_token, challenge: agent_challenge).options # WebAuthn options for the browser
+consent = auth.submit_agent_consent(access_token, challenge: agent_challenge, decision: "approve", assertion: assertion)
+consent.approved? ? consent.code : consent.denied?        # the agent request secret (challenge) is never logged
 ```
 
 Discovery and keys are fetched on first use and cached as the issuer's `Cache-Control` says; an unknown key id triggers at most one refetch per minute.

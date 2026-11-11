@@ -13,6 +13,7 @@ require_relative "authentication/jws"
 require_relative "authentication/key_set"
 require_relative "authentication/cache"
 require_relative "authentication/http"
+require_relative "authentication/agent_consent_request"
 
 module Didit
   # Didit Authentication for your backend (docs/DESIGN.md section 10): verify the
@@ -31,7 +32,7 @@ module Didit
   # sends your Didit API key. The discovery document and the issuer's keys are
   # fetched on first use and cached; one instance per process is the intended use
   # and it is thread safe. Requests are never retried.
-  class Authentication
+  class Authentication # rubocop:disable Metrics/ClassLength -- one class holds the whole public surface (DESIGN.md 10)
     DEFAULT_TIMEOUT = 10
     DEFAULT_LEEWAY = 60
     DISCOVERY_PATH = "/.well-known/openid-configuration"
@@ -258,6 +259,42 @@ module Didit
       StepUp.new(send_object(bearer_call("GET", issuer_uri(path), access_token)))
     end
 
+    # Approves or denies a pending agent request for the signed-in person (+POST agents/consent/+).
+    #
+    # +challenge+ is the pending agent request secret: never log it. +decision+ is
+    # "approve" or "deny". When the application requires a human, an approval needs a fresh
+    # +assertion+: the JSON-serialised result of +navigator.credentials.get()+ made with the
+    # options of {#create_agent_approval_options} (a Hash; binary fields base64url encoded),
+    # otherwise the issuer answers HTTP 403 +passkey_required+. A denial needs none.
+    # +scopes+ narrows the requested scopes ("read", "act"); omitted means all of them.
+    # Never retried. Neither outcome carries an access or refresh token.
+    #
+    # @param decision [String, Symbol] "approve" or "deny"
+    # @param assertion [Hash, nil]
+    # @param scopes [Array<String>, nil]
+    # @return [AgentConsent] {AgentConsent#approved?} carries +code+, +redirect_uri+ and +state+;
+    #   {AgentConsent#denied?} carries +status+ "denied"
+    # @raise [Didit::BadRequestError] +invalid_grant+ for an unknown or expired challenge
+    # @raise [Didit::PermissionDeniedError] +passkey_required+ for an approval without a valid assertion
+    def submit_agent_consent(access_token, challenge:, decision:, assertion: nil, scopes: nil)
+      body, secrets = AgentConsentRequest.build(required_text(challenge, "challenge"), decision, assertion, scopes)
+      AgentConsent.new(agent_request(AgentConsentRequest::CONSENT_PATH, access_token, body, secrets))
+    end
+
+    # The WebAuthn request options for approving a pending agent request with a passkey
+    # (+POST agents/consent/passkey/+). Hand +options+ to +navigator.credentials.get()+ in
+    # the person's browser, then pass the JSON-serialised result to {#submit_agent_consent}.
+    # +challenge+ is the pending agent request secret, not the WebAuthn challenge: never
+    # log it. Never retried.
+    #
+    # @return [AgentApprovalOptions]
+    def create_agent_approval_options(access_token, challenge:)
+      challenge = required_text(challenge, "challenge")
+      AgentApprovalOptions.new(
+        agent_request(AgentConsentRequest::OPTIONS_PATH, access_token, { "challenge" => challenge }, [challenge])
+      )
+    end
+
     # The issuer's discovery document, fetched and cached like the keys. For debugging.
     #
     # @return [Hash] frozen
@@ -446,12 +483,16 @@ module Didit
       TokenResponse.new(send_object(call))
     end
 
-    def bearer_call(http_method, uri, access_token, json: nil)
+    def bearer_call(http_method, uri, access_token, json: nil, secrets: [])
       token = required_text(access_token, "access_token")
       # Sent in a header: printable ASCII only, so it can never split or extend the request.
       raise ConfigurationError, "access_token contains invalid characters." if token.b.match?(/[^\x21-\x7e]/n)
 
-      Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token])
+      Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token, *secrets])
+    end
+
+    def agent_request(path, access_token, body, secrets)
+      send_object(bearer_call("POST", issuer_uri(path), access_token, json: body, secrets: secrets))
     end
 
     def send_object(call)
