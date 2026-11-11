@@ -142,7 +142,9 @@ module Didit
         # Set initiate_login_uri to your HTTPS sign-in page on the exact website_url hostname, or an empty string to
         # disable admin-sent sign-in links. Changing website_url also revalidates the saved sign-in URI. Invalid
         # values return 400 with an initiate_login_uri field error; hostname and URI policy failures use
-        # https_url_on_registered_website_required.
+        # https_url_on_registered_website_required. An MCP token (a "Log in with Didit" grant, `token_use` `mcp`) also
+        # needs the `didit:management` scope, which carries the `applications` resource; a grant limited to
+        # `didit:verification` is refused with 403 before anything is created.
         #
         # +POST /organizations/me/{org_id}/applications/+
         #
@@ -201,7 +203,9 @@ module Didit
         #
         # List the organization's applications, 50 per page by default. Use this to discover `app_id` values when
         # recovering credentials from a new machine, then call `GET /organizations/me/{org_id}/applications/{app_id}/`
-        # for the API key. Requires an owner or admin Bearer token.
+        # for the API key. Requires an owner or admin Bearer token. An MCP token (a "Log in with Didit" grant,
+        # `token_use` `mcp`) also needs the `didit:management` scope, which carries the `applications` resource; a
+        # grant limited to `didit:verification` is refused with 403 before any application is listed.
         #
         # +GET /organizations/me/{org_id}/applications/+
         #
@@ -229,7 +233,9 @@ module Didit
         # Get Application Credentials
         #
         # Read one application's full record including `client_id` and `api_key`. Use this to recover a lost
-        # `api_key`.
+        # `api_key`. An MCP token (a "Log in with Didit" grant, `token_use` `mcp`) also needs the `didit:management`
+        # scope, which carries the `applications` resource; a grant limited to `didit:verification` is refused with
+        # 403 before the application is read.
         #
         # +GET /organizations/me/{org_id}/applications/{app_id}/+
         #
@@ -259,7 +265,9 @@ module Didit
         # Set initiate_login_uri to your HTTPS sign-in page on the exact website_url hostname, or an empty string to
         # disable admin-sent sign-in links. Changing website_url also revalidates the saved sign-in URI. Invalid
         # values return 400 with an initiate_login_uri field error; hostname and URI policy failures use
-        # https_url_on_registered_website_required.
+        # https_url_on_registered_website_required. An MCP token (a "Log in with Didit" grant, `token_use` `mcp`) also
+        # needs the `didit:management` scope, which carries the `applications` resource; a grant limited to
+        # `didit:verification` is refused with 403 before anything is changed.
         #
         # +PATCH /organizations/me/{org_id}/applications/{app_id}/+
         #

@@ -426,6 +426,8 @@ module Didit
         # @param evaluation_mode [String]
         # @param scope [Hash] Which transactions the rule applies to. Only these three keys are accepted.
         # @param period_days [Integer]
+        # @param rule_id [String] Optional ID of the rule being edited. Excludes that rule from overlap comparisons;
+        #   does not change the candidate configuration.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleBacktestResult]
         def backtest(
@@ -434,6 +436,7 @@ module Didit
           evaluation_mode: OMIT,
           scope: OMIT,
           period_days: OMIT,
+          rule_id: OMIT,
           request_options: nil
         )
           @client.request(
@@ -444,7 +447,8 @@ module Didit
               "aggregation" => aggregation,
               "evaluation_mode" => evaluation_mode,
               "scope" => scope,
-              "period_days" => period_days
+              "period_days" => period_days,
+              "rule_id" => rule_id
             },
             response: Types::TransactionRuleBacktestResult,
             request_options: request_options
@@ -842,6 +846,34 @@ module Didit
               "files" => files
             },
             response: Types::TravelRuleMessage,
+            request_options: request_options
+          )
+        end
+
+        # List Travel Rule delivery history
+        #
+        # Read the complete delivery history for a transaction, oldest first. Requires transaction read permission.
+        # Unlike the newest 100 entries embedded in detail, this endpoint paginates the full history. See [delivery
+        # history](/management-api/travel-rule/list-deliveries).
+        #
+        # +GET /v3/transactions/{transaction_id}/travel-rule/deliveries/+
+        #
+        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
+        # @param limit [Integer] Entries per page. Defaults to 100 and larger values are capped at 100; a value above
+        #   1,000,000 returns `400`.
+        # @param offset [Integer] Number of entries to skip, up to 1,000,000. A larger value returns `400`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleDeliveryLogEntry>]
+        def list_deliveries(transaction_id, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/transactions/{transaction_id}/travel-rule/deliveries/",
+            path_params: { "transaction_id" => transaction_id },
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleDeliveryLogEntry,
             request_options: request_options
           )
         end

@@ -662,7 +662,10 @@ RSpec.describe Didit::Resources::Transactions do
         "evaluated": 4820,
         "matched": 12,
         "affected_entities": 4,
-        "period_days": 90
+        "period_days": 90,
+        "truncated": false,
+        "overlapping_rules": [],
+        "overlapping_rules_truncated": false
       }
     JSON
     result = client.transactions.rules.backtest(
@@ -1547,6 +1550,20 @@ RSpec.describe Didit::Resources::Transactions do
           ],
           "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
         },
+        "deliveries": [
+          {
+            "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "kind": "SEND",
+            "status": "QUEUED",
+            "rail": "EMAIL",
+            "created_at": "2026-01-02T03:04:05Z",
+            "delivered_at": "2026-01-02T03:04:05Z",
+            "detail_lines": [
+              "detail_lines-value"
+            ]
+          }
+        ],
+        "deliveries_truncated": true,
         "not_required_reason": "below_threshold",
         "proof_state": "not_required"
       }
@@ -1628,6 +1645,46 @@ RSpec.describe Didit::Resources::Transactions do
     expect(result).to be_a(Didit::Types::TravelRuleMessage)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
+  end
+
+  it "transactions.travel_rule.list_deliveries sends GET /v3/transactions/{transaction_id}/travel-rule/deliveries/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "uuid": "11111111-2222-4333-8444-555555555555",
+            "kind": "SEND",
+            "status": "DELIVERED",
+            "rail": "NETWORK",
+            "created_at": "2026-11-01T10:00:00Z",
+            "delivered_at": "2026-11-01T10:00:01Z",
+            "detail_lines": [
+              "Send",
+              "Delivered"
+            ]
+          }
+        ]
+      }
+    JSON
+    result = client.transactions.travel_rule.list_deliveries(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/transactions/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/travel-rule/deliveries/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleDeliveryLogEntry))
+    exercise_readers(result.results)
   end
 
   it "transactions.travel_rule.list_messages sends GET /v3/transactions/{transaction_id}/travel-rule/messages/" do
@@ -1828,6 +1885,20 @@ RSpec.describe Didit::Resources::Transactions do
             ],
             "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
           },
+          "deliveries": [
+            {
+              "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "kind": "SEND",
+              "status": "QUEUED",
+              "rail": "EMAIL",
+              "created_at": "2026-01-02T03:04:05Z",
+              "delivered_at": "2026-01-02T03:04:05Z",
+              "detail_lines": [
+                "example"
+              ]
+            }
+          ],
+          "deliveries_truncated": true,
           "not_required_reason": "below_threshold",
           "proof_state": "not_required"
         }
@@ -2013,6 +2084,20 @@ RSpec.describe Didit::Resources::Transactions do
           ],
           "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
         },
+        "deliveries": [
+          {
+            "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "kind": "SEND",
+            "status": "QUEUED",
+            "rail": "EMAIL",
+            "created_at": "2026-01-02T03:04:05Z",
+            "delivered_at": "2026-01-02T03:04:05Z",
+            "detail_lines": [
+              "detail_lines-value"
+            ]
+          }
+        ],
+        "deliveries_truncated": true,
         "not_required_reason": "below_threshold",
         "proof_state": "not_required"
       }

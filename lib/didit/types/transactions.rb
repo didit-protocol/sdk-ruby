@@ -210,7 +210,7 @@ module Didit
       field :decision_reason_label, "decision_reason_label", :string
       field :assigned_to_name, "assigned_to_name", :string
       field :travel_rule_status, "travel_rule_status", :string
-      field :travel_rule, "travel_rule", "TransactionTravelRule"
+      field :travel_rule, "travel_rule", "TransactionListTravelRule"
     end
 
     class TransactionsListResponseResultsTags < Didit::Model
