@@ -45,6 +45,10 @@ module Didit
     def create_step_up: (String access_token, action: String, ?amount: amount?, ?currency: String?,
                          ?return_to: String?) -> StepUp
     def retrieve_step_up: (String access_token, String step_up_id) -> StepUp
+    def submit_agent_consent: (String access_token, challenge: String, decision: String | Symbol,
+                               ?assertion: Hash[untyped, untyped]?, ?scopes: Array[String]?,
+                               ?organization_ids: Array[String]?, ?lifetime: Integer?) -> AgentConsent
+    def create_agent_approval_options: (String access_token, challenge: String) -> AgentApprovalOptions
     def discovery: () -> Hash[String, untyped]
     def jwks: () -> Hash[String, untyped]
     def close: () -> nil
@@ -67,7 +71,9 @@ module Didit
     def endpoint_uri: (untyped value) -> URI::HTTP?
     def token_request: (Hash[String, String] form, Array[String] secrets) -> TokenResponse
     def bearer_call: (String http_method, URI::Generic uri, untyped access_token,
-                      ?json: Hash[String, untyped]?) -> Http::Call
+                      ?json: Hash[String, untyped]?,
+                      ?secrets: Array[String]) -> Http::Call
+    def agent_request: (String path, String access_token, Hash[String, untyped] body, Array[String] secrets) -> Hash[String, untyped]
     def send_object: (Http::Call call) -> Hash[String, untyped]
     def issuer_uri: (String path) -> URI::Generic
     def required_text: (untyped value, String name) -> String

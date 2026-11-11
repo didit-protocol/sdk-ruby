@@ -171,5 +171,63 @@ module Didit
         status == "approved"
       end
     end
+
+    # +POST agents/consent/+: the outcome of an approval or a denial. The API's answer
+    # has no shared discriminator: an approval carries +code+, +redirect_uri+ and +state+,
+    # a denial only +status+ "denied". It never carries an access or refresh token.
+    # {#inspect} leaves the code out; never log it.
+    class AgentConsent < Model
+      # The single-use agent authorization code (valid 60 seconds), on approval.
+      field :code, "code", :string
+      # The registered redirect URI of the agent request, on approval.
+      field :redirect_uri, "redirect_uri", :string
+      # The state of the agent request, on approval.
+      field :state, "state", :string
+      # "denied", on denial.
+      field :status, "status", :string
+
+      # True when the person approved: the response carries a code.
+      def approved?
+        !code.nil?
+      end
+
+      # True when the person denied: status "denied".
+      def denied?
+        status == "denied"
+      end
+
+      def inspect
+        shown = raw_data.to_h { |key, value| [key, key == "code" && value ? "[redacted]" : value] }
+        "#<#{self.class.name} #{shown.inspect}>"
+      end
+      alias to_s inspect
+    end
+
+    # One passkey the approving person may use, in {AgentWebAuthnOptions#allow_credentials}.
+    class AgentCredentialDescriptor < Model
+      # Base64url credential id.
+      field :id, "id", :string
+      # "public-key"
+      field :type, "type", :string
+    end
+
+    # WebAuthn request options: pass them as +publicKey+ to +navigator.credentials.get()+
+    # after decoding the binary fields.
+    class AgentWebAuthnOptions < Model
+      # Base64url challenge, bound to this approval and valid for less than 300 seconds.
+      field :challenge, "challenge", :string
+      # Sent by the API as +rpId+.
+      field :rp_id, "rpId", :string
+      # Browser timeout in milliseconds.
+      field :timeout, "timeout", :integer
+      # "required"
+      field :user_verification, "userVerification", :string
+      field :allow_credentials, "allowCredentials", [:array, AgentCredentialDescriptor]
+    end
+
+    # +POST agents/consent/passkey/+: the WebAuthn options for approving with a passkey.
+    class AgentApprovalOptions < Model
+      field :options, "options", AgentWebAuthnOptions
+    end
   end
 end

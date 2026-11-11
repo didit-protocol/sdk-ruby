@@ -2821,6 +2821,33 @@ module Didit
       VALUES = [EQUALS, IN, CONTAINS].freeze
     end
 
+    # The session status the scenario settles on.
+    module SandboxScenarioDefaultStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW].freeze
+    end
+
+    # The picker group the scenario is listed under.
+    module SandboxScenarioGroup
+      ID_DOCUMENT = "id_document"
+      SELFIE = "selfie"
+      PHONE_EMAIL = "phone_email"
+      ADDRESS = "address"
+      QUESTIONNAIRE = "questionnaire"
+      DATABASE = "database"
+      AML = "aml"
+      BANK = "bank"
+      LOCATION = "location"
+      SIGNATURE = "signature"
+      COMPANY = "company"
+      OTHER = "other"
+
+      VALUES = [ID_DOCUMENT, SELFIE, PHONE_EMAIL, ADDRESS, QUESTIONNAIRE, DATABASE, AML, BANK, LOCATION, SIGNATURE, COMPANY, OTHER].freeze
+    end
+
     # The session's status before the simulation.
     module SandboxSimulateResponsePreviousStatus
       NOT_STARTED = "Not Started"
@@ -2846,6 +2873,71 @@ module Didit
       ABANDONED = "Abandoned"
 
       VALUES = [APPROVED, DECLINED, IN_REVIEW, EXPIRED, ABANDONED].freeze
+    end
+
+    # The scenario used when no trigger names one.
+    module SandboxTestVaspDefaultScenario
+      ACCEPT = "accept"
+      DECLINE = "decline"
+      NAME_MISMATCH = "name_mismatch"
+      NOT_REACHABLE = "not_reachable"
+      TIMEOUT = "timeout"
+      SELF_HOSTED = "self_hosted"
+
+      VALUES = [ACCEPT, DECLINE, NAME_MISMATCH, NOT_REACHABLE, TIMEOUT, SELF_HOSTED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SandboxTestVaspInboundScenarios
+      ACCEPT = "accept"
+      NAME_MISMATCH = "name_mismatch"
+
+      VALUES = [ACCEPT, NAME_MISMATCH].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SandboxTestVaspRoutes
+      TEST_VASP = "TEST_VASP"
+
+      VALUES = [TEST_VASP].freeze
+    end
+
+    # The rail this scenario answers over. It is always `TEST_VASP`, which runs in process inside Didit.
+    module SandboxTestVaspScenarioRoute
+      TEST_VASP = "TEST_VASP"
+
+      VALUES = [TEST_VASP].freeze
+    end
+
+    # Scenario slug.
+    module SandboxTestVaspScenarioSlug
+      ACCEPT = "accept"
+      DECLINE = "decline"
+      NAME_MISMATCH = "name_mismatch"
+      NOT_REACHABLE = "not_reachable"
+      TIMEOUT = "timeout"
+      SELF_HOSTED = "self_hosted"
+
+      VALUES = [ACCEPT, DECLINE, NAME_MISMATCH, NOT_REACHABLE, TIMEOUT, SELF_HOSTED].freeze
+    end
+
+    # The status the exchange ends at.
+    module SandboxTestVaspScenarioTravelRuleStatus
+      AWAITING_COUNTERPARTY = "AWAITING_COUNTERPARTY"
+      ON_HOLD = "ON_HOLD"
+      COMPLETED = "COMPLETED"
+      FINISHED = "FINISHED"
+      CANCELLED = "CANCELLED"
+      EXPIRED = "EXPIRED"
+      COUNTERPARTY_MISMATCHED_DATA = "COUNTERPARTY_MISMATCHED_DATA"
+      COUNTERPARTY_VASP_NOT_FOUND = "COUNTERPARTY_VASP_NOT_FOUND"
+      COUNTERPARTY_VASP_NOT_REACHABLE = "COUNTERPARTY_VASP_NOT_REACHABLE"
+      UNCONFIRMED_OWNERSHIP = "UNCONFIRMED_OWNERSHIP"
+      COUNTERPARTY_VASP_GENERAL_DECLINE = "COUNTERPARTY_VASP_GENERAL_DECLINE"
+      NOT_ENOUGH_COUNTERPARTY_DATA = "NOT_ENOUGH_COUNTERPARTY_DATA"
+      NOT_APPLICABLE = "NOT_APPLICABLE"
+
+      VALUES = [AWAITING_COUNTERPARTY, ON_HOLD, COMPLETED, FINISHED, CANCELLED, EXPIRED, COUNTERPARTY_MISMATCHED_DATA, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, UNCONFIRMED_OWNERSHIP, COUNTERPARTY_VASP_GENERAL_DECLINE, NOT_ENOUGH_COUNTERPARTY_DATA, NOT_APPLICABLE].freeze
     end
 
     # `BIOMETRIC_CONSENT_DECLINED` when a recorded decline ended the session, otherwise `null`.
@@ -9681,6 +9773,89 @@ module Didit
       field :value, "value", :any
     end
 
+    class SandboxDeliveryConventions < Didit::Model
+      field :email_optin, "email_optin", "SandboxDeliveryConventionsEmailOptin"
+      field :phone_otp_code, "phone_otp_code", "SandboxOtpConvention"
+      field :email_otp_code, "email_otp_code", "SandboxOtpConvention"
+    end
+
+    class SandboxDeliveryConventionsEmailOptin < Didit::Model
+      field :description, "description", :string
+      field :patterns, "patterns", [:array, "SandboxDeliveryConventionsEmailOptinPatterns"]
+    end
+
+    class SandboxDeliveryConventionsEmailOptinPatterns < Didit::Model
+      field :pattern, "pattern", :string
+      field :example, "example", :string
+    end
+
+    class SandboxMagicValue < Didit::Model
+      field :risk, "risk", :string
+      field :feature, "feature", :string
+      field :input_field, "input_field", :string
+      field :magic_value, "magic_value", :string
+      field :description, "description", :string
+    end
+
+    class SandboxOtpConvention < Didit::Model
+      field :description, "description", :string
+      field :value, "value", :string
+    end
+
+    class SandboxRiskCase < Didit::Model
+      field :risk, "risk", :string
+      field :feature, "feature", :string
+      field :status_path, "status_path", :string
+      field :default_status, "default_status", :string
+    end
+
+    class SandboxSampleDocument < Didit::Model
+      field :sandbox_sample, "sandbox_sample", :string
+      field :document_name, "document_name", :string
+      field :is_default, "is_default", :boolean
+      field :first_name, "first_name", :string
+      field :last_name, "last_name", :string
+      field :date_of_birth, "date_of_birth", :string
+      field :gender, "gender", :string
+      field :nationality, "nationality", :string
+      field :id_country, "id_country", :string
+      field :identification_number, "identification_number", :string
+    end
+
+    class SandboxSampleIdentity < Didit::Model
+      field :date_of_birth, "date_of_birth", :string
+      field :date_of_issue, "date_of_issue", :string
+      field :date_of_expiry, "date_of_expiry", :string
+      field :documents, "documents", [:array, "SandboxSampleDocument"]
+    end
+
+    class SandboxScenario < Didit::Model
+      field :slug, "slug", :string
+      field :title, "title", :string
+      field :description, "description", :string
+      field :default_status, "default_status", :string
+      field :steps, "steps", [:array, :string]
+      field :group, "group", :string
+      field :magic_inputs, "magic_inputs", [:map, :string]
+      field :warnings, "warnings", [:array, "SandboxScenarioWarning"]
+    end
+
+    class SandboxScenarioCatalog < Didit::Model
+      field :scenarios, "scenarios", [:array, "SandboxScenario"]
+      field :magic_values, "magic_values", [:array, "SandboxMagicValue"]
+      field :risk_cases, "risk_cases", [:array, "SandboxRiskCase"]
+      field :sample_identity, "sample_identity", "SandboxSampleIdentity"
+      field :delivery_conventions, "delivery_conventions", "SandboxDeliveryConventions"
+      field :travel_rule, "travel_rule", "SandboxTestVasp"
+    end
+
+    class SandboxScenarioWarning < Didit::Model
+      field :risk, "risk", :string
+      field :feature, "feature", :string
+      field :input_field, "input_field", :string
+      field :magic_value, "magic_value", :string
+    end
+
     class SandboxSimulateResponse < Didit::Model
       field :session_id, "session_id", :string
       field :previous_status, "previous_status", :string
@@ -9688,6 +9863,33 @@ module Didit
       field :scenario, "scenario", :string
       field :risk, "risk", :string
       field :send_webhooks, "send_webhooks", :boolean
+    end
+
+    class SandboxTestVasp < Didit::Model
+      field :legal_name, "legal_name", :string
+      field :lei, "lei", :string
+      field :jurisdiction, "jurisdiction", :string
+      field :compliance_email, "compliance_email", :string
+      field :travel_address, "travel_address", :string
+      field :network_codes, "network_codes", [:map, :string]
+      field :routes, "routes", [:array, :string]
+      field :chain, "chain", :string
+      field :timeout_window_seconds, "timeout_window_seconds", :integer
+      field :default_scenario, "default_scenario", :string
+      field :inbound_scenarios, "inbound_scenarios", [:array, :string]
+      field :scenarios, "scenarios", [:array, "SandboxTestVaspScenario"]
+    end
+
+    class SandboxTestVaspScenario < Didit::Model
+      field :slug, "slug", :string
+      field :route, "route", :string
+      field :title, "title", :string
+      field :description, "description", :string
+      field :beneficiary_name, "beneficiary_name", :string
+      field :beneficiary_wallet_address, "beneficiary_wallet_address", :string
+      field :chain, "chain", :string
+      field :travel_rule_status, "travel_rule_status", :string
+      field :answers, "answers", :boolean
     end
 
     class SessionDecision < Didit::Model
@@ -12493,6 +12695,7 @@ module Didit
     class TravelRuleSettingsDetail < Didit::Model
       field :is_enabled, "is_enabled", :boolean
       field :jurisdiction, "jurisdiction", :string
+      field :vasp_jurisdiction, "vasp_jurisdiction", :string
       field :name_matching_strictness, "name_matching_strictness", :string
       field :confirmation_timeout_hours, "confirmation_timeout_hours", :integer
       field :timeout_outcome, "timeout_outcome", :string
@@ -12626,6 +12829,8 @@ module Didit
       field :originator_wallet_type, "originator_wallet_type", :string
       field :beneficiary_wallet_type, "beneficiary_wallet_type", :string
       field :matched_transaction_id, "matched_transaction_id", :string
+      field :scenario, "scenario", :string
+      field :webhooks_count, "webhooks_count", :integer
       field :deadline_at, "deadline_at", :datetime
       field :created_at, "created_at", :datetime
     end

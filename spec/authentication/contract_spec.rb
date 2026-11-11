@@ -16,7 +16,9 @@ module AuthenticationContract
   METHODS = {
     "get_openid_configuration" => :discovery, "get_jwks" => :jwks, "exchange_code" => :exchange_code,
     "refresh" => :refresh, "get_session" => :get_session, "revoke_session" => :revoke_session,
-    "create_step_up" => :create_step_up, "retrieve_step_up" => :retrieve_step_up
+    "create_step_up" => :create_step_up, "retrieve_step_up" => :retrieve_step_up,
+    "submit_agent_consent" => :submit_agent_consent,
+    "create_agent_approval_options" => :create_agent_approval_options
   }.freeze
   # Public methods that call no operation: offline token verification, the configuration
   # readers and connection handling; and the class methods (construction, PKCE, state, nonce).
@@ -35,7 +37,11 @@ module AuthenticationContract
     revoke_session: [[ACCESS_TOKEN], {}, NilClass],
     create_step_up: [[ACCESS_TOKEN], { action: "payout", amount: "900.00", currency: "USD" },
                      Didit::Authentication::StepUp],
-    retrieve_step_up: [[ACCESS_TOKEN, "synthetic-step-up"], {}, Didit::Authentication::StepUp]
+    retrieve_step_up: [[ACCESS_TOKEN, "synthetic-step-up"], {}, Didit::Authentication::StepUp],
+    submit_agent_consent: [[ACCESS_TOKEN], { challenge: "synthetic-agent-challenge", decision: "deny" },
+                           Didit::Authentication::AgentConsent],
+    create_agent_approval_options: [[ACCESS_TOKEN], { challenge: "synthetic-agent-challenge" },
+                                    Didit::Authentication::AgentApprovalOptions]
   }.freeze
 
   module_function
@@ -87,9 +93,22 @@ module AuthenticationContract
 
     examples = media["examples"]
     value = examples.is_a?(Hash) && !examples.empty? ? examples.values.first["value"] : media["example"]
+    value = schema_example(media["schema"]) if value.nil?
     raise "#{status} has no example" if value.nil?
 
     [status.to_i, JSON.generate(value)]
+  end
+
+  # The example of a response schema when the media type has none: a $ref is followed and a
+  # oneOf takes its first member (agents/consent answers with an approval or a denial).
+  def schema_example(schema)
+    return nil unless schema.is_a?(Hash)
+    return schema["example"] if schema.key?("example")
+
+    ref = schema["$ref"]
+    return schema_example(document.dig("components", "schemas", ref.split("/").last)) if ref
+
+    schema_example(schema["oneOf"]&.first)
   end
 
   # [verb, path pattern, status, body] answering every operation of the document.

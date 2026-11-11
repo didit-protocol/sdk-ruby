@@ -38,6 +38,7 @@ module Didit
       def questionnaires: () -> Didit::Resources::Questionnaires
       def regulatory_reports: () -> Didit::Resources::RegulatoryReports
       def report_templates: () -> Didit::Resources::ReportTemplates
+      def sandbox: () -> Didit::Resources::Sandbox
       def sessions: () -> Didit::Resources::Sessions
       def transactions: () -> Didit::Resources::Transactions
       def travel_rule: () -> Didit::Resources::TravelRule

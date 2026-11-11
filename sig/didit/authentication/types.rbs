@@ -110,5 +110,31 @@ module Didit
       def expires_in: () -> Integer?
       def approved?: () -> bool
     end
+
+    class AgentConsent < Didit::Model
+      def code: () -> String?
+      def redirect_uri: () -> String?
+      def state: () -> String?
+      def status: () -> String?
+      def approved?: () -> bool
+      def denied?: () -> bool
+    end
+
+    class AgentCredentialDescriptor < Didit::Model
+      def id: () -> String?
+      def type: () -> String?
+    end
+
+    class AgentWebAuthnOptions < Didit::Model
+      def challenge: () -> String?
+      def rp_id: () -> String?
+      def timeout: () -> Integer?
+      def user_verification: () -> String?
+      def allow_credentials: () -> Array[AgentCredentialDescriptor]?
+    end
+
+    class AgentApprovalOptions < Didit::Model
+      def options: () -> AgentWebAuthnOptions?
+    end
   end
 end

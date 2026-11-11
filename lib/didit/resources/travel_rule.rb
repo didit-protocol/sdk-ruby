@@ -430,6 +430,10 @@ module Didit
       # @param legal_name [String]
       # @param lei [String]
       # @param jurisdiction [String]
+      # @param vasp_jurisdiction [String] Your VASP profile's own jurisdiction, up to 3 characters (for example `GB`
+      #   or `USA`), shown to other Didit customers in the VASP directory. Independent of `jurisdiction`, which sets the
+      #   regulatory regime Didit stamps on your transfers. Send an empty string to clear it; the directory then shows
+      #   `jurisdiction`.
       # @param name_matching_strictness [String] `CONTAINS` accepts one name whose words all appear in the other.
       # @param confirmation_timeout_hours [Integer]
       # @param timeout_outcome [String]
@@ -472,6 +476,7 @@ module Didit
         legal_name: OMIT,
         lei: OMIT,
         jurisdiction: OMIT,
+        vasp_jurisdiction: OMIT,
         name_matching_strictness: OMIT,
         confirmation_timeout_hours: OMIT,
         timeout_outcome: OMIT,
@@ -501,6 +506,7 @@ module Didit
             "legal_name" => legal_name,
             "lei" => lei,
             "jurisdiction" => jurisdiction,
+            "vasp_jurisdiction" => vasp_jurisdiction,
             "name_matching_strictness" => name_matching_strictness,
             "confirmation_timeout_hours" => confirmation_timeout_hours,
             "timeout_outcome" => timeout_outcome,
