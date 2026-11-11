@@ -109,7 +109,7 @@ module Didit
         begin
           JSON.parse(text_of(body))
         rescue JSON::ParserError
-          content_type = response.headers.fetch("content-type", "no content type")
+          content_type = error_response(call, response).headers.fetch("content-type", "no content type")
           raise validation_error(call, response, "Expected a JSON response from #{call.describe}, got #{content_type}.")
         end
       end

@@ -356,6 +356,17 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           expect(error.cause).to be_nil
         end
 
+        it "keeps a secret echoed in Content-Type out of a malformed 2xx message" do
+          credential = "credential-string-0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 200, body: "not json", headers: { "Content-Type" => "text/#{credential}" } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error).to be_a(Didit::APIResponseValidationError)
+          expect(error.message).not_to include(credential)
+        end
+
         [Errno::ECONNRESET, RuntimeError].each do |raised|
           it "keeps no text or cause of a #{raised} transport failure" do
             credential = 'cred"ential\\string-0123456789'
