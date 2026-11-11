@@ -3,6 +3,17 @@
 
 module Didit
   module Types
+    # The application's environment. A `live` application bills every verification session and check created with its
+    # key. A `sandbox` application mocks every check and is never billed, so it is where you test (each sandbox
+    # application can create 500 test sessions every 24 hours). Read this field to pick the application: never infer
+    # the environment from the name.
+    module ApplicationCredentialsSummaryMode
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
     # Where the application's verification data is stored and processed, chosen when the application is created. `eu`
     # is the European Union (Ireland), the default. `au` (Australia, Sydney), `mx` (Mexico) and `ae` (United Arab
     # Emirates) are coming soon: a request that names them answers 400 `This data location is not available yet.` An
@@ -14,6 +25,17 @@ module Didit
       AE = "ae"
 
       VALUES = [EU, AU, MX, AE].freeze
+    end
+
+    # The application's environment. A `live` application bills every verification session and check created with its
+    # key. A `sandbox` application mocks every check and is never billed, so it is where you test (each sandbox
+    # application can create 500 test sessions every 24 hours). Read this field to pick the application: never infer
+    # the environment from the name.
+    module ApplicationMode
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
     end
 
     # `identity` (Identity verification), `transactions` (Transaction monitoring) or `authentication`
@@ -52,6 +74,7 @@ module Didit
       field :created_at, "created_at", :datetime
       field :data_location, "data_location", :string
       field :products, "products", [:array, "ApplicationProduct"]
+      field :mode, "mode", :string
     end
 
     # Minimal application shape returned inline by `POST /programmatic/verify-email/`. Persist the `api_key`
@@ -62,6 +85,7 @@ module Didit
       field :client_id, "client_id", :string
       field :api_key, "api_key", :string
       field :data_location, "data_location", :string
+      field :mode, "mode", :string
     end
 
     # One product of an application and its state. Read-only: the application endpoints return it and ignore it in a
@@ -117,6 +141,7 @@ module Didit
       field :expires_in, "expires_in", :integer
       field :organization, "organization", "OrganizationSummary"
       field :application, "application", "ApplicationCredentialsSummary"
+      field :sandbox_application, "sandbox_application", "ApplicationCredentialsSummary"
       field :v_2fa_required, "2fa_required", :boolean
       field :temp_token, "temp_token", :string
       field :has_authenticator, "has_authenticator", :boolean
