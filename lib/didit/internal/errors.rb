@@ -43,7 +43,10 @@ module Didit
         # @type var headers: Hash[String, String]
         headers = {}
         response.headers.each do |name, value|
-          headers[name] = Util.redact_structured(value, secrets) if Util.redact_structured(name, secrets) == name
+          # Header names are case-insensitive: compare case-folded.
+          next if secrets.any? { |secret| secret && !secret.empty? && name.downcase.include?(secret.downcase) }
+
+          headers[name] = Util.redact_structured(value, secrets)
         end
         Transport::Response.new(status: response.status, headers: headers,
                                 body: sanitized_body(response.body.to_s, secrets))

@@ -69,8 +69,8 @@ module Didit
         begin
           verb = VERBS.fetch(call.http_method)
           response = @transport.execute(verb, call.uri, headers_for(call), body_for(call), @timeout)
-          # Sanitized once, on receipt: every error of a consent call is built from this response only.
-          return call.structured ? Internal::Errors.sanitized_response(response, call.secrets) : response
+          # A successful response reaches the caller unchanged; errors are built from a sanitized copy only.
+          return response
         rescue Internal::Transport::Failure => e
           error_class = e.timeout? ? APITimeoutError : APIConnectionError
         rescue StandardError
@@ -98,6 +98,8 @@ module Didit
       def read(call, response)
         body = response.body.to_s
         unless (200..299).cover?(response.status)
+          response = error_response(call, response)
+          body = response.body.to_s
           raise Internal::Errors.status_error(
             status: response.status, headers: response.headers, raw_body: body, redact: redactions(call)
           )
@@ -124,6 +126,7 @@ module Didit
 
       # @return [Didit::APIResponseValidationError]
       def validation_error(call, response, message)
+        response = error_response(call, response)
         body = response.body.to_s
         shown = body.empty? ? nil : Internal::Util.redact(text_of(body), redactions(call))
         APIResponseValidationError.new(
@@ -133,6 +136,11 @@ module Didit
       end
 
       private
+
+      # The response an error is built from: a sanitized copy for a consent call, else the response.
+      def error_response(call, response)
+        call.structured ? Internal::Errors.sanitized_response(response, call.secrets) : response
+      end
 
       # A structured call's response is already sanitized, so nothing is replaced again.
       def redactions(call)

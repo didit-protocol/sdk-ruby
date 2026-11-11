@@ -323,6 +323,26 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           expect([error.message, error.body.to_s, error.headers.to_s].join).not_to include(credential)
         end
 
+        it "returns a successful approval-options response unchanged" do
+          reply_options = { "options" => { "challenge" => agent_challenge, "rpId" => "acme.auth.didit.me" } }
+          issuer.reply(:post, "/agents/consent/passkey/", 200, reply_options)
+          result = auth.create_agent_approval_options(ACCESS_TOKEN, challenge: agent_challenge)
+
+          expect(result.options.challenge).to eq(agent_challenge)
+        end
+
+        it "matches header names case-insensitively" do
+          credential = "CredentialString-AbCdEf0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, body: '{"error":"invalid_grant"}',
+              headers: { "Content-Type" => "application/json", "X-Echo-#{credential}" => "v", "X-Keep" => "fine" } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error.headers["x-keep"]).to eq("fine")
+          expect(error.headers.to_s.downcase).not_to include("credentialstring")
+        end
+
         [Errno::ECONNRESET, RuntimeError].each do |raised|
           it "keeps no text or cause of a #{raised} transport failure" do
             credential = 'cred"ential\\string-0123456789'
