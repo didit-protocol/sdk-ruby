@@ -2,7 +2,7 @@
 
 require_relative "authentication_helper"
 
-module AuthenticationHelper
+module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
   RSpec.describe Didit::Authentication, "agent consent" do
     include AuthenticationHelper
 
