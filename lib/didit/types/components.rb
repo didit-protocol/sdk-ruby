@@ -881,14 +881,19 @@ module Didit
     # * `business_document` - business_document
     # * `confirm_details` - confirm_details
     # * `review_in_progress` - review_in_progress
+    # * `source_of_funds` - Request a document showing the source of payment funds.
+    # * `purpose_of_payment` - Request a document explaining the payment purpose. Both are available for person and
+    #   business cases.
     module CustomerMessagingPurposeEnum
       IDENTITY_DOCUMENT = "identity_document"
       PROOF_OF_ADDRESS = "proof_of_address"
       BUSINESS_DOCUMENT = "business_document"
       CONFIRM_DETAILS = "confirm_details"
       REVIEW_IN_PROGRESS = "review_in_progress"
+      SOURCE_OF_FUNDS = "source_of_funds"
+      PURPOSE_OF_PAYMENT = "purpose_of_payment"
 
-      VALUES = [IDENTITY_DOCUMENT, PROOF_OF_ADDRESS, BUSINESS_DOCUMENT, CONFIRM_DETAILS, REVIEW_IN_PROGRESS].freeze
+      VALUES = [IDENTITY_DOCUMENT, PROOF_OF_ADDRESS, BUSINESS_DOCUMENT, CONFIRM_DETAILS, REVIEW_IN_PROGRESS, SOURCE_OF_FUNDS, PURPOSE_OF_PAYMENT].freeze
     end
 
     # * `identity_document` - identity_document
@@ -896,14 +901,19 @@ module Didit
     # * `business_document` - business_document
     # * `confirm_details` - confirm_details
     # * `review_in_progress` - review_in_progress
+    # * `source_of_funds` - Request a document showing the source of payment funds.
+    # * `purpose_of_payment` - Request a document explaining the payment purpose. Both are available for person and
+    #   business cases.
     module CustomerMessagingPurposesEnum
       IDENTITY_DOCUMENT = "identity_document"
       PROOF_OF_ADDRESS = "proof_of_address"
       BUSINESS_DOCUMENT = "business_document"
       CONFIRM_DETAILS = "confirm_details"
       REVIEW_IN_PROGRESS = "review_in_progress"
+      SOURCE_OF_FUNDS = "source_of_funds"
+      PURPOSE_OF_PAYMENT = "purpose_of_payment"
 
-      VALUES = [IDENTITY_DOCUMENT, PROOF_OF_ADDRESS, BUSINESS_DOCUMENT, CONFIRM_DETAILS, REVIEW_IN_PROGRESS].freeze
+      VALUES = [IDENTITY_DOCUMENT, PROOF_OF_ADDRESS, BUSINESS_DOCUMENT, CONFIRM_DETAILS, REVIEW_IN_PROGRESS, SOURCE_OF_FUNDS, PURPOSE_OF_PAYMENT].freeze
     end
 
     # * `ISL` - ISL
@@ -4741,6 +4751,27 @@ module Didit
       VALUES = [DIDIT, CUSTOM].freeze
     end
 
+    # Which side of the exchange this transfer is.
+    module TransactionListTravelRuleDirection
+      INBOUND = "INBOUND"
+      OUTBOUND = "OUTBOUND"
+
+      VALUES = [INBOUND, OUTBOUND].freeze
+    end
+
+    # not_required when the transfer is not required; otherwise confirmed or not_confirmed follows
+    # ownership_confirmed. With no verdict, requested means an active outbound ownership widget matches this transfer
+    # and subject; otherwise not_requested. A request is not completed proof.
+    module TransactionListTravelRuleProofState
+      NOT_REQUIRED = "not_required"
+      CONFIRMED = "confirmed"
+      NOT_CONFIRMED = "not_confirmed"
+      REQUESTED = "requested"
+      NOT_REQUESTED = "not_requested"
+
+      VALUES = [NOT_REQUIRED, CONFIRMED, NOT_CONFIRMED, REQUESTED, NOT_REQUESTED].freeze
+    end
+
     # Status after the change.
     module TransactionNoteMetadataNewStatus
       APPROVED = "APPROVED"
@@ -5259,6 +5290,42 @@ module Didit
       POLL = "POLL"
 
       VALUES = [SEND, ANSWER, TXID, CANCEL, POLL].freeze
+    end
+
+    # What the message carries. `SEND`: the transfer's first message to the counterparty (outbound; the rail is chosen
+    # when it is sent). `ANSWER`: your accept or decline, owed to the network that asked (inbound). `TXID`: the
+    # on-chain transaction hash, after you finish the transfer. `CANCEL`: the cancellation, after you cancel it.
+    # `POLL`: a status query to a network that offers one, repeated every 5 minutes while the transfer waits on the
+    # counterparty.
+    module TravelRuleDeliveryLogEntryKind
+      SEND = "SEND"
+      ANSWER = "ANSWER"
+      TXID = "TXID"
+      CANCEL = "CANCEL"
+      POLL = "POLL"
+
+      VALUES = [SEND, ANSWER, TXID, CANCEL, POLL].freeze
+    end
+
+    # Supplier-neutral transport type; null until selected.
+    module TravelRuleDeliveryLogEntryRail
+      EMAIL = "EMAIL"
+      TRP = "TRP"
+      INTERNAL = "INTERNAL"
+      NETWORK = "NETWORK"
+
+      VALUES = [EMAIL, TRP, INTERNAL, NETWORK].freeze
+    end
+
+    # Current delivery status.
+    module TravelRuleDeliveryLogEntryStatus
+      QUEUED = "QUEUED"
+      SENDING = "SENDING"
+      RETRYING = "RETRYING"
+      DELIVERED = "DELIVERED"
+      FAILED = "FAILED"
+
+      VALUES = [QUEUED, SENDING, RETRYING, DELIVERED, FAILED].freeze
     end
 
     # The rail that carries the message. Empty until Didit has chosen one for a first message.
@@ -11804,6 +11871,9 @@ module Didit
       field :id, "id", :string
       field :uuid, "uuid", :string
       field :title, "title", :string
+      field :language, "language", :string
+      field :source_revision, "source_revision", :string
+      field :translation_id, "translation_id", :string
       field :file_name, "file_name", :string
       field :pages, "pages", :integer
       field :size_bytes, "size_bytes", :integer
@@ -12139,6 +12209,50 @@ module Didit
       field :source, "source", :string
     end
 
+    # Travel Rule summary on a transaction list item. Includes latest delivery but omits deliveries and
+    # deliveries_truncated.
+    class TransactionListTravelRule < Didit::Model
+      field :uuid, "uuid", :string
+      field :status, "status", :string
+      field :protocol, "protocol", :string
+      field :required, "required", :boolean
+      field :obligations_count, "obligations_count", :integer
+      field :originator_data, "originator_data", :any
+      field :beneficiary_data, "beneficiary_data", :any
+      field :name_match, "name_match", :any
+      field :data_match, "data_match", "TravelRuleDataMatch"
+      field :mismatched_fields, "mismatched_fields", [:array, :string]
+      field :data_unmasked, "data_unmasked", "TravelRuleDataUnmasked"
+      field :data_masked, "data_masked", :boolean
+      field :metadata, "metadata", :any
+      field :direction, "direction", :string
+      field :rail, "rail", :string
+      field :counterparty_vasp, "counterparty_vasp", "TransactionListTravelRuleCounterpartyVasp"
+      field :delivery, "delivery", "TravelRuleDelivery"
+      field :discovery, "discovery", [:array, "TravelRuleDiscoveryStep"]
+      field :reason, "reason", :string
+      field :next_actions, "next_actions", [:array, "TravelRuleNextAction"]
+      field :chain_details, "chain_details", "TravelRuleChainDetails"
+      field :not_required_reason, "not_required_reason", :string
+      field :proof_state, "proof_state", :string
+    end
+
+    # The counterparty's directory entry, or `null` when the transfer links none.
+    class TransactionListTravelRuleCounterpartyVasp < Didit::Model
+      field :name, "name", :string
+      field :lei, "lei", :string
+      field :dd_score, "dd_score", :integer
+      field :dd_score_breakdown, "dd_score_breakdown", [:map, "TransactionListTravelRuleCounterpartyVaspDdScoreBreakdownValue"]
+      field :dd_assessed_at, "dd_assessed_at", :datetime
+    end
+
+    class TransactionListTravelRuleCounterpartyVaspDdScoreBreakdownValue < Didit::Model
+      field :points, "points", :float
+      field :max, "max", :integer
+      field :reason, "reason", :string
+      field :detail, "detail", :string
+    end
+
     # One note on a monitored transaction's review timeline.
     class TransactionNote < Didit::Model
       field :uuid, "uuid", :string
@@ -12198,6 +12312,9 @@ module Didit
       field :matched, "matched", :integer
       field :affected_entities, "affected_entities", :integer
       field :period_days, "period_days", :integer
+      field :truncated, "truncated", :boolean
+      field :overlapping_rules, "overlapping_rules", [:array, "TransactionRuleOverlap"]
+      field :overlapping_rules_truncated, "overlapping_rules_truncated", :boolean
     end
 
     # A condition reads only the transaction being evaluated - it never filters the aggregation window.
@@ -12264,6 +12381,13 @@ module Didit
       field :is_installed, "is_installed", :boolean
     end
 
+    class TransactionRuleOverlap < Didit::Model
+      field :rule_id, "rule_id", :string
+      field :name, "name", :string
+      field :actions, "actions", [:array, "TransactionRuleAction"]
+      field :overlap_count, "overlap_count", :integer
+    end
+
     # Which transactions the rule applies to. Only these three keys are accepted.
     class TransactionRuleScope < Didit::Model
       field :transaction_types, "transaction_types", [:array, :string]
@@ -12319,11 +12443,8 @@ module Didit
       field :source, "source", :string
     end
 
-    # A transaction's Travel Rule transfer, as `GET /v3/transactions/{transaction_id}/`, the `201` of `POST
-    # /v3/transactions/` and each row of `GET /v3/transactions/` return it. `direction`, `rail`, `counterparty_vasp`,
-    # `delivery`, `discovery`, `reason` and `next_actions` have the same shape as on `PATCH
-    # /v3/transactions/{transaction_id}/travel-rule/`, so one read of a transaction says why its transfer is stuck and
-    # what moves it on.
+    # Travel Rule transfer on transaction detail and creation responses. Includes latest delivery and bounded delivery
+    # history. Transaction lists omit the history fields.
     class TransactionTravelRule < Didit::Model
       field :uuid, "uuid", :string
       field :status, "status", :string
@@ -12346,6 +12467,8 @@ module Didit
       field :reason, "reason", :string
       field :next_actions, "next_actions", [:array, "TravelRuleNextAction"]
       field :chain_details, "chain_details", "TravelRuleChainDetails"
+      field :deliveries, "deliveries", [:array, "TravelRuleDeliveryLogEntry"]
+      field :deliveries_truncated, "deliveries_truncated", :boolean
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
     end
@@ -12526,6 +12649,24 @@ module Didit
       field :last_error, "last_error", :string
       field :next_attempt_at, "next_attempt_at", :datetime
       field :delivered_at, "delivered_at", :datetime
+    end
+
+    # One supplier-neutral entry in the delivery history.
+    class TravelRuleDeliveryLogEntry < Didit::Model
+      field :uuid, "uuid", :string
+      field :kind, "kind", :string
+      field :status, "status", :string
+      field :rail, "rail", :string
+      field :created_at, "created_at", :datetime
+      field :delivered_at, "delivered_at", :datetime
+      field :detail_lines, "detail_lines", [:array, :string]
+    end
+
+    class TravelRuleDeliveryLogPage < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleDeliveryLogEntry"]
     end
 
     # One step of the counterparty discovery Didit ran for an outbound transfer, in the order it ran them. The first
@@ -12828,6 +12969,8 @@ module Didit
       field :reason, "reason", :string
       field :next_actions, "next_actions", [:array, "TravelRuleNextAction"]
       field :chain_details, "chain_details", "TravelRuleChainDetails"
+      field :deliveries, "deliveries", [:array, "TravelRuleDeliveryLogEntry"]
+      field :deliveries_truncated, "deliveries_truncated", :boolean
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
     end

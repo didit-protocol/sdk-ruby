@@ -753,6 +753,8 @@ module Didit
       BUSINESS_DOCUMENT: String
       CONFIRM_DETAILS: String
       REVIEW_IN_PROGRESS: String
+      SOURCE_OF_FUNDS: String
+      PURPOSE_OF_PAYMENT: String
 
       VALUES: Array[String]
     end
@@ -763,6 +765,8 @@ module Didit
       BUSINESS_DOCUMENT: String
       CONFIRM_DETAILS: String
       REVIEW_IN_PROGRESS: String
+      SOURCE_OF_FUNDS: String
+      PURPOSE_OF_PAYMENT: String
 
       VALUES: Array[String]
     end
@@ -3977,6 +3981,23 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TransactionListTravelRuleDirection
+      INBOUND: String
+      OUTBOUND: String
+
+      VALUES: Array[String]
+    end
+
+    module TransactionListTravelRuleProofState
+      NOT_REQUIRED: String
+      CONFIRMED: String
+      NOT_CONFIRMED: String
+      REQUESTED: String
+      NOT_REQUESTED: String
+
+      VALUES: Array[String]
+    end
+
     module TransactionNoteMetadataNewStatus
       APPROVED: String
       IN_REVIEW: String
@@ -4411,6 +4432,35 @@ module Didit
       TXID: String
       CANCEL: String
       POLL: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleDeliveryLogEntryKind
+      SEND: String
+      ANSWER: String
+      TXID: String
+      CANCEL: String
+      POLL: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleDeliveryLogEntryRail
+      EMAIL: String
+      TRP: String
+      INTERNAL: String
+      NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleDeliveryLogEntryStatus
+      QUEUED: String
+      SENDING: String
+      RETRYING: String
+      DELIVERED: String
+      FAILED: String
 
       VALUES: Array[String]
     end
@@ -10429,6 +10479,9 @@ module Didit
       def id: () -> String?
       def uuid: () -> String?
       def title: () -> String?
+      def language: () -> String?
+      def source_revision: () -> String?
+      def translation_id: () -> String?
       def file_name: () -> String?
       def pages: () -> Integer?
       def size_bytes: () -> Integer?
@@ -10737,6 +10790,47 @@ module Didit
       def source: () -> String?
     end
 
+    class TransactionListTravelRule < Didit::Model
+      def uuid: () -> String?
+      def status: () -> String?
+      def protocol: () -> String?
+      def required: () -> bool?
+      def obligations_count: () -> Integer?
+      def originator_data: () -> Hash[String, untyped]?
+      def beneficiary_data: () -> Hash[String, untyped]?
+      def name_match: () -> Hash[String, untyped]?
+      def data_match: () -> Didit::Types::TravelRuleDataMatch?
+      def mismatched_fields: () -> Array[String]?
+      def data_unmasked: () -> Didit::Types::TravelRuleDataUnmasked?
+      def data_masked: () -> bool?
+      def metadata: () -> Hash[String, untyped]?
+      def direction: () -> String?
+      def rail: () -> String?
+      def counterparty_vasp: () -> Didit::Types::TransactionListTravelRuleCounterpartyVasp?
+      def delivery: () -> Didit::Types::TravelRuleDelivery?
+      def discovery: () -> Array[Didit::Types::TravelRuleDiscoveryStep]?
+      def reason: () -> String?
+      def next_actions: () -> Array[Didit::Types::TravelRuleNextAction]?
+      def chain_details: () -> Didit::Types::TravelRuleChainDetails?
+      def not_required_reason: () -> String?
+      def proof_state: () -> String?
+    end
+
+    class TransactionListTravelRuleCounterpartyVasp < Didit::Model
+      def name: () -> String?
+      def lei: () -> String?
+      def dd_score: () -> Integer?
+      def dd_score_breakdown: () -> Hash[String, Didit::Types::TransactionListTravelRuleCounterpartyVaspDdScoreBreakdownValue]?
+      def dd_assessed_at: () -> Time?
+    end
+
+    class TransactionListTravelRuleCounterpartyVaspDdScoreBreakdownValue < Didit::Model
+      def points: () -> Float?
+      def max: () -> Integer?
+      def reason: () -> String?
+      def detail: () -> String?
+    end
+
     class TransactionNote < Didit::Model
       def uuid: () -> String
       def note: () -> String
@@ -10781,10 +10875,13 @@ module Didit
     end
 
     class TransactionRuleBacktestResult < Didit::Model
-      def evaluated: () -> Integer?
-      def matched: () -> Integer?
-      def affected_entities: () -> Integer?
-      def period_days: () -> Integer?
+      def evaluated: () -> Integer
+      def matched: () -> Integer
+      def affected_entities: () -> Integer
+      def period_days: () -> Integer
+      def truncated: () -> bool
+      def overlapping_rules: () -> Array[Didit::Types::TransactionRuleOverlap]
+      def overlapping_rules_truncated: () -> bool
     end
 
     class TransactionRuleCondition < Didit::Model
@@ -10848,6 +10945,13 @@ module Didit
       def industries: () -> Array[String]?
       def source: () -> String?
       def is_installed: () -> bool?
+    end
+
+    class TransactionRuleOverlap < Didit::Model
+      def rule_id: () -> String
+      def name: () -> String
+      def actions: () -> Array[Didit::Types::TransactionRuleAction]
+      def overlap_count: () -> Integer
     end
 
     class TransactionRuleScope < Didit::Model
@@ -10924,6 +11028,8 @@ module Didit
       def reason: () -> String?
       def next_actions: () -> Array[Didit::Types::TravelRuleNextAction]?
       def chain_details: () -> Didit::Types::TravelRuleChainDetails?
+      def deliveries: () -> Array[Didit::Types::TravelRuleDeliveryLogEntry]?
+      def deliveries_truncated: () -> bool?
       def not_required_reason: () -> String?
       def proof_state: () -> String?
     end
@@ -11070,6 +11176,23 @@ module Didit
       def last_error: () -> String
       def next_attempt_at: () -> Time?
       def delivered_at: () -> Time?
+    end
+
+    class TravelRuleDeliveryLogEntry < Didit::Model
+      def uuid: () -> String
+      def kind: () -> String
+      def status: () -> String
+      def rail: () -> String?
+      def created_at: () -> Time
+      def delivered_at: () -> Time?
+      def detail_lines: () -> Array[String]
+    end
+
+    class TravelRuleDeliveryLogPage < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::TravelRuleDeliveryLogEntry]
     end
 
     class TravelRuleDiscoveryStep < Didit::Model
@@ -11337,6 +11460,8 @@ module Didit
       def reason: () -> String?
       def next_actions: () -> Array[Didit::Types::TravelRuleNextAction]?
       def chain_details: () -> Didit::Types::TravelRuleChainDetails?
+      def deliveries: () -> Array[Didit::Types::TravelRuleDeliveryLogEntry]?
+      def deliveries_truncated: () -> bool?
       def not_required_reason: () -> String?
       def proof_state: () -> String?
     end

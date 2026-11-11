@@ -1569,9 +1569,13 @@ module Didit
         # @param contact_id [String]
         # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address *
         #   `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` -
-        #   review_in_progress
+        #   review_in_progress * `source_of_funds` - Request a document showing the source of payment funds. *
+        #   `purpose_of_payment` - Request a document explaining the payment purpose. Both are available for person and
+        #   busin...
         # @param request_id [String]
-        # @param expires_at [Time, String]
+        # @param expires_at [Time, String] Use the expiry covered by the preview token. Source-of-funds and
+        #   purpose-of-payment requests allow up to 14 days; other purposes allow up to seven days. The default remains
+        #   seven days. Changing the expiry without a matching preview is rejected.
         # @param preview_token [String]
         # @param language [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -1638,7 +1642,9 @@ module Didit
         # @param contact_id [String]
         # @param purpose [String] * `identity_document` - identity_document * `proof_of_address` - proof_of_address *
         #   `business_document` - business_document * `confirm_details` - confirm_details * `review_in_progress` -
-        #   review_in_progress
+        #   review_in_progress * `source_of_funds` - Request a document showing the source of payment funds. *
+        #   `purpose_of_payment` - Request a document explaining the payment purpose. Both are available for person and
+        #   busin...
         # @param language [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequestPreviewResponse]

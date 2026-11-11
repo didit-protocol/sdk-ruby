@@ -182,7 +182,7 @@ module Didit
       def decision_reason_label: () -> String?
       def assigned_to_name: () -> String?
       def travel_rule_status: () -> String?
-      def travel_rule: () -> Didit::Types::TransactionTravelRule?
+      def travel_rule: () -> Didit::Types::TransactionListTravelRule?
     end
 
     class TransactionsListResponseResultsTags < Didit::Model
@@ -252,7 +252,7 @@ module Didit
 
     type transactions_notes_create_params = { note: String, ?mentioned_emails: Array[String] }
 
-    type transactions_rules_backtest_params = { ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?period_days: Integer }
+    type transactions_rules_backtest_params = { ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?period_days: Integer, ?rule_id: String }
 
     type transactions_rules_create_params = { title: String, ?description: String?, category: String, mode: String, ?evaluation_mode: String, ?scope: Didit::Types::transaction_rule_scope, ?conditions: Array[Didit::Types::transaction_rule_condition], ?aggregation: Array[Didit::Types::transaction_rule_aggregation], ?actions: Array[(Didit::Types::transaction_rule_action_add_score | Didit::Types::transaction_rule_action_change_status | Didit::Types::transaction_rule_action_add_tags | Didit::Types::transaction_rule_action_add_note | Didit::Types::transaction_rule_action_add_to_list | Didit::Types::transaction_rule_action_open_case)], ?metadata: Hash[String | Symbol, untyped] }
 

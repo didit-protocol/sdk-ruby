@@ -425,6 +425,20 @@ RSpec.describe Didit::Resources::TravelRule do
             ],
             "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
           },
+          "deliveries": [
+            {
+              "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "kind": "SEND",
+              "status": "QUEUED",
+              "rail": "EMAIL",
+              "created_at": "2026-01-02T03:04:05Z",
+              "delivered_at": "2026-01-02T03:04:05Z",
+              "detail_lines": [
+                "example"
+              ]
+            }
+          ],
+          "deliveries_truncated": true,
           "not_required_reason": "below_threshold",
           "proof_state": "not_required"
         }
