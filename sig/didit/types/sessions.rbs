@@ -1800,7 +1800,7 @@ module Didit
 
     type sessions_update_poa_data_params_poa_parsed_address = { ?address_type: String?, ?city: String?, ?region: String?, ?street_1: String?, ?street_2: String?, ?postal_code: String?, ?country: String? }
 
-    type sessions_update_status_params = { new_status: String, ?comment: String, ?nodes_to_resubmit: Array[Didit::Types::sessions_update_status_params_nodes_to_resubmit], ?send_email: bool, ?email_address: String, ?email_language: String, ?email_preview_token: String }
+    type sessions_update_status_params = { new_status: String, ?comment: String, ?nodes_to_resubmit: Array[Didit::Types::sessions_update_status_params_nodes_to_resubmit], ?send_email: bool, ?email_address: String, ?email_language: String, ?email_preview_token: String, ?link_to_session_id: String, ?link_reason: String }
 
     type sessions_update_status_params_nodes_to_resubmit = { node_id: String, feature: String }
 

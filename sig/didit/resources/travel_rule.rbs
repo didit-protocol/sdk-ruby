@@ -22,7 +22,7 @@ module Didit
       def screen_vasp: (String vasp_id, ?refresh: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningResult
       def send_compliance_email_confirmation: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse
       def send_vasp_questionnaire: (String vasp_id, ?sent_to: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaire
-      def update_settings: (?is_enabled: bool, ?legal_name: String, ?lei: String, ?jurisdiction: String, ?vasp_jurisdiction: String, ?name_matching_strictness: String, ?confirmation_timeout_hours: Integer, ?timeout_outcome: String, ?compliance_email: String, ?is_discoverable: bool, ?threshold_amount: String, ?ownership_validation_mode: String, ?simplified_validation_threshold: String, ?data_sharing_fields: Didit::Types::travel_rule_data_sharing_fields, ?matching_rules: Didit::Types::travel_rule_matching_rules, ?inbound_auto_accept: bool, ?allow_self_declaration: bool, ?allow_screenshot_proof: bool, ?auto_wallet_verification: bool, ?vasp_attribution_enabled: bool, ?counterparty_screening_enabled: bool, ?sunrise_policy: String, ?non_responsive_policy: String, ?disabled_networks: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
+      def update_settings: (?is_enabled: bool, ?legal_name: String, ?lei: String, ?jurisdiction: String, ?vasp_jurisdiction: String, ?name_matching_strictness: String, ?confirmation_timeout_hours: Integer, ?timeout_outcome: String, ?compliance_email: String, ?is_discoverable: bool, ?threshold_amount: String, ?ownership_validation_mode: String, ?simplified_validation_threshold: String, ?data_sharing_fields: Didit::Types::travel_rule_data_sharing_fields, ?matching_rules: Didit::Types::travel_rule_matching_rules, ?inbound_auto_accept: bool, ?allow_self_declaration: bool, ?allow_screenshot_proof: bool, ?auto_wallet_verification: bool, ?vasp_attribution_enabled: bool, ?counterparty_screening_enabled: bool, ?sunrise_policy: String, ?non_responsive_policy: String, ?disabled_networks: Array[String], ?licence: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
       def update_vasp_decision: (String vasp_id, decision: String, ?reason: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       class CounterpartyContacts < Didit::Resource
         def create: (counterparty: String, email: String, ?name: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyContact
@@ -55,7 +55,7 @@ module Didit
         def list: (?status: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletProofReview]
       end
       class Workspace < Didit::Resource
-        def claim: (vasp_id: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
+        def claim: (vasp_id: String, ?licence: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
         def confirm_domain: (code: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
         def enable_billing: (?enabled: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
         def get: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace

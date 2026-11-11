@@ -4241,6 +4241,16 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TransactionTravelRuleProofState
+      NOT_REQUIRED: String
+      CONFIRMED: String
+      NOT_CONFIRMED: String
+      REQUESTED: String
+      NOT_REQUESTED: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleChainDetailsNotApplicableReason
       LIGHTNING_NO_PAYEE_IDENTIFIER: String
       LIGHTNING_BOL_T12_BLINDED_PAYEE: String
@@ -4760,6 +4770,16 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleTransferDetailProofState
+      NOT_REQUIRED: String
+      CONFIRMED: String
+      NOT_CONFIRMED: String
+      REQUESTED: String
+      NOT_REQUESTED: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleTransferDetailRail
       INTERNAL: String
       TRP: String
@@ -4888,6 +4908,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleWorkspaceClaimRejectionReason
+      VALUE: String
+      DOMAIN_MISMATCH: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleWorkspaceClaimStatus
       UNCLAIMED: String
       PENDING_REVIEW: String
@@ -4909,6 +4937,13 @@ module Didit
       UNVERIFIED: String
       CODE_SENT: String
       VERIFIED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWorkspaceOutboundPriceSource
+      PLAN: String
+      CONTRACT: String
 
       VALUES: Array[String]
     end
@@ -10889,6 +10924,8 @@ module Didit
       def reason: () -> String?
       def next_actions: () -> Array[Didit::Types::TravelRuleNextAction]?
       def chain_details: () -> Didit::Types::TravelRuleChainDetails?
+      def not_required_reason: () -> String?
+      def proof_state: () -> String?
     end
 
     class TransactionTravelRuleCounterpartyVasp < Didit::Model
@@ -11249,6 +11286,7 @@ module Didit
       def disabled_networks: () -> Array[String]?
       def networks: () -> Didit::Types::TravelRuleSettingsDetailNetworks?
       def didit_network: () -> Didit::Types::TravelRuleSettingsDetailDiditNetwork?
+      def licence: () -> String?
     end
 
     class TravelRuleSettingsDetailDiditNetwork < Didit::Model
@@ -11299,6 +11337,8 @@ module Didit
       def reason: () -> String?
       def next_actions: () -> Array[Didit::Types::TravelRuleNextAction]?
       def chain_details: () -> Didit::Types::TravelRuleChainDetails?
+      def not_required_reason: () -> String?
+      def proof_state: () -> String?
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -11397,6 +11437,8 @@ module Didit
       def billing_enabled_at: () -> Time?
       def didit_network: () -> Hash[String, untyped]?
       def settings: () -> Didit::Types::TravelRuleSettingsDetail?
+      def outbound_price: () -> Didit::Types::TravelRuleWorkspaceOutboundPrice?
+      def licence: () -> String?
     end
 
     class TravelRuleWorkspaceClaim < Didit::Model
@@ -11407,6 +11449,8 @@ module Didit
       def review_note: () -> String?
       def vasp_id: () -> String?
       def vasp_name: () -> String?
+      def licence: () -> String?
+      def rejection_reason: () -> String?
     end
 
     class TravelRuleWorkspaceDomain < Didit::Model
@@ -11420,6 +11464,15 @@ module Didit
       def domain: () -> String?
       def status: () -> String?
       def txt: () -> Didit::Types::TravelRuleWorkspaceTxtRecord?
+    end
+
+    class TravelRuleWorkspaceOutboundPrice < Didit::Model
+      def list_price: () -> String
+      def effective_price: () -> String?
+      def currency: () -> String
+      def discount_pct: () -> Float
+      def product: () -> String
+      def source: () -> String
     end
 
     class TravelRuleWorkspaceTxtRecord < Didit::Model
@@ -11655,6 +11708,8 @@ module Didit
       def pep_counterparty: () -> bool?
       def dominant_risk_category: () -> String?
       def risk_factors: () -> Array[Didit::Types::WalletScreeningResultRiskFactors]?
+      def fallback_from_provider: () -> String?
+      def fallback_reason: () -> String?
       def raw_response: () -> Hash[String, untyped]?
       def report_signature: () -> String
     end
@@ -11960,7 +12015,7 @@ module Didit
 
     type wallet_address_import_row = { ?address: String, ?address_hash: String, ?chain: String, ?memo: String, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?label: String, ?owner_type: String, ?travel_address: String, ?self_declared: bool }
 
-    type wallet_screening_result = { provider: String, screening_type: String, risk_score: Integer, severity: String, status: String, summary: String, wallet_address: String, ?transaction_hash: String?, blockchain: String, ?block_timestamp: String?, ?total_value_usd: (Float | Integer)?, ?fee_usd: (Float | Integer)?, ?sender_rows: Array[Hash[String | Symbol, untyped]], ?receiver_rows: Array[Hash[String | Symbol, untyped]], ?transaction_flows: Array[Hash[String | Symbol, untyped]], ?transaction_flows_status: String?, ?transaction_flows_error: String?, source_of_funds: Array[Didit::Types::wallet_screening_result_source_of_funds], destination_of_funds: Array[Didit::Types::wallet_screening_result_destination_of_funds], counterparty_connections: Array[Didit::Types::wallet_screening_result_counterparty_connections], ?network_nodes: Array[Hash[String | Symbol, untyped]], ?network_edges: Array[Hash[String | Symbol, untyped]], sanctions_hit: bool, ?pep_counterparty: bool?, dominant_risk_category: String?, ?risk_factors: Array[Didit::Types::wallet_screening_result_risk_factors], ?raw_response: Hash[String | Symbol, untyped], report_signature: String }
+    type wallet_screening_result = { provider: String, screening_type: String, risk_score: Integer, severity: String, status: String, summary: String, wallet_address: String, ?transaction_hash: String?, blockchain: String, ?block_timestamp: String?, ?total_value_usd: (Float | Integer)?, ?fee_usd: (Float | Integer)?, ?sender_rows: Array[Hash[String | Symbol, untyped]], ?receiver_rows: Array[Hash[String | Symbol, untyped]], ?transaction_flows: Array[Hash[String | Symbol, untyped]], ?transaction_flows_status: String?, ?transaction_flows_error: String?, source_of_funds: Array[Didit::Types::wallet_screening_result_source_of_funds], destination_of_funds: Array[Didit::Types::wallet_screening_result_destination_of_funds], counterparty_connections: Array[Didit::Types::wallet_screening_result_counterparty_connections], ?network_nodes: Array[Hash[String | Symbol, untyped]], ?network_edges: Array[Hash[String | Symbol, untyped]], sanctions_hit: bool, ?pep_counterparty: bool?, dominant_risk_category: String?, ?risk_factors: Array[Didit::Types::wallet_screening_result_risk_factors], ?fallback_from_provider: String?, ?fallback_reason: String?, ?raw_response: Hash[String | Symbol, untyped], report_signature: String }
 
     type wallet_screening_result_counterparty_connections = { ?entity_name: String?, ?entity_type: String?, ?entity_subtype: String?, ?risk_level: String, ?categories: Array[String], ?received_usd: (Float | Integer)?, ?sent_usd: (Float | Integer)?, ?received_hops: Integer?, ?sent_hops: Integer?, ?percentage: Float | Integer, ?is_direct: bool, ?country: String?, ?provider_entity_id: String? }
 
