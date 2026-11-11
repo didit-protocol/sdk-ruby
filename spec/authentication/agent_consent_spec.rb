@@ -240,6 +240,18 @@ module AuthenticationHelper
           expect(shown(error)).not_to include(long)
         end
 
+        it "redacts a string inside a nested object that serialises itself" do
+          nested = "nested-credential-string-0123456789"
+          extension = Class.new do
+            define_method(:to_json) { |*args| { "credProps" => { "deep" => [{ "value" => nested }] } }.to_json(*args) }
+          end.new
+          reply_json(400, JSON.generate("error" => "invalid_grant", "echo" => nested))
+          error = submit_with({ "id" => "short", "clientExtensionResults" => extension })
+
+          expect(error.body).to eq("error" => "invalid_grant", "echo" => "[redacted]")
+          expect(shown(error)).not_to include(nested)
+        end
+
         it "replaces a non-JSON body with [redacted] on the error" do
           issuer.route(:post, "/agents/consent/") do
             { status: 502, headers: { "Content-Type" => "text/html" },

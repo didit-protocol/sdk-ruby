@@ -13,6 +13,7 @@ module Didit
       def self.checked_organization_ids: (untyped ids) -> Array[String]
       def self.checked_lifetime: (untyped lifetime) -> Integer
       def self.checked_scopes: (untyped scopes) -> Array[String]
+      def self.wire_json: (Hash[untyped, untyped] assertion) -> untyped
       def self.assertion_secrets: (untyped value) -> Array[String]
     end
   end

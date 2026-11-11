@@ -25,7 +25,7 @@ module Didit
         secrets = [challenge]
         unless assertion.nil?
           body["assertion"] = checked_assertion(assertion)
-          secrets.concat(assertion_secrets(assertion))
+          secrets.concat(assertion_secrets(wire_json(assertion)))
         end
         body["scopes"] = checked_scopes(scopes) unless scopes.nil?
         organization_ids = extras[:organization_ids]
@@ -58,6 +58,12 @@ module Didit
         return scopes if scopes.is_a?(Array) && !scopes.empty? && scopes.all? { |s| s.is_a?(String) && !s.empty? }
 
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
+      end
+
+      # The assertion as the request carries it: encoded with the encoder of the request body and decoded
+      # back into plain hashes, arrays and strings, whatever objects the caller nested in it.
+      def self.wire_json(assertion)
+        JSON.parse(JSON.generate(assertion))
       end
 
       # Strings shorter than this are not secrets: field names such as "id" and values such as "public-key"
