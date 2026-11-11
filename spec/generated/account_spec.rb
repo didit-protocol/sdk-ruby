@@ -37,9 +37,9 @@ RSpec.describe Didit::Resources::Account do
   end
 
   it "account.register sends POST /programmatic/register/" do
-    calls = stub_api(status: 201, body: <<~'JSON')
+    calls = stub_api(status: 200, body: <<~'JSON')
       {
-        "message": "Registration successful. Check your email for the verification code.",
+        "message": "A new verification code has been sent to your email.",
         "email": "you@yourdomain.com"
       }
     JSON
@@ -107,7 +107,16 @@ RSpec.describe Didit::Resources::Account do
           "name": "developer",
           "client_id": "S9LIYGSoWNuGMLHsvEt9dQ",
           "api_key": "redacted-api_key",
-          "data_location": "eu"
+          "data_location": "eu",
+          "mode": "live"
+        },
+        "sandbox_application": {
+          "uuid": "c3d4e5f6-7890-12cd-efgh-333333333333",
+          "name": "developer (Sandbox)",
+          "client_id": "T0MJZHTpXOvHNMItwFu0eR",
+          "api_key": "redacted-api_key",
+          "data_location": "eu",
+          "mode": "sandbox"
         }
       }
     JSON

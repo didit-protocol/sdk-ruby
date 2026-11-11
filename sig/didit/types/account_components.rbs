@@ -2,11 +2,25 @@
 
 module Didit
   module Types
+    module ApplicationCredentialsSummaryMode
+      LIVE: String
+      SANDBOX: String
+
+      VALUES: Array[String]
+    end
+
     module ApplicationDataLocation
       EU: String
       AU: String
       MX: String
       AE: String
+
+      VALUES: Array[String]
+    end
+
+    module ApplicationMode
+      LIVE: String
+      SANDBOX: String
 
       VALUES: Array[String]
     end
@@ -40,6 +54,7 @@ module Didit
       def created_at: () -> Time?
       def data_location: () -> String?
       def products: () -> Array[Didit::Types::ApplicationProduct]?
+      def mode: () -> String?
     end
 
     class ApplicationCredentialsSummary < Didit::Model
@@ -48,6 +63,7 @@ module Didit
       def client_id: () -> String?
       def api_key: () -> String?
       def data_location: () -> String?
+      def mode: () -> String?
     end
 
     class ApplicationProduct < Didit::Model
@@ -100,6 +116,7 @@ module Didit
       def expires_in: () -> Integer?
       def organization: () -> Didit::Types::OrganizationSummary?
       def application: () -> Didit::Types::ApplicationCredentialsSummary?
+      def sandbox_application: () -> Didit::Types::ApplicationCredentialsSummary?
       def v_2fa_required: () -> bool?
       def temp_token: () -> String?
       def has_authenticator: () -> bool?
