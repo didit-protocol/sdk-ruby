@@ -71,10 +71,12 @@ module Didit
         end
       end
 
-      # Each secret plus its JSON-escaped form (as it appears inside a raw JSON body), longest first
+      # Each secret plus its JSON-escaped forms, UTF-8 and ASCII-only (as in a raw JSON body), longest first
       # so a secret that contains another is replaced whole.
       def self.with_escaped_forms(secrets)
-        forms = secrets.flat_map { |secret| [secret, JSON.generate(secret)[1..-2].to_s] }
+        forms = secrets.flat_map do |secret|
+          [secret, JSON.generate(secret)[1..-2].to_s, JSON.generate(secret, ascii_only: true)[1..-2].to_s]
+        end
         forms.reject(&:empty?).uniq.sort_by { |secret| -secret.length }
       end
     end

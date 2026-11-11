@@ -71,7 +71,8 @@ module AuthenticationHelper
         echoed = [agent_challenge, ACCESS_TOKEN, "SYNTHETIC_SIGNATURE", "SYNTHETIC_CLIENT_DATA"].join(" ")
         issuer.reply(:post, "/agents/consent/", 400, { "detail" => echoed })
         error = error_of do
-          auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve", assertion: assertion)
+          auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                    assertion: assertion)
         end
 
         [error.message, error.body.to_s].each do |text|
@@ -130,6 +131,22 @@ module AuthenticationHelper
           error = submit
 
           expect(leaks(error, secrets)).to eq([])
+        end
+
+        it "keeps a non-ASCII secret out of a text body that echoes it as ASCII-only JSON escapes" do
+          accented = "MARK-café-\u{1F600}-12"
+          assertion = full_assertion.merge("extra" => accented)
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, headers: { "Content-Type" => "text/plain" },
+              body: "bad #{JSON.generate(assertion, ascii_only: true)}" }
+          end
+          error = error_of do
+            auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                    assertion: assertion)
+          end
+
+          expect(leaks(error, [accented])).to eq([])
+          expect([error.message, error.body.to_s].join).not_to include("caf\\u00e9", "\\ud83d\\ude00")
         end
 
         it "keeps all of them out of a malformed 200" do
