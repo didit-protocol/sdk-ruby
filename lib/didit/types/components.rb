@@ -5046,6 +5046,19 @@ module Didit
       VALUES = [INBOUND, OUTBOUND].freeze
     end
 
+    # not_required when the transfer is not required; otherwise confirmed or not_confirmed follows
+    # ownership_confirmed. With no verdict, requested means an active outbound ownership widget matches this transfer
+    # and subject; otherwise not_requested. A request is not completed proof.
+    module TransactionTravelRuleProofState
+      NOT_REQUIRED = "not_required"
+      CONFIRMED = "confirmed"
+      NOT_CONFIRMED = "not_confirmed"
+      REQUESTED = "requested"
+      NOT_REQUESTED = "not_requested"
+
+      VALUES = [NOT_REQUIRED, CONFIRMED, NOT_CONFIRMED, REQUESTED, NOT_REQUESTED].freeze
+    end
+
     # On an outbound Lightning transfer whose payment request names no payee: why the transfer is `NOT_APPLICABLE`.
     # `LIGHTNING_NO_PAYEE_IDENTIFIER` (the request names no payee node, or could not be decoded),
     # `LIGHTNING_BOLT12_BLINDED_PAYEE` (the offer hides its payee behind blinded paths),
@@ -5678,6 +5691,19 @@ module Didit
       VALUES = [INBOUND, OUTBOUND].freeze
     end
 
+    # not_required when the transfer is not required; otherwise confirmed or not_confirmed follows
+    # ownership_confirmed. With no verdict, requested means an active outbound ownership widget matches this transfer
+    # and subject; otherwise not_requested. A request is not completed proof.
+    module TravelRuleTransferDetailProofState
+      NOT_REQUIRED = "not_required"
+      CONFIRMED = "confirmed"
+      NOT_CONFIRMED = "not_confirmed"
+      REQUESTED = "requested"
+      NOT_REQUESTED = "not_requested"
+
+      VALUES = [NOT_REQUIRED, CONFIRMED, NOT_CONFIRMED, REQUESTED, NOT_REQUESTED].freeze
+    end
+
     # The rail the transfer was routed over, or null when no rail was selected (for example below the threshold, a
     # self-hosted counterparty wallet, an after-deposit registration, or no reachable counterparty). INTERNAL means
     # both sides are Didit applications; EMAIL means the counterparty was reached by an emailed pickup link. TEST_VASP
@@ -5837,6 +5863,16 @@ module Didit
       VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
     end
 
+    # Structured rejection reason. Empty when none was recorded; a new claim or approval clears it. Read review_note
+    # for the explanation.
+    module TravelRuleWorkspaceClaimRejectionReason
+      VALUE = ""
+      DOMAIN_MISMATCH = "domain_mismatch"
+      OTHER = "other"
+
+      VALUES = [VALUE, DOMAIN_MISMATCH, OTHER].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleWorkspaceClaimStatus
       UNCLAIMED = "unclaimed"
@@ -5863,6 +5899,14 @@ module Didit
       VERIFIED = "verified"
 
       VALUES = [UNVERIFIED, CODE_SENT, VERIFIED].freeze
+    end
+
+    # Whether the quote comes from the plan or account contract.
+    module TravelRuleWorkspaceOutboundPriceSource
+      PLAN = "plan"
+      CONTRACT = "contract"
+
+      VALUES = [PLAN, CONTRACT].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -12302,6 +12346,8 @@ module Didit
       field :reason, "reason", :string
       field :next_actions, "next_actions", [:array, "TravelRuleNextAction"]
       field :chain_details, "chain_details", "TravelRuleChainDetails"
+      field :not_required_reason, "not_required_reason", :string
+      field :proof_state, "proof_state", :string
     end
 
     # The counterparty's directory entry, or `null` when the transfer links none.
@@ -12721,6 +12767,7 @@ module Didit
       field :disabled_networks, "disabled_networks", [:array, :string]
       field :networks, "networks", "TravelRuleSettingsDetailNetworks"
       field :didit_network, "didit_network", "TravelRuleSettingsDetailDiditNetwork"
+      field :licence, "licence", :string
     end
 
     # Whether the Didit network lists your VASP profile, so other Didit customers find it in the directory and reach
@@ -12781,6 +12828,8 @@ module Didit
       field :reason, "reason", :string
       field :next_actions, "next_actions", [:array, "TravelRuleNextAction"]
       field :chain_details, "chain_details", "TravelRuleChainDetails"
+      field :not_required_reason, "not_required_reason", :string
+      field :proof_state, "proof_state", :string
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -12883,6 +12932,8 @@ module Didit
       field :billing_enabled_at, "billing_enabled_at", :datetime
       field :didit_network, "didit_network", :any
       field :settings, "settings", "TravelRuleSettingsDetail"
+      field :outbound_price, "outbound_price", "TravelRuleWorkspaceOutboundPrice"
+      field :licence, "licence", :string
     end
 
     class TravelRuleWorkspaceClaim < Didit::Model
@@ -12893,6 +12944,8 @@ module Didit
       field :review_note, "review_note", :string
       field :vasp_id, "vasp_id", :string
       field :vasp_name, "vasp_name", :string
+      field :licence, "licence", :string
+      field :rejection_reason, "rejection_reason", :string
     end
 
     class TravelRuleWorkspaceDomain < Didit::Model
@@ -12906,6 +12959,16 @@ module Didit
       field :domain, "domain", :string
       field :status, "status", :string
       field :txt, "txt", "TravelRuleWorkspaceTxtRecord"
+    end
+
+    # Own-account outbound quote, or null when a flat Travel Rule quote is unavailable. Does not enable billing.
+    class TravelRuleWorkspaceOutboundPrice < Didit::Model
+      field :list_price, "list_price", :string
+      field :effective_price, "effective_price", :string
+      field :currency, "currency", :string
+      field :discount_pct, "discount_pct", :float
+      field :product, "product", :string
+      field :source, "source", :string
     end
 
     # The TXT record to publish for the DNS proof. Empty until a proof has been started.
@@ -13173,6 +13236,8 @@ module Didit
       field :pep_counterparty, "pep_counterparty", :boolean
       field :dominant_risk_category, "dominant_risk_category", :string
       field :risk_factors, "risk_factors", [:array, "WalletScreeningResultRiskFactors"]
+      field :fallback_from_provider, "fallback_from_provider", :string
+      field :fallback_reason, "fallback_reason", :string
       field :raw_response, "raw_response", :any
       field :report_signature, "report_signature", :string
     end

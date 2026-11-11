@@ -424,7 +424,9 @@ RSpec.describe Didit::Resources::TravelRule do
               "declared_originator_not_an_input"
             ],
             "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
-          }
+          },
+          "not_required_reason": "below_threshold",
+          "proof_state": "not_required"
         }
       }
     JSON
@@ -1042,7 +1044,8 @@ RSpec.describe Didit::Resources::TravelRule do
             "travel_rule_off"
           ],
           "compliance_email_confirmed": true
-        }
+        },
+        "licence": "REG-EXAMPLE"
       }
     JSON
     result = client.travel_rule.update_settings(
@@ -2024,7 +2027,9 @@ RSpec.describe Didit::Resources::TravelRule do
           "reviewed_at": "2026-01-02T03:04:05Z",
           "review_note": "review_note-value",
           "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "vasp_name": "vasp_name-value"
+          "vasp_name": "vasp_name-value",
+          "licence": "licence-value",
+          "rejection_reason": ""
         },
         "prefill": {},
         "domain": {
@@ -2169,8 +2174,18 @@ RSpec.describe Didit::Resources::TravelRule do
               "travel_rule_off"
             ],
             "compliance_email_confirmed": true
-          }
-        }
+          },
+          "licence": "REG-EXAMPLE"
+        },
+        "outbound_price": {
+          "list_price": "list_price-value",
+          "effective_price": "effective_price-value",
+          "currency": "currency-value",
+          "discount_pct": 1.5,
+          "product": "product-value",
+          "source": "plan"
+        },
+        "licence": "licence-value"
       }
     JSON
     result = client.travel_rule.workspace.claim(
@@ -2205,7 +2220,9 @@ RSpec.describe Didit::Resources::TravelRule do
           "reviewed_at": "2026-01-02T03:04:05Z",
           "review_note": "review_note-value",
           "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "vasp_name": "vasp_name-value"
+          "vasp_name": "vasp_name-value",
+          "licence": "licence-value",
+          "rejection_reason": ""
         },
         "prefill": {},
         "domain": {
@@ -2350,8 +2367,18 @@ RSpec.describe Didit::Resources::TravelRule do
               "travel_rule_off"
             ],
             "compliance_email_confirmed": true
-          }
-        }
+          },
+          "licence": "REG-EXAMPLE"
+        },
+        "outbound_price": {
+          "list_price": "list_price-value",
+          "effective_price": "effective_price-value",
+          "currency": "currency-value",
+          "discount_pct": 1.5,
+          "product": "product-value",
+          "source": "plan"
+        },
+        "licence": "licence-value"
       }
     JSON
     result = client.travel_rule.workspace.confirm_domain(
@@ -2386,7 +2413,9 @@ RSpec.describe Didit::Resources::TravelRule do
           "reviewed_at": "2026-01-02T03:04:05Z",
           "review_note": "review_note-value",
           "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "vasp_name": "vasp_name-value"
+          "vasp_name": "vasp_name-value",
+          "licence": "licence-value",
+          "rejection_reason": ""
         },
         "prefill": {},
         "domain": {
@@ -2531,8 +2560,18 @@ RSpec.describe Didit::Resources::TravelRule do
               "travel_rule_off"
             ],
             "compliance_email_confirmed": true
-          }
-        }
+          },
+          "licence": "REG-EXAMPLE"
+        },
+        "outbound_price": {
+          "list_price": "list_price-value",
+          "effective_price": "effective_price-value",
+          "currency": "currency-value",
+          "discount_pct": 1.5,
+          "product": "product-value",
+          "source": "plan"
+        },
+        "licence": "licence-value"
       }
     JSON
     result = client.travel_rule.workspace.enable_billing(
@@ -2567,7 +2606,9 @@ RSpec.describe Didit::Resources::TravelRule do
           "reviewed_at": "2026-01-02T03:04:05Z",
           "review_note": "review_note-value",
           "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "vasp_name": "vasp_name-value"
+          "vasp_name": "vasp_name-value",
+          "licence": "licence-value",
+          "rejection_reason": ""
         },
         "prefill": {},
         "domain": {
@@ -2712,8 +2753,18 @@ RSpec.describe Didit::Resources::TravelRule do
               "travel_rule_off"
             ],
             "compliance_email_confirmed": true
-          }
-        }
+          },
+          "licence": "REG-EXAMPLE"
+        },
+        "outbound_price": {
+          "list_price": "list_price-value",
+          "effective_price": "effective_price-value",
+          "currency": "currency-value",
+          "discount_pct": 1.5,
+          "product": "product-value",
+          "source": "plan"
+        },
+        "licence": "licence-value"
       }
     JSON
     result = client.travel_rule.workspace.get
@@ -2770,7 +2821,9 @@ RSpec.describe Didit::Resources::TravelRule do
           "reviewed_at": "2026-01-02T03:04:05Z",
           "review_note": "review_note-value",
           "vasp_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "vasp_name": "vasp_name-value"
+          "vasp_name": "vasp_name-value",
+          "licence": "licence-value",
+          "rejection_reason": ""
         },
         "prefill": {},
         "domain": {
@@ -2915,8 +2968,18 @@ RSpec.describe Didit::Resources::TravelRule do
               "travel_rule_off"
             ],
             "compliance_email_confirmed": true
-          }
-        }
+          },
+          "licence": "REG-EXAMPLE"
+        },
+        "outbound_price": {
+          "list_price": "list_price-value",
+          "effective_price": "effective_price-value",
+          "currency": "currency-value",
+          "discount_pct": 1.5,
+          "product": "product-value",
+          "source": "plan"
+        },
+        "licence": "licence-value"
       }
     JSON
     result = client.travel_rule.workspace.verify_domain_dns

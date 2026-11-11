@@ -1546,7 +1546,9 @@ RSpec.describe Didit::Resources::Transactions do
             "declared_originator_not_an_input"
           ],
           "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
-        }
+        },
+        "not_required_reason": "below_threshold",
+        "proof_state": "not_required"
       }
     JSON
     result = client.transactions.travel_rule.confirm_ownership(
@@ -1825,7 +1827,9 @@ RSpec.describe Didit::Resources::Transactions do
               "declared_originator_not_an_input"
             ],
             "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
-          }
+          },
+          "not_required_reason": "below_threshold",
+          "proof_state": "not_required"
         }
       }
     JSON
@@ -2008,7 +2012,9 @@ RSpec.describe Didit::Resources::Transactions do
             "declared_originator_not_an_input"
           ],
           "not_applicable_reason": "LIGHTNING_NO_PAYEE_IDENTIFIER"
-        }
+        },
+        "not_required_reason": "below_threshold",
+        "proof_state": "not_required"
       }
     JSON
     result = client.transactions.travel_rule.update_transfer(

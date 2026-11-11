@@ -51,7 +51,10 @@ module Didit
       #
       # +POST /v3/wallet-screening/pdf/+
       #
-      # @param provider [String] Provider that performed the screening (e.g. `merklescience`, `crystal`).
+      # @param provider [String] Provider that performed the screening (e.g. `merklescience`, `crystal`). When the
+      #   provider you connected in the Marketplace rejected or failed the screening and that connection's fallback to
+      #   Didit is on, this names Didit's managed screening, not the provider you connected, and
+      #   `fallback_from_provider` names the provider that failed.
       # @param screening_type [String] Always `WALLET_SCREENING` for this endpoint.
       # @param risk_score [Integer] Normalised 0-100 risk score. Higher means greater exposure to risky entities.
       #   Merkle Science grades an address 0-5, which maps to 0, 15, 35, 55, 75 or 95.
@@ -110,6 +113,14 @@ module Didit
       #   score alone is not actionable. Ordered high-risk first, then by the value that moved through each driver,
       #   capped at the five strongest; `source_of_funds` and `destination_of_funds` always carry the complete
       #   breakdow...
+      # @param fallback_from_provider [String, nil] Set when the provider you connected in the Marketplace rejected or
+      #   failed this screening and it ran on Didit's managed provider instead, because that connection's **Fall back to
+      #   Didit** setting is on: the key of the provider that failed (`crystal`, `chainalysis`, `elliptic` or
+      #   `trmlabs`). The screening is billed at the managed rate and the failed call is not billed. `null` on every
+      #   other screenin...
+      # @param fallback_reason [String, nil] Why the provider you connected failed, when `fallback_from_provider` is
+      #   set, for example `Your Crystal account has reached its call limit. Raise the limit with Crystal to screen with
+      #   it again.` `null` on every other screening.
       # @param raw_response [Hash] The provider's own payload. Its shape is provider-specific and can change without
       #   notice: read the normalised fields instead of parsing it.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -142,6 +153,8 @@ module Didit
         network_edges: OMIT,
         pep_counterparty: OMIT,
         risk_factors: OMIT,
+        fallback_from_provider: OMIT,
+        fallback_reason: OMIT,
         raw_response: OMIT,
         request_options: nil,
         &block
@@ -177,6 +190,8 @@ module Didit
             "network_edges" => network_edges,
             "pep_counterparty" => pep_counterparty,
             "risk_factors" => risk_factors,
+            "fallback_from_provider" => fallback_from_provider,
+            "fallback_reason" => fallback_reason,
             "raw_response" => raw_response
           },
           response: :binary,

@@ -469,6 +469,7 @@ module Didit
       #   response field of the same name.
       # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your
       #   connected own memberships or provision unavailable networks.
+      # @param licence [String] VASP licence or registration reference. Empty when not supplied.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleSettingsDetail]
       def update_settings(
@@ -496,6 +497,7 @@ module Didit
         sunrise_policy: OMIT,
         non_responsive_policy: OMIT,
         disabled_networks: OMIT,
+        licence: OMIT,
         request_options: nil
       )
         @client.request(
@@ -525,7 +527,8 @@ module Didit
             "counterparty_screening_enabled" => counterparty_screening_enabled,
             "sunrise_policy" => sunrise_policy,
             "non_responsive_policy" => non_responsive_policy,
-            "disabled_networks" => disabled_networks
+            "disabled_networks" => disabled_networks,
+            "licence" => licence
           },
           response: Types::TravelRuleSettingsDetail,
           request_options: request_options
@@ -1186,14 +1189,18 @@ module Didit
         # +POST /v3/travel-rule/workspace/claim/+
         #
         # @param vasp_id [String] The directory entry this workspace is. Read ids from `GET /v3/travel-rule/vasps/`.
+        # @param licence [String] Optional licence or registration reference, up to 255 characters; empty clears it.
+        #   Omission preserves it for the same directory entry and clears it when claiming a different entry. Applied to
+        #   the VASP profile only when the claim is granted.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspace]
-        def claim(vasp_id:, request_options: nil)
+        def claim(vasp_id:, licence: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/claim/",
             body: {
-              "vasp_id" => vasp_id
+              "vasp_id" => vasp_id,
+              "licence" => licence
             },
             response: Types::TravelRuleWorkspace,
             request_options: request_options

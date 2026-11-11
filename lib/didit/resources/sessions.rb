@@ -2460,10 +2460,25 @@ module Didit
       # `email_preview_token`: the update then sends exactly the previewed email, or returns `409` before changing
       # anything when the email or the session changed since the preview or the receipt is older than 15 minutes.
       #
-      # Repeating `Approved` or `Declined` on a session that already has that status changes nothing and returns
-      # `200`: no webhook, no activity entry and no email. Repeating `Resubmitted` returns `400` (`The new status is
-      # the same as the current status.`). Missing or invalid credentials and missing permissions return `403`; an
-      # expired scoped API key returns `401`.
+      # Repeating `Approved` or `Declined` on a session that already has that status returns `200` without a status
+      # webhook, status activity entry or email. An `Approved` request can still create a same-person link as
+      # described below. Repeating `Resubmitted` returns `400` (`The new status is the same as the current status.`).
+      # Missing or invalid credentials and missing permissions return `403`; an expired scoped API key returns `401`.
+      #
+      # To record a reviewer decision that two verifications belong to the same person, send `new_status: "Approved"`,
+      # `link_to_session_id` and `link_reason`. Both sessions must be distinct, live KYC verifications in the same
+      # application. The target need not be approved or have a person profile. `link_reason` is separate from
+      # `comment`, must be nonblank after trimming and accepts at most 2000 characters. A reason without a target,
+      # linking with another status, an invalid or unavailable target, a self-link, or a KYB participant returns
+      # `400`. Approval and linking succeed together or neither changes. If either session already belongs to a group,
+      # their groups are joined. An already-approved source can be linked for the first time without another status
+      # event or email. A retry within the same group creates no additional link audit. Concurrent group edits return
+      # `409`; retry the request.
+      #
+      # Grouping does not merge person profiles, profile fields or biometric data. Each verification keeps its
+      # original profile association and deletion ownership. Deleting a verification removes it from the group. Link
+      # actions have a separate audit recording the actor, time and `link_reason`; they are not status-review entries.
+      # Group navigation and unlinking are console-only, with no public read or unlink endpoint.
       #
       # +PATCH /v3/session/{sessionId}/update-status/+
       #
@@ -2491,6 +2506,13 @@ module Didit
       #   Email](/sessions-api/preview-resubmission) (for `Resubmitted`): its `preview_token`. Valid only with
       #   `send_email: true`; without it the request returns `400`. The recipient, language, session status, sender and
       #   email (and, for a resubmission, the selected s...
+      # @param link_to_session_id [String] Optional UUID of another live KYC verification in the same application.
+      #   Requires new_status=Approved and link_reason. Both participants must be KYC; self-links, deleted, missing and
+      #   foreign-application targets return 400. The target need not be approved or have a person profile. Existing
+      #   groups are joined.
+      # @param link_reason [String] Reviewer reason for the same-person link, required with link_to_session_id and
+      #   rejected without it. Leading and trailing whitespace is trimmed; the result must be nonblank and at most 2000
+      #   characters. Recorded in the separate link audit. comment does not substitute for this field.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateStatusResponse]
       def update_status(
@@ -2502,6 +2524,8 @@ module Didit
         email_address: OMIT,
         email_language: OMIT,
         email_preview_token: OMIT,
+        link_to_session_id: OMIT,
+        link_reason: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2515,7 +2539,9 @@ module Didit
             "send_email" => send_email,
             "email_address" => email_address,
             "email_language" => email_language,
-            "email_preview_token" => email_preview_token
+            "email_preview_token" => email_preview_token,
+            "link_to_session_id" => link_to_session_id,
+            "link_reason" => link_reason
           },
           response: Types::SessionsUpdateStatusResponse,
           request_options: request_options
