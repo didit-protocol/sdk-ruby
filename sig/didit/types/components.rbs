@@ -2349,6 +2349,31 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SandboxScenarioDefaultStatus
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxScenarioGroup
+      ID_DOCUMENT: String
+      SELFIE: String
+      PHONE_EMAIL: String
+      ADDRESS: String
+      QUESTIONNAIRE: String
+      DATABASE: String
+      AML: String
+      BANK: String
+      LOCATION: String
+      SIGNATURE: String
+      COMPANY: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module SandboxSimulateResponsePreviousStatus
       NOT_STARTED: String
       IN_PROGRESS: String
@@ -2370,6 +2395,65 @@ module Didit
       IN_REVIEW: String
       EXPIRED: String
       ABANDONED: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspDefaultScenario
+      ACCEPT: String
+      DECLINE: String
+      NAME_MISMATCH: String
+      NOT_REACHABLE: String
+      TIMEOUT: String
+      SELF_HOSTED: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspInboundScenarios
+      ACCEPT: String
+      NAME_MISMATCH: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspRoutes
+      TEST_VASP: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspScenarioRoute
+      TEST_VASP: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspScenarioSlug
+      ACCEPT: String
+      DECLINE: String
+      NAME_MISMATCH: String
+      NOT_REACHABLE: String
+      TIMEOUT: String
+      SELF_HOSTED: String
+
+      VALUES: Array[String]
+    end
+
+    module SandboxTestVaspScenarioTravelRuleStatus
+      AWAITING_COUNTERPARTY: String
+      ON_HOLD: String
+      COMPLETED: String
+      FINISHED: String
+      CANCELLED: String
+      EXPIRED: String
+      COUNTERPARTY_MISMATCHED_DATA: String
+      COUNTERPARTY_VASP_NOT_FOUND: String
+      COUNTERPARTY_VASP_NOT_REACHABLE: String
+      UNCONFIRMED_OWNERSHIP: String
+      COUNTERPARTY_VASP_GENERAL_DECLINE: String
+      NOT_ENOUGH_COUNTERPARTY_DATA: String
+      NOT_APPLICABLE: String
 
       VALUES: Array[String]
     end
@@ -8464,6 +8548,89 @@ module Didit
       def value: () -> untyped
     end
 
+    class SandboxDeliveryConventions < Didit::Model
+      def email_optin: () -> Didit::Types::SandboxDeliveryConventionsEmailOptin
+      def phone_otp_code: () -> Didit::Types::SandboxOtpConvention
+      def email_otp_code: () -> Didit::Types::SandboxOtpConvention
+    end
+
+    class SandboxDeliveryConventionsEmailOptin < Didit::Model
+      def description: () -> String
+      def patterns: () -> Array[Didit::Types::SandboxDeliveryConventionsEmailOptinPatterns]
+    end
+
+    class SandboxDeliveryConventionsEmailOptinPatterns < Didit::Model
+      def pattern: () -> String
+      def example: () -> String
+    end
+
+    class SandboxMagicValue < Didit::Model
+      def risk: () -> String
+      def feature: () -> String
+      def input_field: () -> String
+      def magic_value: () -> String
+      def description: () -> String
+    end
+
+    class SandboxOtpConvention < Didit::Model
+      def description: () -> String
+      def value: () -> String
+    end
+
+    class SandboxRiskCase < Didit::Model
+      def risk: () -> String
+      def feature: () -> String
+      def status_path: () -> String
+      def default_status: () -> String
+    end
+
+    class SandboxSampleDocument < Didit::Model
+      def sandbox_sample: () -> String?
+      def document_name: () -> String
+      def is_default: () -> bool
+      def first_name: () -> String?
+      def last_name: () -> String?
+      def date_of_birth: () -> String?
+      def gender: () -> String?
+      def nationality: () -> String?
+      def id_country: () -> String?
+      def identification_number: () -> String?
+    end
+
+    class SandboxSampleIdentity < Didit::Model
+      def date_of_birth: () -> String
+      def date_of_issue: () -> String
+      def date_of_expiry: () -> String
+      def documents: () -> Array[Didit::Types::SandboxSampleDocument]
+    end
+
+    class SandboxScenario < Didit::Model
+      def slug: () -> String
+      def title: () -> String
+      def description: () -> String
+      def default_status: () -> String
+      def steps: () -> Array[String]
+      def group: () -> String
+      def magic_inputs: () -> Hash[String, String]
+      def warnings: () -> Array[Didit::Types::SandboxScenarioWarning]
+    end
+
+    class SandboxScenarioCatalog < Didit::Model
+      def scenarios: () -> Array[Didit::Types::SandboxScenario]
+      def magic_values: () -> Array[Didit::Types::SandboxMagicValue]
+      def risk_cases: () -> Array[Didit::Types::SandboxRiskCase]
+      def sample_identity: () -> Didit::Types::SandboxSampleIdentity
+      def delivery_conventions: () -> Didit::Types::SandboxDeliveryConventions
+      def travel_rule: () -> Didit::Types::SandboxTestVasp
+    end
+
+    class SandboxScenarioWarning < Didit::Model
+      def risk: () -> String
+      def feature: () -> String
+      def input_field: () -> String
+      def magic_value: () -> String
+    end
+
     class SandboxSimulateResponse < Didit::Model
       def session_id: () -> String
       def previous_status: () -> String
@@ -8471,6 +8638,33 @@ module Didit
       def scenario: () -> String?
       def risk: () -> String?
       def send_webhooks: () -> bool
+    end
+
+    class SandboxTestVasp < Didit::Model
+      def legal_name: () -> String
+      def lei: () -> String
+      def jurisdiction: () -> String
+      def compliance_email: () -> String
+      def travel_address: () -> String
+      def network_codes: () -> Hash[String, String]
+      def routes: () -> Array[String]
+      def chain: () -> String
+      def timeout_window_seconds: () -> Integer
+      def default_scenario: () -> String
+      def inbound_scenarios: () -> Array[String]
+      def scenarios: () -> Array[Didit::Types::SandboxTestVaspScenario]
+    end
+
+    class SandboxTestVaspScenario < Didit::Model
+      def slug: () -> String
+      def route: () -> String
+      def title: () -> String
+      def description: () -> String
+      def beneficiary_name: () -> String
+      def beneficiary_wallet_address: () -> String
+      def chain: () -> String
+      def travel_rule_status: () -> String
+      def answers: () -> bool
     end
 
     class SessionDecision < Didit::Model
@@ -11029,6 +11223,7 @@ module Didit
     class TravelRuleSettingsDetail < Didit::Model
       def is_enabled: () -> bool?
       def jurisdiction: () -> String?
+      def vasp_jurisdiction: () -> String?
       def name_matching_strictness: () -> String?
       def confirmation_timeout_hours: () -> Integer?
       def timeout_outcome: () -> String?
@@ -11150,6 +11345,8 @@ module Didit
       def originator_wallet_type: () -> String?
       def beneficiary_wallet_type: () -> String?
       def matched_transaction_id: () -> String?
+      def scenario: () -> String?
+      def webhooks_count: () -> Integer?
       def deadline_at: () -> Time?
       def created_at: () -> Time?
     end

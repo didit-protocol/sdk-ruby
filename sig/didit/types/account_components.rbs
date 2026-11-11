@@ -55,6 +55,7 @@ module Didit
       def data_location: () -> String?
       def products: () -> Array[Didit::Types::ApplicationProduct]?
       def mode: () -> String?
+      def initiate_login_uri: () -> String?
     end
 
     class ApplicationCredentialsSummary < Didit::Model

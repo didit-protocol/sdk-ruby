@@ -139,6 +139,11 @@ module Didit
         # Union by default; it can't be changed afterwards). The response includes `api_key`; persist it now
         # (recoverable via GET). Requires owner/admin JWT.
         #
+        # Set initiate_login_uri to your HTTPS sign-in page on the exact website_url hostname, or an empty string to
+        # disable admin-sent sign-in links. Changing website_url also revalidates the saved sign-in URI. Invalid
+        # values return 400 with an initiate_login_uri field error; hostname and URI policy failures use
+        # https_url_on_registered_website_required.
+        #
         # +POST /organizations/me/{org_id}/applications/+
         #
         # @param org_id [String] UUID of the organization. Look it up with `GET /organizations/me/`.
@@ -152,6 +157,11 @@ module Didit
         #   the application is created. `eu` is the European Union (Ireland), the default. `au` (Australia, Sydney),
         #   `mx` (Mexico) and `ae` (United Arab Emirates) are coming soon: a request that names them answers 400 `This
         #   data location is not available yet.` An organization's Sandbox application is always in the European Union.
+        # @param initiate_login_uri [String] Application sign-in URL for an admin-sent sign-in link. Optional; an
+        #   empty string disables sending. A nonempty value must use HTTPS and the exact hostname of website_url
+        #   (subdomains must match), with no userinfo, query, fragment or whitespace and no port other than 443. The
+        #   server also revalidates the saved URI when website_url changes; update or clear initiate_login_uri in the
+        #   same PATCH if need...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
         def create(
@@ -163,6 +173,7 @@ module Didit
           privacy_url: OMIT,
           description: OMIT,
           data_location: OMIT,
+          initiate_login_uri: OMIT,
           request_options: nil
         )
           @client.request(
@@ -176,7 +187,8 @@ module Didit
               "terms_url" => terms_url,
               "privacy_url" => privacy_url,
               "description" => description,
-              "data_location" => data_location
+              "data_location" => data_location,
+              "initiate_login_uri" => initiate_login_uri
             },
             auth: :account_token,
             api: :account,
@@ -244,6 +256,11 @@ module Didit
         # application is created, except once on the live application created with your organization, while it is
         # unused (see the request body). Requires owner/admin JWT.
         #
+        # Set initiate_login_uri to your HTTPS sign-in page on the exact website_url hostname, or an empty string to
+        # disable admin-sent sign-in links. Changing website_url also revalidates the saved sign-in URI. Invalid
+        # values return 400 with an initiate_login_uri field error; hostname and URI policy failures use
+        # https_url_on_registered_website_required.
+        #
         # +PATCH /organizations/me/{org_id}/applications/{app_id}/+
         #
         # @param org_id [String] UUID of the organization that owns the application.
@@ -258,6 +275,11 @@ module Didit
         #   the application is created. `eu` is the European Union (Ireland), the default. `au` (Australia, Sydney),
         #   `mx` (Mexico) and `ae` (United Arab Emirates) are coming soon: a request that names them answers 400 `This
         #   data location is not available yet.` An organization's Sandbox application is always in the European Union.
+        # @param initiate_login_uri [String] Application sign-in URL for an admin-sent sign-in link. Optional; an
+        #   empty string disables sending. A nonempty value must use HTTPS and the exact hostname of website_url
+        #   (subdomains must match), with no userinfo, query, fragment or whitespace and no port other than 443. The
+        #   server also revalidates the saved URI when website_url changes; update or clear initiate_login_uri in the
+        #   same PATCH if need...
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::Application]
         def update(
@@ -270,6 +292,7 @@ module Didit
           privacy_url: OMIT,
           description: OMIT,
           data_location: OMIT,
+          initiate_login_uri: OMIT,
           request_options: nil
         )
           @client.request(
@@ -283,7 +306,8 @@ module Didit
               "terms_url" => terms_url,
               "privacy_url" => privacy_url,
               "description" => description,
-              "data_location" => data_location
+              "data_location" => data_location,
+              "initiate_login_uri" => initiate_login_uri
             },
             auth: :account_token,
             api: :account,

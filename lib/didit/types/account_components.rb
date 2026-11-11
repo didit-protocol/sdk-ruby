@@ -75,6 +75,7 @@ module Didit
       field :data_location, "data_location", :string
       field :products, "products", [:array, "ApplicationProduct"]
       field :mode, "mode", :string
+      field :initiate_login_uri, "initiate_login_uri", :string
     end
 
     # Minimal application shape returned inline by `POST /programmatic/verify-email/`. Persist the `api_key`

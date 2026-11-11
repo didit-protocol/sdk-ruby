@@ -482,6 +482,7 @@ RSpec.describe Didit::Resources::TravelRule do
       {
         "is_enabled": false,
         "jurisdiction": "EU",
+        "vasp_jurisdiction": "",
         "name_matching_strictness": "DEFAULT",
         "confirmation_timeout_hours": 48,
         "timeout_outcome": "HOLD",
@@ -914,6 +915,7 @@ RSpec.describe Didit::Resources::TravelRule do
       {
         "is_enabled": true,
         "jurisdiction": "jurisdiction-value",
+        "vasp_jurisdiction": "vasp_jurisdiction-value",
         "name_matching_strictness": "NONE",
         "confirmation_timeout_hours": 1,
         "timeout_outcome": "HOLD",
@@ -1550,6 +1552,8 @@ RSpec.describe Didit::Resources::TravelRule do
             "originator_wallet_type": "vasp",
             "beneficiary_wallet_type": "vasp",
             "matched_transaction_id": null,
+            "scenario": null,
+            "webhooks_count": 3,
             "deadline_at": "2026-10-21T08:41:13Z",
             "created_at": "2026-10-19T08:41:13Z"
           }
@@ -1599,6 +1603,8 @@ RSpec.describe Didit::Resources::TravelRule do
             "originator_wallet_type": "vasp",
             "beneficiary_wallet_type": "vasp",
             "matched_transaction_id": null,
+            "scenario": null,
+            "webhooks_count": 0,
             "deadline_at": null,
             "created_at": "2026-10-19T08:41:13Z"
           }
@@ -2036,6 +2042,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
+          "vasp_jurisdiction": "vasp_jurisdiction-value",
           "name_matching_strictness": "NONE",
           "confirmation_timeout_hours": 1,
           "timeout_outcome": "HOLD",
@@ -2216,6 +2223,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
+          "vasp_jurisdiction": "vasp_jurisdiction-value",
           "name_matching_strictness": "NONE",
           "confirmation_timeout_hours": 1,
           "timeout_outcome": "HOLD",
@@ -2396,6 +2404,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
+          "vasp_jurisdiction": "vasp_jurisdiction-value",
           "name_matching_strictness": "NONE",
           "confirmation_timeout_hours": 1,
           "timeout_outcome": "HOLD",
@@ -2576,6 +2585,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
+          "vasp_jurisdiction": "vasp_jurisdiction-value",
           "name_matching_strictness": "NONE",
           "confirmation_timeout_hours": 1,
           "timeout_outcome": "HOLD",
@@ -2778,6 +2788,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
+          "vasp_jurisdiction": "vasp_jurisdiction-value",
           "name_matching_strictness": "NONE",
           "confirmation_timeout_hours": 1,
           "timeout_outcome": "HOLD",
