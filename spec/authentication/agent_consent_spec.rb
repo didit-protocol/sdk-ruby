@@ -81,6 +81,77 @@ module AuthenticationHelper
         end
       end
 
+      context "when the issuer echoes every assertion string" do
+        let(:markers) do
+          { id: "MARK-ID-1", raw: "MARK-RAWID-2", type: "MARK-TYPE-3", cdj: "MARK-CDJ-4/+=", ad: "MARK-AD-5",
+            sig: "MARK-SIG-6", handle: "MARK-HANDLE-7", ext: "MARK-EXT-8", deep: "MARK-DEEP-9", list: "MARK-LIST-10",
+            quoted: "MARK-\"QUOTED\"-11/\n" }
+        end
+        let(:full_assertion) do
+          m = markers
+          { "id" => m[:id], "rawId" => m[:raw], "type" => m[:type],
+            "response" => { "clientDataJSON" => m[:cdj], "authenticatorData" => m[:ad], "signature" => m[:sig],
+                            "userHandle" => m[:handle], "transports" => [m[:list]] },
+            "clientExtensionResults" => { "ext" => m[:ext],
+                                          "nested" => { "deep" => [m[:deep], { "q" => m[:quoted] }] } } }
+        end
+        let(:secrets) { [agent_challenge, ACCESS_TOKEN, *markers.values] }
+
+        def leaks(error, secrets)
+          texts = [error.message, error.to_s, error.inspect, error.body.to_s, error.body.inspect]
+          texts << error.body.to_json if error.body
+          texts += error.headers.to_s.then { |h| [h] } if error.respond_to?(:headers)
+          texts.flat_map { |t| secrets.select { |s| t.include?(s) || t.include?(s.to_json[1..-2]) } }.uniq
+        end
+
+        def submit
+          error_of do
+            auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                    assertion: full_assertion)
+          end
+        end
+
+        it "keeps all of them out of a 400 error" do
+          echo = { "detail" => "passkey_required", "echo" => full_assertion.merge("challenge" => agent_challenge,
+                                                                                  "token" => ACCESS_TOKEN) }
+          issuer.reply(:post, "/agents/consent/", 400, echo)
+          error = submit
+
+          expect(error).to be_a(Didit::BadRequestError)
+          expect(leaks(error, secrets)).to eq([])
+          expect(error.body["detail"]).to eq("passkey_required")
+        end
+
+        it "keeps all of them out of a text 400 body, JSON-escaped form included" do
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, headers: { "Content-Type" => "text/plain" },
+              body: "bad #{JSON.generate(full_assertion)} #{agent_challenge}" }
+          end
+          error = submit
+
+          expect(leaks(error, secrets)).to eq([])
+        end
+
+        it "keeps all of them out of a malformed 200" do
+          issuer.route(:post, "/agents/consent/") do
+            { status: 200, headers: { "Content-Type" => "text/html" },
+              body: "<p>#{JSON.generate(full_assertion)} #{agent_challenge} #{ACCESS_TOKEN}</p>" }
+          end
+          error = submit
+
+          expect(error).to be_a(Didit::APIResponseValidationError)
+          expect(leaks(error, secrets)).to eq([])
+        end
+
+        it "keeps all of them out of a 200 JSON array" do
+          issuer.reply(:post, "/agents/consent/", 200, [full_assertion, agent_challenge])
+          error = submit
+
+          expect(error).to be_a(Didit::APIResponseValidationError)
+          expect(leaks(error, secrets)).to eq([])
+        end
+      end
+
       it "checks the arguments before any request" do
         expect { auth.submit_agent_consent(ACCESS_TOKEN, challenge: " ", decision: "approve") }
           .to raise_error(Didit::ConfigurationError, /challenge is empty/)

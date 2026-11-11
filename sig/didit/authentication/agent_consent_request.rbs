@@ -6,14 +6,14 @@ module Didit
       UUID: Regexp
       LIFETIMES: Array[Integer]
       DECISIONS: Array[String]
-      ASSERTION_SECRETS: Array[String]
 
       def self.build: (String challenge, untyped decision, untyped assertion, untyped scopes, ?Hash[Symbol, untyped] extras) -> [Hash[String, untyped], Array[String]]
       def self.checked_assertion: (untyped assertion) -> Hash[untyped, untyped]
       def self.checked_organization_ids: (untyped ids) -> Array[String]
       def self.checked_lifetime: (untyped lifetime) -> Integer
       def self.checked_scopes: (untyped scopes) -> Array[String]
-      def self.assertion_secrets: (Hash[untyped, untyped] assertion) -> Array[String]
+      def self.assertion_secrets: (untyped value) -> Array[String]
+      def self.with_escaped_forms: (Array[String] secrets) -> Array[String]
     end
   end
 end

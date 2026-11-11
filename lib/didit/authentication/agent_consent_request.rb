@@ -3,7 +3,7 @@
 module Didit
   class Authentication
     # Builds and checks the body of +POST agents/consent/+, and names the strings of it that
-    # must never reach an error message: the challenge and the assertion's response members.
+    # must never reach an error: the challenge and every string of the assertion.
     #
     # @api private
     module AgentConsentRequest
@@ -12,9 +12,6 @@ module Didit
       UUID = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
       LIFETIMES = [86_400, 604_800, 2_592_000].freeze
       DECISIONS = %w[approve deny].freeze
-      # The assertion members that are secrets.
-      ASSERTION_SECRETS = %w[clientDataJSON authenticatorData signature userHandle].freeze
-
       # @return [Array(Hash, Array<String>)] the JSON body and its secret strings
       # @raise [Didit::ConfigurationError]
       def self.build(challenge, decision, assertion, scopes, extras = {})
@@ -30,6 +27,7 @@ module Didit
           body["assertion"] = checked_assertion(assertion)
           secrets.concat(assertion_secrets(assertion))
         end
+        secrets = with_escaped_forms(secrets)
         body["scopes"] = checked_scopes(scopes) unless scopes.nil?
         organization_ids = extras[:organization_ids]
         lifetime = extras[:lifetime]
@@ -63,13 +61,21 @@ module Didit
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
       end
 
-      def self.assertion_secrets(assertion)
-        response = assertion["response"] || assertion[:response]
-        return [] unless response.is_a?(Hash)
-
-        response.filter_map do |key, value|
-          value if ASSERTION_SECRETS.include?(key.to_s) && value.is_a?(String) && !value.empty?
+      # Every non-empty string value inside the assertion, at any depth (hash values, array items).
+      def self.assertion_secrets(value)
+        case value
+        when String then value.empty? ? [] : [value]
+        when Hash then value.values.flat_map { |item| assertion_secrets(item) }
+        when Array then value.flat_map { |item| assertion_secrets(item) }
+        else []
         end
+      end
+
+      # Each secret plus its JSON-escaped form (as it appears inside a raw JSON body), longest first
+      # so a secret that contains another is replaced whole.
+      def self.with_escaped_forms(secrets)
+        forms = secrets.flat_map { |secret| [secret, JSON.generate(secret)[1..-2].to_s] }
+        forms.reject(&:empty?).uniq.sort_by { |secret| -secret.length }
       end
     end
   end
