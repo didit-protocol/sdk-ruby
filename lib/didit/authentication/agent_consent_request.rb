@@ -60,10 +60,15 @@ module Didit
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
       end
 
-      # Every non-empty string inside the assertion, at any depth: object keys and values, array items.
+      # Strings shorter than this are not secrets: field names such as "id" and values such as "public-key"
+      # would otherwise erase error codes like "invalid_grant" (docs/DESIGN.md section 10).
+      MIN_SECRET_LENGTH = 16
+
+      # Every string of at least 16 characters inside the assertion, at any depth: object keys and values,
+      # array items.
       def self.assertion_secrets(value)
         case value
-        when String then value.empty? ? [] : [value]
+        when String then value.length >= MIN_SECRET_LENGTH ? [value] : []
         when Hash then value.flat_map { |key, item| assertion_secrets(key.to_s) + assertion_secrets(item) }
         when Array then value.flat_map { |item| assertion_secrets(item) }
         else []

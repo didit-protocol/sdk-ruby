@@ -84,8 +84,8 @@ module AuthenticationHelper
 
       context "when the issuer echoes every assertion string" do
         let(:markers) do
-          { id: "MARK-ID-1", raw: "MARK-RAWID-2", type: "MARK-TYPE-3", cdj: "MARK-CDJ-4/+=", ad: "MARK-AD-5",
-            sig: "MARK-SIG-6", handle: "MARK-HANDLE-7", ext: "MARK-EXT-8", deep: "MARK-DEEP-9", list: "MARK-LIST-10",
+          { id: "MARK-ID-1-padpadpad0123", raw: "MARK-RAWID-2-padpadpad0123", type: "MARK-TYPE-3-padpadpad0123", cdj: "MARK-CDJ-4/+=-padpad01", ad: "MARK-AD-5-padpadpad0123",
+            sig: "MARK-SIG-6-padpadpad0123", handle: "MARK-HANDLE-7-padpadpad0123", ext: "MARK-EXT-8-padpadpad0123", deep: "MARK-DEEP-9-padpadpad0123", list: "MARK-LIST-10-padpadpad0123",
             quoted: "MARK-\"QUOTED\"-11/\n" }
         end
         let(:full_assertion) do
@@ -120,8 +120,7 @@ module AuthenticationHelper
 
           expect(error).to be_a(Didit::BadRequestError)
           expect(leaks(error, secrets)).to eq([])
-          # Object keys of the assertion are secrets too, so "q" redacts "passkey_required" whole.
-          expect(error.body["detail"]).to eq("[redacted]")
+          expect(error.body["detail"]).to eq("passkey_required")
         end
 
         it "keeps all of them out of a text 400 body, JSON-escaped form included" do
@@ -135,7 +134,7 @@ module AuthenticationHelper
         end
 
         it "keeps a non-ASCII secret out of a text body that echoes it as ASCII-only JSON escapes" do
-          accented = "MARK-café-\u{1F600}-12"
+          accented = "MARK-café-\u{1F600}-12-padpad"
           assertion = full_assertion.merge("extra" => accented)
           issuer.route(:post, "/agents/consent/") do
             { status: 400, headers: { "Content-Type" => "text/plain" },
@@ -171,8 +170,8 @@ module AuthenticationHelper
       end
 
       context "when redacting structurally" do
-        let(:short) { "abc" }
-        let(:long) { "abcdef" }
+        let(:short) { "abcCREDENTIALID0123" }
+        let(:long) { "abcCREDENTIALID0123456789" }
 
         def submit_with(assertion)
           error_of do
@@ -195,35 +194,48 @@ module AuthenticationHelper
           reply_json(400, JSON.generate("detail" => "bad #{long} and #{short}", "other" => long))
           error = submit_with({ "id" => short, "signature" => long })
 
-          expect(shown(error)).not_to match(/abc|def/)
+          expect(shown(error)).not_to match(/abcCRED|456789/)
           expect(error.body).to eq("detail" => "[redacted]", "other" => "[redacted]")
         end
 
         it "redacts the whole string that contains a secret" do
-          reply_json(400, JSON.generate("detail" => "bad assertion xyzSECRETxyz", "keep" => "fine"))
-          error = submit_with({ "id" => "SECRET" })
+          reply_json(400, JSON.generate("detail" => "bad assertion xyzSECRET-0123456789abcdefxyz", "keep" => "fine"))
+          error = submit_with({ "id" => "SECRET-0123456789abcdef" })
 
           expect(error.body).to eq("detail" => "[redacted]", "keep" => "fine")
           expect(error.message).to start_with("HTTP 400: [redacted]")
         end
 
         it "redacts a secret used as an object key and numbers colliding keys" do
-          reply_json(400, JSON.generate("detail" => "no", "echo-SECRET-1" => "a", "echo-SECRET-2" => "b"))
-          error = submit_with({ "id" => "SECRET" })
+          reply_json(400,
+                     JSON.generate("detail" => "no", "echo-SECRET-0123456789abcdef-1" => "a",
+                                   "echo-SECRET-0123456789abcdef-2" => "b"))
+          error = submit_with({ "id" => "SECRET-0123456789abcdef" })
 
           expect(error.body).to eq("detail" => "no", "[redacted]" => "a", "[redacted]2" => "b")
-          expect(shown(error)).not_to include("SECRET")
+          expect(shown(error)).not_to include("SECRET-0123456789abcdef")
         end
 
         it "redacts a secret echoed with other JSON escape spellings" do
-          secret = "a/b+\u00e9"
-          body = '{"detail":"x","echo":"a\\/b+\\u00E9"}'
+          secret = "a/b+\u00e9-padding0123456"
+          body = '{"detail":"x","echo":"a\\/b+\\u00E9-padding0123456"}'
           reply_json(400, body)
           error = submit_with({ "id" => secret })
 
           expect(JSON.parse(body)["echo"]).to eq(secret)
           expect(error.body).to eq("detail" => "x", "echo" => "[redacted]")
-          expect(shown(error)).not_to include("a/b", "00E9", "\u00e9")
+          expect(shown(error)).not_to include("a/b", "00E9", "\u00e9", "padding0123456")
+        end
+
+        it "keeps an error code and short assertion strings readable while redacting long values" do
+          long = "Y3JlZGVudGlhbC1pZC0xMjM0NTY3ODkw"
+          reply_json(400, JSON.generate("error" => "invalid_grant", "detail" => "id public-key #{long}"))
+          error = submit_with({ "id" => long, "type" => "public-key" })
+
+          expect(error.body).to eq("error" => "invalid_grant", "detail" => "[redacted]")
+          expect(error.message).to start_with("HTTP 400: ")
+          expect(shown(error)).to include("invalid_grant")
+          expect(shown(error)).not_to include(long)
         end
 
         it "replaces a non-JSON body with [redacted] on the error" do

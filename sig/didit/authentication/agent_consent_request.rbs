@@ -6,6 +6,7 @@ module Didit
       UUID: Regexp
       LIFETIMES: Array[Integer]
       DECISIONS: Array[String]
+      MIN_SECRET_LENGTH: Integer
 
       def self.build: (String challenge, untyped decision, untyped assertion, untyped scopes, ?Hash[Symbol, untyped] extras) -> [Hash[String, untyped], Array[String]]
       def self.checked_assertion: (untyped assertion) -> Hash[untyped, untyped]
