@@ -27,7 +27,6 @@ module Didit
           body["assertion"] = checked_assertion(assertion)
           secrets.concat(assertion_secrets(assertion))
         end
-        secrets = with_escaped_forms(secrets)
         body["scopes"] = checked_scopes(scopes) unless scopes.nil?
         organization_ids = extras[:organization_ids]
         lifetime = extras[:lifetime]
@@ -61,23 +60,14 @@ module Didit
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
       end
 
-      # Every non-empty string value inside the assertion, at any depth (hash values, array items).
+      # Every non-empty string inside the assertion, at any depth: object keys and values, array items.
       def self.assertion_secrets(value)
         case value
         when String then value.empty? ? [] : [value]
-        when Hash then value.values.flat_map { |item| assertion_secrets(item) }
+        when Hash then value.flat_map { |key, item| assertion_secrets(key.to_s) + assertion_secrets(item) }
         when Array then value.flat_map { |item| assertion_secrets(item) }
         else []
         end
-      end
-
-      # Each secret plus its JSON-escaped forms, UTF-8 and ASCII-only (as in a raw JSON body), longest first
-      # so a secret that contains another is replaced whole.
-      def self.with_escaped_forms(secrets)
-        forms = secrets.flat_map do |secret|
-          [secret, JSON.generate(secret)[1..-2].to_s, JSON.generate(secret, ascii_only: true)[1..-2].to_s]
-        end
-        forms.reject(&:empty?).uniq.sort_by { |secret| -secret.length }
       end
     end
   end

@@ -72,7 +72,7 @@ module Didit
     def token_request: (Hash[String, String] form, Array[String] secrets) -> TokenResponse
     def bearer_call: (String http_method, URI::Generic uri, untyped access_token,
                       ?json: Hash[String, untyped]?,
-                      ?secrets: Array[String]) -> Http::Call
+                      ?secrets: Array[String], ?structured: bool) -> Http::Call
     def agent_request: (String path, String access_token, Hash[String, untyped] body, Array[String] secrets) -> Hash[String, untyped]
     def send_object: (Http::Call call) -> Hash[String, untyped]
     def issuer_uri: (String path) -> URI::Generic

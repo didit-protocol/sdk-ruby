@@ -24,13 +24,17 @@ module Didit
         # @return [Array<String>] tokens, codes and verifiers redacted from errors
         attr_reader :secrets
 
-        def initialize(http_method, uri, bearer: nil, form: nil, json: nil, secrets: [])
+        # @return [Boolean] redact errors from the parsed body, never from its raw text
+        attr_reader :structured
+
+        def initialize(http_method, uri, bearer: nil, form: nil, json: nil, secrets: [], structured: false)
           @http_method = http_method
           @uri = uri
           @bearer = bearer
           @form = form
           @json = json
           @secrets = secrets
+          @structured = structured
           freeze
         end
 
@@ -83,7 +87,8 @@ module Didit
         body = response.body.to_s
         unless (200..299).cover?(response.status)
           raise Internal::Errors.status_error(
-            status: response.status, headers: response.headers, raw_body: body, redact: call.secrets
+            status: response.status, headers: response.headers, raw_body: body, redact: call.secrets,
+            structured: call.structured
           )
         end
         return nil if response.status == 204 || body.empty?
@@ -109,9 +114,13 @@ module Didit
       # @return [Didit::APIResponseValidationError]
       def validation_error(call, response, message)
         body = response.body.to_s
+        shown = if call.structured
+                  Internal::Errors.structured_body(body, call.secrets)
+                else
+                  body.empty? ? nil : Internal::Util.redact(text_of(body), call.secrets)
+                end
         APIResponseValidationError.new(
-          message, status: response.status, headers: response.headers,
-                   body: body.empty? ? nil : Internal::Util.redact(text_of(body), call.secrets),
+          message, status: response.status, headers: response.headers, body: shown,
                    request_id: Internal::Util.request_id(response.headers)
         )
       end

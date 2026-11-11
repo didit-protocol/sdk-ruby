@@ -120,7 +120,8 @@ module AuthenticationHelper
 
           expect(error).to be_a(Didit::BadRequestError)
           expect(leaks(error, secrets)).to eq([])
-          expect(error.body["detail"]).to eq("passkey_required")
+          # Object keys of the assertion are secrets too, so "q" redacts "passkey_required" whole.
+          expect(error.body["detail"]).to eq("[redacted]")
         end
 
         it "keeps all of them out of a text 400 body, JSON-escaped form included" do
@@ -169,6 +170,91 @@ module AuthenticationHelper
         end
       end
 
+      context "when redacting structurally" do
+        let(:short) { "abc" }
+        let(:long) { "abcdef" }
+
+        def submit_with(assertion)
+          error_of do
+            auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                    assertion: assertion)
+          end
+        end
+
+        def shown(error)
+          [error.message, error.to_s, error.inspect, error.body.inspect, error.body.to_json].join("\n")
+        end
+
+        def reply_json(status, body, path = "/agents/consent/")
+          issuer.route(:post, path) do
+            { status: status, headers: { "Content-Type" => "application/json" }, body: body }
+          end
+        end
+
+        it "leaves no fragment of a secret that another secret prefixes" do
+          reply_json(400, JSON.generate("detail" => "bad #{long} and #{short}", "other" => long))
+          error = submit_with({ "id" => short, "signature" => long })
+
+          expect(shown(error)).not_to match(/abc|def/)
+          expect(error.body).to eq("detail" => "[redacted]", "other" => "[redacted]")
+        end
+
+        it "redacts the whole string that contains a secret" do
+          reply_json(400, JSON.generate("detail" => "bad assertion xyzSECRETxyz", "keep" => "fine"))
+          error = submit_with({ "id" => "SECRET" })
+
+          expect(error.body).to eq("detail" => "[redacted]", "keep" => "fine")
+          expect(error.message).to start_with("HTTP 400: [redacted]")
+        end
+
+        it "redacts a secret used as an object key and numbers colliding keys" do
+          reply_json(400, JSON.generate("detail" => "no", "echo-SECRET-1" => "a", "echo-SECRET-2" => "b"))
+          error = submit_with({ "id" => "SECRET" })
+
+          expect(error.body).to eq("detail" => "no", "[redacted]" => "a", "[redacted]2" => "b")
+          expect(shown(error)).not_to include("SECRET")
+        end
+
+        it "redacts a secret echoed with other JSON escape spellings" do
+          secret = "a/b+\u00e9"
+          body = '{"detail":"x","echo":"a\\/b+\\u00E9"}'
+          reply_json(400, body)
+          error = submit_with({ "id" => secret })
+
+          expect(JSON.parse(body)["echo"]).to eq(secret)
+          expect(error.body).to eq("detail" => "x", "echo" => "[redacted]")
+          expect(shown(error)).not_to include("a/b", "00E9", "\u00e9")
+        end
+
+        it "replaces a non-JSON body with [redacted] on the error" do
+          issuer.route(:post, "/agents/consent/") do
+            { status: 502, headers: { "Content-Type" => "text/html" },
+              body: "<html>Bad gateway #{agent_challenge}</html>" }
+          end
+          error = submit_with(assertion)
+
+          expect(error.body).to eq("[redacted]")
+          expect(shown(error)).not_to include(agent_challenge)
+        end
+
+        it "redacts a secret that sits past the length of a long body" do
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, headers: { "Content-Type" => "text/plain" }, body: "#{"x" * 600} #{agent_challenge}" }
+          end
+          error = submit_with(assertion)
+
+          expect(error.body).to eq("[redacted]")
+          expect(shown(error)).not_to include(agent_challenge)
+        end
+
+        it "redacts the options call from the parsed body too" do
+          reply_json(400, JSON.generate("detail" => "bad #{agent_challenge}"), "/agents/consent/passkey/")
+          error = error_of { auth.create_agent_approval_options(ACCESS_TOKEN, challenge: agent_challenge) }
+
+          expect(error.body).to eq("detail" => "[redacted]")
+        end
+      end
+
       it "checks the arguments before any request" do
         expect { auth.submit_agent_consent(ACCESS_TOKEN, challenge: " ", decision: "approve") }
           .to raise_error(Didit::ConfigurationError, /challenge is empty/)
@@ -211,7 +297,7 @@ module AuthenticationHelper
         error = error_of { auth.create_agent_approval_options(ACCESS_TOKEN, challenge: agent_challenge) }
 
         expect(error).to be_a(Didit::PermissionDeniedError)
-        expect(error.message).to start_with("HTTP 403: passkey_required [redacted]")
+        expect(error.message).to start_with("HTTP 403: [redacted]")
         expect(issuer.count("/agents/consent/passkey/")).to eq(1)
       end
 

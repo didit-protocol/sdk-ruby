@@ -13,7 +13,6 @@ module Didit
       def self.checked_lifetime: (untyped lifetime) -> Integer
       def self.checked_scopes: (untyped scopes) -> Array[String]
       def self.assertion_secrets: (untyped value) -> Array[String]
-      def self.with_escaped_forms: (Array[String] secrets) -> Array[String]
     end
   end
 end

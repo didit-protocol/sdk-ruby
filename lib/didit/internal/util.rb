@@ -39,6 +39,34 @@ module Didit
         redact_value(value, secrets)
       end
 
+      # Redacts a parsed JSON value structurally: every string (object key or value) that contains a secret
+      # anywhere in it becomes "[redacted]" as a whole. Strings are compared as decoded, so the spelling
+      # of the raw JSON text does not matter. A redacted key that collides with another key is numbered.
+      def redact_structured(value, secrets)
+        secrets = secrets.compact.reject(&:empty?)
+        case value
+        when String then secrets.any? { |secret| value.include?(secret) } ? REDACTED : value
+        when Array then value.map { |item| redact_structured(item, secrets) }
+        when Hash then redact_structured_hash(value, secrets)
+        else value
+        end
+      end
+
+      def redact_structured_hash(value, secrets)
+        # @type var result: Hash[untyped, untyped]
+        result = {}
+        value.each do |key, item|
+          name = redact_structured(key, secrets)
+          if result.key?(name)
+            number = 2
+            number += 1 while result.key?("#{name}#{number}")
+            name = "#{name}#{number}"
+          end
+          result[name] = redact_structured(item, secrets)
+        end
+        result
+      end
+
       def redact_value(value, secrets)
         case value
         when String then secrets.reduce(value) { |text, secret| text.gsub(secret, REDACTED) }

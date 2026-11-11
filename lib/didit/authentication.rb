@@ -488,16 +488,18 @@ module Didit
       TokenResponse.new(send_object(call))
     end
 
-    def bearer_call(http_method, uri, access_token, json: nil, secrets: [])
+    def bearer_call(http_method, uri, access_token, json: nil, secrets: [], structured: false)
       token = required_text(access_token, "access_token")
       # Sent in a header: printable ASCII only, so it can never split or extend the request.
       raise ConfigurationError, "access_token contains invalid characters." if token.b.match?(/[^\x21-\x7e]/n)
 
-      Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token, *secrets])
+      Http::Call.new(http_method, uri, bearer: token, json: json, secrets: [token, *secrets],
+                                       structured: structured)
     end
 
     def agent_request(path, access_token, body, secrets)
-      send_object(bearer_call("POST", issuer_uri(path), access_token, json: body, secrets: secrets))
+      send_object(bearer_call("POST", issuer_uri(path), access_token, json: body, secrets: secrets,
+                                                                      structured: true))
     end
 
     def send_object(call)
