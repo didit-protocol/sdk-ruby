@@ -65,9 +65,19 @@ module Didit
       # @return [Didit::Internal::Transport::Response]
       # @raise [Didit::APIConnectionError, Didit::APITimeoutError] when no response arrives
       def perform(call)
-        @transport.execute(VERBS.fetch(call.http_method), call.uri, headers_for(call), body_for(call), @timeout)
-      rescue Internal::Transport::Failure => e
-        error_class = e.timeout? ? APITimeoutError : APIConnectionError
+        error_class = APIConnectionError
+        begin
+          verb = VERBS.fetch(call.http_method)
+          return @transport.execute(verb, call.uri, headers_for(call), body_for(call), @timeout)
+        rescue Internal::Transport::Failure => e
+          error_class = e.timeout? ? APITimeoutError : APIConnectionError
+        rescue StandardError
+          # A request that carries secrets reports a fixed error for anything a transport raises.
+          raise unless call.structured
+
+          error_class = APIConnectionError
+        end
+        # Raised outside the handlers, so no cause carries the transport's text, which may quote the request.
         raise error_class.new(http_method: call.http_method, url: call.display_url)
       end
 

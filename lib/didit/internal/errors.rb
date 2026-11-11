@@ -30,6 +30,8 @@ module Didit
         if structured
           body = structured_body(raw_body, redact)
           message = message_for(status, body)
+          # Header values are issuer-controlled too: one that contains a secret is replaced whole.
+          headers = headers.transform_values { |value| Util.redact_structured(value, redact) }
         else
           body = Util.redact(parse_body(raw_body), redact)
           message = Util.redact(message_for(status, body), redact)
@@ -40,9 +42,10 @@ module Didit
 
       # The response body with the secrets redacted structurally, never from its raw text: the parsed JSON
       # with every string that contains a secret replaced whole, "[redacted]" when the body is not JSON,
-      # nil when it is empty.
+      # `[redacted]` when it is empty.
       def structured_body(raw_body, secrets)
-        return nil if raw_body.nil? || raw_body.empty?
+        # An empty body is not JSON.
+        return Util::REDACTED if raw_body.nil? || raw_body.empty?
 
         text = raw_body.dup.force_encoding(Encoding::UTF_8)
         text = text.scrub unless text.valid_encoding?

@@ -53,14 +53,20 @@ module Didit
       end
 
       def redact_structured_hash(value, secrets)
+        # Reserve every safe key name first, so a placeholder never takes one.
+        taken = value.keys.select { |key| redact_structured(key, secrets) == key }
+        number = 1
         # @type var result: Hash[untyped, untyped]
         result = {}
         value.each do |key, item|
-          name = redact_structured(key, secrets)
-          if result.key?(name)
-            number = 2
-            number += 1 while result.key?("#{name}#{number}")
-            name = "#{name}#{number}"
+          name = key
+          if redact_structured(key, secrets) != key
+            loop do
+              name = number == 1 ? REDACTED : "#{REDACTED}#{number}"
+              number += 1
+              break unless taken.include?(name)
+            end
+            taken << name
           end
           result[name] = redact_structured(item, secrets)
         end

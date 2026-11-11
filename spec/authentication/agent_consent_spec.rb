@@ -269,6 +269,52 @@ module AuthenticationHelper
           expect(shown(error)).not_to include(sent)
         end
 
+        it "turns an empty body into [redacted]" do
+          issuer.route(:post, "/agents/consent/") { { status: 502, headers: {}, body: "" } }
+          error = submit_with({ "id" => "short" })
+
+          expect(error.body).to eq("[redacted]")
+        end
+
+        it "keeps a safe key named [redacted] after a secret key" do
+          secret = "SECRET-0123456789abcdef"
+          reply_json(400, %({"a-#{secret}":"x","[redacted]":"safe"}))
+          error = submit_with({ "id" => secret })
+
+          expect(error.body).to eq("[redacted]2" => "x", "[redacted]" => "safe")
+        end
+
+        it "redacts the request id and headers" do
+          credential = "credential-string-0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 400, body: '{"error":"invalid_grant"}',
+              headers: { "Content-Type" => "application/json", "X-Request-Id" => "req-#{credential}",
+                         "X-Echo" => credential } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error.request_id).to eq("[redacted]")
+          expect(error.message).not_to include(credential)
+          expect(error.headers.to_s).not_to include(credential)
+        end
+
+        [Errno::ECONNRESET, RuntimeError].each do |raised|
+          it "keeps no text or cause of a #{raised} transport failure" do
+            credential = 'cred"ential\\string-0123456789'
+            issuer
+            stub_request(:post, "#{ISSUER}/agents/consent/")
+              .to_raise(raised.new("write failed: #{JSON.generate("id" => credential)}"))
+            error = error_of do
+              auth.submit_agent_consent(ACCESS_TOKEN, challenge: agent_challenge, decision: "approve",
+                                                      assertion: { "id" => credential })
+            end
+
+            expect(error).to be_a(Didit::APIConnectionError)
+            expect(error.cause).to be_nil
+            expect([error.message, error.inspect].join).not_to match(/ential|write failed/)
+          end
+        end
+
         it "replaces a non-JSON body with [redacted] on the error" do
           issuer.route(:post, "/agents/consent/") do
             { status: 502, headers: { "Content-Type" => "text/html" },
