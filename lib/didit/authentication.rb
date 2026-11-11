@@ -267,6 +267,9 @@ module Didit
     # options of {#create_agent_approval_options} (a Hash; binary fields base64url encoded),
     # otherwise the issuer answers HTTP 403 +passkey_required+. A denial needs none.
     # +scopes+ narrows the requested scopes ("read", "act"); omitted means all of them.
+    # +organization_ids+ (up to 100 UUID strings) are the organizations the person grants; omitted means
+    # none. +lifetime+ is the grant lifetime in seconds (86400, 604800 or 2592000), limited by the
+    # application policy; omitted means the policy lifetime.
     # Never retried. Neither outcome carries an access or refresh token.
     #
     # @param decision [String, Symbol] "approve" or "deny"
@@ -276,8 +279,10 @@ module Didit
     #   {AgentConsent#denied?} carries +status+ "denied"
     # @raise [Didit::BadRequestError] +invalid_grant+ for an unknown or expired challenge
     # @raise [Didit::PermissionDeniedError] +passkey_required+ for an approval without a valid assertion
-    def submit_agent_consent(access_token, challenge:, decision:, assertion: nil, scopes: nil)
-      body, secrets = AgentConsentRequest.build(required_text(challenge, "challenge"), decision, assertion, scopes)
+    def submit_agent_consent(access_token, challenge:, decision:, assertion: nil, scopes: nil, organization_ids: nil,
+                             lifetime: nil)
+      body, secrets = AgentConsentRequest.build(required_text(challenge, "challenge"), decision, assertion, scopes,
+                                                { organization_ids: organization_ids, lifetime: lifetime })
       AgentConsent.new(agent_request(AgentConsentRequest::CONSENT_PATH, access_token, body, secrets))
     end
 

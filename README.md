@@ -220,7 +220,8 @@ step_up = auth.create_step_up(access_token, action: "payout", amount: "250.00", 
 auth.retrieve_step_up(access_token, step_up.id).approved? # act only on status "approved"
 
 options = auth.create_agent_approval_options(access_token, challenge: agent_challenge).options # WebAuthn options for the browser
-consent = auth.submit_agent_consent(access_token, challenge: agent_challenge, decision: "approve", assertion: assertion)
+consent = auth.submit_agent_consent(access_token, challenge: agent_challenge, decision: "approve", assertion: assertion,
+                                    scopes: ["read"], organization_ids: [org_id], lifetime: 86_400)
 consent.approved? ? consent.code : consent.denied?        # the agent request secret (challenge) is never logged
 ```
 

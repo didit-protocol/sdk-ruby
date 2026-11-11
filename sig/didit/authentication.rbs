@@ -46,7 +46,8 @@ module Didit
                          ?return_to: String?) -> StepUp
     def retrieve_step_up: (String access_token, String step_up_id) -> StepUp
     def submit_agent_consent: (String access_token, challenge: String, decision: String | Symbol,
-                               ?assertion: Hash[untyped, untyped]?, ?scopes: Array[String]?) -> AgentConsent
+                               ?assertion: Hash[untyped, untyped]?, ?scopes: Array[String]?,
+                               ?organization_ids: Array[String]?, ?lifetime: Integer?) -> AgentConsent
     def create_agent_approval_options: (String access_token, challenge: String) -> AgentApprovalOptions
     def discovery: () -> Hash[String, untyped]
     def jwks: () -> Hash[String, untyped]

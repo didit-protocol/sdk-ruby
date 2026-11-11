@@ -3,11 +3,15 @@ module Didit
     module AgentConsentRequest
       CONSENT_PATH: String
       OPTIONS_PATH: String
+      UUID: Regexp
+      LIFETIMES: Array[Integer]
       DECISIONS: Array[String]
       ASSERTION_SECRETS: Array[String]
 
-      def self.build: (String challenge, untyped decision, untyped assertion, untyped scopes) -> [Hash[String, untyped], Array[String]]
+      def self.build: (String challenge, untyped decision, untyped assertion, untyped scopes, ?Hash[Symbol, untyped] extras) -> [Hash[String, untyped], Array[String]]
       def self.checked_assertion: (untyped assertion) -> Hash[untyped, untyped]
+      def self.checked_organization_ids: (untyped ids) -> Array[String]
+      def self.checked_lifetime: (untyped lifetime) -> Integer
       def self.checked_scopes: (untyped scopes) -> Array[String]
       def self.assertion_secrets: (Hash[untyped, untyped] assertion) -> Array[String]
     end
