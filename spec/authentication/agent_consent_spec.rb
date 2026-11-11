@@ -84,9 +84,11 @@ module AuthenticationHelper
 
       context "when the issuer echoes every assertion string" do
         let(:markers) do
-          { id: "MARK-ID-1-padpadpad0123", raw: "MARK-RAWID-2-padpadpad0123", type: "MARK-TYPE-3-padpadpad0123", cdj: "MARK-CDJ-4/+=-padpad01", ad: "MARK-AD-5-padpadpad0123",
-            sig: "MARK-SIG-6-padpadpad0123", handle: "MARK-HANDLE-7-padpadpad0123", ext: "MARK-EXT-8-padpadpad0123", deep: "MARK-DEEP-9-padpadpad0123", list: "MARK-LIST-10-padpadpad0123",
-            quoted: "MARK-\"QUOTED\"-11/\n" }
+          { id: "MARK-ID-1-padpadpad0123", raw: "MARK-RAWID-2-padpadpad0123",
+            type: "MARK-TYPE-3-padpadpad0123", cdj: "MARK-CDJ-4/+=-padpad01", ad: "MARK-AD-5-padpadpad0123",
+            sig: "MARK-SIG-6-padpadpad0123", handle: "MARK-HANDLE-7-padpadpad0123",
+            ext: "MARK-EXT-8-padpadpad0123", deep: "MARK-DEEP-9-padpadpad0123",
+            list: "MARK-LIST-10-padpadpad0123", quoted: "MARK-\"QUOTED\"-11/\n" }
         end
         let(:full_assertion) do
           m = markers
