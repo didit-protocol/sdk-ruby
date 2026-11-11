@@ -252,6 +252,23 @@ module AuthenticationHelper
           expect(shown(error)).not_to include(nested)
         end
 
+        it "reads the secrets from the bytes sent, not from a second serialization" do
+          sent = "credential-string-actually-sent-0123"
+          calls = 0
+          extension = Object.new
+          extension.define_singleton_method(:to_json) do |*args|
+            calls += 1
+            raise "serialized twice" if calls > 1
+
+            { "credProps" => { "value" => sent } }.to_json(*args)
+          end
+          reply_json(400, JSON.generate("error" => "invalid_grant", "echo" => sent))
+          error = submit_with({ "id" => "short", "clientExtensionResults" => extension })
+
+          expect(error.body).to eq("error" => "invalid_grant", "echo" => "[redacted]")
+          expect(shown(error)).not_to include(sent)
+        end
+
         it "replaces a non-JSON body with [redacted] on the error" do
           issuer.route(:post, "/agents/consent/") do
             { status: 502, headers: { "Content-Type" => "text/html" },

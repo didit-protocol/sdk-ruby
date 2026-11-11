@@ -22,17 +22,16 @@ module Didit
 
         # @type var body: Hash[String, untyped]
         body = { "challenge" => challenge, "decision" => decision }
-        secrets = [challenge]
-        unless assertion.nil?
-          body["assertion"] = checked_assertion(assertion)
-          secrets.concat(assertion_secrets(wire_json(assertion)))
-        end
+        body["assertion"] = checked_assertion(assertion) unless assertion.nil?
         body["scopes"] = checked_scopes(scopes) unless scopes.nil?
         organization_ids = extras[:organization_ids]
         lifetime = extras[:lifetime]
         body["organization_ids"] = checked_organization_ids(organization_ids) unless organization_ids.nil?
         body["lifetime"] = checked_lifetime(lifetime) unless lifetime.nil?
-        [body, secrets]
+        # Encoded exactly once: the plain body decoded from these bytes is what is sent, and the secrets are
+        # read from it, so a caller's object is never serialized a second time.
+        body = JSON.parse(JSON.generate(body))
+        [body, [challenge, *assertion_secrets(body["assertion"])]]
       end
 
       def self.checked_organization_ids(ids)
@@ -58,12 +57,6 @@ module Didit
         return scopes if scopes.is_a?(Array) && !scopes.empty? && scopes.all? { |s| s.is_a?(String) && !s.empty? }
 
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
-      end
-
-      # The assertion as the request carries it: encoded with the encoder of the request body and decoded
-      # back into plain hashes, arrays and strings, whatever objects the caller nested in it.
-      def self.wire_json(assertion)
-        JSON.parse(JSON.generate(assertion))
       end
 
       # Strings shorter than this are not secrets: field names such as "id" and values such as "public-key"
