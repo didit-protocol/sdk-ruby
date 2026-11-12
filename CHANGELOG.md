@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.14.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.13.1...v2.14.0) (2026-11-12)
+
+
+### API changes that can break typed code
+
+* **spec:** `cases.blueprints.publish` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/publish/`): response `content_config`: type changed from any to object ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+* **spec:** `cases.create` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/`): request body `links[].entity_type`: added (required) ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+* **spec:** `cases.create` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/`): request body `links[].entity_uuid`: added (required) ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-12 ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+
 ## [2.13.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.13.0...v2.13.1) (2026-11-12)
 
 
