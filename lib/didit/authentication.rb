@@ -296,7 +296,8 @@ module Didit
     def create_agent_approval_options(access_token, challenge:)
       challenge = required_text(challenge, "challenge")
       AgentApprovalOptions.new(
-        agent_request(AgentConsentRequest::OPTIONS_PATH, access_token, { "challenge" => challenge }, [challenge])
+        agent_request(AgentConsentRequest::OPTIONS_PATH, access_token,
+                      AgentConsentRequest.encode_once({ "challenge" => challenge }), [challenge])
       )
     end
 
