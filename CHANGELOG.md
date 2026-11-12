@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.13.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.13.0...v2.13.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **authentication:** a body nested past the depth limit is not JSON ([c0cb38e](https://github.com/didit-protocol/sdk-ruby/commit/c0cb38edf6f8302c640bfac2bac2e8191b3c123f))
+* **authentication:** a failure to encode a consent request has a fixed message ([2f2bdb7](https://github.com/didit-protocol/sdk-ruby/commit/2f2bdb7302fb6b56db5b1b29cd90cf447ef588a5))
+* **authentication:** a malformed 2xx consent error keeps no parser exception as its cause ([e9cad91](https://github.com/didit-protocol/sdk-ruby/commit/e9cad918b725708f14ee37f5f07922ab78d074be))
+* **authentication:** a malformed 2xx consent message reads the content type from the sanitized response ([fa0e897](https://github.com/didit-protocol/sdk-ruby/commit/fa0e897c76d810f473b2f4c69cd6025883ba1ce5))
+* **authentication:** collect consent secrets from the JSON the request carries ([ada5949](https://github.com/didit-protocol/sdk-ruby/commit/ada5949ad9afd041cbf8f2766e5889f66600dae7))
+* **authentication:** read consent secrets from the bytes that were sent ([02a0be4](https://github.com/didit-protocol/sdk-ruby/commit/02a0be4ef2688595a66aeda5f03e512f20109b94))
+* **authentication:** redact every string of the consent assertion from errors ([c1ed630](https://github.com/didit-protocol/sdk-ruby/commit/c1ed63076c21fd9a66939045b026bb68592ad580))
+* **authentication:** redact the parsed agent-consent response, not its raw text ([9d8dfef](https://github.com/didit-protocol/sdk-ruby/commit/9d8dfef87e9c2d2f5433551b75de28a98608cd1b))
+* **authentication:** sanitize the whole consent response once on receipt ([d7f875d](https://github.com/didit-protocol/sdk-ruby/commit/d7f875deabe3cb4a0311ced9d6bf416a4c7ef19d))
+* **authentication:** successful consent responses reach the caller unchanged; fold header-name case ([9becd6d](https://github.com/didit-protocol/sdk-ruby/commit/9becd6d166d122deeec244248890a0a4f5c8b847))
+* **authentication:** the approval-options call encodes through the same fixed-message wrapper ([570043e](https://github.com/didit-protocol/sdk-ruby/commit/570043e36c63e494708c2f7cc8ab0ae412633c1f))
+* **authentication:** treat only assertion strings of 16+ characters as secrets ([e072900](https://github.com/didit-protocol/sdk-ruby/commit/e072900a01bb52e865159ef88811c2398bd442e2))
+* **authentication:** withhold transport causes, redact empty bodies, headers and request id, keep safe key names ([d966dc2](https://github.com/didit-protocol/sdk-ruby/commit/d966dc27fe9dcc0909446272961258cdb22178fb))
+
 ## [2.13.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.12.0...v2.13.0) (2026-11-11)
 
 
