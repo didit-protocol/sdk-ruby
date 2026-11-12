@@ -3,7 +3,7 @@
 module Didit
   class Authentication
     # Builds and checks the body of +POST agents/consent/+, and names the strings of it that
-    # must never reach an error message: the challenge and the assertion's response members.
+    # must never reach an error: the challenge and every string of the assertion.
     #
     # @api private
     module AgentConsentRequest
@@ -12,9 +12,6 @@ module Didit
       UUID = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
       LIFETIMES = [86_400, 604_800, 2_592_000].freeze
       DECISIONS = %w[approve deny].freeze
-      # The assertion members that are secrets.
-      ASSERTION_SECRETS = %w[clientDataJSON authenticatorData signature userHandle].freeze
-
       # @return [Array(Hash, Array<String>)] the JSON body and its secret strings
       # @raise [Didit::ConfigurationError]
       def self.build(challenge, decision, assertion, scopes, extras = {})
@@ -25,17 +22,30 @@ module Didit
 
         # @type var body: Hash[String, untyped]
         body = { "challenge" => challenge, "decision" => decision }
-        secrets = [challenge]
-        unless assertion.nil?
-          body["assertion"] = checked_assertion(assertion)
-          secrets.concat(assertion_secrets(assertion))
-        end
+        body["assertion"] = checked_assertion(assertion) unless assertion.nil?
         body["scopes"] = checked_scopes(scopes) unless scopes.nil?
         organization_ids = extras[:organization_ids]
         lifetime = extras[:lifetime]
         body["organization_ids"] = checked_organization_ids(organization_ids) unless organization_ids.nil?
         body["lifetime"] = checked_lifetime(lifetime) unless lifetime.nil?
-        [body, secrets]
+        # Encoded exactly once: the plain body decoded from these bytes is what is sent, and the secrets are
+        # read from it, so a caller's object is never serialized a second time.
+        body = encode_once(body)
+        [body, [challenge, *assertion_secrets(body["assertion"])]]
+      end
+
+      # A nested object's serializer may put the challenge or a credential in its error message: any failure
+      # is a fixed-message error with no cause.
+      def self.encode_once(body)
+        encoded = nil
+        begin
+          encoded = JSON.parse(JSON.generate(body))
+        rescue StandardError, SystemStackError
+          encoded = nil
+        end
+        raise ConfigurationError, "could not encode the agent consent request." if encoded.nil?
+
+        encoded
       end
 
       def self.checked_organization_ids(ids)
@@ -63,12 +73,19 @@ module Didit
         raise ConfigurationError, "scopes must be a non-empty array of strings such as [\"read\", \"act\"]."
       end
 
-      def self.assertion_secrets(assertion)
-        response = assertion["response"] || assertion[:response]
-        return [] unless response.is_a?(Hash)
+      # Strings shorter than this are not secrets: field names such as "id" and values such as "public-key"
+      # would otherwise erase error codes like "invalid_grant" (docs/DESIGN.md section 10).
+      # Sensitive values are 16+ chars: user handles are 16-byte ids (22 base64url), credential ids 16+ bytes.
+      MIN_SECRET_LENGTH = 16
 
-        response.filter_map do |key, value|
-          value if ASSERTION_SECRETS.include?(key.to_s) && value.is_a?(String) && !value.empty?
+      # Every string of at least 16 characters inside the assertion, at any depth: object keys and values,
+      # array items.
+      def self.assertion_secrets(value)
+        case value
+        when String then value.length >= MIN_SECRET_LENGTH ? [value] : []
+        when Hash then value.flat_map { |key, item| assertion_secrets(key.to_s) + assertion_secrets(item) }
+        when Array then value.flat_map { |item| assertion_secrets(item) }
+        else []
         end
       end
     end

@@ -32,6 +32,38 @@ module Didit
         klass.new(message, status: status, headers: headers, body: body, request_id: Util.request_id(headers))
       end
 
+      # The response of a call whose answer may echo secrets (the agent consent calls), sanitized once on
+      # receipt: status kept; each header whose name contains a secret dropped and the other values redacted;
+      # the body redacted structurally, never from its raw text (the parsed JSON with every string that
+      # contains a secret replaced whole, "[redacted]" when it is not JSON, cut at the size limit or empty).
+      # Every error of these calls is built from this response only.
+      #
+      # @return [Didit::Internal::Transport::Response]
+      def sanitized_response(response, secrets)
+        # @type var headers: Hash[String, String]
+        headers = {}
+        response.headers.each do |name, value|
+          # Header names are case-insensitive: compare case-folded.
+          next if secrets.any? { |secret| secret && !secret.empty? && name.downcase.include?(secret.downcase) }
+
+          headers[name] = Util.redact_structured(value, secrets)
+        end
+        Transport::Response.new(status: response.status, headers: headers,
+                                body: sanitized_body(response.body.to_s, secrets))
+      end
+
+      # @return [String] the redacted JSON text, or "[redacted]"
+      def sanitized_body(raw_body, secrets)
+        return Util::REDACTED if raw_body.empty?
+
+        text = raw_body.dup.force_encoding(Encoding::UTF_8)
+        text = text.scrub unless text.valid_encoding?
+        JSON.generate(Util.redact_structured(JSON.parse(text), secrets))
+      rescue JSON::ParserError, SystemStackError
+        # Not JSON, or nested past the parser's or the walk's depth limit: not JSON.
+        Util::REDACTED
+      end
+
       # The parsed JSON body, else the text, else nil.
       def parse_body(raw_body)
         return nil if raw_body.nil? || raw_body.empty?

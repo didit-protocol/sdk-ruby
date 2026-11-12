@@ -24,13 +24,17 @@ module Didit
         # @return [Array<String>] tokens, codes and verifiers redacted from errors
         attr_reader :secrets
 
-        def initialize(http_method, uri, bearer: nil, form: nil, json: nil, secrets: [])
+        # @return [Boolean] redact errors from the parsed body, never from its raw text
+        attr_reader :structured
+
+        def initialize(http_method, uri, bearer: nil, form: nil, json: nil, secrets: [], structured: false)
           @http_method = http_method
           @uri = uri
           @bearer = bearer
           @form = form
           @json = json
           @secrets = secrets
+          @structured = structured
           freeze
         end
 
@@ -61,9 +65,21 @@ module Didit
       # @return [Didit::Internal::Transport::Response]
       # @raise [Didit::APIConnectionError, Didit::APITimeoutError] when no response arrives
       def perform(call)
-        @transport.execute(VERBS.fetch(call.http_method), call.uri, headers_for(call), body_for(call), @timeout)
-      rescue Internal::Transport::Failure => e
-        error_class = e.timeout? ? APITimeoutError : APIConnectionError
+        error_class = APIConnectionError
+        begin
+          verb = VERBS.fetch(call.http_method)
+          response = @transport.execute(verb, call.uri, headers_for(call), body_for(call), @timeout)
+          # A successful response reaches the caller unchanged; errors are built from a sanitized copy only.
+          return response
+        rescue Internal::Transport::Failure => e
+          error_class = e.timeout? ? APITimeoutError : APIConnectionError
+        rescue StandardError
+          # A request that carries secrets reports a fixed error for anything a transport raises.
+          raise unless call.structured
+
+          error_class = APIConnectionError
+        end
+        # Raised outside the handlers, so no cause carries the transport's text, which may quote the request.
         raise error_class.new(http_method: call.http_method, url: call.display_url)
       end
 
@@ -82,18 +98,26 @@ module Didit
       def read(call, response)
         body = response.body.to_s
         unless (200..299).cover?(response.status)
+          response = error_response(call, response)
+          body = response.body.to_s
           raise Internal::Errors.status_error(
-            status: response.status, headers: response.headers, raw_body: body, redact: call.secrets
+            status: response.status, headers: response.headers, raw_body: body, redact: redactions(call)
           )
         end
         return nil if response.status == 204 || body.empty?
 
+        parsed = nil
+        failed = false
         begin
-          JSON.parse(text_of(body))
+          parsed = JSON.parse(text_of(body))
         rescue JSON::ParserError
-          content_type = response.headers.fetch("content-type", "no content type")
-          raise validation_error(call, response, "Expected a JSON response from #{call.describe}, got #{content_type}.")
+          failed = true
         end
+        return parsed unless failed
+
+        # Raised outside the rescue: the parser's error quotes the raw input, so it is never the cause.
+        content_type = error_response(call, response).headers.fetch("content-type", "no content type")
+        raise validation_error(call, response, "Expected a JSON response from #{call.describe}, got #{content_type}.")
       end
 
       # The JSON object of a 2xx response.
@@ -108,15 +132,26 @@ module Didit
 
       # @return [Didit::APIResponseValidationError]
       def validation_error(call, response, message)
+        response = error_response(call, response)
         body = response.body.to_s
+        shown = body.empty? ? nil : Internal::Util.redact(text_of(body), redactions(call))
         APIResponseValidationError.new(
-          message, status: response.status, headers: response.headers,
-                   body: body.empty? ? nil : Internal::Util.redact(text_of(body), call.secrets),
+          message, status: response.status, headers: response.headers, body: shown,
                    request_id: Internal::Util.request_id(response.headers)
         )
       end
 
       private
+
+      # The response an error is built from: a sanitized copy for a consent call, else the response.
+      def error_response(call, response)
+        call.structured ? Internal::Errors.sanitized_response(response, call.secrets) : response
+      end
+
+      # A structured call's response is already sanitized, so nothing is replaced again.
+      def redactions(call)
+        call.structured ? [] : call.secrets
+      end
 
       def headers_for(call)
         headers = {

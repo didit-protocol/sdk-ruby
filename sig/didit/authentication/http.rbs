@@ -8,9 +8,10 @@ module Didit
         attr_reader form: Hash[String, String]?
         attr_reader json: Hash[String, untyped]?
         attr_reader secrets: Array[String]
+        attr_reader structured: bool
 
         def initialize: (String http_method, URI::Generic uri, ?bearer: String?, ?form: Hash[String, String]?,
-                         ?json: Hash[String, untyped]?, ?secrets: Array[String]) -> void
+                         ?json: Hash[String, untyped]?, ?secrets: Array[String], ?structured: bool) -> void
         def display_url: () -> String
         def describe: () -> String
       end
@@ -31,6 +32,8 @@ module Didit
 
       def headers_for: (Call call) -> Hash[String, String]
       def body_for: (Call call) -> String?
+      def error_response: (Call call, Internal::Transport::Response response) -> Internal::Transport::Response
+      def redactions: (Call call) -> Array[String]
       def text_of: (String body) -> String
     end
   end

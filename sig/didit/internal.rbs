@@ -11,6 +11,8 @@ module Didit
       def self?.client_header: () -> String
       def self?.request_id: (Hash[String, String] headers) -> String?
       def self?.redact: [T] (T value, Array[String?] secrets) -> T
+      def self?.redact_structured: (untyped value, Array[String?] secrets) -> untyped
+      def self?.redact_structured_hash: (Hash[untyped, untyped] value, Array[String] secrets) -> Hash[untyped, untyped]
       def self?.redact_value: (untyped value, Array[String] secrets) -> untyped
       def self?.origin: (URI::Generic | String uri) -> String
       def self?.display_url: (URI::Generic | String uri) -> String
@@ -23,6 +25,8 @@ module Didit
       DETAIL_KEYS: Array[String]
 
       def self?.status_error: (status: Integer, headers: Hash[String, String], raw_body: String?, ?redact: Array[String?]) -> APIStatusError
+      def self?.sanitized_response: (Transport::Response response, Array[String?] secrets) -> Transport::Response
+      def self?.sanitized_body: (String raw_body, Array[String?] secrets) -> String
       def self?.parse_body: (String? raw_body) -> untyped
       def self?.message_for: (Integer status, untyped body) -> String
       def self?.detail_of: (untyped body) -> String?
