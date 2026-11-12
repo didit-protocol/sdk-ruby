@@ -367,6 +367,17 @@ module AuthenticationHelper # rubocop:disable Metrics/ModuleLength
           expect(error.message).not_to include(credential)
         end
 
+        it "keeps no parser error as the cause of a malformed 2xx" do
+          credential = "credential-string-0123456789"
+          issuer.route(:post, "/agents/consent/") do
+            { status: 200, body: "{not json #{credential}", headers: { "Content-Type" => "application/json" } }
+          end
+          error = submit_with({ "id" => credential })
+
+          expect(error.cause).to be_nil
+          expect([error.message, error.inspect, error.full_message].join).not_to include(credential)
+        end
+
         [Errno::ECONNRESET, RuntimeError].each do |raised|
           it "keeps no text or cause of a #{raised} transport failure" do
             credential = 'cred"ential\\string-0123456789'

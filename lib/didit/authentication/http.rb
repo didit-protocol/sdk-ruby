@@ -106,12 +106,18 @@ module Didit
         end
         return nil if response.status == 204 || body.empty?
 
+        parsed = nil
+        failed = false
         begin
-          JSON.parse(text_of(body))
+          parsed = JSON.parse(text_of(body))
         rescue JSON::ParserError
-          content_type = error_response(call, response).headers.fetch("content-type", "no content type")
-          raise validation_error(call, response, "Expected a JSON response from #{call.describe}, got #{content_type}.")
+          failed = true
         end
+        return parsed unless failed
+
+        # Raised outside the rescue: the parser's error quotes the raw input, so it is never the cause.
+        content_type = error_response(call, response).headers.fetch("content-type", "no content type")
+        raise validation_error(call, response, "Expected a JSON response from #{call.describe}, got #{content_type}.")
       end
 
       # The JSON object of a 2xx response.
