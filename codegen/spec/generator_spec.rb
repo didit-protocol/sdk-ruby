@@ -196,9 +196,9 @@ RSpec.describe DiditCodegen::Generator do
 
     def add_link_operations(create_body)
       paths["/v3/things/{thingId}/links/"] = {
-        "post" => operation("Link", naming("things.links", "create"), "parameters" => [thing_id],
-                                                                      "requestBody" => body_of(create_body),
-                                                                      "responses" => { "204" => { "description" => "none" } })
+        "post" => operation("Link", naming("things.links", "create"),
+                            "parameters" => [thing_id], "requestBody" => body_of(create_body),
+                            "responses" => { "204" => { "description" => "none" } })
       }
       paths["/v3/things/"]["post"]["requestBody"] = body_of(
         "type" => "object", "properties" => { "links" => { "type" => "array", "items" => link_ref } }
