@@ -166,6 +166,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -183,7 +188,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -366,6 +382,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -383,7 +404,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -645,6 +677,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -662,7 +699,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -882,6 +930,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -899,7 +952,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -1480,6 +1544,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -1497,7 +1566,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -1683,6 +1763,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -1700,7 +1785,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -1883,6 +1979,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -1900,7 +2001,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -2083,6 +2195,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -2100,7 +2217,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -2288,6 +2416,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -2305,7 +2438,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -2631,6 +2775,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -2648,7 +2797,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -2834,6 +2994,11 @@ RSpec.describe Didit::Resources::Cases do
               "enabled": true,
               "payment_methods": true,
               "transactions": true
+            },
+            "stages": {
+              "items": [
+                "example"
+              ]
             }
           },
           "creation_sources": [
@@ -2851,7 +3016,18 @@ RSpec.describe Didit::Resources::Cases do
           ],
           "updated_at": "2026-01-02T03:04:05Z",
           "version": 1,
-          "default_deadline_hours": 1
+          "default_deadline_hours": 1,
+          "applies_to": [
+            "GENERAL"
+          ],
+          "stages": [
+            {
+              "key": "triage",
+              "label": "Triage",
+              "sla_hours": 1,
+              "worked_by": "a0000000-0000-4000-8000-000000000001"
+            }
+          ]
         },
         "notes": [
           {
@@ -2936,6 +3112,48 @@ RSpec.describe Didit::Resources::Cases do
     exercise_readers(result)
   end
 
+  it "cases.blueprints.ai_draft sends POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/ai-draft/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "draft": {
+          "name": "AML review",
+          "applies_to": [
+            "AML"
+          ],
+          "require_resolution_note": true,
+          "content_config": {
+            "stages": {
+              "items": [
+                {
+                  "key": "triage",
+                  "label": "Triage",
+                  "sla_hours": 24
+                }
+              ]
+            }
+          }
+        }
+      }
+    JSON
+    result = client.cases.blueprints.ai_draft(
+      prompt: "Draft an AML review policy with triage and evidence review stages."
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/cases/blueprints/ai-draft/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "prompt" => "Draft an AML review policy with triage and evidence review stages."
+    })
+    expect(result).to be_a(Didit::Types::CaseBlueprintAiDraftResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "cases.blueprints.create sends POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -2994,6 +3212,16 @@ RSpec.describe Didit::Resources::Cases do
             "enabled": true,
             "payment_methods": true,
             "transactions": true
+          },
+          "stages": {
+            "items": [
+              {
+                "key": "example",
+                "label": "example",
+                "sla_hours": "example",
+                "worked_by": "example"
+              }
+            ]
           }
         },
         "creation_sources": [
@@ -3011,7 +3239,18 @@ RSpec.describe Didit::Resources::Cases do
         ],
         "updated_at": "2026-01-02T03:04:05Z",
         "version": 1,
-        "default_deadline_hours": 1
+        "default_deadline_hours": 1,
+        "applies_to": [
+          "GENERAL"
+        ],
+        "stages": [
+          {
+            "key": "triage",
+            "label": "Triage",
+            "sla_hours": 1,
+            "worked_by": "a0000000-0000-4000-8000-000000000001"
+          }
+        ]
       }
     JSON
     result = client.cases.blueprints.create(
@@ -3027,8 +3266,20 @@ RSpec.describe Didit::Resources::Cases do
           enabled: true,
           financial: true,
           identity: false
+        },
+        stages: {
+          items: [
+            {
+              label: "Triage",
+              sla_hours: 24,
+              worked_by: nil
+            }
+          ]
         }
-      }
+      },
+      applies_to: [
+        "AML"
+      ]
     )
     request = expect_api_request(
       calls,
@@ -3051,8 +3302,20 @@ RSpec.describe Didit::Resources::Cases do
           "enabled" => true,
           "financial" => true,
           "identity" => false
+        },
+        "stages" => {
+          "items" => [
+            {
+              "label" => "Triage",
+              "sla_hours" => 24,
+              "worked_by" => nil
+            }
+          ]
         }
-      }
+      },
+      "applies_to" => [
+        "AML"
+      ]
     })
     expect(result).to be_a(Didit::Types::CaseBlueprintDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -3154,7 +3417,18 @@ RSpec.describe Didit::Resources::Cases do
             "preset_key": "preset_key-value",
             "created_at": "2026-01-02T03:04:05Z",
             "version": 1,
-            "default_deadline_hours": 1
+            "default_deadline_hours": 1,
+            "applies_to": [
+              "GENERAL"
+            ],
+            "stages": [
+              {
+                "key": "example",
+                "label": "example",
+                "sla_hours": "example",
+                "worked_by": "example"
+              }
+            ]
           }
         ]
       }
@@ -3249,6 +3523,9 @@ RSpec.describe Didit::Resources::Cases do
                 "enabled": "example",
                 "payment_methods": "example",
                 "transactions": "example"
+              },
+              "stages": {
+                "items": "example"
               }
             },
             "installed": true
@@ -3287,7 +3564,55 @@ RSpec.describe Didit::Resources::Cases do
         "four_eyes_checker_blueprint": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "four_eyes_checker_blueprint_name": "four_eyes_checker_blueprint_name-value",
         "require_resolution_note": true,
-        "content_config": {},
+        "content_config": {
+          "checklist": {
+            "enabled": true,
+            "optional": true,
+            "items": [
+              {
+                "label": "example",
+                "order": "example"
+              }
+            ]
+          },
+          "aml_control": {
+            "enabled": true,
+            "financial": true,
+            "identity": true
+          },
+          "identity": {
+            "enabled": true,
+            "personal_information": true,
+            "applicant_tags": true,
+            "contact_information": true,
+            "risk_overview": true,
+            "poi_documents": true,
+            "poa_documents": true
+          },
+          "verifications": {
+            "enabled": true,
+            "summary": true
+          },
+          "reporting": {
+            "enabled": true,
+            "fiu_reports": true
+          },
+          "financial": {
+            "enabled": true,
+            "payment_methods": true,
+            "transactions": true
+          },
+          "stages": {
+            "items": [
+              {
+                "key": "example",
+                "label": "example",
+                "sla_hours": "example",
+                "worked_by": "example"
+              }
+            ]
+          }
+        },
         "version": 1,
         "default_deadline_hours": 1,
         "is_active": true,
@@ -3299,7 +3624,18 @@ RSpec.describe Didit::Resources::Cases do
           {}
         ],
         "created_at": "2026-01-02T03:04:05Z",
-        "updated_at": "2026-01-02T03:04:05Z"
+        "updated_at": "2026-01-02T03:04:05Z",
+        "applies_to": [
+          "GENERAL"
+        ],
+        "stages": [
+          {
+            "key": "triage",
+            "label": "Triage",
+            "sla_hours": 1,
+            "worked_by": "a0000000-0000-4000-8000-000000000001"
+          }
+        ]
       }
     JSON
     result = client.cases.blueprints.publish(
@@ -3382,6 +3718,16 @@ RSpec.describe Didit::Resources::Cases do
             "enabled": true,
             "payment_methods": true,
             "transactions": true
+          },
+          "stages": {
+            "items": [
+              {
+                "key": "example",
+                "label": "example",
+                "sla_hours": "example",
+                "worked_by": "example"
+              }
+            ]
           }
         },
         "creation_sources": [
@@ -3399,7 +3745,18 @@ RSpec.describe Didit::Resources::Cases do
         ],
         "updated_at": "2026-01-02T03:04:05Z",
         "version": 1,
-        "default_deadline_hours": 1
+        "default_deadline_hours": 1,
+        "applies_to": [
+          "GENERAL"
+        ],
+        "stages": [
+          {
+            "key": "triage",
+            "label": "Triage",
+            "sla_hours": 1,
+            "worked_by": "a0000000-0000-4000-8000-000000000001"
+          }
+        ]
       }
     JSON
     result = client.cases.blueprints.retrieve(
@@ -3544,6 +3901,16 @@ RSpec.describe Didit::Resources::Cases do
             "enabled": true,
             "payment_methods": true,
             "transactions": true
+          },
+          "stages": {
+            "items": [
+              {
+                "key": "example",
+                "label": "example",
+                "sla_hours": "example",
+                "worked_by": "example"
+              }
+            ]
           }
         },
         "creation_sources": [
@@ -3561,7 +3928,18 @@ RSpec.describe Didit::Resources::Cases do
         ],
         "updated_at": "2026-01-02T03:04:05Z",
         "version": 1,
-        "default_deadline_hours": 1
+        "default_deadline_hours": 1,
+        "applies_to": [
+          "GENERAL"
+        ],
+        "stages": [
+          {
+            "key": "triage",
+            "label": "Triage",
+            "sla_hours": 1,
+            "worked_by": "a0000000-0000-4000-8000-000000000001"
+          }
+        ]
       }
     JSON
     result = client.cases.blueprints.update(

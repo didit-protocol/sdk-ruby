@@ -25,6 +25,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TransactionsCreateParamsTravelRuleDetailsCounterpartyChoice
+      DISCOVERY: String
+      USER: String
+
+      VALUES: Array[String]
+    end
+
     module TransactionsListResponseResultsDirection
       INBOUND: String
       OUTBOUND: String
@@ -117,6 +124,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TransactionsTravelRuleCreateUserLinkParamsChannel
+      LINK: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
     module TransactionsTravelRuleTriggerTestVaspInboundParamsScenario
       ACCEPT: String
       NAME_MISMATCH: String
@@ -130,6 +144,17 @@ module Didit
       UPDATE_COMPLIANCE_EMAIL: String
       UPDATE_ORIGINATOR_WALLET: String
       BENEFICIARY_VASP: String
+      ADD_VASP_HINT: String
+
+      VALUES: Array[String]
+    end
+
+    module TransactionsTravelRuleUpdateTransferParamsReason
+      VALUE: String
+      USER_CANCELLED: String
+      WRONG_WALLET: String
+      COMPLIANCE_DECISION: String
+      OTHER: String
 
       VALUES: Array[String]
     end
@@ -246,7 +271,7 @@ module Didit
 
     type transactions_create_params_transaction_details_crypto_params = { ?crypto_chain: String }
 
-    type transactions_create_params_travel_rule_details = { status: String, ?protocol: String, ?required: bool, ?obligations_count: Integer, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?metadata: Hash[String | Symbol, untyped], ?utxo: Didit::Types::travel_rule_utxo, ?originator: Hash[String | Symbol, untyped], ?beneficiary: Hash[String | Symbol, untyped], ?ivms101: Hash[String | Symbol, untyped] }
+    type transactions_create_params_travel_rule_details = { status: String, ?protocol: String, ?required: bool, ?obligations_count: Integer, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?metadata: Hash[String | Symbol, untyped], ?utxo: Didit::Types::travel_rule_utxo, ?originator: Hash[String | Symbol, untyped], ?beneficiary: Hash[String | Symbol, untyped], ?ivms101: Hash[String | Symbol, untyped], ?counterparty_choice: String }
 
     type transactions_create_sdk_token_params = { vendor_data: String, ?ttl_seconds: Integer, ?max_uses: Integer? }
 
@@ -266,8 +291,10 @@ module Didit
 
     type transactions_travel_rule_create_message_params = { ?kind: String, ?body: String, ?requested_documents: Array[String], ?reply_to: String?, ?files: Array[Didit::upload] }
 
+    type transactions_travel_rule_create_user_link_params = { ?channel: String }
+
     type transactions_travel_rule_trigger_test_vasp_inbound_params = { beneficiary_wallet_address: String, ?scenario: String, ?chain: String, ?amount: String, ?currency: String, ?reference: String }
 
-    type transactions_travel_rule_update_transfer_params = { ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String }
+    type transactions_travel_rule_update_transfer_params = { ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String, ?reason: String, ?notify_on_answer: bool, ?name: String, ?lei: String, ?country: String, ?vasp_name: String }
   end
 end

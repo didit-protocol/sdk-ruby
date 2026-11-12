@@ -63,7 +63,7 @@ module DiditCodegen
         schema, encoding, file_fields, media = merge_body(op, request_body.fetch("content", {}))
         has_body_example, body_example = example_of(media, op.document.resolve(schema))
         root = op.document.resolve(schema)
-        type = @types.request(op.document, root, "#{prefix}Params", group)
+        type = @types.request(op.document, params_schema(schema, root, prefix), "#{prefix}Params", group)
         if type.kind == :record && @types.registry.records[type.name]
           record = @types.registry.records[type.name]
           record.fields.each do |field|
@@ -163,6 +163,18 @@ module DiditCodegen
       required = Array(json_schema["required"]) & Array(multipart_schema["required"])
       merged = json_schema.except("$ref").merge("properties" => props, "required" => required)
       [merged, :auto, files.sort, json_media]
+    end
+
+    # A body that is exactly a $ref to a component whose generated name is the operation's own params
+    # name IS the params type (docs/DESIGN.md section 5.1): it is built once, as the component, so
+    # the component and the operation do not register two records under one name. Any other body
+    # keeps the operation's params type.
+    def params_schema(schema, root, prefix)
+      ref = schema.is_a?(Hash) ? schema["$ref"] : nil
+      return root unless ref&.start_with?("#/components/schemas/")
+      return root unless ref.split("/").last == "#{prefix}Params"
+
+      schema.slice("$ref")
     end
 
     def binary_fields(op, schema)

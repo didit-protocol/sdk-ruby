@@ -184,6 +184,44 @@ RSpec.describe DiditCodegen::Generator do
     end
   end
 
+  describe "a component that is an operation's whole request body (docs/DESIGN.md section 5.1)" do
+    let(:link_ref) { { "$ref" => "#/components/schemas/ThingsLinksCreateParams" } }
+    let(:link_schema) do
+      { "type" => "object", "required" => ["kind"], "properties" => { "kind" => { "type" => "string" } } }
+    end
+
+    def body_of(schema)
+      { "content" => { "application/json" => { "schema" => schema } } }
+    end
+
+    def add_link_operations(create_body)
+      paths["/v3/things/{thingId}/links/"] = {
+        "post" => operation("Link", naming("things.links", "create"), "parameters" => [thing_id],
+                                                                      "requestBody" => body_of(create_body),
+                                                                      "responses" => { "204" => { "description" => "none" } })
+      }
+      paths["/v3/things/"]["post"]["requestBody"] = body_of(
+        "type" => "object", "properties" => { "links" => { "type" => "array", "items" => link_ref } }
+      )
+    end
+
+    it "uses the component as the params type of the operation and as the item type elsewhere" do
+      schemas["ThingsLinksCreateParams"] = link_schema
+      add_link_operations(link_ref)
+      files = build(dir).files
+      all_rbs = files.select { |path, _| path.end_with?(".rbs") }
+      expect(all_rbs.values.join.scan("type things_links_create_params =").size).to eq(1)
+      expect(all_rbs.values.join).to include("def create: (String thing_id, kind: String, ?request_options:")
+      expect(all_rbs.values.join).to include("?links: Array[Didit::Types::things_links_create_params]")
+    end
+
+    it "still refuses two genuinely different types with one name" do
+      schemas["ThingsLinksCreateParams"] = link_schema
+      add_link_operations("type" => "object", "properties" => { "other" => { "type" => "string" } })
+      expect { build(dir) }.to raise_error(DiditCodegen::Error, /both named things_links_create_params/)
+    end
+  end
+
   describe "methods" do
     let(:files) { build(dir).files }
     let(:things) { files.fetch("lib/didit/resources/things.rb") }

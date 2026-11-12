@@ -204,7 +204,10 @@ module Didit
       # Create case
       #
       # Create a case anchored to exactly one subject (a user or a business), directly or by deriving the subject from
-      # an attached session/transaction link. Source is always `MANUAL` for API-created cases.
+      # an attached session/transaction link. Source is always `MANUAL` for API-created cases. Network links require
+      # write:cases plus read:networks, Networks access and investigation access for the network scope. The network
+      # must be visible and contain the case subject. Manually adding links to network-generated cases is not allowed.
+      # An explicit subject is required whenever links includes a network.
       #
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/+
       #
@@ -213,10 +216,11 @@ module Didit
       # @param priority [String]
       # @param due_at [Time, String, nil]
       # @param tags [Array<String>]
-      # @param subject [Hash] Required unless links is provided; the case's exactly-one subject.
-      # @param links [Array<Hash>] Sessions/business sessions/transactions to attach on creation, e.g.
-      #   [{"entity_type": "transaction", "entity_uuid": "..."}]. When subject is omitted, the subject is derived from
-      #   the first link's owner.
+      # @param subject [Hash] Exactly one user or business. Supply explicitly when any network link is supplied, even
+      #   alongside other link types; otherwise may be derived from links.
+      # @param links [Array<Hash>] Up to 500 session, business_session, transaction or network links; at most 20 when
+      #   review_duplicates=true. When any network link is present, subject must be supplied explicitly. Otherwise the
+      #   subject may be derived from a linked record.
       # @param assigned_to [String, nil] User UUID to assign immediately.
       # @param review_duplicates [Boolean] Recheck existing investigations before creating the case. When true, a
       #   subject with existing cases requires a nonblank separate_incident_reason. The console always enables this
@@ -770,11 +774,39 @@ module Didit
 
       # The +cases.blueprints+ resource.
       class Blueprints < Didit::Resource
+        # Draft case blueprint with AI
+        #
+        # Generate an unsaved blueprint proposal. Requires write:cases. Returns a draft object, not a blueprint UUID;
+        # no blueprint or saved policy draft is created. Review the proposal, choose assignees and any teams,
+        # approvals or routing, then create or update a blueprint separately. Invalid generated content or generation
+        # failure returns 503. See [blueprint AI drafts](/management-api/case-blueprints/ai-draft).
+        #
+        # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/ai-draft/+
+        #
+        # @param prompt [String] Nonblank description of the review policy to propose.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::CaseBlueprintAiDraftResponse]
+        def ai_draft(prompt:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/ai-draft/",
+            body: {
+              "prompt" => prompt
+            },
+            scope: :application,
+            response: Types::CaseBlueprintAiDraftResponse,
+            request_options: request_options
+          )
+        end
+
         # Create blueprint
         #
         # Create a case blueprint: general settings (assignment, escalation, transfer, 4-eyes pairing) plus
         # content_config, the six sections that drive the case page. Set publish=false to create an unpublished draft;
-        # Publish creates its first live version. Discarding a never-published draft deletes it.
+        # Publish creates its first live version. Discarding a never-published draft deletes it. applies_to accepts
+        # the six case-type values. content_config.stages.items[].worked_by is an optional active review-team UUID
+        # from this application. These settings are preserved in case policy snapshots; later edits do not change
+        # existing snapshots.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/+
         #
@@ -792,14 +824,16 @@ module Didit
         # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this
         #   blueprint stage on the checker blueprint's queue.
         # @param require_resolution_note [Boolean]
-        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case
-        #   page. Unknown sections or keys are rejected.
+        # @param content_config [Hash] Case content sections and optional review stages. Unknown sections or keys are
+        #   rejected. Cases retain the policy snapshot accepted when opened; later blueprint edits do not rewrite it.
         # @param is_active [Boolean]
         # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case
         #   deadlines are unchanged.
         # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0
         #   until the draft is explicitly published. Omitting this field preserves immediate creation for existing
         #   integrations.
+        # @param applies_to [Array<String>] Case types this blueprint describes. Optional on create and update; new
+        #   blueprints default to an empty list. Stored in the accepted case policy snapshot.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def create(
@@ -817,6 +851,7 @@ module Didit
           is_active: OMIT,
           default_deadline_hours: OMIT,
           publish: OMIT,
+          applies_to: OMIT,
           request_options: nil
         )
           @client.request(
@@ -836,7 +871,8 @@ module Didit
               "content_config" => content_config,
               "is_active" => is_active,
               "default_deadline_hours" => default_deadline_hours,
-              "publish" => publish
+              "publish" => publish,
+              "applies_to" => applies_to
             },
             scope: :application,
             response: Types::CaseBlueprintDetail,
@@ -1063,7 +1099,10 @@ module Didit
 
         # Update blueprint
         #
-        # Partially update a blueprint's general settings or content_config.
+        # Partially update a blueprint's general settings or content_config. applies_to accepts the six case-type
+        # values. content_config.stages.items[].worked_by is an optional active review-team UUID from this
+        # application. These settings are preserved in case policy snapshots; later edits do not change existing
+        # snapshots.
         #
         # +PATCH /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/+
         #
@@ -1082,13 +1121,15 @@ module Didit
         # @param four_eyes_checker_blueprint [String, nil] Setting this enables 4-eyes review: resolutions on this
         #   blueprint stage on the checker blueprint's queue.
         # @param require_resolution_note [Boolean]
-        # @param content_config [Hash] The six togglable sections that drive which tabs and fields appear on the case
-        #   page. Unknown sections or keys are rejected.
+        # @param content_config [Hash] Case content sections and optional review stages. Unknown sections or keys are
+        #   rejected. Cases retain the policy snapshot accepted when opened; later blueprint edits do not rewrite it.
         # @param is_active [Boolean]
         # @param default_deadline_hours [Integer, nil] Default deadline for newly opened cases. Existing case
         #   deadlines are unchanged.
         # @param expected_version [Integer] The version opened by the editor. A stale version returns 409 without
         #   changing the review policy.
+        # @param applies_to [Array<String>] Case types this blueprint describes. Optional on create and update; new
+        #   blueprints default to an empty list. Stored in the accepted case policy snapshot.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def update(
@@ -1107,6 +1148,7 @@ module Didit
           is_active: OMIT,
           default_deadline_hours: OMIT,
           expected_version: OMIT,
+          applies_to: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1127,7 +1169,8 @@ module Didit
               "content_config" => content_config,
               "is_active" => is_active,
               "default_deadline_hours" => default_deadline_hours,
-              "expected_version" => expected_version
+              "expected_version" => expected_version,
+              "applies_to" => applies_to
             },
             scope: :application,
             response: Types::CaseBlueprintDetail,
@@ -1190,13 +1233,16 @@ module Didit
       class Links < Didit::Resource
         # Add case link
         #
-        # Attach a session, business session, or transaction to the case. Rejected with 400 if the entity belongs to a
-        # different subject than the case.
+        # Attach a session, business session, transaction, or network to the case. Rejected with 400 if the entity
+        # belongs to a different subject than the case. Network links require write:cases plus read:networks, Networks
+        # access and investigation access for the network scope. The network must be visible and contain the case
+        # subject. Manually adding links to network-generated cases is not allowed.
         #
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/links/+
         #
         # @param case_uuid [String] Case UUID.
-        # @param entity_type [String]
+        # @param entity_type [String] Type of record to attach. A network must be visible and contain the selected
+        #   case subject.
         # @param entity_uuid [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseLink]

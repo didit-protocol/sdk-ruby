@@ -29,6 +29,52 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.create_vasp sends POST /v3/travel-rule/vasps/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "kind": "directory",
+        "name": "Example VASP",
+        "lei": "",
+        "jurisdiction": "DE",
+        "source": "added_by_you",
+        "contacts": [
+          {
+            "id": "22222222-3333-4444-5555-666666666666",
+            "email": "compliance@example.com",
+            "name": "",
+            "source": "application",
+            "scope": "application",
+            "verified_at": null
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.create_vasp(
+      name: "Example VASP",
+      email: "compliance@example.com",
+      jurisdiction: "DE",
+      invite: false
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Example VASP",
+      "email" => "compliance@example.com",
+      "jurisdiction" => "DE",
+      "invite" => false
+    })
+    expect(result).to be_a(Didit::Types::VaspDirectoryEntry)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.create_widget_session sends POST /v3/travel-rule/widget-session/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -259,7 +305,8 @@ RSpec.describe Didit::Resources::TravelRule do
                 "current": "example",
                 "answers": "example"
               }
-            ]
+            ],
+            "source": "didit_network"
           }
         ]
       }
@@ -440,7 +487,18 @@ RSpec.describe Didit::Resources::TravelRule do
           ],
           "deliveries_truncated": true,
           "not_required_reason": "below_threshold",
-          "proof_state": "not_required"
+          "proof_state": "not_required",
+          "cancel_reason": "",
+          "cancelled_by": "cancelled_by-value",
+          "notify_on_answer": true,
+          "user_choice": {
+            "active": true,
+            "waiting": true,
+            "end_user_link": "end_user_link-value",
+            "link_expires_at": "2026-01-02T03:04:05Z",
+            "emailed_to": "emailed_to-value",
+            "email_available": true
+          }
         }
       }
     JSON
@@ -752,7 +810,8 @@ RSpec.describe Didit::Resources::TravelRule do
               "data_protection": "Encrypted at rest and in transit, stored in the EU."
             }
           }
-        ]
+        ],
+        "source": "directory"
       }
     JSON
     result = client.travel_rule.retrieve_vasp(

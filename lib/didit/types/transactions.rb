@@ -30,6 +30,16 @@ module Didit
       VALUES = [INBOUND, OUTBOUND, IN, OUT].freeze
     end
 
+    # discovery uses automatic counterparty discovery. user asks the end user to choose, issues a link and attempts
+    # email when their Didit record has an address. Cannot be combined with beneficiary_data.counterparty_vasp_name or
+    # counterparty_vasp_lei. Read user_choice in the response; link or email failure does not fail creation.
+    module TransactionsCreateParamsTravelRuleDetailsCounterpartyChoice
+      DISCOVERY = "discovery"
+      USER = "user"
+
+      VALUES = [DISCOVERY, USER].freeze
+    end
+
     # Direction relative to the subject. Stored uppercase regardless of the casing submitted.
     module TransactionsListResponseResultsDirection
       INBOUND = "INBOUND"
@@ -137,6 +147,14 @@ module Didit
       VALUES = [MESSAGE, DOCUMENT_REQUEST].freeze
     end
 
+    # link returns a new link; email also attempts to send it to the end user's Didit-record email.
+    module TransactionsTravelRuleCreateUserLinkParamsChannel
+      LINK = "link"
+      EMAIL = "email"
+
+      VALUES = [LINK, EMAIL].freeze
+    end
+
     # What the Didit Test VASP declares the beneficiary to be. `accept` declares the holder's own name;
     # `name_mismatch` declares a name no holder agrees with. The decision itself is always yours.
     module TransactionsTravelRuleTriggerTestVaspInboundParamsScenario
@@ -152,14 +170,28 @@ module Didit
     # those three statuses; send "resend" afterwards. "update_originator_wallet" records the wallet the funds actually
     # left from (`wallet_address`, `memo`). "beneficiary_vasp" names the counterparty VASP yourself (requires
     # `beneficiary_vasp`) for an outbound transfer in one of those statuses: it is routed to that VASP and sent again.
+    # "add_vasp_hint" saves a counterparty name and optional LEI and country, then re-runs discovery on an outbound
+    # transfer in a resendable status.
     module TransactionsTravelRuleUpdateTransferParamsAction
       CANCEL = "cancel"
       RESEND = "resend"
       UPDATE_COMPLIANCE_EMAIL = "update_compliance_email"
       UPDATE_ORIGINATOR_WALLET = "update_originator_wallet"
       BENEFICIARY_VASP = "beneficiary_vasp"
+      ADD_VASP_HINT = "add_vasp_hint"
 
-      VALUES = [CANCEL, RESEND, UPDATE_COMPLIANCE_EMAIL, UPDATE_ORIGINATOR_WALLET, BENEFICIARY_VASP].freeze
+      VALUES = [CANCEL, RESEND, UPDATE_COMPLIANCE_EMAIL, UPDATE_ORIGINATOR_WALLET, BENEFICIARY_VASP, ADD_VASP_HINT].freeze
+    end
+
+    # With action=cancel: your cancellation reason. Omitted or empty means unspecified.
+    module TransactionsTravelRuleUpdateTransferParamsReason
+      VALUE = ""
+      USER_CANCELLED = "user_cancelled"
+      WRONG_WALLET = "wrong_wallet"
+      COMPLIANCE_DECISION = "compliance_decision"
+      OTHER = "other"
+
+      VALUES = [VALUE, USER_CANCELLED, WRONG_WALLET, COMPLIANCE_DECISION, OTHER].freeze
     end
 
     class TransactionsCreateSdkTokenResponse < Didit::Model

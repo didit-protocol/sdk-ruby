@@ -61,6 +61,38 @@ module Didit
         )
       end
 
+      # Create a private VASP directory entry
+      #
+      # Add a VASP privately to your application and optionally invite it. Requires write access to transactions. The
+      # response uses source=added_by_you. A matching visible name or LEI returns 409 with the existing vasp_id. See
+      # [Search the directory](/management-api/travel-rule/search-vasps).
+      #
+      # +POST /v3/travel-rule/vasps/+
+      #
+      # @param name [String] VASP name, trimmed; must not be empty.
+      # @param email [String] Compliance email saved as an application-private contact and used for an optional
+      #   invitation.
+      # @param lei [String] Optional LEI, normalized to uppercase.
+      # @param jurisdiction [String] Optional ISO 3166 alpha-2 or alpha-3 country code, normalized to uppercase.
+      # @param invite [Boolean] Send an invitation to the supplied email.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::VaspDirectoryEntry]
+      def create_vasp(name:, email:, lei: OMIT, jurisdiction: OMIT, invite: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/vasps/",
+          body: {
+            "name" => name,
+            "email" => email,
+            "lei" => lei,
+            "jurisdiction" => jurisdiction,
+            "invite" => invite
+          },
+          response: Types::VaspDirectoryEntry,
+          request_options: request_options
+        )
+      end
+
       # Mint a wallet-ownership widget session
       #
       # Mint a hosted wallet-ownership widget URL/token. Send the customer to the returned url to prove control of a
@@ -143,7 +175,9 @@ module Didit
       # ESMA interim MiCA register, the public TRISA directory, the global LEI register and its own curation, plus the
       # members of the Didit network. Each row carries the routes your application has to it today. Your own
       # application's profile is never listed. Rows also carry the shared due-diligence assessment and your
-      # application's own decision, entity screening and questionnaires.
+      # application's own decision, entity screening and questionnaires. Includes entries your application added
+      # privately. The optional source field distinguishes their provenance; kind=didit member results may omit
+      # source.
       #
       # +GET /v3/travel-rule/vasps/+
       #
@@ -809,6 +843,9 @@ module Didit
         #
         # +GET /v3/travel-rule/transfers/+
         #
+        # @param search [String] Exact transfer or transaction UUID, or a case-insensitive fragment of txn_id, either
+        #   side's declared or resolved wallet address, or VASP name. Whitespace is trimmed; only the first 255
+        #   characters are searched. Combines with the other filters.
         # @param direction [String] INBOUND, OUTBOUND, or both comma-separated. Case-sensitive.
         # @param status [String] One or more transfer statuses, comma-separated.
         # @param rail [String] One or more of INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, TEST_VASP,
@@ -824,6 +861,7 @@ module Didit
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Page<Didit::Types::TravelRuleTransferRow>]
         def list(
+          search: OMIT,
           direction: OMIT,
           status: OMIT,
           rail: OMIT,
@@ -840,6 +878,7 @@ module Didit
             :get,
             "/v3/travel-rule/transfers/",
             query: {
+              "search" => search,
               "direction" => direction,
               "status" => status,
               "rail" => rail,

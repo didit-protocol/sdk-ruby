@@ -34,10 +34,11 @@ module Didit
       class TravelRule < Didit::Resource
         def confirm_ownership: (String transaction_id, confirmed: bool, ?wallet_address: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
         def create_message: (String transaction_id, ?kind: String, ?body: String, ?requested_documents: Array[String], ?reply_to: String?, ?files: Array[Didit::upload], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleMessage
+        def create_user_link: (String transaction_id, ?channel: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleUserLinkResponse
         def list_deliveries: (String transaction_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleDeliveryLogEntry]
         def list_messages: (String transaction_id, ?request_options: Didit::request_options?) -> Array[Didit::Types::TravelRuleMessage]
         def trigger_test_vasp_inbound: (beneficiary_wallet_address: String, ?scenario: String, ?chain: String, ?amount: String, ?currency: String, ?reference: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTestVaspInboundResponse
-        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
+        def update_transfer: (String transaction_id, ?payment_txn_id: String, ?action: String, ?compliance_email: String, ?wallet_address: String, ?memo: String, ?beneficiary_vasp: String, ?reason: String, ?notify_on_answer: bool, ?name: String, ?lei: String, ?country: String, ?vasp_name: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleTransferDetail
       end
     end
   end
