@@ -23,8 +23,8 @@ module Didit
       def results: () -> Array[Didit::Types::WorkflowListItem]?
     end
 
-    type workflows_create_params = { ?workflow_label: String, ?is_default: bool, ?status: String, features: Array[Didit::Types::simple_workflow_feature], ?is_white_label_enabled: bool, ?is_desktop_allowed: bool, ?max_retry_attempts: Integer, ?retry_window_days: Integer?, ?face_liveness_max_attempts: Integer, ?face_match_max_attempts: Integer, ?session_expiration_time: Integer }
+    type workflows_create_params = { ?workflow_label: String, ?is_default: bool, ?status: String, features: Array[Didit::Types::simple_workflow_feature], ?is_white_label_enabled: bool, ?is_desktop_allowed: bool, ?is_session_reference_enabled: bool, ?max_retry_attempts: Integer, ?retry_window_days: Integer?, ?face_liveness_max_attempts: Integer, ?face_match_max_attempts: Integer, ?session_expiration_time: Integer }
 
-    type workflows_update_params = { ?workflow_label: String, ?is_default: bool, ?status: String, ?features: Array[Didit::Types::simple_workflow_feature], ?is_white_label_enabled: bool, ?is_desktop_allowed: bool, ?max_retry_attempts: Integer, ?retry_window_days: Integer?, ?face_liveness_max_attempts: Integer, ?face_match_max_attempts: Integer, ?session_expiration_time: Integer }
+    type workflows_update_params = { ?workflow_label: String, ?is_default: bool, ?status: String, ?features: Array[Didit::Types::simple_workflow_feature], ?is_white_label_enabled: bool, ?is_desktop_allowed: bool, ?is_session_reference_enabled: bool, ?max_retry_attempts: Integer, ?retry_window_days: Integer?, ?face_liveness_max_attempts: Integer, ?face_match_max_attempts: Integer, ?session_expiration_time: Integer }
   end
 end

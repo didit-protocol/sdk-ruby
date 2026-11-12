@@ -67,15 +67,6 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
-    module CasesLinksCreateParamsEntityType
-      SESSION = "session"
-      BUSINESS_SESSION = "business_session"
-      TRANSACTION = "transaction"
-
-      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION].freeze
-    end
-
-    # Known values of an open enum: the API may send others.
     module CasesListParamsOrdering
       CREATED_AT = "created_at"
       CREATED_AT_ = "-created_at"

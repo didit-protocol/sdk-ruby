@@ -436,6 +436,24 @@ module Didit
       VALUES: Array[String]
     end
 
+    module CaseBlueprintAiDraftAssignmentMethod
+      MANUAL: String
+      AUTOMATIC: String
+
+      VALUES: Array[String]
+    end
+
+    module CaseBlueprintAppliesToValues
+      GENERAL: String
+      VERIFICATION_REVIEW: String
+      BUSINESS_REVIEW: String
+      AML: String
+      TRANSACTION_MONITORING: String
+      DUPLICATES: String
+
+      VALUES: Array[String]
+    end
+
     module CaseBlueprintDetailAssignmentMethod
       MANUAL: String
       AUTOMATIC: String
@@ -507,6 +525,7 @@ module Didit
       SESSION: String
       BUSINESS_SESSION: String
       TRANSACTION: String
+      NETWORK: String
 
       VALUES: Array[String]
     end
@@ -589,6 +608,7 @@ module Didit
       SESSION: String
       BUSINESS_SESSION: String
       TRANSACTION: String
+      NETWORK: String
 
       VALUES: Array[String]
     end
@@ -671,6 +691,15 @@ module Didit
     module CaseSubjectType
       USER: String
       BUSINESS: String
+
+      VALUES: Array[String]
+    end
+
+    module CasesLinksCreateParamsEntityType
+      SESSION: String
+      BUSINESS_SESSION: String
+      TRANSACTION: String
+      NETWORK: String
 
       VALUES: Array[String]
     end
@@ -2914,6 +2943,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionDecisionKeyPeopleChecksListedCompanyDeclarationType
+      LISTED_COMPANY: String
+      SUBSIDIARY_OF_LISTED_COMPANY: String
+
+      VALUES: Array[String]
+    end
+
     module SessionDecisionKeyPeopleChecksRegistryBeneficialOwnersAmlStatus
       NOT_FINISHED: String
       APPROVED: String
@@ -4813,6 +4849,16 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleTransferDetailCancelReason
+      VALUE: String
+      USER_CANCELLED: String
+      WRONG_WALLET: String
+      COMPLIANCE_DECISION: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleTransferDetailDirection
       INBOUND: String
       OUTBOUND: String
@@ -5185,6 +5231,14 @@ module Didit
       DIRECTORY: String
       CONTACT: String
       DIDIT_NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module VaspDirectoryEntrySource
+      DIDIT_NETWORK: String
+      DIRECTORY: String
+      ADDED_BY_YOU: String
 
       VALUES: Array[String]
     end
@@ -6334,6 +6388,21 @@ module Didit
       def email: () -> String?
     end
 
+    class CaseBlueprintAiDraft < Didit::Model
+      def name: () -> String?
+      def description: () -> String?
+      def content_config: () -> Didit::Types::CaseContentConfig?
+      def require_resolution_note: () -> bool?
+      def assignment_method: () -> String?
+      def max_active_cases: () -> Integer?
+      def default_deadline_hours: () -> Integer?
+      def applies_to: () -> Array[String]?
+    end
+
+    class CaseBlueprintAiDraftResponse < Didit::Model
+      def draft: () -> Didit::Types::CaseBlueprintAiDraft
+    end
+
     class CaseBlueprintDetail < Didit::Model
       def uuid: () -> String?
       def name: () -> String?
@@ -6351,64 +6420,14 @@ module Didit
       def escalation_blueprint_name: () -> String?
       def four_eyes_checker_blueprint: () -> String?
       def four_eyes_checker_blueprint_name: () -> String?
-      def content_config: () -> Didit::Types::CaseBlueprintDetailContentConfig?
+      def content_config: () -> Didit::Types::CaseContentConfig?
       def creation_sources: () -> Array[Didit::Types::CaseBlueprintDetailCreationSources]?
       def receives_escalation_from: () -> Array[Didit::Types::CaseBlueprintDetailReceivesEscalationFrom]?
       def updated_at: () -> Time?
       def version: () -> Integer?
       def default_deadline_hours: () -> Integer?
-    end
-
-    class CaseBlueprintDetailContentConfig < Didit::Model
-      def checklist: () -> Didit::Types::CaseBlueprintDetailContentConfigChecklist?
-      def aml_control: () -> Didit::Types::CaseBlueprintDetailContentConfigAmlControl?
-      def identity: () -> Didit::Types::CaseBlueprintDetailContentConfigIdentity?
-      def verifications: () -> Didit::Types::CaseBlueprintDetailContentConfigVerifications?
-      def reporting: () -> Didit::Types::CaseBlueprintDetailContentConfigReporting?
-      def financial: () -> Didit::Types::CaseBlueprintDetailContentConfigFinancial?
-    end
-
-    class CaseBlueprintDetailContentConfigAmlControl < Didit::Model
-      def enabled: () -> bool?
-      def financial: () -> bool?
-      def identity: () -> bool?
-    end
-
-    class CaseBlueprintDetailContentConfigChecklist < Didit::Model
-      def enabled: () -> bool?
-      def optional: () -> bool?
-      def items: () -> Array[Didit::Types::CaseBlueprintDetailContentConfigChecklistItems]?
-    end
-
-    class CaseBlueprintDetailContentConfigChecklistItems < Didit::Model
-      def label: () -> String?
-      def order: () -> Integer?
-    end
-
-    class CaseBlueprintDetailContentConfigFinancial < Didit::Model
-      def enabled: () -> bool?
-      def payment_methods: () -> bool?
-      def transactions: () -> bool?
-    end
-
-    class CaseBlueprintDetailContentConfigIdentity < Didit::Model
-      def enabled: () -> bool?
-      def personal_information: () -> bool?
-      def applicant_tags: () -> bool?
-      def contact_information: () -> bool?
-      def risk_overview: () -> bool?
-      def poi_documents: () -> bool?
-      def poa_documents: () -> bool?
-    end
-
-    class CaseBlueprintDetailContentConfigReporting < Didit::Model
-      def enabled: () -> bool?
-      def fiu_reports: () -> bool?
-    end
-
-    class CaseBlueprintDetailContentConfigVerifications < Didit::Model
-      def enabled: () -> bool?
-      def summary: () -> bool?
+      def applies_to: () -> Array[String]?
+      def stages: () -> Array[Didit::Types::CaseBlueprintStage]?
     end
 
     class CaseBlueprintDetailCreationSources < Didit::Model
@@ -6437,10 +6456,19 @@ module Didit
       def created_at: () -> Time?
       def version: () -> Integer?
       def default_deadline_hours: () -> Integer?
+      def applies_to: () -> Array[String]?
+      def stages: () -> Array[Didit::Types::CaseBlueprintStage]?
     end
 
     class CaseBlueprintPresetInstallResult < Didit::Model
       def created: () -> Array[String]?
+    end
+
+    class CaseBlueprintStage < Didit::Model
+      def key: () -> String?
+      def label: () -> String
+      def sla_hours: () -> Integer?
+      def worked_by: () -> String?
     end
 
     class CaseBlueprintSummary < Didit::Model
@@ -6509,6 +6537,7 @@ module Didit
       def verifications: () -> Didit::Types::CaseContentConfigVerifications?
       def reporting: () -> Didit::Types::CaseContentConfigReporting?
       def financial: () -> Didit::Types::CaseContentConfigFinancial?
+      def stages: () -> Didit::Types::CaseContentConfigStages?
     end
 
     class CaseContentConfigAmlControl < Didit::Model
@@ -6547,6 +6576,10 @@ module Didit
     class CaseContentConfigReporting < Didit::Model
       def enabled: () -> bool?
       def fiu_reports: () -> bool?
+    end
+
+    class CaseContentConfigStages < Didit::Model
+      def items: () -> Array[Didit::Types::CaseBlueprintStage]?
     end
 
     class CaseContentConfigVerifications < Didit::Model
@@ -6702,7 +6735,7 @@ module Didit
       def four_eyes_checker_blueprint: () -> String?
       def four_eyes_checker_blueprint_name: () -> String
       def require_resolution_note: () -> bool?
-      def content_config: () -> untyped
+      def content_config: () -> Didit::Types::CaseContentConfig?
       def version: () -> Integer?
       def default_deadline_hours: () -> Integer?
       def is_active: () -> bool?
@@ -6711,6 +6744,8 @@ module Didit
       def receives_escalation_from: () -> Array[Hash[String, untyped]]
       def created_at: () -> Time
       def updated_at: () -> Time
+      def applies_to: () -> Array[String]?
+      def stages: () -> Array[Didit::Types::CaseBlueprintStage]?
     end
 
     class CasePublicationPaginatedPolicyRevisionList < Didit::Model
@@ -9599,7 +9634,15 @@ module Didit
       def registry: () -> Didit::Types::SessionDecisionKeyPeopleChecksRegistry?
       def submitted: () -> Didit::Types::SessionDecisionKeyPeopleChecksSubmitted?
       def ubo_kyc_summary: () -> Didit::Types::SessionDecisionKeyPeopleChecksUboKycSummary?
+      def listed_company_declaration: () -> Didit::Types::SessionDecisionKeyPeopleChecksListedCompanyDeclaration?
       def warnings: () -> Array[Hash[String, untyped]]?
+    end
+
+    class SessionDecisionKeyPeopleChecksListedCompanyDeclaration < Didit::Model
+      def `type`: () -> String
+      def stock_exchange: () -> String?
+      def isin: () -> String?
+      def listed_parent_company_name: () -> String?
     end
 
     class SessionDecisionKeyPeopleChecksRegistry < Didit::Model
@@ -10814,6 +10857,7 @@ module Didit
       def chain_details: () -> Didit::Types::TravelRuleChainDetails?
       def not_required_reason: () -> String?
       def proof_state: () -> String?
+      def user_choice: () -> Didit::Types::TravelRuleUserChoice?
     end
 
     class TransactionListTravelRuleCounterpartyVasp < Didit::Model
@@ -11032,6 +11076,7 @@ module Didit
       def deliveries_truncated: () -> bool?
       def not_required_reason: () -> String?
       def proof_state: () -> String?
+      def user_choice: () -> Didit::Types::TravelRuleUserChoice?
     end
 
     class TransactionTravelRuleCounterpartyVasp < Didit::Model
@@ -11464,6 +11509,10 @@ module Didit
       def deliveries_truncated: () -> bool?
       def not_required_reason: () -> String?
       def proof_state: () -> String?
+      def cancel_reason: () -> String?
+      def cancelled_by: () -> String?
+      def notify_on_answer: () -> bool?
+      def user_choice: () -> Didit::Types::TravelRuleUserChoice?
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -11514,6 +11563,22 @@ module Didit
       def webhooks_count: () -> Integer?
       def deadline_at: () -> Time?
       def created_at: () -> Time?
+    end
+
+    class TravelRuleUserChoice < Didit::Model
+      def active: () -> bool
+      def waiting: () -> bool
+      def end_user_link: () -> String
+      def link_expires_at: () -> Time?
+      def emailed_to: () -> String
+      def email_available: () -> bool
+    end
+
+    class TravelRuleUserLinkResponse < Didit::Model
+      def end_user_link: () -> String
+      def expires_at: () -> Time
+      def emailed_to: () -> String
+      def email_available: () -> bool
     end
 
     class TravelRuleUtxoEntry < Didit::Model
@@ -11690,6 +11755,7 @@ module Didit
       def decision: () -> Didit::Types::TravelRuleCounterpartyDecision?
       def entity_screening: () -> Didit::Types::TravelRuleCounterpartyScreening?
       def questionnaires: () -> Array[Didit::Types::TravelRuleCounterpartyQuestionnaire]?
+      def source: () -> String?
     end
 
     class VaspDirectoryEntryAliases < Didit::Model
@@ -12038,7 +12104,9 @@ module Didit
 
     type bank_account_check_person_holder = { full_name: String }
 
-    type case_content_config = { ?checklist: Didit::Types::case_content_config_checklist, ?aml_control: Didit::Types::case_content_config_aml_control, ?identity: Didit::Types::case_content_config_identity, ?verifications: Didit::Types::case_content_config_verifications, ?reporting: Didit::Types::case_content_config_reporting, ?financial: Didit::Types::case_content_config_financial }
+    type case_blueprint_stage = { ?key: String, label: String, ?sla_hours: Integer?, ?worked_by: String? }
+
+    type case_content_config = { ?checklist: Didit::Types::case_content_config_checklist, ?aml_control: Didit::Types::case_content_config_aml_control, ?identity: Didit::Types::case_content_config_identity, ?verifications: Didit::Types::case_content_config_verifications, ?reporting: Didit::Types::case_content_config_reporting, ?financial: Didit::Types::case_content_config_financial, ?stages: Didit::Types::case_content_config_stages }
 
     type case_content_config_aml_control = { ?enabled: bool, ?financial: bool, ?identity: bool }
 
@@ -12051,6 +12119,8 @@ module Didit
     type case_content_config_identity = { ?enabled: bool, ?personal_information: bool, ?applicant_tags: bool, ?contact_information: bool, ?risk_overview: bool, ?poi_documents: bool, ?poa_documents: bool }
 
     type case_content_config_reporting = { ?enabled: bool, ?fiu_reports: bool }
+
+    type case_content_config_stages = { ?items: Array[Didit::Types::case_blueprint_stage] }
 
     type case_content_config_verifications = { ?enabled: bool, ?summary: bool }
 
@@ -12065,6 +12135,8 @@ module Didit
     type case_routing_condition = { field: String, operator: String, value: (String | Array[String]) }
 
     type case_routing_rule_create = { name: String, ?description: String, ?priority: Integer, conditions: Array[Didit::Types::case_routing_condition], ?required_skills: Array[String], blueprint: String, ?team: String?, ?is_active: bool, ?publish: bool }
+
+    type cases_links_create_params = { entity_type: String, entity_uuid: String }
 
     type fraud_check_attributes_request = { ?first_name: String, ?last_name: String, ?full_name: String, ?date_of_birth: Date | String, ?nationality: String, ?gender: String, ?address: String, ?city: String, ?state: String, ?postal_code: String }
 

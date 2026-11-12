@@ -24,6 +24,10 @@ module Didit
       # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
       #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
+      # @param is_session_reference_enabled [Boolean] On Declined and In review results, the person being verified
+      #   sees a short reference to the session, such as `S-20481`, shown on one line. This is the session number as the
+      #   console shows it, so your support team can find the session in the console by typing it. When `false`, the
+      #   result screens show no reference. Applies to the hosted flow and the SDKs.
       # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks
       #   the user after the first decline.
       # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an
@@ -45,6 +49,7 @@ module Didit
         status: OMIT,
         is_white_label_enabled: OMIT,
         is_desktop_allowed: OMIT,
+        is_session_reference_enabled: OMIT,
         max_retry_attempts: OMIT,
         retry_window_days: OMIT,
         face_liveness_max_attempts: OMIT,
@@ -62,6 +67,7 @@ module Didit
             "status" => status,
             "is_white_label_enabled" => is_white_label_enabled,
             "is_desktop_allowed" => is_desktop_allowed,
+            "is_session_reference_enabled" => is_session_reference_enabled,
             "max_retry_attempts" => max_retry_attempts,
             "retry_window_days" => retry_window_days,
             "face_liveness_max_attempts" => face_liveness_max_attempts,
@@ -161,6 +167,10 @@ module Didit
       # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
       #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
+      # @param is_session_reference_enabled [Boolean] On Declined and In review results, the person being verified
+      #   sees a short reference to the session, such as `S-20481`, shown on one line. This is the session number as the
+      #   console shows it, so your support team can find the session in the console by typing it. When `false`, the
+      #   result screens show no reference. Applies to the hosted flow and the SDKs.
       # @param max_retry_attempts [Integer] Maximum retry attempts allowed after a declined verification. `0` blocks
       #   the user after the first decline.
       # @param retry_window_days [Integer, nil] Rolling window in days used to count retries. `null` enforces an
@@ -181,6 +191,7 @@ module Didit
         features: OMIT,
         is_white_label_enabled: OMIT,
         is_desktop_allowed: OMIT,
+        is_session_reference_enabled: OMIT,
         max_retry_attempts: OMIT,
         retry_window_days: OMIT,
         face_liveness_max_attempts: OMIT,
@@ -199,6 +210,7 @@ module Didit
             "features" => features,
             "is_white_label_enabled" => is_white_label_enabled,
             "is_desktop_allowed" => is_desktop_allowed,
+            "is_session_reference_enabled" => is_session_reference_enabled,
             "max_retry_attempts" => max_retry_attempts,
             "retry_window_days" => retry_window_days,
             "face_liveness_max_attempts" => face_liveness_max_attempts,

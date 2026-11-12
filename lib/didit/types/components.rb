@@ -514,6 +514,26 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module CaseBlueprintAiDraftAssignmentMethod
+      MANUAL = "MANUAL"
+      AUTOMATIC = "AUTOMATIC"
+
+      VALUES = [MANUAL, AUTOMATIC].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module CaseBlueprintAppliesToValues
+      GENERAL = "GENERAL"
+      VERIFICATION_REVIEW = "VERIFICATION_REVIEW"
+      BUSINESS_REVIEW = "BUSINESS_REVIEW"
+      AML = "AML"
+      TRANSACTION_MONITORING = "TRANSACTION_MONITORING"
+      DUPLICATES = "DUPLICATES"
+
+      VALUES = [GENERAL, VERIFICATION_REVIEW, BUSINESS_REVIEW, AML, TRANSACTION_MONITORING, DUPLICATES].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module CaseBlueprintDetailAssignmentMethod
       MANUAL = "MANUAL"
       AUTOMATIC = "AUTOMATIC"
@@ -591,12 +611,14 @@ module Didit
     # * `session` - Session
     # * `business_session` - Business Session
     # * `transaction` - Transaction
+    # * `network` - Network containing the selected case subject
     module CaseDuplicateEntityTypeEnum
       SESSION = "session"
       BUSINESS_SESSION = "business_session"
       TRANSACTION = "transaction"
+      NETWORK = "network"
 
-      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION].freeze
+      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION, NETWORK].freeze
     end
 
     # * `LOW` - Low
@@ -689,8 +711,9 @@ module Didit
       SESSION = "session"
       BUSINESS_SESSION = "business_session"
       TRANSACTION = "transaction"
+      NETWORK = "network"
 
-      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION].freeze
+      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION, NETWORK].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -784,6 +807,16 @@ module Didit
       BUSINESS = "business"
 
       VALUES = [USER, BUSINESS].freeze
+    end
+
+    # Type of record to attach. A network must be visible and contain the selected case subject.
+    module CasesLinksCreateParamsEntityType
+      SESSION = "session"
+      BUSINESS_SESSION = "business_session"
+      TRANSACTION = "transaction"
+      NETWORK = "network"
+
+      VALUES = [SESSION, BUSINESS_SESSION, TRANSACTION, NETWORK].freeze
     end
 
     # Face entries taken from a document-capture selfie: which selfie. Absent for liveness faces.
@@ -3503,6 +3536,15 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
+    # `listed_company`: the company itself is listed on a stock exchange. `subsidiary_of_listed_company`: the company
+    # is owned by a listed company.
+    module SessionDecisionKeyPeopleChecksListedCompanyDeclarationType
+      LISTED_COMPANY = "listed_company"
+      SUBSIDIARY_OF_LISTED_COMPANY = "subsidiary_of_listed_company"
+
+      VALUES = [LISTED_COMPANY, SUBSIDIARY_OF_LISTED_COMPANY].freeze
+    end
+
     # Status of the AML screening run for this beneficial owner. `null` when no AML screening was run.
     module SessionDecisionKeyPeopleChecksRegistryBeneficialOwnersAmlStatus
       NOT_FINISHED = "Not Finished"
@@ -5750,6 +5792,17 @@ module Didit
       VALUES = [HOLD, REJECT, PROCEED].freeze
     end
 
+    # Recorded cancellation reason, empty when unspecified.
+    module TravelRuleTransferDetailCancelReason
+      VALUE = ""
+      USER_CANCELLED = "user_cancelled"
+      WRONG_WALLET = "wrong_wallet"
+      COMPLIANCE_DECISION = "compliance_decision"
+      OTHER = "other"
+
+      VALUES = [VALUE, USER_CANCELLED, WRONG_WALLET, COMPLIANCE_DECISION, OTHER].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleTransferDetailDirection
       INBOUND = "INBOUND"
@@ -6093,7 +6146,7 @@ module Didit
       VALUES = [ESSENTIAL].freeze
     end
 
-    # directory for an entry of the shared directory; didit for a member of the Didit network.
+    # directory for a shared or application-private directory entry; didit for a Didit network member.
     module VaspDirectoryEntryKind
       DIRECTORY = "directory"
       DIDIT = "didit"
@@ -6201,6 +6254,17 @@ module Didit
       DIDIT_NETWORK = "didit_network"
 
       VALUES = [VALUE, OWN_MEMBERSHIP, DIDIT_MEMBERSHIP, DIRECTORY, CONTACT, DIDIT_NETWORK].freeze
+    end
+
+    # directory for a shared directory entry, added_by_you for your application-private entry, or didit_network for a
+    # directory entry linked to a Didit customer. Separate kind=didit member results may omit this field; use kind to
+    # identify them.
+    module VaspDirectoryEntrySource
+      DIDIT_NETWORK = "didit_network"
+      DIRECTORY = "directory"
+      ADDED_BY_YOU = "added_by_you"
+
+      VALUES = [DIDIT_NETWORK, DIRECTORY, ADDED_BY_YOU].freeze
     end
 
     # `created`: added to the book. `existing`: the wallet is already in the book and was left untouched. `duplicate`:
@@ -7452,6 +7516,23 @@ module Didit
       field :email, "email", :string
     end
 
+    # Unsaved, validated proposal. Fields are optional; review the result and select assignees, teams and routing
+    # before saving.
+    class CaseBlueprintAiDraft < Didit::Model
+      field :name, "name", :string
+      field :description, "description", :string
+      field :content_config, "content_config", "CaseContentConfig"
+      field :require_resolution_note, "require_resolution_note", :boolean
+      field :assignment_method, "assignment_method", :string
+      field :max_active_cases, "max_active_cases", :integer
+      field :default_deadline_hours, "default_deadline_hours", :integer
+      field :applies_to, "applies_to", [:array, :string]
+    end
+
+    class CaseBlueprintAiDraftResponse < Didit::Model
+      field :draft, "draft", "CaseBlueprintAiDraft"
+    end
+
     class CaseBlueprintDetail < Didit::Model
       field :uuid, "uuid", :string
       field :name, "name", :string
@@ -7469,66 +7550,14 @@ module Didit
       field :escalation_blueprint_name, "escalation_blueprint_name", :string
       field :four_eyes_checker_blueprint, "four_eyes_checker_blueprint", :string
       field :four_eyes_checker_blueprint_name, "four_eyes_checker_blueprint_name", :string
-      field :content_config, "content_config", "CaseBlueprintDetailContentConfig"
+      field :content_config, "content_config", "CaseContentConfig"
       field :creation_sources, "creation_sources", [:array, "CaseBlueprintDetailCreationSources"]
       field :receives_escalation_from, "receives_escalation_from", [:array, "CaseBlueprintDetailReceivesEscalationFrom"]
       field :updated_at, "updated_at", :datetime
       field :version, "version", :integer
       field :default_deadline_hours, "default_deadline_hours", :integer
-    end
-
-    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys
-    # are rejected.
-    class CaseBlueprintDetailContentConfig < Didit::Model
-      field :checklist, "checklist", "CaseBlueprintDetailContentConfigChecklist"
-      field :aml_control, "aml_control", "CaseBlueprintDetailContentConfigAmlControl"
-      field :identity, "identity", "CaseBlueprintDetailContentConfigIdentity"
-      field :verifications, "verifications", "CaseBlueprintDetailContentConfigVerifications"
-      field :reporting, "reporting", "CaseBlueprintDetailContentConfigReporting"
-      field :financial, "financial", "CaseBlueprintDetailContentConfigFinancial"
-    end
-
-    class CaseBlueprintDetailContentConfigAmlControl < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :financial, "financial", :boolean
-      field :identity, "identity", :boolean
-    end
-
-    class CaseBlueprintDetailContentConfigChecklist < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :optional, "optional", :boolean
-      field :items, "items", [:array, "CaseBlueprintDetailContentConfigChecklistItems"]
-    end
-
-    class CaseBlueprintDetailContentConfigChecklistItems < Didit::Model
-      field :label, "label", :string
-      field :order, "order", :integer
-    end
-
-    class CaseBlueprintDetailContentConfigFinancial < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :payment_methods, "payment_methods", :boolean
-      field :transactions, "transactions", :boolean
-    end
-
-    class CaseBlueprintDetailContentConfigIdentity < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :personal_information, "personal_information", :boolean
-      field :applicant_tags, "applicant_tags", :boolean
-      field :contact_information, "contact_information", :boolean
-      field :risk_overview, "risk_overview", :boolean
-      field :poi_documents, "poi_documents", :boolean
-      field :poa_documents, "poa_documents", :boolean
-    end
-
-    class CaseBlueprintDetailContentConfigReporting < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :fiu_reports, "fiu_reports", :boolean
-    end
-
-    class CaseBlueprintDetailContentConfigVerifications < Didit::Model
-      field :enabled, "enabled", :boolean
-      field :summary, "summary", :boolean
+      field :applies_to, "applies_to", [:array, :string]
+      field :stages, "stages", [:array, "CaseBlueprintStage"]
     end
 
     class CaseBlueprintDetailCreationSources < Didit::Model
@@ -7557,10 +7586,19 @@ module Didit
       field :created_at, "created_at", :datetime
       field :version, "version", :integer
       field :default_deadline_hours, "default_deadline_hours", :integer
+      field :applies_to, "applies_to", [:array, :string]
+      field :stages, "stages", [:array, "CaseBlueprintStage"]
     end
 
     class CaseBlueprintPresetInstallResult < Didit::Model
       field :created, "created", [:array, :string]
+    end
+
+    class CaseBlueprintStage < Didit::Model
+      field :key, "key", :string
+      field :label, "label", :string
+      field :sla_hours, "sla_hours", :integer
+      field :worked_by, "worked_by", :string
     end
 
     class CaseBlueprintSummary < Didit::Model
@@ -7625,8 +7663,8 @@ module Didit
       field :results, "results", [:array, "CaseCollaborationCaseNote"]
     end
 
-    # The six togglable sections that drive which tabs and fields appear on the case page. Unknown sections or keys
-    # are rejected.
+    # Case content sections and optional review stages. Unknown sections or keys are rejected. Cases retain the policy
+    # snapshot accepted when opened; later blueprint edits do not rewrite it.
     class CaseContentConfig < Didit::Model
       field :checklist, "checklist", "CaseContentConfigChecklist"
       field :aml_control, "aml_control", "CaseContentConfigAmlControl"
@@ -7634,6 +7672,7 @@ module Didit
       field :verifications, "verifications", "CaseContentConfigVerifications"
       field :reporting, "reporting", "CaseContentConfigReporting"
       field :financial, "financial", "CaseContentConfigFinancial"
+      field :stages, "stages", "CaseContentConfigStages"
     end
 
     class CaseContentConfigAmlControl < Didit::Model
@@ -7672,6 +7711,11 @@ module Didit
     class CaseContentConfigReporting < Didit::Model
       field :enabled, "enabled", :boolean
       field :fiu_reports, "fiu_reports", :boolean
+    end
+
+    # Ordered review stages. Omitted or empty items use the default Triage, Evidence review and Decision stages.
+    class CaseContentConfigStages < Didit::Model
+      field :items, "items", [:array, "CaseBlueprintStage"]
     end
 
     class CaseContentConfigVerifications < Didit::Model
@@ -7829,7 +7873,7 @@ module Didit
       field :four_eyes_checker_blueprint, "four_eyes_checker_blueprint", :string
       field :four_eyes_checker_blueprint_name, "four_eyes_checker_blueprint_name", :string
       field :require_resolution_note, "require_resolution_note", :boolean
-      field :content_config, "content_config", :any
+      field :content_config, "content_config", "CaseContentConfig"
       field :version, "version", :integer
       field :default_deadline_hours, "default_deadline_hours", :integer
       field :is_active, "is_active", :boolean
@@ -7838,6 +7882,8 @@ module Didit
       field :receives_escalation_from, "receives_escalation_from", [:array, :any]
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+      field :applies_to, "applies_to", [:array, :string]
+      field :stages, "stages", [:array, "CaseBlueprintStage"]
     end
 
     class CasePublicationPaginatedPolicyRevisionList < Didit::Model
@@ -10930,7 +10976,23 @@ module Didit
       field :registry, "registry", "SessionDecisionKeyPeopleChecksRegistry"
       field :submitted, "submitted", "SessionDecisionKeyPeopleChecksSubmitted"
       field :ubo_kyc_summary, "ubo_kyc_summary", "SessionDecisionKeyPeopleChecksUboKycSummary"
+      field :listed_company_declaration, "listed_company_declaration", "SessionDecisionKeyPeopleChecksListedCompanyDeclaration"
       field :warnings, "warnings", [:array, :any]
+    end
+
+    # The company's own declaration that it is listed on a stock exchange, or owned by a listed company, made on the
+    # Key People screen instead of naming a beneficial owner. Present in every `key_people_checks` entry unless the
+    # workflow's Returned data settings leave it out, and `null` unless the company made the declaration, which it can
+    # only do where the workflow allows it (`kyb_key_people_allow_listed_company_declaration`). Didit does not check
+    # the declaration against a stock exchange: the workflow's `kyb_key_people_listed_company_action` decides the Key
+    # People outcome (Review by default) and the `KYB_LISTED_COMPANY_DECLARED` warning is added. The company must
+    # still name at least one person who manages or represents it (director, non-executive director, chairman,
+    # representative, authorized signatory or company officer).
+    class SessionDecisionKeyPeopleChecksListedCompanyDeclaration < Didit::Model
+      field :type, "type", :string
+      field :stock_exchange, "stock_exchange", :string
+      field :isin, "isin", :string
+      field :listed_parent_company_name, "listed_parent_company_name", :string
     end
 
     # Parties discovered via the registry check.
@@ -12235,6 +12297,7 @@ module Didit
       field :chain_details, "chain_details", "TravelRuleChainDetails"
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
+      field :user_choice, "user_choice", "TravelRuleUserChoice"
     end
 
     # The counterparty's directory entry, or `null` when the transfer links none.
@@ -12471,6 +12534,7 @@ module Didit
       field :deliveries_truncated, "deliveries_truncated", :boolean
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
+      field :user_choice, "user_choice", "TravelRuleUserChoice"
     end
 
     # The counterparty's directory entry, or `null` when the transfer links none.
@@ -12973,6 +13037,10 @@ module Didit
       field :deliveries_truncated, "deliveries_truncated", :boolean
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
+      field :cancel_reason, "cancel_reason", :string
+      field :cancelled_by, "cancelled_by", :string
+      field :notify_on_answer, "notify_on_answer", :boolean
+      field :user_choice, "user_choice", "TravelRuleUserChoice"
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -13025,6 +13093,22 @@ module Didit
       field :webhooks_count, "webhooks_count", :integer
       field :deadline_at, "deadline_at", :datetime
       field :created_at, "created_at", :datetime
+    end
+
+    class TravelRuleUserChoice < Didit::Model
+      field :active, "active", :boolean
+      field :waiting, "waiting", :boolean
+      field :end_user_link, "end_user_link", :string
+      field :link_expires_at, "link_expires_at", :datetime
+      field :emailed_to, "emailed_to", :string
+      field :email_available, "email_available", :boolean
+    end
+
+    class TravelRuleUserLinkResponse < Didit::Model
+      field :end_user_link, "end_user_link", :string
+      field :expires_at, "expires_at", :datetime
+      field :emailed_to, "emailed_to", :string
+      field :email_available, "email_available", :boolean
     end
 
     # One input or output of a UTXO transaction, as the chain recorded it.
@@ -13213,6 +13297,7 @@ module Didit
       field :decision, "decision", "TravelRuleCounterpartyDecision"
       field :entity_screening, "entity_screening", "TravelRuleCounterpartyScreening"
       field :questionnaires, "questionnaires", [:array, "TravelRuleCounterpartyQuestionnaire"]
+      field :source, "source", :string
     end
 
     class VaspDirectoryEntryAliases < Didit::Model

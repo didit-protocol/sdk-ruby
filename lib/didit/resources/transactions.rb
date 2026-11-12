@@ -850,6 +850,35 @@ module Didit
           )
         end
 
+        # Create or email a Travel Rule end-user link
+        #
+        # Issue a new link and revoke previous open links for this transfer. Requires write access to transactions and
+        # an outbound transfer in AWAITING_COUNTERPARTY, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE,
+        # UNCONFIRMED_OWNERSHIP or ON_HOLD. channel=email uses the end user's Didit-record email and
+        # verification-session language when available. A send failure returns the link with emailed_to empty;
+        # email_available reports address availability, not delivery. See [User
+        # links](/management-api/travel-rule/create-user-link).
+        #
+        # +POST /v3/transactions/{transaction_id}/travel-rule/user-link/+
+        #
+        # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
+        # @param channel [String] link returns a new link; email also attempts to send it to the end user's
+        #   Didit-record email.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleUserLinkResponse]
+        def create_user_link(transaction_id, channel: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/transactions/{transaction_id}/travel-rule/user-link/",
+            path_params: { "transaction_id" => transaction_id },
+            body: {
+              "channel" => channel
+            },
+            response: Types::TravelRuleUserLinkResponse,
+            request_options: request_options
+          )
+        end
+
         # List Travel Rule delivery history
         #
         # Read the complete delivery history for a transaction, oldest first. Requires transaction read permission.
@@ -946,7 +975,7 @@ module Didit
           )
         end
 
-        # Finish, cancel, resend, or update the originator wallet of a Travel Rule transfer
+        # Update a Travel Rule transfer
         #
         # Provide `payment_txn_id` to report the on-chain hash and move an outbound COMPLETED transfer to FINISHED
         # (its INTERNAL-rail counterpart also moves to FINISHED), `{"action": "cancel"}` to cancel a non-terminal
@@ -968,7 +997,12 @@ module Didit
         # updated the same way. `{"action": "beneficiary_vasp", "beneficiary_vasp": "<directory VASP id>"}` names the
         # counterparty yourself when discovery could not, on an outbound transfer in COUNTERPARTY_VASP_NOT_FOUND,
         # COUNTERPARTY_VASP_NOT_REACHABLE or NOT_ENOUGH_COUNTERPARTY_DATA: the transfer is routed to that VASP and
-        # sent again.
+        # sent again. Cancellation accepts an optional reason and returns cancel_reason and cancelled_by. Resend
+        # accepts notify_on_answer; omission preserves the saved preference, initially false. Resend invalidates the
+        # previous counterparty pickup link. action=add_vasp_hint requires name, accepts lei and country, saves the
+        # hint and re-runs discovery under the same outbound/status restrictions as resend. update_compliance_email
+        # also accepts vasp_name and saves the address as an application-private contact when the transfer has a known
+        # directory VASP.
         #
         # +PATCH /v3/transactions/{transaction_id}/travel-rule/+
         #
@@ -980,15 +1014,25 @@ module Didit
         #   NOT_ENOUGH_COUNTERPARTY_DATA. "update_compliance_email" replaces the compliance email the request goes to,
         #   on an outbound transfer in one of those three statuses; send "resend" afterwards. "update_originator_wallet"
         #   records the walle...
-        # @param compliance_email [String] Required with `action: update_compliance_email`. Kept as this transfer's
-        #   `beneficiary_data.counterparty_vasp_email`: it belongs to this transfer only and joins no directory entry
-        #   and no contact list.
+        # @param compliance_email [String] Required with action=update_compliance_email. Saved in
+        #   beneficiary_data.counterparty_vasp_email. If the transfer has a known directory VASP, also saved as your
+        #   application-private contact for that VASP.
         # @param wallet_address [String] With `action: update_originator_wallet`: the wallet the funds left from. When
         #   the transfer's UTXO inputs are known it must be one of them.
         # @param memo [String] With `action: update_originator_wallet`: the wallet's memo or tag on a memo network.
         #   Optional.
         # @param beneficiary_vasp [String] Required with action=beneficiary_vasp: the `id` of a directory VASP, from
         #   `GET /v3/travel-rule/vasps/`. Your choice outranks every automatic discovery step, which never overrides it.
+        # @param reason [String] With action=cancel: your cancellation reason. Omitted or empty means unspecified.
+        # @param notify_on_answer [Boolean] With action=resend: whether your team should be notified when the
+        #   counterparty answers. Initially false; omission preserves the saved preference.
+        # @param name [String] Required with action=add_vasp_hint. Counterparty VASP name.
+        # @param lei [String] With action=add_vasp_hint: optional LEI, normalized to uppercase. Empty clears the
+        #   previous LEI hint.
+        # @param country [String] With action=add_vasp_hint: optional country hint, normalized to uppercase. Empty
+        #   clears the previous country hint.
+        # @param vasp_name [String] With action=update_compliance_email: optional counterparty name saved with the
+        #   address when nonempty.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
         def update_transfer(
@@ -999,6 +1043,12 @@ module Didit
           wallet_address: OMIT,
           memo: OMIT,
           beneficiary_vasp: OMIT,
+          reason: OMIT,
+          notify_on_answer: OMIT,
+          name: OMIT,
+          lei: OMIT,
+          country: OMIT,
+          vasp_name: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1011,7 +1061,13 @@ module Didit
               "compliance_email" => compliance_email,
               "wallet_address" => wallet_address,
               "memo" => memo,
-              "beneficiary_vasp" => beneficiary_vasp
+              "beneficiary_vasp" => beneficiary_vasp,
+              "reason" => reason,
+              "notify_on_answer" => notify_on_answer,
+              "name" => name,
+              "lei" => lei,
+              "country" => country,
+              "vasp_name" => vasp_name
             },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options

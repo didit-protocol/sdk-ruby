@@ -58,14 +58,6 @@ module Didit
       VALUES: Array[String]
     end
 
-    module CasesLinksCreateParamsEntityType
-      SESSION: String
-      BUSINESS_SESSION: String
-      TRANSACTION: String
-
-      VALUES: Array[String]
-    end
-
     module CasesListParamsOrdering
       CREATED_AT: String
       CREATED_AT_: String
@@ -349,7 +341,9 @@ module Didit
 
     type cases_assign_params = { assignee_user_id: String?, ?assignee_email: String?, ?assignee_name: String? }
 
-    type cases_blueprints_create_params = { name: String, ?description: String?, assignee_pool: Array[String], ?assignment_method: String, ?max_active_cases: Integer?, ?escalation_enabled: bool, ?escalation_blueprint: String?, ?transfer_enabled: bool, ?four_eyes_checker_blueprint: String?, ?require_resolution_note: bool, ?content_config: Didit::Types::case_content_config, ?is_active: bool, ?default_deadline_hours: Integer?, ?publish: bool }
+    type cases_blueprints_ai_draft_params = { prompt: String }
+
+    type cases_blueprints_create_params = { name: String, ?description: String?, assignee_pool: Array[String], ?assignment_method: String, ?max_active_cases: Integer?, ?escalation_enabled: bool, ?escalation_blueprint: String?, ?transfer_enabled: bool, ?four_eyes_checker_blueprint: String?, ?require_resolution_note: bool, ?content_config: Didit::Types::case_content_config, ?is_active: bool, ?default_deadline_hours: Integer?, ?publish: bool, ?applies_to: Array[String] }
 
     type cases_blueprints_discard_draft_params = { expected_version: Integer, expected_revision: String? }
 
@@ -359,7 +353,7 @@ module Didit
 
     type cases_blueprints_save_draft_params = { expected_version: Integer, expected_revision: String?, changes: Hash[String | Symbol, untyped] }
 
-    type cases_blueprints_update_params = { ?name: String, ?description: String?, ?assignee_pool: Array[String], ?assignment_method: String, ?max_active_cases: Integer?, ?escalation_enabled: bool, ?escalation_blueprint: String?, ?transfer_enabled: bool, ?four_eyes_checker_blueprint: String?, ?require_resolution_note: bool, ?content_config: Didit::Types::case_content_config, ?is_active: bool, ?default_deadline_hours: Integer?, ?expected_version: Integer }
+    type cases_blueprints_update_params = { ?name: String, ?description: String?, ?assignee_pool: Array[String], ?assignment_method: String, ?max_active_cases: Integer?, ?escalation_enabled: bool, ?escalation_blueprint: String?, ?transfer_enabled: bool, ?four_eyes_checker_blueprint: String?, ?require_resolution_note: bool, ?content_config: Didit::Types::case_content_config, ?is_active: bool, ?default_deadline_hours: Integer?, ?expected_version: Integer, ?applies_to: Array[String] }
 
     type cases_bulk_assign_params = { case_uuids: Array[String], assignee_user_id: String?, ?assignee_email: String?, ?assignee_name: String? }
 
@@ -367,13 +361,11 @@ module Didit
 
     type cases_checklist_toggle_item_params = { is_completed: bool }
 
-    type cases_create_params = { title: String, ?blueprint: String?, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?subject: Didit::Types::cases_create_params_subject, ?links: Array[Hash[String | Symbol, untyped]], ?assigned_to: String?, ?review_duplicates: bool, ?separate_incident_reason: String, ?source_context: Didit::Types::case_duplicate_case_fraud_source_context_request }
+    type cases_create_params = { title: String, ?blueprint: String?, ?priority: String, ?due_at: (Time | String)?, ?tags: Array[String], ?subject: Didit::Types::cases_create_params_subject, ?links: Array[Didit::Types::cases_links_create_params], ?assigned_to: String?, ?review_duplicates: bool, ?separate_incident_reason: String, ?source_context: Didit::Types::case_duplicate_case_fraud_source_context_request }
 
     type cases_create_params_subject = { ?type: String, ?uuid: String }
 
     type cases_find_duplicates_params = { ?subject: Didit::Types::case_duplicate_case_subject_input_request, ?links: Array[Didit::Types::case_duplicate_case_link_create_request], ?offset: Integer }
-
-    type cases_links_create_params = { entity_type: String, entity_uuid: String }
 
     type cases_notes_create_attachment_upload_params = { file: Didit::upload }
 

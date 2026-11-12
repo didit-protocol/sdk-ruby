@@ -1565,7 +1565,18 @@ RSpec.describe Didit::Resources::Transactions do
         ],
         "deliveries_truncated": true,
         "not_required_reason": "below_threshold",
-        "proof_state": "not_required"
+        "proof_state": "not_required",
+        "cancel_reason": "",
+        "cancelled_by": "cancelled_by-value",
+        "notify_on_answer": true,
+        "user_choice": {
+          "active": true,
+          "waiting": true,
+          "end_user_link": "end_user_link-value",
+          "link_expires_at": "2026-01-02T03:04:05Z",
+          "emailed_to": "emailed_to-value",
+          "email_available": true
+        }
       }
     JSON
     result = client.transactions.travel_rule.confirm_ownership(
@@ -1643,6 +1654,35 @@ RSpec.describe Didit::Resources::Transactions do
       ]
     })
     expect(result).to be_a(Didit::Types::TravelRuleMessage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "transactions.travel_rule.create_user_link sends POST /v3/transactions/{transaction_id}/travel-rule/user-link/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "end_user_link": "https://example.com/callback",
+        "expires_at": "2026-01-02T03:04:05Z",
+        "emailed_to": "emailed_to-value",
+        "email_available": true
+      }
+    JSON
+    result = client.transactions.travel_rule.create_user_link(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      channel: "link"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/transactions/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/travel-rule/user-link/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "channel" => "link"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleUserLinkResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -1900,7 +1940,18 @@ RSpec.describe Didit::Resources::Transactions do
           ],
           "deliveries_truncated": true,
           "not_required_reason": "below_threshold",
-          "proof_state": "not_required"
+          "proof_state": "not_required",
+          "cancel_reason": "",
+          "cancelled_by": "cancelled_by-value",
+          "notify_on_answer": true,
+          "user_choice": {
+            "active": true,
+            "waiting": true,
+            "end_user_link": "end_user_link-value",
+            "link_expires_at": "2026-01-02T03:04:05Z",
+            "emailed_to": "emailed_to-value",
+            "email_available": true
+          }
         }
       }
     JSON
@@ -2099,7 +2150,18 @@ RSpec.describe Didit::Resources::Transactions do
         ],
         "deliveries_truncated": true,
         "not_required_reason": "below_threshold",
-        "proof_state": "not_required"
+        "proof_state": "not_required",
+        "cancel_reason": "",
+        "cancelled_by": "cancelled_by-value",
+        "notify_on_answer": true,
+        "user_choice": {
+          "active": true,
+          "waiting": true,
+          "end_user_link": "end_user_link-value",
+          "link_expires_at": "2026-01-02T03:04:05Z",
+          "emailed_to": "emailed_to-value",
+          "email_available": true
+        }
       }
     JSON
     result = client.transactions.travel_rule.update_transfer(

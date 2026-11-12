@@ -160,6 +160,8 @@ module Didit
 
     type travel_rule_counterparty_contacts_create_params = { counterparty: String, email: String, ?name: String }
 
+    type travel_rule_create_vasp_params = { name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool }
+
     type travel_rule_create_widget_session_params = { ?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer }
 
     type travel_rule_networks_update_questionnaire_params = { ?legal_name: String, ?registration_number: String, ?incorporation_country: String, ?registered_address: String, ?website: String, ?lei: String, ?licences: Array[Didit::Types::travel_rule_networks_update_questionnaire_params_licences], ?operating_jurisdictions: Array[String], ?compliance_officer_name: String, ?compliance_officer_email: String, ?aml_ctf_policy_attested: bool, ?sanctions_screening_attested: bool, ?data_protection_attested: bool, ?data_protection_contact_email: String, ?expected_monthly_transfers: Integer, ?expected_monthly_volume_usd: String, ?assets: Array[String] }
