@@ -14,6 +14,7 @@ module Didit
       AU: String
       MX: String
       AE: String
+      US: String
 
       VALUES: Array[String]
     end

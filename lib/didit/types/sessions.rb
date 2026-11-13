@@ -317,9 +317,9 @@ module Didit
       VALUES = [EN, AR, BG, BN, BS, CA, CNR, CS, DA, DE, EL, ES, ET, FA, FI, FR, HE, HI, HR, HU, HY, ID, IT, JA, KA, KK, KO, KY, LT, LV, MK, MN, MS, NL, NO, PL, PT_BR, PT, RO, RU, SK, SL, SO, SQ, SR, SV, TH, TR, UK, UZ, VI, ZH_CN, ZH_TW, ZH].freeze
     end
 
-    # Current status of the session. Newly created sessions return `Not Started`. If a non-finished session already
-    # existed for the same `vendor_data` on the workflow's latest published version, the returned status reflects that
-    # existing session.
+    # Current status of the session. Newly created sessions return `Not Started`. For a User Verification workflow, if
+    # a non-finished session already existed for the same `vendor_data` on the workflow's latest published version,
+    # the returned status reflects that existing session.
     module SessionsCreateResponseStatus
       NOT_STARTED = "Not Started"
       IN_PROGRESS = "In Progress"
@@ -1368,6 +1368,7 @@ module Didit
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
       field :tags, "tags", [:array, :string]
+      field :expires_at, "expires_at", :datetime
       field :status, "status", :string
       field :callback, "callback", :string
       field :workflow_id, "workflow_id", :string

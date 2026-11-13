@@ -55,6 +55,7 @@ module Didit
     autoload :AddressValidationResponse, "didit/types/components"
     autoload :AddressValidationResult, "didit/types/components"
     autoload :AddressValidationResultAddress, "didit/types/components"
+    autoload :AddressValidationResultAddressType, "didit/types/components"
     autoload :AddressValidationResultStatus, "didit/types/components"
     autoload :AddressValidationResultVerificationLevel, "didit/types/components"
     autoload :AgeEstimationEstimateResponse, "didit/types/age_estimation"

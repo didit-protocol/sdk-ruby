@@ -15,16 +15,17 @@ module Didit
     end
 
     # Where the application's verification data is stored and processed, chosen when the application is created. `eu`
-    # is the European Union (Ireland), the default. `au` (Australia, Sydney), `mx` (Mexico) and `ae` (United Arab
-    # Emirates) are coming soon: a request that names them answers 400 `This data location is not available yet.` An
-    # organization's Sandbox application is always in the European Union.
+    # is the European Union (Ireland), the default. `au` (Australia, Sydney), `mx` (Mexico), `ae` (United Arab
+    # Emirates) and `us` (United States, N. Virginia) are coming soon: a request that names them answers 400 `This
+    # data location is not available yet.` An organization's Sandbox application is always in the European Union.
     module ApplicationDataLocation
       EU = "eu"
       AU = "au"
       MX = "mx"
       AE = "ae"
+      US = "us"
 
-      VALUES = [EU, AU, MX, AE].freeze
+      VALUES = [EU, AU, MX, AE, US].freeze
     end
 
     # The application's environment. A `live` application bills every verification session and check created with its

@@ -190,6 +190,22 @@ module Didit
       VALUES = [ID_VERIFICATION, NFC, LIVENESS, FACEMATCH, PROOF_OF_ADDRESS, PHONE, EMAIL, AML, LOCATION, DATABASE_VALIDATION, QUESTIONNAIRE, DOCUMENT_AI, KYB_REGISTRY, KYB_DOCUMENTS, KYB_KEY_PEOPLE, GEOLOCATION, SIGNATURE].freeze
     end
 
+    # The kind of delivery point the address is, for United States and Canadian addresses: `street`, `po_box` (a PO
+    # box or lock box), `high_rise` (a high-rise or business complex), `rural_route`, `general_delivery`, `firm` (a
+    # firm or company address) or `building`. `null` for addresses in other countries, when the address has no type on
+    # record, and when `status` is `unavailable`.
+    module AddressValidationResultAddressType
+      STREET = "street"
+      PO_BOX = "po_box"
+      HIGH_RISE = "high_rise"
+      RURAL_ROUTE = "rural_route"
+      GENERAL_DELIVERY = "general_delivery"
+      FIRM = "firm"
+      BUILDING = "building"
+
+      VALUES = [STREET, PO_BOX, HIGH_RISE, RURAL_ROUTE, GENERAL_DELIVERY, FIRM, BUILDING].freeze
+    end
+
     # `verified`: the address was confirmed down to the building (or the flat or PO box). `partially_verified`: it was
     # confirmed only to the street, or to the most precise level the postal reference data holds for that place.
     # `not_verified`: only the region or the city matched, or nothing did. `unavailable`: the validation could not run
@@ -6906,6 +6922,8 @@ module Didit
       field :formatted_address, "formatted_address", :string
       field :latitude, "latitude", :float
       field :longitude, "longitude", :float
+      field :address_type, "address_type", :string
+      field :is_residential, "is_residential", :boolean
     end
 
     # The normalised address. `null` when `status` is `unavailable`.
@@ -7212,6 +7230,7 @@ module Didit
       field :request_id, "request_id", :string
       field :result, "result", :string
       field :holder_name, "holder_name", :string
+      field :name_match_score, "name_match_score", :integer
       field :account, "account", :string
       field :vendor_data, "vendor_data", :string
       field :created_at, "created_at", :datetime
