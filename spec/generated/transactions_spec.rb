@@ -1490,7 +1490,13 @@ RSpec.describe Didit::Resources::Transactions do
           "attempts": 1,
           "last_error": "email undeliverable",
           "next_attempt_at": "2026-01-02T03:04:05Z",
-          "delivered_at": "2026-01-02T03:04:05Z"
+          "delivered_at": "2026-01-02T03:04:05Z",
+          "updated_at": "2026-01-02T03:04:05Z",
+          "failure": {
+            "code": "email_undeliverable",
+            "message": "The message could not be delivered."
+          },
+          "route": "Email"
         },
         "discovery": [
           {
@@ -1560,7 +1566,15 @@ RSpec.describe Didit::Resources::Transactions do
             "delivered_at": "2026-01-02T03:04:05Z",
             "detail_lines": [
               "detail_lines-value"
-            ]
+            ],
+            "attempts": 1,
+            "updated_at": "2026-01-02T03:04:05Z",
+            "next_attempt_at": "2026-01-02T03:04:05Z",
+            "failure": {
+              "code": "email_undeliverable",
+              "message": "The message could not be delivered."
+            },
+            "route": "Email"
           }
         ],
         "deliveries_truncated": true,
@@ -1875,7 +1889,13 @@ RSpec.describe Didit::Resources::Transactions do
             "attempts": 1,
             "last_error": "email undeliverable",
             "next_attempt_at": "2026-01-02T03:04:05Z",
-            "delivered_at": "2026-01-02T03:04:05Z"
+            "delivered_at": "2026-01-02T03:04:05Z",
+            "updated_at": "2026-01-02T03:04:05Z",
+            "failure": {
+              "code": "email_undeliverable",
+              "message": "The message could not be delivered."
+            },
+            "route": "Email"
           },
           "discovery": [
             {
@@ -1935,7 +1955,15 @@ RSpec.describe Didit::Resources::Transactions do
               "delivered_at": "2026-01-02T03:04:05Z",
               "detail_lines": [
                 "example"
-              ]
+              ],
+              "attempts": 1,
+              "updated_at": "2026-01-02T03:04:05Z",
+              "next_attempt_at": "2026-01-02T03:04:05Z",
+              "failure": {
+                "code": "example",
+                "message": "example"
+              },
+              "route": "Email"
             }
           ],
           "deliveries_truncated": true,
@@ -2075,7 +2103,13 @@ RSpec.describe Didit::Resources::Transactions do
           "attempts": 1,
           "last_error": "email undeliverable",
           "next_attempt_at": "2026-01-02T03:04:05Z",
-          "delivered_at": "2026-01-02T03:04:05Z"
+          "delivered_at": "2026-01-02T03:04:05Z",
+          "updated_at": "2026-01-02T03:04:05Z",
+          "failure": {
+            "code": "email_undeliverable",
+            "message": "The message could not be delivered."
+          },
+          "route": "Email"
         },
         "discovery": [
           {
@@ -2145,7 +2179,15 @@ RSpec.describe Didit::Resources::Transactions do
             "delivered_at": "2026-01-02T03:04:05Z",
             "detail_lines": [
               "detail_lines-value"
-            ]
+            ],
+            "attempts": 1,
+            "updated_at": "2026-01-02T03:04:05Z",
+            "next_attempt_at": "2026-01-02T03:04:05Z",
+            "failure": {
+              "code": "email_undeliverable",
+              "message": "The message could not be delivered."
+            },
+            "route": "Email"
           }
         ],
         "deliveries_truncated": true,

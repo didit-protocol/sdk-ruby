@@ -4448,12 +4448,22 @@ module Didit
       VALUES = [TYPED, DRAWN].freeze
     end
 
-    # `null` for a Simple signature, which has no code.
+    # `null` for a Simple signature, which has no code. Always `sms` for a Qualified (QES) signature.
     module SignatureResultConfirmationChannel
       EMAIL = "email"
       SMS = "sms"
 
       VALUES = [EMAIL, SMS].freeze
+    end
+
+    # Who sent the code: `didit`, or `qualified_provider` for a Qualified (QES) signature, whose code comes by SMS
+    # from the qualified trust service provider and authorizes the signer's qualified certificate. `null` for a Simple
+    # signature.
+    module SignatureResultConfirmationSentBy
+      DIDIT = "didit"
+      QUALIFIED_PROVIDER = "qualified_provider"
+
+      VALUES = [DIDIT, QUALIFIED_PROVIDER].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -4498,7 +4508,7 @@ module Didit
       VALUES = [SIGNED, DECLINED, NOT_SIGNED, NOT_REACHED].freeze
     end
 
-    # `pdf` for a Simple signature, `pades` for Advanced (AES).
+    # `pdf` for a Simple signature, `pades` for Advanced (AES) and Qualified (QES).
     module SignatureResultFormat
       PDF = "pdf"
       PADES = "pades"
@@ -4506,7 +4516,8 @@ module Didit
       VALUES = [PDF, PADES].freeze
     end
 
-    # `simple` (default) or `aes`. `qes` (Qualified Electronic Signature, QES) is an add-on that is not available yet.
+    # `simple` (default), `aes` or `qes` (Qualified electronic signature, QES, an add-on: a qualified trust service
+    # provider issues the signer a qualified certificate and signs after the signer enters the code it texts them).
     module SignatureResultLevel
       SIMPLE = "simple"
       AES = "aes"
@@ -4540,6 +4551,20 @@ module Didit
       DECLINED = "declined"
 
       VALUES = [INTRO, REVIEW, CODE, SIGNING, SIGNED, DECLINED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SignatureResultValidationDocumentsFailedChecks
+      INTEGRITY = "integrity"
+      TRUSTED = "trusted"
+      NOT_REVOKED = "not_revoked"
+      COVERAGE = "coverage"
+      TIMESTAMP = "timestamp"
+      QUALIFIED_CERTIFICATE = "qualified_certificate"
+      SIGNER_NAMED = "signer_named"
+      ORIGINAL_KEPT = "original_kept"
+
+      VALUES = [INTEGRITY, TRUSTED, NOT_REVOKED, COVERAGE, TIMESTAMP, QUALIFIED_CERTIFICATE, SIGNER_NAMED, ORIGINAL_KEPT].freeze
     end
 
     # The step's outcome. A warning sets it through its rule; custom status rules apply after.
@@ -5335,6 +5360,15 @@ module Didit
       VALUES = [OWNERSHIP_CONFIRMED, WALLET_PROOF, ADDRESS_BOOK_MATCH, OWN_VERIFIED_WALLET, INQUIRY_APPROVED, KNOWN_PAYMENT_METHOD, TRAVEL_ADDRESS].freeze
     end
 
+    # `email_undeliverable`: the email bounced or the address does not accept mail. `delivery_failed`: any other
+    # failure.
+    module TravelRuleDeliveryFailureCode
+      EMAIL_UNDELIVERABLE = "email_undeliverable"
+      DELIVERY_FAILED = "delivery_failed"
+
+      VALUES = [EMAIL_UNDELIVERABLE, DELIVERY_FAILED].freeze
+    end
+
     # What the message carries. `SEND`: the transfer's first message to the counterparty (outbound; the rail is chosen
     # when it is sent). `ANSWER`: your accept or decline, owed to the network that asked (inbound). `TXID`: the
     # on-chain transaction hash, after you finish the transfer. `CANCEL`: the cancellation, after you cancel it.
@@ -5348,6 +5382,15 @@ module Didit
       POLL = "POLL"
 
       VALUES = [SEND, ANSWER, TXID, CANCEL, POLL].freeze
+    end
+
+    # `email_undeliverable`: the email bounced or the address does not accept mail. `delivery_failed`: any other
+    # failure.
+    module TravelRuleDeliveryLogEntryFailureCode
+      EMAIL_UNDELIVERABLE = "email_undeliverable"
+      DELIVERY_FAILED = "delivery_failed"
+
+      VALUES = [EMAIL_UNDELIVERABLE, DELIVERY_FAILED].freeze
     end
 
     # What the message carries. `SEND`: the transfer's first message to the counterparty (outbound; the rail is chosen
@@ -5395,9 +5438,10 @@ module Didit
       VERIFYVASP = "VERIFYVASP"
       SYGNA = "SYGNA"
       EMAIL = "EMAIL"
+      TEST_VASP = "TEST_VASP"
       VALUE = ""
 
-      VALUES = [INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, VALUE].freeze
+      VALUES = [INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, TEST_VASP, VALUE].freeze
     end
 
     # `QUEUED`: waiting to be sent. `SENDING`: an attempt is running. `RETRYING`: an attempt failed and the next one
@@ -5931,6 +5975,17 @@ module Didit
       VALUES = [INTERNAL, TRP, GTR, TRUST, VERIFYVASP, SYGNA, EMAIL, TEST_VASP].freeze
     end
 
+    # The transaction's own review decision, which can differ from the transfer's `status`: a transfer may wait on its
+    # counterparty while its transaction is approved, or be stuck while its transaction is in review.
+    module TravelRuleTransferRowReviewStatus
+      APPROVED = "APPROVED"
+      IN_REVIEW = "IN_REVIEW"
+      DECLINED = "DECLINED"
+      AWAITING_USER = "AWAITING_USER"
+
+      VALUES = [APPROVED, IN_REVIEW, DECLINED, AWAITING_USER].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleTransferRowStatus
       AWAITING_COUNTERPARTY = "AWAITING_COUNTERPARTY"
@@ -5948,6 +6003,25 @@ module Didit
       NOT_APPLICABLE = "NOT_APPLICABLE"
 
       VALUES = [AWAITING_COUNTERPARTY, ON_HOLD, COMPLETED, FINISHED, CANCELLED, EXPIRED, COUNTERPARTY_MISMATCHED_DATA, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, UNCONFIRMED_OWNERSHIP, COUNTERPARTY_VASP_GENERAL_DECLINE, NOT_ENOUGH_COUNTERPARTY_DATA, NOT_APPLICABLE].freeze
+    end
+
+    # `book`: the wallet is in your address book (`entry_id`). `didit`: exactly one other Didit participant has proven
+    # ownership of it (`vasp_name`, `proof_state`). `ambiguous`: more than one other participant has proven it, so
+    # nothing about them is returned. `none`: no match.
+    module TravelRuleWalletLookupMatch
+      BOOK = "book"
+      DIDIT = "didit"
+      AMBIGUOUS = "ambiguous"
+      NONE = "none"
+
+      VALUES = [BOOK, DIDIT, AMBIGUOUS, NONE].freeze
+    end
+
+    # Only with `match: didit`.
+    module TravelRuleWalletLookupProofState
+      VERIFIED = "verified"
+
+      VALUES = [VERIFIED].freeze
     end
 
     # Why a wallet-ownership proof, or its last attempt, fell short of VERIFIED. Empty when nothing failed. A PENDING
@@ -5997,6 +6071,25 @@ module Didit
       EXPIRED = "EXPIRED"
 
       VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletTransferStatus
+      AWAITING_COUNTERPARTY = "AWAITING_COUNTERPARTY"
+      ON_HOLD = "ON_HOLD"
+      COMPLETED = "COMPLETED"
+      FINISHED = "FINISHED"
+      CANCELLED = "CANCELLED"
+      EXPIRED = "EXPIRED"
+      COUNTERPARTY_MISMATCHED_DATA = "COUNTERPARTY_MISMATCHED_DATA"
+      COUNTERPARTY_VASP_NOT_FOUND = "COUNTERPARTY_VASP_NOT_FOUND"
+      COUNTERPARTY_VASP_NOT_REACHABLE = "COUNTERPARTY_VASP_NOT_REACHABLE"
+      UNCONFIRMED_OWNERSHIP = "UNCONFIRMED_OWNERSHIP"
+      COUNTERPARTY_VASP_GENERAL_DECLINE = "COUNTERPARTY_VASP_GENERAL_DECLINE"
+      NOT_ENOUGH_COUNTERPARTY_DATA = "NOT_ENOUGH_COUNTERPARTY_DATA"
+      NOT_APPLICABLE = "NOT_APPLICABLE"
+
+      VALUES = [AWAITING_COUNTERPARTY, ON_HOLD, COMPLETED, FINISHED, CANCELLED, EXPIRED, COUNTERPARTY_MISMATCHED_DATA, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, UNCONFIRMED_OWNERSHIP, COUNTERPARTY_VASP_GENERAL_DECLINE, NOT_ENOUGH_COUNTERPARTY_DATA, NOT_APPLICABLE].freeze
     end
 
     # Structured rejection reason. Empty when none was recorded; a new claim or approval clears it. Read review_note
@@ -11942,6 +12035,7 @@ module Didit
     end
 
     class SignatureResultConfirmation < Didit::Model
+      field :sent_by, "sent_by", :string
       field :channel, "channel", :string
       field :destination, "destination", :string
       field :confirmed_at, "confirmed_at", :datetime
@@ -12015,6 +12109,7 @@ module Didit
       field :reason, "reason", :string
       field :checked_at, "checked_at", :datetime
       field :documents, "documents", [:array, "SignatureResultValidationDocuments"]
+      field :profile, "profile", :string
     end
 
     class SignatureResultValidationDocuments < Didit::Model
@@ -12027,6 +12122,9 @@ module Didit
       field :trusted_list, "trusted_list", "SignatureResultValidationDocumentsTrustedList"
       field :certificate, "certificate", "SignatureResultValidationDocumentsCertificate"
       field :timestamp, "timestamp", "SignatureResultValidationDocumentsTimestamp"
+      field :qualified, "qualified", :boolean
+      field :profile, "profile", :string
+      field :failed_checks, "failed_checks", [:array, :string]
     end
 
     # The certificate the documents were signed with. `null` until signed, and always `null` for a Simple signature.
@@ -12036,17 +12134,28 @@ module Didit
       field :serial, "serial", :string
       field :valid_from, "valid_from", :datetime
       field :valid_until, "valid_until", :datetime
+      field :qualified_statements, "qualified_statements", "SignatureResultValidationDocumentsCertificateQualifiedStatements"
     end
 
-    # The RFC 3161 timestamp in the signature, issued by Didit. `null` until signed, and always `null` for a Simple
-    # signature.
+    # QES: which ETSI EN 319 412-5 statements the certificate carries.
+    class SignatureResultValidationDocumentsCertificateQualifiedStatements < Didit::Model
+      field :qc_compliance, "qc_compliance", :boolean
+      field :qc_sscd, "qc_sscd", :boolean
+      field :qc_type_esign, "qc_type_esign", :boolean
+    end
+
+    # The RFC 3161 timestamp in the signature: issued by Didit for AES, by the qualified trust service provider for
+    # QES. `null` until signed, and always `null` for a Simple signature.
     class SignatureResultValidationDocumentsTimestamp < Didit::Model
       field :time, "time", :datetime
       field :qualified, "qualified", :boolean
       field :valid, "valid", :boolean
     end
 
-    # EU Trusted List check. For AES: `{"status": "not_applicable", "reason": "aes_not_qualified"}`.
+    # EU Trusted List check. AES: `{"status": "not_applicable", "reason": "aes_not_qualified"}`. QES: `{"status":
+    # "granted"}` when the certificate is a qualified certificate for electronic signatures issued under the qualified
+    # trust service provider's Trusted List entry, else `{"status": "not_granted", ...}`. A sandbox session's
+    # qualified level is sealed by Didit: `{"status": "not_applicable", "reason": "sandbox"}`.
     class SignatureResultValidationDocumentsTrustedList < Didit::Model
       field :status, "status", :string
       field :reason, "reason", :string
@@ -12732,6 +12841,16 @@ module Didit
       field :last_error, "last_error", :string
       field :next_attempt_at, "next_attempt_at", :datetime
       field :delivered_at, "delivered_at", :datetime
+      field :updated_at, "updated_at", :datetime
+      field :failure, "failure", "TravelRuleDeliveryFailure"
+      field :route, "route", :string
+    end
+
+    # Why the last attempt failed, or null while the message has not failed. The message is a fixed customer-safe
+    # sentence: it never carries the counterparty's own text or a transport error.
+    class TravelRuleDeliveryFailure < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
     end
 
     # One supplier-neutral entry in the delivery history.
@@ -12743,6 +12862,18 @@ module Didit
       field :created_at, "created_at", :datetime
       field :delivered_at, "delivered_at", :datetime
       field :detail_lines, "detail_lines", [:array, :string]
+      field :attempts, "attempts", :integer
+      field :updated_at, "updated_at", :datetime
+      field :next_attempt_at, "next_attempt_at", :datetime
+      field :failure, "failure", "TravelRuleDeliveryLogEntryFailure"
+      field :route, "route", :string
+    end
+
+    # Why the last attempt failed, or null while the message has not failed. The message is a fixed customer-safe
+    # sentence: it never carries the counterparty's own text or a transport error.
+    class TravelRuleDeliveryLogEntryFailure < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
     end
 
     class TravelRuleDeliveryLogPage < Didit::Model
@@ -13085,22 +13216,29 @@ module Didit
       field :reason, "reason", :string
     end
 
-    # One Travel Rule transfer as the transfers list shows it: VASP names, wallets and memos only, never the
-    # originator or beneficiary person data.
+    # One Travel Rule transfer as the transfers list shows it: VASP names, wallets, memos, the transaction's review
+    # decision, your own end user's name (masked exactly as the transaction detail masks it), the counterparty VASP's
+    # jurisdiction, the chain and the fiat amount. It never carries the counterparty's person data.
     class TravelRuleTransferRow < Didit::Model
       field :id, "id", :string
       field :transaction_id, "transaction_id", :string
       field :txn_id, "txn_id", :string
       field :txn_date, "txn_date", :datetime
+      field :review_status, "review_status", :string
+      field :person_name, "person_name", :string
       field :kind, "kind", :string
       field :direction, "direction", :string
       field :status, "status", :string
       field :reason, "reason", :string
       field :rail, "rail", :string
       field :asset, "asset", :string
+      field :chain, "chain", :string
       field :amount, "amount", :string
+      field :fiat_amount, "fiat_amount", :string
+      field :fiat_currency, "fiat_currency", :string
       field :originator_vasp, "originator_vasp", :string
       field :beneficiary_vasp, "beneficiary_vasp", :string
+      field :counterparty_jurisdiction, "counterparty_jurisdiction", :string
       field :originator_wallet, "originator_wallet", :string
       field :beneficiary_wallet, "beneficiary_wallet", :string
       field :originator_memo, "originator_memo", :string
@@ -13138,6 +13276,14 @@ module Didit
       field :vout, "vout", :integer
     end
 
+    class TravelRuleWalletLookup < Didit::Model
+      field :match, "match", :string
+      field :directory_checked, "directory_checked", :boolean
+      field :entry_id, "entry_id", :string
+      field :vasp_name, "vasp_name", :string
+      field :proof_state, "proof_state", :string
+    end
+
     class TravelRuleWalletProofReview < Didit::Model
       field :proof_id, "proof_id", :string
       field :method_, "method", :string
@@ -13156,6 +13302,12 @@ module Didit
       field :decided_at, "decided_at", :datetime
       field :decided_by, "decided_by", :string
       field :review_note, "review_note", :string
+      field :created_at, "created_at", :datetime
+    end
+
+    class TravelRuleWalletTransfer < Didit::Model
+      field :transfer_id, "transfer_id", :string
+      field :status, "status", :string
       field :created_at, "created_at", :datetime
     end
 

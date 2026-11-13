@@ -76,7 +76,7 @@ RSpec.describe Didit::Resources::TravelRule do
   end
 
   it "travel_rule.create_widget_session sends POST /v3/travel-rule/widget-session/" do
-    calls = stub_api(status: 201, body: <<~'JSON')
+    calls = stub_api(status: 200, body: <<~'JSON')
       {
         "widget_session_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "token": "token-value",
@@ -422,7 +422,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "attempts": 1,
             "last_error": "email undeliverable",
             "next_attempt_at": "2026-01-02T03:04:05Z",
-            "delivered_at": "2026-01-02T03:04:05Z"
+            "delivered_at": "2026-01-02T03:04:05Z",
+            "updated_at": "2026-01-02T03:04:05Z",
+            "failure": {
+              "code": "email_undeliverable",
+              "message": "The message could not be delivered."
+            },
+            "route": "Email"
           },
           "discovery": [
             {
@@ -482,7 +488,15 @@ RSpec.describe Didit::Resources::TravelRule do
               "delivered_at": "2026-01-02T03:04:05Z",
               "detail_lines": [
                 "example"
-              ]
+              ],
+              "attempts": 1,
+              "updated_at": "2026-01-02T03:04:05Z",
+              "next_attempt_at": "2026-01-02T03:04:05Z",
+              "failure": {
+                "code": "example",
+                "message": "example"
+              },
+              "route": "Email"
             }
           ],
           "deliveries_truncated": true,
@@ -1963,6 +1977,74 @@ RSpec.describe Didit::Resources::TravelRule do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     expect(result.results).to all(be_a(Didit::Types::WalletAddressEntry))
     exercise_readers(result.results)
+  end
+
+  it "travel_rule.wallet_addresses.list_transfers sends GET /v3/travel-rule/wallet-addresses/{entry_uuid}/transfers/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": "next-value",
+        "previous": "previous-value",
+        "results": [
+          {
+            "transfer_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "status": "AWAITING_COUNTERPARTY",
+            "created_at": "2026-01-02T03:04:05Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.wallet_addresses.list_transfers(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/wallet-addresses/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/transfers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleWalletTransfer))
+    exercise_readers(result.results)
+  end
+
+  it "travel_rule.wallet_addresses.lookup sends GET /v3/travel-rule/wallet-addresses/lookup/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "match": "book",
+        "directory_checked": false,
+        "entry_id": "11111111-2222-4333-8444-555555555555"
+      }
+    JSON
+    result = client.travel_rule.wallet_addresses.lookup(
+      address: "address-value",
+      chain: "chain-value"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/wallet-addresses/lookup/",
+      query: [
+        [
+          "address",
+          "address-value"
+        ],
+        [
+          "chain",
+          "chain-value"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleWalletLookup)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 
   it "travel_rule.wallet_addresses.update sends PATCH /v3/travel-rule/wallet-addresses/{entry_uuid}/" do

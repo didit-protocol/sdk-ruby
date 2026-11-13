@@ -3717,6 +3717,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SignatureResultConfirmationSentBy
+      DIDIT: String
+      QUALIFIED_PROVIDER: String
+
+      VALUES: Array[String]
+    end
+
     module SignatureResultDeclinedAction
       DECLINE: String
       REVIEW: String
@@ -3789,6 +3796,19 @@ module Didit
       SIGNING: String
       SIGNED: String
       DECLINED: String
+
+      VALUES: Array[String]
+    end
+
+    module SignatureResultValidationDocumentsFailedChecks
+      INTEGRITY: String
+      TRUSTED: String
+      NOT_REVOKED: String
+      COVERAGE: String
+      TIMESTAMP: String
+      QUALIFIED_CERTIFICATE: String
+      SIGNER_NAMED: String
+      ORIGINAL_KEPT: String
 
       VALUES: Array[String]
     end
@@ -4474,12 +4494,26 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleDeliveryFailureCode
+      EMAIL_UNDELIVERABLE: String
+      DELIVERY_FAILED: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleDeliveryKind
       SEND: String
       ANSWER: String
       TXID: String
       CANCEL: String
       POLL: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleDeliveryLogEntryFailureCode
+      EMAIL_UNDELIVERABLE: String
+      DELIVERY_FAILED: String
 
       VALUES: Array[String]
     end
@@ -4521,6 +4555,7 @@ module Didit
       VERIFYVASP: String
       SYGNA: String
       EMAIL: String
+      TEST_VASP: String
       VALUE: String
 
       VALUES: Array[String]
@@ -4963,6 +4998,15 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleTransferRowReviewStatus
+      APPROVED: String
+      IN_REVIEW: String
+      DECLINED: String
+      AWAITING_USER: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleTransferRowStatus
       AWAITING_COUNTERPARTY: String
       ON_HOLD: String
@@ -4977,6 +5021,21 @@ module Didit
       COUNTERPARTY_VASP_GENERAL_DECLINE: String
       NOT_ENOUGH_COUNTERPARTY_DATA: String
       NOT_APPLICABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletLookupMatch
+      BOOK: String
+      DIDIT: String
+      AMBIGUOUS: String
+      NONE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletLookupProofState
+      VERIFIED: String
 
       VALUES: Array[String]
     end
@@ -5012,6 +5071,24 @@ module Didit
       VERIFIED: String
       REJECTED: String
       EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletTransferStatus
+      AWAITING_COUNTERPARTY: String
+      ON_HOLD: String
+      COMPLETED: String
+      FINISHED: String
+      CANCELLED: String
+      EXPIRED: String
+      COUNTERPARTY_MISMATCHED_DATA: String
+      COUNTERPARTY_VASP_NOT_FOUND: String
+      COUNTERPARTY_VASP_NOT_REACHABLE: String
+      UNCONFIRMED_OWNERSHIP: String
+      COUNTERPARTY_VASP_GENERAL_DECLINE: String
+      NOT_ENOUGH_COUNTERPARTY_DATA: String
+      NOT_APPLICABLE: String
 
       VALUES: Array[String]
     end
@@ -10527,6 +10604,7 @@ module Didit
     end
 
     class SignatureResultConfirmation < Didit::Model
+      def sent_by: () -> String?
       def channel: () -> String?
       def destination: () -> String?
       def confirmed_at: () -> Time?
@@ -10593,6 +10671,7 @@ module Didit
       def reason: () -> String?
       def checked_at: () -> Time?
       def documents: () -> Array[Didit::Types::SignatureResultValidationDocuments]?
+      def profile: () -> String?
     end
 
     class SignatureResultValidationDocuments < Didit::Model
@@ -10605,6 +10684,9 @@ module Didit
       def trusted_list: () -> Didit::Types::SignatureResultValidationDocumentsTrustedList?
       def certificate: () -> Didit::Types::SignatureResultValidationDocumentsCertificate?
       def timestamp: () -> Didit::Types::SignatureResultValidationDocumentsTimestamp?
+      def qualified: () -> bool?
+      def profile: () -> String?
+      def failed_checks: () -> Array[String]?
     end
 
     class SignatureResultValidationDocumentsCertificate < Didit::Model
@@ -10613,6 +10695,13 @@ module Didit
       def serial: () -> String?
       def valid_from: () -> Time?
       def valid_until: () -> Time?
+      def qualified_statements: () -> Didit::Types::SignatureResultValidationDocumentsCertificateQualifiedStatements?
+    end
+
+    class SignatureResultValidationDocumentsCertificateQualifiedStatements < Didit::Model
+      def qc_compliance: () -> bool?
+      def qc_sscd: () -> bool?
+      def qc_type_esign: () -> bool?
     end
 
     class SignatureResultValidationDocumentsTimestamp < Didit::Model
@@ -11236,6 +11325,14 @@ module Didit
       def last_error: () -> String
       def next_attempt_at: () -> Time?
       def delivered_at: () -> Time?
+      def updated_at: () -> Time
+      def failure: () -> Didit::Types::TravelRuleDeliveryFailure?
+      def route: () -> String?
+    end
+
+    class TravelRuleDeliveryFailure < Didit::Model
+      def code: () -> String
+      def message: () -> String
     end
 
     class TravelRuleDeliveryLogEntry < Didit::Model
@@ -11246,6 +11343,16 @@ module Didit
       def created_at: () -> Time
       def delivered_at: () -> Time?
       def detail_lines: () -> Array[String]
+      def attempts: () -> Integer
+      def updated_at: () -> Time
+      def next_attempt_at: () -> Time?
+      def failure: () -> Didit::Types::TravelRuleDeliveryLogEntryFailure?
+      def route: () -> String?
+    end
+
+    class TravelRuleDeliveryLogEntryFailure < Didit::Model
+      def code: () -> String
+      def message: () -> String
     end
 
     class TravelRuleDeliveryLogPage < Didit::Model
@@ -11558,15 +11665,21 @@ module Didit
       def transaction_id: () -> String?
       def txn_id: () -> String?
       def txn_date: () -> Time?
+      def review_status: () -> String?
+      def person_name: () -> String?
       def kind: () -> String?
       def direction: () -> String?
       def status: () -> String?
       def reason: () -> String?
       def rail: () -> String?
       def asset: () -> String?
+      def chain: () -> String?
       def amount: () -> String?
+      def fiat_amount: () -> String?
+      def fiat_currency: () -> String?
       def originator_vasp: () -> String?
       def beneficiary_vasp: () -> String?
+      def counterparty_jurisdiction: () -> String?
       def originator_wallet: () -> String?
       def beneficiary_wallet: () -> String?
       def originator_memo: () -> String?
@@ -11603,6 +11716,14 @@ module Didit
       def vout: () -> Integer?
     end
 
+    class TravelRuleWalletLookup < Didit::Model
+      def match: () -> String
+      def directory_checked: () -> bool
+      def entry_id: () -> String?
+      def vasp_name: () -> String?
+      def proof_state: () -> String?
+    end
+
     class TravelRuleWalletProofReview < Didit::Model
       def proof_id: () -> String?
       def method_: () -> String?
@@ -11622,6 +11743,12 @@ module Didit
       def decided_by: () -> String?
       def review_note: () -> String?
       def created_at: () -> Time?
+    end
+
+    class TravelRuleWalletTransfer < Didit::Model
+      def transfer_id: () -> String
+      def status: () -> String
+      def created_at: () -> Time
     end
 
     class TravelRuleWidgetSessionResponse < Didit::Model
