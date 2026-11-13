@@ -3,6 +3,16 @@
 
 module Didit
   module Types
+    # Only with `wallet_entry_id`. `ensure` and `resend` return the entry's active link when it has one (`200`) and
+    # create one otherwise (`201`). `new` revokes the active link and creates another; it needs `request_key`.
+    module TravelRuleCreateWidgetSessionParamsRequestAction
+      ENSURE = "ensure"
+      RESEND = "resend"
+      NEW = "new"
+
+      VALUES = [ENSURE, RESEND, NEW].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleListVaspsParamsKind
       DIRECTORY = "directory"
@@ -163,6 +173,13 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "WalletAddressEntry"]
+    end
+
+    class TravelRuleWalletAddressesListTransfersResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleWalletTransfer"]
     end
 
     class TravelRuleWalletProofsListResponse < Didit::Model

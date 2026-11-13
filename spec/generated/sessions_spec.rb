@@ -4798,6 +4798,7 @@ RSpec.describe Didit::Resources::Sessions do
               "valid_until": "2026-01-02T03:04:05Z"
             },
             "confirmation": {
+              "sent_by": "didit",
               "channel": "email",
               "destination": "destination-value",
               "confirmed_at": "2026-01-02T03:04:05Z",
@@ -4853,7 +4854,8 @@ RSpec.describe Didit::Resources::Sessions do
               "checked_at": "2026-01-02T03:04:05Z",
               "documents": [
                 "example"
-              ]
+              ],
+              "profile": "profile-value"
             },
             "declined_at": "2026-01-02T03:04:05Z",
             "declined_action": "DECLINE",

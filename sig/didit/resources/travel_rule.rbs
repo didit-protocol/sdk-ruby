@@ -12,7 +12,7 @@ module Didit
       def workspace: () -> Didit::Resources::TravelRule::Workspace
       def clear_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       def create_vasp: (name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
-      def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
+      def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?wallet_entry_id: String, ?request_action: String, ?request_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
       def list_vasp_questionnaires: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaireList
       def list_vasps: (?search: String, ?network: String, ?jurisdiction: String, ?reachable: bool, ?kind: String, ?risk: String, ?responsiveness: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::VaspDirectoryEntry]
       def register_inbound: (chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleInboundResponse
@@ -49,6 +49,8 @@ module Didit
         def create: (address: String, ?chain: String, ?holder_vendor_data: String, ?holder_name: String, ?entity_type: String, ?self_declared: bool, ?travel_address: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntry
         def delete: (String entry_uuid, ?request_options: Didit::request_options?) -> nil
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WalletAddressEntry]
+        def list_transfers: (String entry_uuid, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletTransfer]
+        def lookup: (address: String, chain: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletLookup
         def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdate
       end
       class WalletProofs < Didit::Resource

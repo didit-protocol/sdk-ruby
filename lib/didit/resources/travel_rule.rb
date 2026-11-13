@@ -117,6 +117,16 @@ module Didit
       #   completion.
       # @param expires_in_minutes [Integer] Optional. Lifetime of the minted link, in minutes. Automatically extended
       #   to cover the Satoshi test window when SATOSHI_TEST is offered.
+      # @param wallet_entry_id [String] Optional. Request the ownership proof of this address book entry instead of
+      #   passing `wallet_address` and `chain`. The entry must be a customer wallet with a holder
+      #   (`holder_vendor_data`), an address and a chain; the saved wallet and holder are always used and a conflicting
+      #   `wallet_address`, `chain`, `holder_name` or `vendor_data` is rejected. Cannot be combined with
+      #   `transaction_id`.
+      # @param request_action [String] Only with `wallet_entry_id`. `ensure` and `resend` return the entry's active
+      #   link when it has one (`200`) and create one otherwise (`201`). `new` revokes the active link and creates
+      #   another; it needs `request_key`.
+      # @param request_key [String] Only with `request_action: new`. An idempotency key: repeating the call with the
+      #   same key returns the same link while it is active, and `410` once it has been revoked or has expired.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleWidgetSessionResponse]
       def create_widget_session(
@@ -128,6 +138,9 @@ module Didit
         satoshi_deposit_address: OMIT,
         callback_url: OMIT,
         expires_in_minutes: OMIT,
+        wallet_entry_id: OMIT,
+        request_action: OMIT,
+        request_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -141,7 +154,10 @@ module Didit
             "transaction_id" => transaction_id,
             "satoshi_deposit_address" => satoshi_deposit_address,
             "callback_url" => callback_url,
-            "expires_in_minutes" => expires_in_minutes
+            "expires_in_minutes" => expires_in_minutes,
+            "wallet_entry_id" => wallet_entry_id,
+            "request_action" => request_action,
+            "request_key" => request_key
           },
           response: Types::TravelRuleWidgetSessionResponse,
           request_options: request_options
@@ -838,8 +854,10 @@ module Didit
         # List Travel Rule transfers
         #
         # Your application's Travel Rule transfers, newest first, paginated with `limit` (default 50) and `offset`.
-        # Rows carry VASP names, wallets and memos only, never person data. Comma-separated values select several. An
-        # unknown value answers 400 naming the parameter, for example `{"direction": ["Unknown value(s): inbound."]}`.
+        # Rows carry VASP names, wallets, memos, the transaction's review decision, your own end user's name (masked
+        # exactly as the transaction detail masks it), the counterparty VASP's jurisdiction, the chain and the fiat
+        # amount; they never carry the counterparty's person data. Comma-separated values select several. An unknown
+        # value answers 400 naming the parameter, for example `{"direction": ["Unknown value(s): inbound."]}`.
         #
         # +GET /v3/travel-rule/transfers/+
         #
@@ -1111,6 +1129,61 @@ module Didit
               "offset" => offset
             },
             page: Types::WalletAddressEntry,
+            request_options: request_options
+          )
+        end
+
+        # List the transfers that used a wallet address
+        #
+        # Paginated list of your Travel Rule transfers whose originator or beneficiary wallet is this address book
+        # entry, newest first. The endpoint answers 404 once the entry is deleted.
+        #
+        # +GET /v3/travel-rule/wallet-addresses/{entry_uuid}/transfers/+
+        #
+        # @param entry_uuid [String]
+        # @param limit [Integer]
+        # @param offset [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleWalletTransfer>]
+        def list_transfers(entry_uuid, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/wallet-addresses/{entry_uuid}/transfers/",
+            path_params: { "entry_uuid" => entry_uuid },
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleWalletTransfer,
+            request_options: request_options
+          )
+        end
+
+        # Look up a wallet address
+        #
+        # Checks one exact address, chain and memo against your own wallet address book and then against wallets
+        # proven by other Didit Travel Rule participants. It never screens the wallet, never sends a message and never
+        # returns holder data from another application. `directory_checked` is always `false`: the lookup does not
+        # search a public directory, so `none` means the wallet is neither in your book nor proven on Didit, not that
+        # it is unknown elsewhere.
+        #
+        # +GET /v3/travel-rule/wallet-addresses/lookup/+
+        #
+        # @param address [String] The wallet address.
+        # @param chain [String] Chain token, for example `ETH`, `BTC` or `SOL`.
+        # @param memo [String] Destination tag or memo, for chains that use one.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleWalletLookup]
+        def lookup(address:, chain:, memo: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/wallet-addresses/lookup/",
+            query: {
+              "address" => address,
+              "chain" => chain,
+              "memo" => memo
+            },
+            response: Types::TravelRuleWalletLookup,
             request_options: request_options
           )
         end
