@@ -170,6 +170,18 @@ module Didit
       VALUES: Array[String]
     end
 
+    module AddressValidationResultAddressType
+      STREET: String
+      PO_BOX: String
+      HIGH_RISE: String
+      RURAL_ROUTE: String
+      GENERAL_DELIVERY: String
+      FIRM: String
+      BUILDING: String
+
+      VALUES: Array[String]
+    end
+
     module AddressValidationResultStatus
       VERIFIED: String
       PARTIALLY_VERIFIED: String
@@ -5827,6 +5839,8 @@ module Didit
       def formatted_address: () -> String?
       def latitude: () -> Float?
       def longitude: () -> Float?
+      def address_type: () -> String?
+      def is_residential: () -> bool?
     end
 
     class AddressValidationResultAddress < Didit::Model
@@ -6111,6 +6125,7 @@ module Didit
       def request_id: () -> String
       def result: () -> String
       def holder_name: () -> String?
+      def name_match_score: () -> Integer?
       def account: () -> String
       def vendor_data: () -> String?
       def created_at: () -> Time

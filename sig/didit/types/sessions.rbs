@@ -1209,6 +1209,7 @@ module Didit
       def vendor_data: () -> String?
       def metadata: () -> untyped
       def tags: () -> Array[String]?
+      def expires_at: () -> Time?
       def status: () -> String
       def callback: () -> String?
       def workflow_id: () -> String
@@ -1736,7 +1737,7 @@ module Didit
 
     type sessions_create_kyb_party_draft_params = { entity_type: String, ?full_name: String, ?first_name: String, ?last_name: String, ?role: String, ?roles: Array[String], ?position: String, ?date_of_birth: (Date | String)?, ?company_name: String, ?registration_number: String, ?email: String, ?ownership_percent: (Float | Integer)?, nationality: String, ?phone_number: String, ?custom_fields: Hash[String | Symbol, untyped], ?skip_verification: bool }
 
-    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?multi_account_segment: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?tags: Array[String], ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign, ?user_state: String, ?biometric_consent: Didit::Types::sessions_create_params_biometric_consent }
+    type sessions_create_params = { workflow_id: String, ?vendor_data: String, ?multi_account_segment: String, ?callback: String, ?callback_method: String, ?metadata: untyped, ?tags: Array[String], ?session_expiration_time: Integer, ?language: String, ?contact_details: Didit::Types::sessions_create_params_contact_details, ?expected_details: Didit::Types::sessions_create_params_expected_details, ?portrait_image: String, ?sandbox_scenario: String, ?sign: Didit::Types::sessions_create_params_sign, ?user_state: String, ?biometric_consent: Didit::Types::sessions_create_params_biometric_consent }
 
     type sessions_create_params_biometric_consent = { given_at: Time | String, text_version: String }
 

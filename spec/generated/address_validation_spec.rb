@@ -23,7 +23,9 @@ RSpec.describe Didit::Resources::AddressValidation do
           },
           "formatted_address": "1600 Amphitheatre Pkwy, Mountain View CA 94043-1351",
           "latitude": 37.422022,
-          "longitude": -122.08429
+          "longitude": -122.08429,
+          "address_type": "street",
+          "is_residential": false
         },
         "created_at": "2026-10-27T11:20:00.000000+00:00"
       }
