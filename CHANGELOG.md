@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.20.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.20.0...v2.20.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* refuse an idempotency key that is not printable ASCII before any request ([#81](https://github.com/didit-protocol/sdk-ruby/issues/81)) ([dd351a8](https://github.com/didit-protocol/sdk-ruby/commit/dd351a8e93803fcec2bf70c341291025296c0255))
+
 ## [2.20.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.19.0...v2.20.0) (2026-11-14)
 
 
