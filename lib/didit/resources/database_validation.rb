@@ -75,6 +75,11 @@ module Didit
       # @param consent [Boolean] Set to `true` when the end user has explicitly consented to the selected validation
       #   services. Required for services flagged `requires_consent=true` in the catalog - without it those services
       #   return `400` with `services_requiring_consent`.
+      # @param electoral_roll_only [Boolean] Paraguay (`pry_cedula`) only. Set to `true` to check the cédula against
+      #   the TSJE electoral roll alone. The electoral roll lists only citizens aged 18 or over, so a `MATCH` also
+      #   confirms that the holder is an adult, and a cédula that is not on the roll returns `DOCUMENT_NOT_FOUND`.
+      #   Defaults to `false`, which also checks the DNIT taxpayer register for wider identity coverage but cannot
+      #   confirm age....
       # @param identification_number [String] Universal identification number - automatically mapped to the correct
       #   country-specific field, so you can use it instead of `personal_number`/`tax_number`/`document_number`:
       #   ARG→document_number (DNI), BOL→document_number (CI), BRA→tax_number (CPF, 11 digits), CHL→personal_number
@@ -214,6 +219,7 @@ module Didit
         services: OMIT,
         validation_type: OMIT,
         consent: OMIT,
+        electoral_roll_only: OMIT,
         identification_number: OMIT,
         first_name: OMIT,
         last_name: OMIT,
@@ -302,6 +308,7 @@ module Didit
             "services" => services,
             "validation_type" => validation_type,
             "consent" => consent,
+            "electoral_roll_only" => electoral_roll_only,
             "identification_number" => identification_number,
             "first_name" => first_name,
             "last_name" => last_name,
