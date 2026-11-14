@@ -10,16 +10,19 @@ module Didit
       def wallet_addresses: () -> Didit::Resources::TravelRule::WalletAddresses
       def wallet_proofs: () -> Didit::Resources::TravelRule::WalletProofs
       def workspace: () -> Didit::Resources::TravelRule::Workspace
+      def assign_vasp: (String vasp_id, assignee_email: String?, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleAssignVaspResponse
       def clear_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       def create_vasp: (name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
       def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?wallet_entry_id: String, ?request_action: String, ?request_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
       def list_vasp_questionnaires: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaireList
+      def list_vasp_reviewers: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleListVaspReviewersResponse
       def list_vasps: (?search: String, ?network: String, ?jurisdiction: String, ?reachable: bool, ?kind: String, ?risk: String, ?responsiveness: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::VaspDirectoryEntry]
       def register_inbound: (chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleInboundResponse
       def retrieve_settings: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
       def retrieve_vasp: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
       def retrieve_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       def retrieve_vasp_screening: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningStatus
+      def review_vasp_screening_hit: (String vasp_id, screening_id: String, hit_id: String, review_status: String, ?reason: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleReviewVaspScreeningHitResponse
       def screen_vasp: (String vasp_id, ?refresh: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningResult
       def send_compliance_email_confirmation: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse
       def send_vasp_questionnaire: (String vasp_id, ?sent_to: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaire
