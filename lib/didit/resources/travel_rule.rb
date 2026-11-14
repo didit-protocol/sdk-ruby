@@ -10,6 +10,11 @@ module Didit
         @counterparty_contacts ||= CounterpartyContacts.new(@client)
       end
 
+      # @return [Didit::Resources::TravelRule::Documents]
+      def documents
+        @documents ||= Documents.new(@client)
+      end
+
       # @return [Didit::Resources::TravelRule::Networks]
       def networks
         @networks ||= Networks.new(@client)
@@ -190,6 +195,33 @@ module Didit
         )
       end
 
+      # List a VASP's decision history
+      #
+      # Your application's own decision changes for the counterparty, newest first. Only changes made after this
+      # history existed are listed. Needs the transactions read privilege.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/decision-history/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param limit [Integer]
+      # @param offset [Integer]
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Page<Didit::Types::TravelRuleDecisionEvent>]
+      def list_vasp_decision_history(vasp_id, limit: OMIT, offset: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/decision-history/",
+          path_params: { "vasp_id" => vasp_id },
+          query: {
+            "limit" => limit,
+            "offset" => offset
+          },
+          page: Types::TravelRuleDecisionEvent,
+          request_options: request_options
+        )
+      end
+
       # List due-diligence questionnaires with a VASP
       #
       # Every due-diligence questionnaire your application sent the counterparty, newest first, with its status and,
@@ -225,6 +257,26 @@ module Didit
           :get,
           "/v3/travel-rule/vasps/reviewers/",
           response: Types::TravelRuleListVaspReviewersResponse,
+          request_options: request_options
+        )
+      end
+
+      # List the documents shared with a VASP
+      #
+      # The documents currently shared with the counterparty.
+      #
+      # +GET /v3/travel-rule/vasps/{vasp_id}/shared-documents/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleListVaspSharedDocumentsResponse]
+      def list_vasp_shared_documents(vasp_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/{vasp_id}/shared-documents/",
+          path_params: { "vasp_id" => vasp_id },
+          response: Types::TravelRuleListVaspSharedDocumentsResponse,
           request_options: request_options
         )
       end
@@ -530,17 +582,59 @@ module Didit
       #   its compliance address or a contact your application sees, for a Didit network member its confirmed compliance
       #   email. Default: the address a Travel Rule email to the counterparty goes to (your own contact first, then a
       #   platform contact, then the entry's compliance address).
+      # @param answer_by_days [Integer] Optional. Days the counterparty has to answer. Default: the standard answer
+      #   window.
+      # @param requested_items [Array<String>] Optional. What the counterparty must provide: the questionnaire answers
+      #   and/or PDF documents.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleCounterpartyQuestionnaire]
-      def send_vasp_questionnaire(vasp_id, sent_to: OMIT, request_options: nil)
+      def send_vasp_questionnaire(
+        vasp_id,
+        sent_to: OMIT,
+        answer_by_days: OMIT,
+        requested_items: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/travel-rule/vasps/{vasp_id}/questionnaires/",
           path_params: { "vasp_id" => vasp_id },
           body: {
-            "sent_to" => sent_to
+            "sent_to" => sent_to,
+            "answer_by_days" => answer_by_days,
+            "requested_items" => requested_items
           },
           response: Types::TravelRuleCounterpartyQuestionnaire,
+          request_options: request_options
+        )
+      end
+
+      # Share documents with a VASP
+      #
+      # Emails the counterparty a private link to the selected documents. Sharing again replaces the earlier share:
+      # the earlier link stops working for good. Sharing exactly what is already shared with the same address changes
+      # nothing and answers `200` with `url: null`. Needs the transactions write privilege.
+      #
+      # +POST /v3/travel-rule/vasps/{vasp_id}/shared-documents/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param document_ids [Array<String>] Documents of your own inventory, each once.
+      # @param sent_to [String] Optional. A compliance address on record for the counterparty, chosen the way
+      #   `sent_to` of the questionnaire request is. Default: the address a Travel Rule email to the counterparty goes
+      #   to.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleDocumentShare]
+      def share_vasp_documents(vasp_id, document_ids:, sent_to: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/vasps/{vasp_id}/shared-documents/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "document_ids" => document_ids,
+            "sent_to" => sent_to
+          },
+          response: Types::TravelRuleDocumentShare,
           request_options: request_options
         )
       end
@@ -691,6 +785,47 @@ module Didit
         )
       end
 
+      # Withdraw the documents shared with a VASP
+      #
+      # Revokes every active link to your documents for this counterparty. Withdrawal is permanent: the links never
+      # work again, and sharing again creates a new link.
+      #
+      # +DELETE /v3/travel-rule/vasps/{vasp_id}/shared-documents/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [nil]
+      def withdraw_vasp_documents(vasp_id, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/travel-rule/vasps/{vasp_id}/shared-documents/",
+          path_params: { "vasp_id" => vasp_id },
+          request_options: request_options
+        )
+      end
+
+      # Withdraw a due-diligence request
+      #
+      # Withdraws the request and erases the documents and answers collected with it. Its answer link stops working.
+      # Deletion is irreversible. Needs the transactions write privilege.
+      #
+      # +DELETE /v3/travel-rule/vasps/{vasp_id}/questionnaires/{questionnaire_id}/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param questionnaire_id [String]
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [nil]
+      def withdraw_vasp_questionnaire(vasp_id, questionnaire_id, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/travel-rule/vasps/{vasp_id}/questionnaires/{questionnaire_id}/",
+          path_params: { "vasp_id" => vasp_id, "questionnaire_id" => questionnaire_id },
+          request_options: request_options
+        )
+      end
+
       # The +travel_rule.counterparty_contacts+ resource.
       class CounterpartyContacts < Didit::Resource
         # Add a counterparty contact
@@ -704,16 +839,30 @@ module Didit
         # @param counterparty [String] The directory entry's `id`.
         # @param email [String]
         # @param name [String] Optional label.
+        # @param role [String] Optional. The contact's role.
+        # @param phone [String] Optional. The contact's phone number.
+        # @param receives_requests [Boolean] Whether due-diligence requests and reminders go to this contact.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleCounterpartyContact]
-        def create(counterparty:, email:, name: OMIT, request_options: nil)
+        def create(
+          counterparty:,
+          email:,
+          name: OMIT,
+          role: OMIT,
+          phone: OMIT,
+          receives_requests: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/travel-rule/counterparty-contacts/",
             body: {
               "counterparty" => counterparty,
               "email" => email,
-              "name" => name
+              "name" => name,
+              "role" => role,
+              "phone" => phone,
+              "receives_requests" => receives_requests
             },
             response: Types::TravelRuleCounterpartyContact,
             request_options: request_options
@@ -763,6 +912,143 @@ module Didit
               "offset" => offset
             },
             page: Types::TravelRuleCounterpartyContact,
+            request_options: request_options
+          )
+        end
+
+        # Edit a counterparty contact
+        #
+        # Edits one of your application's own contacts. Changing the email address clears its verification and invalid
+        # state. Platform contacts cannot be edited.
+        #
+        # +PATCH /v3/travel-rule/counterparty-contacts/{contact_uuid}/+
+        #
+        # @param contact_uuid [String]
+        # @param name [String]
+        # @param email [String]
+        # @param role [String]
+        # @param phone [String]
+        # @param receives_requests [Boolean]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleCounterpartyContact]
+        def update(
+          contact_uuid,
+          name: OMIT,
+          email: OMIT,
+          role: OMIT,
+          phone: OMIT,
+          receives_requests: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/travel-rule/counterparty-contacts/{contact_uuid}/",
+            path_params: { "contact_uuid" => contact_uuid },
+            body: {
+              "name" => name,
+              "email" => email,
+              "role" => role,
+              "phone" => phone,
+              "receives_requests" => receives_requests
+            },
+            response: Types::TravelRuleCounterpartyContact,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +travel_rule.documents+ resource.
+      class Documents < Didit::Resource
+        # Upload a Travel Rule document
+        #
+        # Stores a PDF in your inventory so you can share it with counterparties. The file must be a PDF of at most 5
+        # MiB. Uploading identical content of the same kind again returns the existing document. Needs the
+        # transactions write privilege.
+        #
+        # +POST /v3/travel-rule/documents/+
+        #
+        # @param kind [String] `questionnaire`: the due-diligence questionnaire answers. `incorporation`: certificate
+        #   of incorporation. `licence`: licence or registration. `aml_policy`: AML and CFT policy. `ownership`:
+        #   ownership structure.
+        # @param file [Pathname, IO, String, Didit::FilePart] A PDF of at most 5 MiB.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::TravelRuleDocument]
+        def create(kind:, file:, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/travel-rule/documents/",
+            body: {
+              "kind" => kind,
+              "file" => file
+            },
+            encoding: :multipart,
+            file_fields: %w[file],
+            response: Types::TravelRuleDocument,
+            request_options: request_options
+          )
+        end
+
+        # Delete a Travel Rule document
+        #
+        # Deletes the document and every link that shared it. Deletion is irreversible and takes effect at once:
+        # shared links stop working.
+        #
+        # +DELETE /v3/travel-rule/documents/{document_id}/+
+        #
+        # @param document_id [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(document_id, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/travel-rule/documents/{document_id}/",
+            path_params: { "document_id" => document_id },
+            request_options: request_options
+          )
+        end
+
+        # Download a Travel Rule document
+        #
+        # Returns the PDF, as an attachment, for a document you uploaded or one a counterparty sent you with a
+        # questionnaire. Needs the transactions read privilege.
+        #
+        # +GET /v3/travel-rule/documents/{document_id}/+
+        #
+        # @param document_id [String]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [String, nil] the body bytes, or nil when a block receives the chunks
+        def download(document_id, request_options: nil, &block)
+          @client.request(
+            :get,
+            "/v3/travel-rule/documents/{document_id}/",
+            path_params: { "document_id" => document_id },
+            response: :binary,
+            accept: "application/pdf, application/json",
+            request_options: request_options, &block
+          )
+        end
+
+        # List your Travel Rule documents
+        #
+        # Paginated inventory of the PDF documents you uploaded to share with counterparties, newest first. Documents
+        # counterparties sent you with a questionnaire are not listed here: they appear on the questionnaire. Needs
+        # the transactions read privilege.
+        #
+        # +GET /v3/travel-rule/documents/+
+        #
+        # @param limit [Integer]
+        # @param offset [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::TravelRuleDocument>]
+        def list(limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/travel-rule/documents/",
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::TravelRuleDocument,
             request_options: request_options
           )
         end

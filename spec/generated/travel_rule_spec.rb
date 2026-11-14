@@ -146,6 +146,41 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.list_vasp_decision_history sends GET /v3/travel-rule/vasps/{vasp_id}/decision-history/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": "next-value",
+        "previous": "previous-value",
+        "results": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "decision": "decision-value",
+            "reason": "reason-value",
+            "actor": "actor-value",
+            "created_at": "2026-01-02T03:04:05Z"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.list_vasp_decision_history(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/decision-history/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleDecisionEvent))
+    exercise_readers(result.results)
+  end
+
   it "travel_rule.list_vasp_questionnaires sends GET /v3/travel-rule/vasps/{vasp_id}/questionnaires/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -231,6 +266,38 @@ RSpec.describe Didit::Resources::TravelRule do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::TravelRuleListVaspReviewersResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.list_vasp_shared_documents sends GET /v3/travel-rule/vasps/{vasp_id}/shared-documents/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "documents": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "name": "name-value",
+            "kind": "questionnaire",
+            "uploaded_at": "2026-01-02T03:04:05Z",
+            "received_at": "2026-01-02T03:04:05Z",
+            "content_type": "application/pdf"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.list_vasp_shared_documents(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/shared-documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleListVaspSharedDocumentsResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -372,7 +439,10 @@ RSpec.describe Didit::Resources::TravelRule do
                 "answered_at": "example",
                 "valid_until": "example",
                 "current": "example",
-                "answers": "example"
+                "answers": "example",
+                "requested_items": "example",
+                "reminder_sent_at": "example",
+                "documents": "example"
               }
             ],
             "source": "didit_network",
@@ -1132,6 +1202,39 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.share_vasp_documents sends POST /v3/travel-rule/vasps/{vasp_id}/shared-documents/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "shared_with": "user@example.com",
+        "url": "url-value"
+      }
+    JSON
+    result = client.travel_rule.share_vasp_documents(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      document_ids: [
+        "11111111-2222-4333-8444-555555555555"
+      ],
+      sent_to: "travelrule@counterparty.example"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/shared-documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "document_ids" => [
+        "11111111-2222-4333-8444-555555555555"
+      ],
+      "sent_to" => "travelrule@counterparty.example"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleDocumentShare)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.update_settings sends PUT /v3/travel-rule/settings/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1353,6 +1456,41 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.withdraw_vasp_documents sends DELETE /v3/travel-rule/vasps/{vasp_id}/shared-documents/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.travel_rule.withdraw_vasp_documents(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/shared-documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_nil
+  end
+
+  it "travel_rule.withdraw_vasp_questionnaire sends DELETE /v3/travel-rule/vasps/{vasp_id}/questionnaires/{questionnaire_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.travel_rule.withdraw_vasp_questionnaire(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/questionnaires/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_nil
+  end
+
   it "travel_rule.counterparty_contacts.create sends POST /v3/travel-rule/counterparty-contacts/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -1451,6 +1589,159 @@ RSpec.describe Didit::Resources::TravelRule do
     expect(result).to be_a(Didit::Page)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     expect(result.results).to all(be_a(Didit::Types::TravelRuleCounterpartyContact))
+    exercise_readers(result.results)
+  end
+
+  it "travel_rule.counterparty_contacts.update sends PATCH /v3/travel-rule/counterparty-contacts/{contact_uuid}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "counterparty": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "counterparty_name": "counterparty_name-value",
+        "email": "user@example.com",
+        "name": "name-value",
+        "source": "staff",
+        "scope": "platform",
+        "created_by": "created_by-value",
+        "verified_at": "2026-01-02T03:04:05Z",
+        "is_invalid": true,
+        "invalid_reason": "",
+        "invalid_detail": "invalid_detail-value",
+        "invalid_at": "2026-01-02T03:04:05Z",
+        "created_at": "2026-01-02T03:04:05Z",
+        "role": "role-value",
+        "phone": "phone-value",
+        "receives_requests": true
+      }
+    JSON
+    result = client.travel_rule.counterparty_contacts.update(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      role: "Compliance officer",
+      receives_requests: true
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/travel-rule/counterparty-contacts/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "role" => "Compliance officer",
+      "receives_requests" => true
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleCounterpartyContact)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.documents.create sends POST /v3/travel-rule/documents/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "name": "name-value",
+        "kind": "questionnaire",
+        "uploaded_at": "2026-01-02T03:04:05Z",
+        "received_at": "2026-01-02T03:04:05Z",
+        "content_type": "application/pdf"
+      }
+    JSON
+    result = client.travel_rule.documents.create(
+      kind: "questionnaire",
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_multipart_body(
+      request,
+      fields: {
+        "kind" => "questionnaire"
+      },
+      files: {
+        "file" => [
+          "file.jpg",
+          "image/jpeg",
+          "fake-file-bytes"
+        ]
+      }
+    )
+    expect(result).to be_a(Didit::Types::TravelRuleDocument)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "travel_rule.documents.delete sends DELETE /v3/travel-rule/documents/{document_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.travel_rule.documents.delete(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/travel-rule/documents/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_nil
+  end
+
+  it "travel_rule.documents.download sends GET /v3/travel-rule/documents/{document_id}/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
+    result = client.travel_rule.documents.download(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/documents/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/pdf, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
+  it "travel_rule.documents.list sends GET /v3/travel-rule/documents/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": "next-value",
+        "previous": "previous-value",
+        "results": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "name": "name-value",
+            "kind": "questionnaire",
+            "uploaded_at": "2026-01-02T03:04:05Z",
+            "received_at": "2026-01-02T03:04:05Z",
+            "content_type": "application/pdf"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.documents.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/documents/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::TravelRuleDocument))
     exercise_readers(result.results)
   end
 
