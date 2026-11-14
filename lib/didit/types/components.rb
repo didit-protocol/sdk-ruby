@@ -5512,6 +5512,25 @@ module Didit
       VALUES = [INTERNAL_ADDRESS_BOOK, WALLET_ATTRIBUTION, NETWORK_LOOKUP, CUSTOMER_HINT, END_USER].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module TravelRuleDocumentContentType
+      APPLICATION_PDF = "application/pdf"
+
+      VALUES = [APPLICATION_PDF].freeze
+    end
+
+    # `questionnaire`: the due-diligence questionnaire answers. `incorporation`: certificate of incorporation.
+    # `licence`: licence or registration. `aml_policy`: AML and CFT policy. `ownership`: ownership structure.
+    module TravelRuleDocumentKind
+      QUESTIONNAIRE = "questionnaire"
+      INCORPORATION = "incorporation"
+      LICENCE = "licence"
+      AML_POLICY = "aml_policy"
+      OWNERSHIP = "ownership"
+
+      VALUES = [QUESTIONNAIRE, INCORPORATION, LICENCE, AML_POLICY, OWNERSHIP].freeze
+    end
+
     # The wallet the exchange was routed by. Default `STRICT`.
     module TravelRuleMatchingRulesCompanyAccount
       NONE = "NONE"
@@ -12773,6 +12792,9 @@ module Didit
       field :invalid_detail, "invalid_detail", :string
       field :invalid_at, "invalid_at", :datetime
       field :created_at, "created_at", :datetime
+      field :role, "role", :string
+      field :phone, "phone", :string
+      field :receives_requests, "receives_requests", :boolean
     end
 
     # Your application's decision on a counterparty VASP. Private to your application: it never changes the shared
@@ -12811,6 +12833,16 @@ module Didit
       field :valid_until, "valid_until", :datetime
       field :current, "current", :boolean
       field :answers, "answers", [:map, :string]
+      field :requested_items, "requested_items", [:array, :string]
+      field :reminder_sent_at, "reminder_sent_at", :datetime
+      field :documents, "documents", [:array, "TravelRuleCounterpartyQuestionnaireDocuments"]
+    end
+
+    class TravelRuleCounterpartyQuestionnaireDocuments < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :kind, "kind", :string
+      field :received_at, "received_at", :datetime
     end
 
     class TravelRuleCounterpartyQuestionnaireList < Didit::Model
@@ -12894,6 +12926,14 @@ module Didit
       field :actor, "actor", :string
     end
 
+    class TravelRuleDecisionEvent < Didit::Model
+      field :id, "id", :string
+      field :decision, "decision", :string
+      field :reason, "reason", :string
+      field :actor, "actor", :string
+      field :created_at, "created_at", :datetime
+    end
+
     # Where the latest message the transfer owes the other side stands. Didit contacts the counterparty after the
     # request that created or changed the transfer has returned, so this object says whether that message got through:
     # queued, being sent, waiting to be retried after an error, delivered, or failed. A failure the network may still
@@ -12961,6 +13001,21 @@ module Didit
       field :vasp, "vasp", :string
       field :rail, "rail", :string
       field :at, "at", :datetime
+    end
+
+    # A PDF document. Never carries the file content.
+    class TravelRuleDocument < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :kind, "kind", :string
+      field :uploaded_at, "uploaded_at", :datetime
+      field :received_at, "received_at", :datetime
+      field :content_type, "content_type", :string
+    end
+
+    class TravelRuleDocumentShare < Didit::Model
+      field :shared_with, "shared_with", :string
+      field :url, "url", :string
     end
 
     class TravelRuleInboundResponse < Didit::Model

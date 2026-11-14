@@ -4616,6 +4616,22 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleDocumentContentType
+      APPLICATION_PDF: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleDocumentKind
+      QUESTIONNAIRE: String
+      INCORPORATION: String
+      LICENCE: String
+      AML_POLICY: String
+      OWNERSHIP: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleMatchingRulesCompanyAccount
       NONE: String
       STRICT: String
@@ -11277,6 +11293,9 @@ module Didit
       def invalid_detail: () -> String?
       def invalid_at: () -> Time?
       def created_at: () -> Time?
+      def role: () -> String?
+      def phone: () -> String?
+      def receives_requests: () -> bool?
     end
 
     class TravelRuleCounterpartyDecision < Didit::Model
@@ -11307,6 +11326,16 @@ module Didit
       def valid_until: () -> Time?
       def current: () -> bool?
       def answers: () -> Hash[String, String]?
+      def requested_items: () -> Array[String]?
+      def reminder_sent_at: () -> Time?
+      def documents: () -> Array[Didit::Types::TravelRuleCounterpartyQuestionnaireDocuments]?
+    end
+
+    class TravelRuleCounterpartyQuestionnaireDocuments < Didit::Model
+      def id: () -> String?
+      def name: () -> String?
+      def kind: () -> String?
+      def received_at: () -> Time?
     end
 
     class TravelRuleCounterpartyQuestionnaireList < Didit::Model
@@ -11378,6 +11407,14 @@ module Didit
       def actor: () -> String?
     end
 
+    class TravelRuleDecisionEvent < Didit::Model
+      def id: () -> String?
+      def decision: () -> String?
+      def reason: () -> String?
+      def actor: () -> String?
+      def created_at: () -> Time?
+    end
+
     class TravelRuleDelivery < Didit::Model
       def kind: () -> String
       def status: () -> String
@@ -11430,6 +11467,20 @@ module Didit
       def vasp: () -> String?
       def rail: () -> String?
       def at: () -> Time?
+    end
+
+    class TravelRuleDocument < Didit::Model
+      def id: () -> String
+      def name: () -> String
+      def kind: () -> String
+      def uploaded_at: () -> Time?
+      def received_at: () -> Time?
+      def content_type: () -> String
+    end
+
+    class TravelRuleDocumentShare < Didit::Model
+      def shared_with: () -> String?
+      def url: () -> String?
     end
 
     class TravelRuleInboundResponse < Didit::Model

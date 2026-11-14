@@ -159,8 +159,26 @@ module Didit
       field :results, "results", [:array, "TravelRuleCounterpartyContact"]
     end
 
+    class TravelRuleDocumentsListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleDocument"]
+    end
+
+    class TravelRuleListVaspDecisionHistoryResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "TravelRuleDecisionEvent"]
+    end
+
     class TravelRuleListVaspReviewersResponse < Didit::Model
       field :results, "results", [:array, "TravelRuleVaspReviewer"]
+    end
+
+    class TravelRuleListVaspSharedDocumentsResponse < Didit::Model
+      field :documents, "documents", [:array, "TravelRuleDocument"]
     end
 
     class TravelRuleListVaspsResponse < Didit::Model
