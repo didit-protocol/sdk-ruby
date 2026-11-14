@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.20.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.19.0...v2.20.0) (2026-11-14)
+
+
+### Features
+
+* per-request idempotency key ([#66](https://github.com/didit-protocol/sdk-ruby/issues/66)) ([896586c](https://github.com/didit-protocol/sdk-ruby/commit/896586c7083049d43ebf0b27b7d39cf5623ab36d))
+
 ## [2.19.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.18.0...v2.19.0) (2026-11-14)
 
 
