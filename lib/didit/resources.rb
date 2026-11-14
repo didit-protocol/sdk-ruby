@@ -39,6 +39,7 @@ module Didit
     autoload :Questionnaires, "didit/resources/questionnaires"
     autoload :RegulatoryReports, "didit/resources/regulatory_reports"
     autoload :ReportTemplates, "didit/resources/report_templates"
+    autoload :Reports, "didit/resources/reports"
     autoload :Sandbox, "didit/resources/sandbox"
     autoload :Sessions, "didit/resources/sessions"
     autoload :Transactions, "didit/resources/transactions"
@@ -223,6 +224,11 @@ module Didit
       # @return [Didit::Resources::ReportTemplates]
       def report_templates
         @report_templates ||= Resources::ReportTemplates.new(self)
+      end
+
+      # @return [Didit::Resources::Reports]
+      def reports
+        @reports ||= Resources::Reports.new(self)
       end
 
       # @return [Didit::Resources::Sandbox]

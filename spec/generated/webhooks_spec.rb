@@ -663,6 +663,40 @@ RSpec.describe Didit::Resources::Webhooks do
     exercise_readers(result)
   end
 
+  it "webhooks.destinations.list_activity sends GET /v3/organization/{organization_id}/application/{application_id}/webhook/destinations/{destination_uuid}/activity/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "id": "00000000-0000-4000-8000-000000000003",
+            "type": "failure_alert",
+            "occurred_at": "2026-11-11T01:00:00Z",
+            "failure_count": 3
+          }
+        ]
+      }
+    JSON
+    result = client.webhooks.destinations.list_activity(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/webhook/destinations/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/activity/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::WebhookDestinationActivity))
+    exercise_readers(result.results)
+  end
+
   it "webhooks.destinations.list_deliveries sends GET /v3/webhook/destinations/{destination_uuid}/deliveries/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
