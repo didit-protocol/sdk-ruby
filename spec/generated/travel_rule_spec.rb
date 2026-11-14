@@ -6,6 +6,39 @@ RSpec.describe Didit::Resources::TravelRule do
 
   let(:client) { generated_test_client }
 
+  it "travel_rule.assign_vasp sends POST /v3/travel-rule/vasps/{vasp_id}/assign/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "assignee": {
+          "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "full_name": "full_name-value",
+          "email": "user@example.com",
+          "assigned_at": "2026-01-02T03:04:05Z"
+        },
+        "changed": true
+      }
+    JSON
+    result = client.travel_rule.assign_vasp(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      assignee_email: "reviewer@example.com"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/assign/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "assignee_email" => "reviewer@example.com"
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleAssignVaspResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.clear_vasp_decision sends DELETE /v3/travel-rule/vasps/{vasp_id}/decision/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -174,6 +207,34 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.list_vasp_reviewers sends GET /v3/travel-rule/vasps/reviewers/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "results": [
+          {
+            "user_id": "user_id-value",
+            "email": "user@example.com",
+            "name": "name-value",
+            "role": "role-value"
+          }
+        ]
+      }
+    JSON
+    result = client.travel_rule.list_vasp_reviewers
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/reviewers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::TravelRuleListVaspReviewersResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.list_vasps sends GET /v3/travel-rule/vasps/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -290,7 +351,15 @@ RSpec.describe Didit::Resources::TravelRule do
               "score": 1.5,
               "screened_at": "2026-01-02T03:04:05Z",
               "fresh": true,
-              "flagged": true
+              "flagged": true,
+              "scope": "company",
+              "people_screening": {
+                "status": "example",
+                "reason": "example"
+              },
+              "hits": [
+                "example"
+              ]
             },
             "questionnaires": [
               {
@@ -306,7 +375,13 @@ RSpec.describe Didit::Resources::TravelRule do
                 "answers": "example"
               }
             ],
-            "source": "didit_network"
+            "source": "didit_network",
+            "assignee": {
+              "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "full_name": "full_name-value",
+              "email": "user@example.com",
+              "assigned_at": "2026-01-02T03:04:05Z"
+            }
           }
         ]
       }
@@ -908,6 +983,64 @@ RSpec.describe Didit::Resources::TravelRule do
     exercise_readers(result)
   end
 
+  it "travel_rule.review_vasp_screening_hit sends PATCH /v3/travel-rule/vasps/{vasp_id}/screening/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "screening": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "Approved",
+          "total_hits": 1,
+          "score": 1.5,
+          "screened_at": "2026-01-02T03:04:05Z",
+          "fresh": true,
+          "flagged": true,
+          "scope": "company",
+          "people_screening": {
+            "status": "not_run",
+            "reason": "people_not_provided"
+          },
+          "hits": [
+            {
+              "id": "id-value",
+              "review": {
+                "status": "example",
+                "reason": "example",
+                "reviewed_by": "example",
+                "reviewed_at": "example"
+              },
+              "dismissed": true
+            }
+          ]
+        },
+        "changed": true
+      }
+    JSON
+    result = client.travel_rule.review_vasp_screening_hit(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      screening_id: "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      hit_id: "hit_0123456789",
+      review_status: "False Positive",
+      reason: "Different company, same trade name."
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/travel-rule/vasps/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/screening/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "screening_id" => "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "hit_id" => "hit_0123456789",
+      "review_status" => "False Positive",
+      "reason" => "Different company, same trade name."
+    })
+    expect(result).to be_a(Didit::Types::TravelRuleReviewVaspScreeningHitResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "travel_rule.screen_vasp sends POST /v3/travel-rule/vasps/{vasp_id}/screening/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1068,7 +1201,12 @@ RSpec.describe Didit::Resources::TravelRule do
               "last_error": "last_error-value"
             },
             "vasps_reachable": 1,
-            "routed_30d": 1
+            "routed_30d": 1,
+            "load_status": "loaded",
+            "load_error": {
+              "code": "network_state_unavailable",
+              "retryable": true
+            }
           },
           "trust": {
             "rail": "GTR",
@@ -1086,7 +1224,12 @@ RSpec.describe Didit::Resources::TravelRule do
               "last_error": "last_error-value"
             },
             "vasps_reachable": 1,
-            "routed_30d": 1
+            "routed_30d": 1,
+            "load_status": "loaded",
+            "load_error": {
+              "code": "network_state_unavailable",
+              "retryable": true
+            }
           },
           "verifyvasp": {
             "rail": "GTR",
@@ -1104,7 +1247,12 @@ RSpec.describe Didit::Resources::TravelRule do
               "last_error": "last_error-value"
             },
             "vasps_reachable": 1,
-            "routed_30d": 1
+            "routed_30d": 1,
+            "load_status": "loaded",
+            "load_error": {
+              "code": "network_state_unavailable",
+              "retryable": true
+            }
           },
           "sygna": {
             "rail": "GTR",
@@ -1122,7 +1270,12 @@ RSpec.describe Didit::Resources::TravelRule do
               "last_error": "last_error-value"
             },
             "vasps_reachable": 1,
-            "routed_30d": 1
+            "routed_30d": 1,
+            "load_status": "loaded",
+            "load_error": {
+              "code": "network_state_unavailable",
+              "retryable": true
+            }
           }
         },
         "didit_network": {
@@ -1321,7 +1474,9 @@ RSpec.describe Didit::Resources::TravelRule do
             "to": "to-value",
             "note": "note-value"
           }
-        ]
+        ],
+        "notify_status_changes": true,
+        "notification_email": "notification_email-value"
       }
     JSON
     result = client.travel_rule.networks.request_access(
@@ -2266,7 +2421,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "trust": {
               "rail": "GTR",
@@ -2284,7 +2444,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "verifyvasp": {
               "rail": "GTR",
@@ -2302,7 +2467,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "sygna": {
               "rail": "GTR",
@@ -2320,7 +2490,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             }
           },
           "didit_network": {
@@ -2459,7 +2634,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "trust": {
               "rail": "GTR",
@@ -2477,7 +2657,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "verifyvasp": {
               "rail": "GTR",
@@ -2495,7 +2680,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "sygna": {
               "rail": "GTR",
@@ -2513,7 +2703,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             }
           },
           "didit_network": {
@@ -2652,7 +2847,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "trust": {
               "rail": "GTR",
@@ -2670,7 +2870,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "verifyvasp": {
               "rail": "GTR",
@@ -2688,7 +2893,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "sygna": {
               "rail": "GTR",
@@ -2706,7 +2916,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             }
           },
           "didit_network": {
@@ -2845,7 +3060,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "trust": {
               "rail": "GTR",
@@ -2863,7 +3083,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "verifyvasp": {
               "rail": "GTR",
@@ -2881,7 +3106,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "sygna": {
               "rail": "GTR",
@@ -2899,7 +3129,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             }
           },
           "didit_network": {
@@ -3060,7 +3295,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "trust": {
               "rail": "GTR",
@@ -3078,7 +3318,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "verifyvasp": {
               "rail": "GTR",
@@ -3096,7 +3341,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             },
             "sygna": {
               "rail": "GTR",
@@ -3114,7 +3364,12 @@ RSpec.describe Didit::Resources::TravelRule do
                 "last_error": "example"
               },
               "vasps_reachable": 1,
-              "routed_30d": 1
+              "routed_30d": 1,
+              "load_status": "loaded",
+              "load_error": {
+                "code": "example",
+                "retryable": "example"
+              }
             }
           },
           "didit_network": {

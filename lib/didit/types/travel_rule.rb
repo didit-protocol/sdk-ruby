@@ -51,6 +51,16 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module TravelRuleReviewVaspScreeningHitParamsReviewStatus
+      UNREVIEWED = "Unreviewed"
+      CONFIRMED_MATCH = "Confirmed Match"
+      FALSE_POSITIVE = "False Positive"
+      INCONCLUSIVE = "Inconclusive"
+
+      VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module TravelRuleUpdateSettingsParamsDisabledNetworks
       GTR = "GTR"
       TRUST = "TRUST"
@@ -136,6 +146,12 @@ module Didit
       VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
     end
 
+    class TravelRuleAssignVaspResponse < Didit::Model
+      field :id, "id", :string
+      field :assignee, "assignee", "TravelRuleVaspAssignee"
+      field :changed, "changed", :boolean
+    end
+
     class TravelRuleCounterpartyContactsListResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
@@ -143,11 +159,20 @@ module Didit
       field :results, "results", [:array, "TravelRuleCounterpartyContact"]
     end
 
+    class TravelRuleListVaspReviewersResponse < Didit::Model
+      field :results, "results", [:array, "TravelRuleVaspReviewer"]
+    end
+
     class TravelRuleListVaspsResponse < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "VaspDirectoryEntry"]
+    end
+
+    class TravelRuleReviewVaspScreeningHitResponse < Didit::Model
+      field :screening, "screening", "TravelRuleCounterpartyScreening"
+      field :changed, "changed", :boolean
     end
 
     class TravelRuleSendComplianceEmailConfirmationResponse < Didit::Model

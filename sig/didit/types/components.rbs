@@ -4418,9 +4418,36 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleCounterpartyScreeningHitsReviewStatus
+      UNREVIEWED: String
+      CONFIRMED_MATCH: String
+      FALSE_POSITIVE: String
+      INCONCLUSIVE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleCounterpartyScreeningPeopleScreeningReason
+      PEOPLE_NOT_PROVIDED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleCounterpartyScreeningPeopleScreeningStatus
+      NOT_RUN: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleCounterpartyScreeningResultOutcome
       SCREENED: String
       REUSED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleCounterpartyScreeningScope
+      COMPANY: String
 
       VALUES: Array[String]
     end
@@ -4760,6 +4787,19 @@ module Didit
       CHANGES_REQUESTED: String
       APPROVED: String
       REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateLoadErrorCode
+      NETWORK_STATE_UNAVAILABLE: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleNetworkStateLoadStatus
+      LOADED: String
+      ERROR: String
 
       VALUES: Array[String]
     end
@@ -11281,6 +11321,27 @@ module Didit
       def screened_at: () -> Time?
       def fresh: () -> bool?
       def flagged: () -> bool?
+      def scope: () -> String?
+      def people_screening: () -> Didit::Types::TravelRuleCounterpartyScreeningPeopleScreening?
+      def hits: () -> Array[Didit::Types::TravelRuleCounterpartyScreeningHits]?
+    end
+
+    class TravelRuleCounterpartyScreeningHits < Didit::Model
+      def id: () -> String?
+      def review: () -> Didit::Types::TravelRuleCounterpartyScreeningHitsReview?
+      def dismissed: () -> bool?
+    end
+
+    class TravelRuleCounterpartyScreeningHitsReview < Didit::Model
+      def status: () -> String?
+      def reason: () -> String?
+      def reviewed_by: () -> String?
+      def reviewed_at: () -> Time?
+    end
+
+    class TravelRuleCounterpartyScreeningPeopleScreening < Didit::Model
+      def status: () -> String?
+      def reason: () -> String?
     end
 
     class TravelRuleCounterpartyScreeningResult < Didit::Model
@@ -11454,6 +11515,8 @@ module Didit
       def suspended_at: () -> Time?
       def last_error: () -> String?
       def history: () -> Array[Didit::Types::TravelRuleNetworkParticipantHistory]?
+      def notify_status_changes: () -> bool?
+      def notification_email: () -> String?
     end
 
     class TravelRuleNetworkParticipantHistory < Didit::Model
@@ -11526,6 +11589,13 @@ module Didit
       def participant: () -> Didit::Types::TravelRuleNetworkParticipantSummary?
       def vasps_reachable: () -> Integer?
       def routed_30d: () -> Integer?
+      def load_status: () -> String?
+      def load_error: () -> Didit::Types::TravelRuleNetworkStateLoadError?
+    end
+
+    class TravelRuleNetworkStateLoadError < Didit::Model
+      def code: () -> String?
+      def retryable: () -> bool?
     end
 
     class TravelRuleNetworksOverview < Didit::Model
@@ -11533,6 +11603,7 @@ module Didit
       def questionnaire: () -> Didit::Types::TravelRuleNetworkQuestionnaire?
       def participants: () -> Array[Didit::Types::TravelRuleNetworkParticipant]?
       def networks: () -> Didit::Types::TravelRuleNetworksOverviewNetworks?
+      def notification_email: () -> String?
     end
 
     class TravelRuleNetworksOverviewNetworks < Didit::Model
@@ -11714,6 +11785,20 @@ module Didit
       def amount: () -> String?
       def txid: () -> String?
       def vout: () -> Integer?
+    end
+
+    class TravelRuleVaspAssignee < Didit::Model
+      def uuid: () -> String?
+      def full_name: () -> String?
+      def email: () -> String?
+      def assigned_at: () -> Time?
+    end
+
+    class TravelRuleVaspReviewer < Didit::Model
+      def user_id: () -> String?
+      def email: () -> String?
+      def name: () -> String?
+      def role: () -> String?
     end
 
     class TravelRuleWalletLookup < Didit::Model
@@ -11898,6 +11983,7 @@ module Didit
       def entity_screening: () -> Didit::Types::TravelRuleCounterpartyScreening?
       def questionnaires: () -> Array[Didit::Types::TravelRuleCounterpartyQuestionnaire]?
       def source: () -> String?
+      def assignee: () -> Didit::Types::TravelRuleVaspAssignee?
     end
 
     class VaspDirectoryEntryAliases < Didit::Model

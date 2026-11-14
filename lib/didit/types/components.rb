@@ -5271,6 +5271,30 @@ module Didit
       VALUES = [SENT, ANSWERED, EXPIRED].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module TravelRuleCounterpartyScreeningHitsReviewStatus
+      UNREVIEWED = "Unreviewed"
+      CONFIRMED_MATCH = "Confirmed Match"
+      FALSE_POSITIVE = "False Positive"
+      INCONCLUSIVE = "Inconclusive"
+
+      VALUES = [UNREVIEWED, CONFIRMED_MATCH, FALSE_POSITIVE, INCONCLUSIVE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleCounterpartyScreeningPeopleScreeningReason
+      PEOPLE_NOT_PROVIDED = "people_not_provided"
+
+      VALUES = [PEOPLE_NOT_PROVIDED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleCounterpartyScreeningPeopleScreeningStatus
+      NOT_RUN = "not_run"
+
+      VALUES = [NOT_RUN].freeze
+    end
+
     # screened: a new screening ran and was billed (201). reused: a fresh screening was returned and nothing was
     # billed (200).
     module TravelRuleCounterpartyScreeningResultOutcome
@@ -5278,6 +5302,13 @@ module Didit
       REUSED = "reused"
 
       VALUES = [SCREENED, REUSED].freeze
+    end
+
+    # What was screened: the company name only. People are never inferred from the due-diligence questionnaire.
+    module TravelRuleCounterpartyScreeningScope
+      COMPANY = "company"
+
+      VALUES = [COMPANY].freeze
     end
 
     # Approved: no possible match needs attention. In Review or Declined: a possible sanctions or adverse-media match.
@@ -5682,6 +5713,21 @@ module Didit
       REJECTED = "rejected"
 
       VALUES = [DRAFT, SUBMITTED, CHANGES_REQUESTED, APPROVED, REJECTED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleNetworkStateLoadErrorCode
+      NETWORK_STATE_UNAVAILABLE = "network_state_unavailable"
+
+      VALUES = [NETWORK_STATE_UNAVAILABLE].freeze
+    end
+
+    # `error` when this network's row could not be loaded; the other networks are unaffected.
+    module TravelRuleNetworkStateLoadStatus
+      LOADED = "loaded"
+      ERROR = "error"
+
+      VALUES = [LOADED, ERROR].freeze
     end
 
     # own: the application's connected membership is used; didit: Didit's membership carries the application as its
@@ -12781,6 +12827,29 @@ module Didit
       field :screened_at, "screened_at", :datetime
       field :fresh, "fresh", :boolean
       field :flagged, "flagged", :boolean
+      field :scope, "scope", :string
+      field :people_screening, "people_screening", "TravelRuleCounterpartyScreeningPeopleScreening"
+      field :hits, "hits", [:array, "TravelRuleCounterpartyScreeningHits"]
+    end
+
+    class TravelRuleCounterpartyScreeningHits < Didit::Model
+      field :id, "id", :string
+      field :review, "review", "TravelRuleCounterpartyScreeningHitsReview"
+      field :dismissed, "dismissed", :boolean
+    end
+
+    # The review recorded for the hit, or null while nobody reviewed it.
+    class TravelRuleCounterpartyScreeningHitsReview < Didit::Model
+      field :status, "status", :string
+      field :reason, "reason", :string
+      field :reviewed_by, "reviewed_by", :string
+      field :reviewed_at, "reviewed_at", :datetime
+    end
+
+    # People screening is not run for counterparties.
+    class TravelRuleCounterpartyScreeningPeopleScreening < Didit::Model
+      field :status, "status", :string
+      field :reason, "reason", :string
     end
 
     class TravelRuleCounterpartyScreeningResult < Didit::Model
@@ -12989,6 +13058,8 @@ module Didit
       field :suspended_at, "suspended_at", :datetime
       field :last_error, "last_error", :string
       field :history, "history", [:array, "TravelRuleNetworkParticipantHistory"]
+      field :notify_status_changes, "notify_status_changes", :boolean
+      field :notification_email, "notification_email", :string
     end
 
     class TravelRuleNetworkParticipantHistory < Didit::Model
@@ -13066,6 +13137,14 @@ module Didit
       field :participant, "participant", "TravelRuleNetworkParticipantSummary"
       field :vasps_reachable, "vasps_reachable", :integer
       field :routed_30d, "routed_30d", :integer
+      field :load_status, "load_status", :string
+      field :load_error, "load_error", "TravelRuleNetworkStateLoadError"
+    end
+
+    # Present only when `load_status` is `error`.
+    class TravelRuleNetworkStateLoadError < Didit::Model
+      field :code, "code", :string
+      field :retryable, "retryable", :boolean
     end
 
     class TravelRuleNetworksOverview < Didit::Model
@@ -13073,6 +13152,7 @@ module Didit
       field :questionnaire, "questionnaire", "TravelRuleNetworkQuestionnaire"
       field :participants, "participants", [:array, "TravelRuleNetworkParticipant"]
       field :networks, "networks", "TravelRuleNetworksOverviewNetworks"
+      field :notification_email, "notification_email", :string
     end
 
     # Per network, how this application would send and why it cannot. No network, including GTR, is included by
@@ -13276,6 +13356,21 @@ module Didit
       field :vout, "vout", :integer
     end
 
+    # The member the VASP is assigned to, or null. The assignment is private to your application.
+    class TravelRuleVaspAssignee < Didit::Model
+      field :uuid, "uuid", :string
+      field :full_name, "full_name", :string
+      field :email, "email", :string
+      field :assigned_at, "assigned_at", :datetime
+    end
+
+    class TravelRuleVaspReviewer < Didit::Model
+      field :user_id, "user_id", :string
+      field :email, "email", :string
+      field :name, "name", :string
+      field :role, "role", :string
+    end
+
     class TravelRuleWalletLookup < Didit::Model
       field :match, "match", :string
       field :directory_checked, "directory_checked", :boolean
@@ -13469,6 +13564,7 @@ module Didit
       field :entity_screening, "entity_screening", "TravelRuleCounterpartyScreening"
       field :questionnaires, "questionnaires", [:array, "TravelRuleCounterpartyQuestionnaire"]
       field :source, "source", :string
+      field :assignee, "assignee", "TravelRuleVaspAssignee"
     end
 
     class VaspDirectoryEntryAliases < Didit::Model

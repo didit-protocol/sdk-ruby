@@ -40,6 +40,32 @@ module Didit
         @workspace ||= Workspace.new(@client)
       end
 
+      # Assign a VASP to a member
+      #
+      # Assigns the counterparty to one application member, or unassigns it with `assignee_email: null`. Repeating the
+      # same assignment changes nothing (`changed: false`). The assignment is private to your application. Needs the
+      # transactions write privilege.
+      #
+      # +POST /v3/travel-rule/vasps/{vasp_id}/assign/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param assignee_email [String, nil] Email of an application member. null or an empty string unassigns.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleAssignVaspResponse]
+      def assign_vasp(vasp_id, assignee_email:, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/travel-rule/vasps/{vasp_id}/assign/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "assignee_email" => assignee_email
+          },
+          response: Types::TravelRuleAssignVaspResponse,
+          request_options: request_options
+        )
+      end
+
       # Clear your decision on a VASP
       #
       # Clear your application's own decision on a counterparty. The response shows the decision that applies
@@ -181,6 +207,24 @@ module Didit
           "/v3/travel-rule/vasps/{vasp_id}/questionnaires/",
           path_params: { "vasp_id" => vasp_id },
           response: Types::TravelRuleCounterpartyQuestionnaireList,
+          request_options: request_options
+        )
+      end
+
+      # List the members who can be assigned a VASP
+      #
+      # The application members who can review Travel Rule counterparties. Use one `email` as `assignee_email` of
+      # `POST /v3/travel-rule/vasps/{vasp_id}/assign/`. Needs the transactions read privilege.
+      #
+      # +GET /v3/travel-rule/vasps/reviewers/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleListVaspReviewersResponse]
+      def list_vasp_reviewers(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/travel-rule/vasps/reviewers/",
+          response: Types::TravelRuleListVaspReviewersResponse,
           request_options: request_options
         )
       end
@@ -386,6 +430,39 @@ module Didit
           "/v3/travel-rule/vasps/{vasp_id}/screening/",
           path_params: { "vasp_id" => vasp_id },
           response: Types::TravelRuleCounterpartyScreeningStatus,
+          request_options: request_options
+        )
+      end
+
+      # Review a screening hit
+      #
+      # Records your review of one possible match of a screening. The screening score and status are recomputed from
+      # the reviewed hits, but the counterparty's decision is never changed for you: decide it with `PUT
+      # /v3/travel-rule/vasps/{vasp_id}/decision/`. Repeating the same review changes nothing (`changed: false`).
+      # Needs the transactions write privilege.
+      #
+      # +PATCH /v3/travel-rule/vasps/{vasp_id}/screening/+
+      #
+      # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
+      #   member.
+      # @param screening_id [String] The screening the hit belongs to, as returned by the screening endpoints.
+      # @param hit_id [String] The hit's `id`.
+      # @param review_status [String]
+      # @param reason [String]
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::TravelRuleReviewVaspScreeningHitResponse]
+      def review_vasp_screening_hit(vasp_id, screening_id:, hit_id:, review_status:, reason: OMIT, request_options: nil)
+        @client.request(
+          :patch,
+          "/v3/travel-rule/vasps/{vasp_id}/screening/",
+          path_params: { "vasp_id" => vasp_id },
+          body: {
+            "screening_id" => screening_id,
+            "hit_id" => hit_id,
+            "review_status" => review_status,
+            "reason" => reason
+          },
+          response: Types::TravelRuleReviewVaspScreeningHitResponse,
           request_options: request_options
         )
       end

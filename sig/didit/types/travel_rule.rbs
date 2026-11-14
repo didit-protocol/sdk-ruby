@@ -43,6 +43,15 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleReviewVaspScreeningHitParamsReviewStatus
+      UNREVIEWED: String
+      CONFIRMED_MATCH: String
+      FALSE_POSITIVE: String
+      INCONCLUSIVE: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleUpdateSettingsParamsDisabledNetworks
       GTR: String
       TRUST: String
@@ -120,6 +129,12 @@ module Didit
       VALUES: Array[String]
     end
 
+    class TravelRuleAssignVaspResponse < Didit::Model
+      def id: () -> String?
+      def assignee: () -> Didit::Types::TravelRuleVaspAssignee?
+      def changed: () -> bool?
+    end
+
     class TravelRuleCounterpartyContactsListResponse < Didit::Model
       def count: () -> Integer?
       def `next`: () -> String?
@@ -127,11 +142,20 @@ module Didit
       def results: () -> Array[Didit::Types::TravelRuleCounterpartyContact]?
     end
 
+    class TravelRuleListVaspReviewersResponse < Didit::Model
+      def results: () -> Array[Didit::Types::TravelRuleVaspReviewer]?
+    end
+
     class TravelRuleListVaspsResponse < Didit::Model
       def count: () -> Integer?
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::VaspDirectoryEntry]?
+    end
+
+    class TravelRuleReviewVaspScreeningHitResponse < Didit::Model
+      def screening: () -> Didit::Types::TravelRuleCounterpartyScreening?
+      def changed: () -> bool?
     end
 
     class TravelRuleSendComplianceEmailConfirmationResponse < Didit::Model
@@ -173,6 +197,8 @@ module Didit
       def results: () -> Array[Didit::Types::TravelRuleWalletProofReview]?
     end
 
+    type travel_rule_assign_vasp_params = { assignee_email: String? }
+
     type travel_rule_counterparty_contacts_create_params = { counterparty: String, email: String, ?name: String }
 
     type travel_rule_create_vasp_params = { name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool }
@@ -186,6 +212,8 @@ module Didit
     type travel_rule_register_inbound_params = { chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo }
 
     type travel_rule_register_inbound_params_originating_vasp = { ?name: String, ?lei: String, ?travel_address: String }
+
+    type travel_rule_review_vasp_screening_hit_params = { screening_id: String, hit_id: String, review_status: String, ?reason: String }
 
     type travel_rule_screen_vasp_params = { ?refresh: bool }
 
