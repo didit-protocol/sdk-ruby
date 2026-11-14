@@ -1590,6 +1590,35 @@ RSpec.describe Didit::Resources::Transactions do
           "link_expires_at": "2026-01-02T03:04:05Z",
           "emailed_to": "emailed_to-value",
           "email_available": true
+        },
+        "proof_request": {
+          "request_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "PENDING",
+          "expires_at": "2026-01-02T03:04:05Z",
+          "proof": {
+            "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "method": "MESSAGE_SIGNING",
+            "status": "PENDING",
+            "wallet_address": "wallet_address-value",
+            "chain": "chain-value",
+            "holder_name": "holder_name-value",
+            "is_ownership_verified": true,
+            "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "file_name": "file_name-value",
+            "content_type": "content_type-value",
+            "screenshot_url": "screenshot_url-value",
+            "attempts": 1,
+            "failure_reason": {},
+            "method_chosen_at": "2026-01-02T03:04:05Z",
+            "decided_at": "2026-01-02T03:04:05Z",
+            "decided_by": "decided_by-value",
+            "review_note": "review_note-value",
+            "created_at": "2026-01-02T03:04:05Z",
+            "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "holder_vendor_data": "holder_vendor_data-value",
+            "wallet_label": "wallet_label-value"
+          }
         }
       }
     JSON
@@ -1979,6 +2008,35 @@ RSpec.describe Didit::Resources::Transactions do
             "link_expires_at": "2026-01-02T03:04:05Z",
             "emailed_to": "emailed_to-value",
             "email_available": true
+          },
+          "proof_request": {
+            "request_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "status": "PENDING",
+            "expires_at": "2026-01-02T03:04:05Z",
+            "proof": {
+              "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "method": "MESSAGE_SIGNING",
+              "status": "PENDING",
+              "wallet_address": "wallet_address-value",
+              "chain": "chain-value",
+              "holder_name": "holder_name-value",
+              "is_ownership_verified": true,
+              "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "file_name": "file_name-value",
+              "content_type": "content_type-value",
+              "screenshot_url": "screenshot_url-value",
+              "attempts": 1,
+              "failure_reason": {},
+              "method_chosen_at": "2026-01-02T03:04:05Z",
+              "decided_at": "2026-01-02T03:04:05Z",
+              "decided_by": "decided_by-value",
+              "review_note": "review_note-value",
+              "created_at": "2026-01-02T03:04:05Z",
+              "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "holder_vendor_data": "holder_vendor_data-value",
+              "wallet_label": "wallet_label-value"
+            }
           }
         }
       }
@@ -2203,6 +2261,35 @@ RSpec.describe Didit::Resources::Transactions do
           "link_expires_at": "2026-01-02T03:04:05Z",
           "emailed_to": "emailed_to-value",
           "email_available": true
+        },
+        "proof_request": {
+          "request_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "PENDING",
+          "expires_at": "2026-01-02T03:04:05Z",
+          "proof": {
+            "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "method": "MESSAGE_SIGNING",
+            "status": "PENDING",
+            "wallet_address": "wallet_address-value",
+            "chain": "chain-value",
+            "holder_name": "holder_name-value",
+            "is_ownership_verified": true,
+            "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "file_name": "file_name-value",
+            "content_type": "content_type-value",
+            "screenshot_url": "screenshot_url-value",
+            "attempts": 1,
+            "failure_reason": {},
+            "method_chosen_at": "2026-01-02T03:04:05Z",
+            "decided_at": "2026-01-02T03:04:05Z",
+            "decided_by": "decided_by-value",
+            "review_note": "review_note-value",
+            "created_at": "2026-01-02T03:04:05Z",
+            "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "holder_vendor_data": "holder_vendor_data-value",
+            "wallet_label": "wallet_label-value"
+          }
         }
       }
     JSON

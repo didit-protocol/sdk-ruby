@@ -5041,6 +5041,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleTransferProofRequestStatus
+      PENDING: String
+      COMPLETED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleTransferRowBeneficiaryWalletType
       VASP: String
       SELF_HOSTED: String
@@ -5127,10 +5135,40 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleWalletOwnershipProofMethod
+      MESSAGE_SIGNING: String
+      SATOSHI_TEST: String
+      SCREENSHOT: String
+      SELF_DECLARATION: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletOwnershipProofReuseStatus
+      NOT_LINKED: String
+      OWNERSHIP_CHANGED: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
+      AWAITING_PROOF: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletOwnershipProofStatus
+      PENDING: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleWalletProofFailureReason
       VALUE: String
       SIGNATURE_INVALID: String
       SIGNATURE_UNSUPPORTED_SCHEME: String
+      SIGNATURE_LOOKUP_FAILED: String
       DEPOSIT_NOT_FOUND: String
       DEPOSIT_UNCONFIRMED: String
       DEPOSIT_LOOKUP_FAILED: String
@@ -5147,6 +5185,15 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleWalletProofMethod
+      MESSAGE_SIGNING: String
+      SATOSHI_TEST: String
+      SCREENSHOT: String
+      SELF_DECLARATION: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleWalletProofReviewMethod
       SCREENSHOT: String
 
@@ -5154,6 +5201,33 @@ module Didit
     end
 
     module TravelRuleWalletProofReviewStatus
+      PENDING: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofStatus
+      PENDING: String
+      VERIFIED: String
+      REJECTED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofSummaryMethod
+      MESSAGE_SIGNING: String
+      SATOSHI_TEST: String
+      SCREENSHOT: String
+      SELF_DECLARATION: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleWalletProofSummaryStatus
       PENDING: String
       VERIFIED: String
       REJECTED: String
@@ -5415,6 +5489,22 @@ module Didit
       DIDIT_NETWORK: String
       DIRECTORY: String
       ADDED_BY_YOU: String
+
+      VALUES: Array[String]
+    end
+
+    module WalletAddressEntryOwnerType
+      CUSTOMER: String
+      INTERNAL: String
+      VASP: String
+
+      VALUES: Array[String]
+    end
+
+    module WalletAddressEntryUpdateResponseOwnerType
+      CUSTOMER: String
+      INTERNAL: String
+      VASP: String
 
       VALUES: Array[String]
     end
@@ -11101,6 +11191,7 @@ module Didit
       def not_required_reason: () -> String?
       def proof_state: () -> String?
       def user_choice: () -> Didit::Types::TravelRuleUserChoice?
+      def proof_request: () -> Didit::Types::TravelRuleTransferProofRequest?
     end
 
     class TransactionListTravelRuleCounterpartyVasp < Didit::Model
@@ -11320,6 +11411,7 @@ module Didit
       def not_required_reason: () -> String?
       def proof_state: () -> String?
       def user_choice: () -> Didit::Types::TravelRuleUserChoice?
+      def proof_request: () -> Didit::Types::TravelRuleTransferProofRequest?
     end
 
     class TransactionTravelRuleCounterpartyVasp < Didit::Model
@@ -11840,6 +11932,7 @@ module Didit
       def cancelled_by: () -> String?
       def notify_on_answer: () -> bool?
       def user_choice: () -> Didit::Types::TravelRuleUserChoice?
+      def proof_request: () -> Didit::Types::TravelRuleTransferProofRequest?
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -11863,6 +11956,13 @@ module Didit
       def detail: () -> String?
       def name_match: () -> Didit::Types::TravelRuleNameMatch?
       def reason: () -> String?
+    end
+
+    class TravelRuleTransferProofRequest < Didit::Model
+      def request_id: () -> String
+      def status: () -> String
+      def expires_at: () -> Time
+      def proof: () -> Didit::Types::TravelRuleWalletProof?
     end
 
     class TravelRuleTransferRow < Didit::Model
@@ -11943,6 +12043,41 @@ module Didit
       def proof_state: () -> String?
     end
 
+    class TravelRuleWalletOwnershipProof < Didit::Model
+      def proof_id: () -> String?
+      def method_: () -> String?
+      def status: () -> String?
+      def failure_reason: () -> String
+      def latest_attempt: () -> Didit::Types::TravelRuleWalletProofSummary?
+      def network_eligible: () -> bool
+      def reuse_status: () -> String
+    end
+
+    class TravelRuleWalletProof < Didit::Model
+      def proof_id: () -> String?
+      def method_: () -> String?
+      def status: () -> String?
+      def wallet_address: () -> String?
+      def chain: () -> String?
+      def holder_name: () -> String?
+      def is_ownership_verified: () -> bool?
+      def transaction_id: () -> String?
+      def file_name: () -> String?
+      def content_type: () -> String?
+      def screenshot_url: () -> String?
+      def attempts: () -> Integer?
+      def failure_reason: () -> String?
+      def method_chosen_at: () -> Time?
+      def decided_at: () -> Time?
+      def decided_by: () -> String?
+      def review_note: () -> String?
+      def created_at: () -> Time?
+      def application_id: () -> String?
+      def user_id: () -> String?
+      def holder_vendor_data: () -> String?
+      def wallet_label: () -> String?
+    end
+
     class TravelRuleWalletProofReview < Didit::Model
       def proof_id: () -> String?
       def method_: () -> String?
@@ -11962,6 +12097,27 @@ module Didit
       def decided_by: () -> String?
       def review_note: () -> String?
       def created_at: () -> Time?
+      def application_id: () -> String?
+      def user_id: () -> String?
+      def holder_vendor_data: () -> String?
+      def wallet_label: () -> String?
+    end
+
+    class TravelRuleWalletProofSummary < Didit::Model
+      def proof_id: () -> String?
+      def method_: () -> String?
+      def status: () -> String?
+      def failure_reason: () -> String
+    end
+
+    class TravelRuleWalletProofTotals < Didit::Model
+      def wallets: () -> Integer
+      def customer_wallets: () -> Integer
+      def verified_control_wallets: () -> Integer
+      def message_signing: () -> Integer
+      def satoshi_test: () -> Integer
+      def screenshot: () -> Integer
+      def self_declaration: () -> Integer
     end
 
     class TravelRuleWalletTransfer < Didit::Model
@@ -12208,13 +12364,20 @@ module Didit
       def address_hash: () -> String?
       def memo: () -> String?
       def receiving_travel_address: () -> String?
+      def ownership_proof: () -> Didit::Types::TravelRuleWalletOwnershipProof?
+      def label: () -> String?
+      def owner_type: () -> String?
     end
 
-    class WalletAddressEntryUpdate < Didit::Model
+    class WalletAddressEntryUpdateResponse < Didit::Model
       def holder_name: () -> String?
       def holder_vendor_data: () -> String?
       def entity_type: () -> String?
       def travel_address: () -> String?
+      def receiving_travel_address: () -> String?
+      def label: () -> String?
+      def owner_type: () -> String?
+      def ownership_proof: () -> Didit::Types::TravelRuleWalletOwnershipProof?
     end
 
     class WalletAddressImportReport < Didit::Model

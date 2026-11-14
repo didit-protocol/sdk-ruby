@@ -199,6 +199,7 @@ module Didit
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::WalletAddressEntry]?
+      def proof_totals: () -> Didit::Types::TravelRuleWalletProofTotals?
     end
 
     class TravelRuleWalletAddressesListTransfersResponse < Didit::Model
