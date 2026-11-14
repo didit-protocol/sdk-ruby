@@ -252,6 +252,37 @@ module Didit
       VALUES: Array[String]
     end
 
+    module AsyncReportReportType
+      SESSION_EXPORT: String
+      TRANSACTION_EXPORT: String
+      BUSINESS_EXPORT: String
+      VENDOR_USER_EXPORT: String
+      VENDOR_BUSINESS_EXPORT: String
+      CASE_EXPORT: String
+      CASE_SLA_EXPORT: String
+      LIST_ENTRY_EXPORT: String
+      EVENT_EXPORT: String
+      COMPLIANCE_KYC_KYB: String
+      COMPLIANCE_AML_LOG: String
+      COMPLIANCE_TRAVEL_RULE: String
+      COMPLIANCE_SANCTIONS_PEP: String
+      COMPLIANCE_RISK_SUMMARY: String
+      COMPLIANCE_SAR_STR_DRAFT: String
+      COMPLIANCE_CTR: String
+      COMPLIANCE_CASE_SUMMARY: String
+
+      VALUES: Array[String]
+    end
+
+    module AsyncReportStatus
+      PENDING: String
+      PROCESSING: String
+      READY: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
     module BankAccountCheckResponseResult
       MATCH: String
       CLOSE_MATCH: String
@@ -5530,6 +5561,12 @@ module Didit
       VALUES: Array[String]
     end
 
+    module WebhookDestinationActivityType
+      FAILURE_ALERT: String
+
+      VALUES: Array[String]
+    end
+
     module WebhookEvent
       STATUS_UPDATED: String
       DATA_UPDATED: String
@@ -6247,6 +6284,52 @@ module Didit
 
     class ApplicationAnalyticsWorkflowFunnelValueStepsValue < Didit::Model
       def reached: () -> Integer?
+    end
+
+    class AsyncReport < Didit::Model
+      def uuid: () -> String
+      def report_type: () -> String
+      def report_type_display: () -> String
+      def status: () -> String
+      def status_display: () -> String
+      def parameters: () -> Hash[String, untyped]
+      def requested_by_user_id: () -> String?
+      def requested_by_email: () -> String?
+      def requested_by_name: () -> String?
+      def row_count: () -> Integer?
+      def failed_item_ids: () -> Array[String]
+      def failed_count: () -> Integer
+      def file_size: () -> Integer?
+      def files: () -> Array[Didit::Types::AsyncReportFile]
+      def scheduled_report: () -> String?
+      def error_message: () -> String?
+      def deletion_pending: () -> bool
+      def eta_seconds: () -> Integer?
+      def started_at: () -> Time?
+      def completed_at: () -> Time?
+      def expires_at: () -> Time
+      def created_at: () -> Time
+      def updated_at: () -> Time
+    end
+
+    class AsyncReportFile < Didit::Model
+      def name: () -> String
+      def format: () -> String
+      def rows: () -> Integer?
+      def bytes: () -> Integer
+    end
+
+    class AsyncReportList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::AsyncReport]
+      def counts: () -> Didit::Types::AsyncReportListCounts
+    end
+
+    class AsyncReportListCounts < Didit::Model
+      def report_type: () -> Hash[String, Integer]
+      def status: () -> Hash[String, Integer]
     end
 
     class BankAccountCheckPricing < Didit::Model
@@ -12283,6 +12366,20 @@ module Didit
       def subscribed_events: () -> Array[String]
       def created_at: () -> Time
       def updated_at: () -> Time
+    end
+
+    class WebhookDestinationActivity < Didit::Model
+      def id: () -> String
+      def `type`: () -> String
+      def occurred_at: () -> Time
+      def failure_count: () -> Integer
+    end
+
+    class WebhookDestinationActivityList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::WebhookDestinationActivity]
     end
 
     class WebhookDestinationDelivery < Didit::Model

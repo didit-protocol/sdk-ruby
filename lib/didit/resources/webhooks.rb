@@ -198,6 +198,35 @@ module Didit
           )
         end
 
+        # List webhook destination activity
+        #
+        # Lists recorded failure alerts for one destination, newest first. Requires read:webhooks. Application/API-key
+        # credentials must belong to the application in the path; member Bearer tokens must have access to that
+        # application. These are failure alert events, not individual delivery attempts or outbound webhook event
+        # types. See [Webhooks](https://docs.didit.me/integration/webhooks#retry-policy).
+        #
+        # +GET /v3/organization/{organization_id}/application/{application_id}/webhook/destinations/{destination_uuid}/activity/+
+        #
+        # @param destination_uuid [String] Destination uuid.
+        # @param limit [Integer] Maximum results per page.
+        # @param offset [Integer] Number of results to skip.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::WebhookDestinationActivity>]
+        def list_activity(destination_uuid, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/organization/{organization_id}/application/{application_id}/webhook/destinations/{destination_uuid}/activity/",
+            path_params: { "destination_uuid" => destination_uuid },
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            scope: :application,
+            page: Types::WebhookDestinationActivity,
+            request_options: request_options
+          )
+        end
+
         # List webhook destination deliveries
         #
         # Page through every delivery attempt to one webhook destination, newest first. The first send of each event,

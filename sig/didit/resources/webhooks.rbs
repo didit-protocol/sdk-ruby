@@ -11,6 +11,7 @@ module Didit
         def create: (label: String, url: String, ?enabled: bool, ?webhook_version: String, ?subscribed_events: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::WebhooksDestinationsCreateResponse
         def delete: (String destination_uuid, ?request_options: Didit::request_options?) -> nil
         def list: (?request_options: Didit::request_options?) -> Array[Didit::Types::WebhooksDestinationsListResponseItem]
+        def list_activity: (String destination_uuid, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WebhookDestinationActivity]
         def list_deliveries: (String destination_uuid, ?limit: Integer, ?offset: Integer, ?date_from: Date | String, ?date_to: Date | String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WebhookDestinationDelivery]
         def resend_delivery: (String destination_uuid, String delivery_uuid, ?request_options: Didit::request_options?) -> Didit::Types::WebhookDestinationDeliveryDetail
         def retrieve: (String destination_uuid, ?request_options: Didit::request_options?) -> Didit::Types::WebhooksDestinationsRetrieveResponse

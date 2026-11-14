@@ -287,6 +287,39 @@ module Didit
       VALUES = [SESSIONS_VOLUME, WORKFLOW_FUNNEL, AVERAGE_VERIFICATION_TIME, COUNTRY_DISTRIBUTION, WARNING_INSIGHTS, CONVERSION_RATE, CONVERSION_BY_COUNTRY, RESUBMISSION_INSIGHTS, ORIGINAL_STATUS_DISTRIBUTION, DATABASE_VALIDATION_COVERAGE, DATABASE_VALIDATION_LATENCY, DEMOGRAPHICS, DEVICE_DETAILS, HORIZONTAL_BAR, KYB_REGISTRY_COVERAGE, KYB_REGISTRY_DATA_COMPLETENESS, METRIC, TIME_SERIES, BREAKDOWN, STATUS_TIME_SERIES, LEADERBOARD, HISTOGRAM].freeze
     end
 
+    # Export or compliance-report kind.
+    module AsyncReportReportType
+      SESSION_EXPORT = "SESSION_EXPORT"
+      TRANSACTION_EXPORT = "TRANSACTION_EXPORT"
+      BUSINESS_EXPORT = "BUSINESS_EXPORT"
+      VENDOR_USER_EXPORT = "VENDOR_USER_EXPORT"
+      VENDOR_BUSINESS_EXPORT = "VENDOR_BUSINESS_EXPORT"
+      CASE_EXPORT = "CASE_EXPORT"
+      CASE_SLA_EXPORT = "CASE_SLA_EXPORT"
+      LIST_ENTRY_EXPORT = "LIST_ENTRY_EXPORT"
+      EVENT_EXPORT = "EVENT_EXPORT"
+      COMPLIANCE_KYC_KYB = "COMPLIANCE_KYC_KYB"
+      COMPLIANCE_AML_LOG = "COMPLIANCE_AML_LOG"
+      COMPLIANCE_TRAVEL_RULE = "COMPLIANCE_TRAVEL_RULE"
+      COMPLIANCE_SANCTIONS_PEP = "COMPLIANCE_SANCTIONS_PEP"
+      COMPLIANCE_RISK_SUMMARY = "COMPLIANCE_RISK_SUMMARY"
+      COMPLIANCE_SAR_STR_DRAFT = "COMPLIANCE_SAR_STR_DRAFT"
+      COMPLIANCE_CTR = "COMPLIANCE_CTR"
+      COMPLIANCE_CASE_SUMMARY = "COMPLIANCE_CASE_SUMMARY"
+
+      VALUES = [SESSION_EXPORT, TRANSACTION_EXPORT, BUSINESS_EXPORT, VENDOR_USER_EXPORT, VENDOR_BUSINESS_EXPORT, CASE_EXPORT, CASE_SLA_EXPORT, LIST_ENTRY_EXPORT, EVENT_EXPORT, COMPLIANCE_KYC_KYB, COMPLIANCE_AML_LOG, COMPLIANCE_TRAVEL_RULE, COMPLIANCE_SANCTIONS_PEP, COMPLIANCE_RISK_SUMMARY, COMPLIANCE_SAR_STR_DRAFT, COMPLIANCE_CTR, COMPLIANCE_CASE_SUMMARY].freeze
+    end
+
+    # Generation state. READY may include individual failures; inspect failed_count.
+    module AsyncReportStatus
+      PENDING = "PENDING"
+      PROCESSING = "PROCESSING"
+      READY = "READY"
+      FAILED = "FAILED"
+
+      VALUES = [PENDING, PROCESSING, READY, FAILED].freeze
+    end
+
     # `match`: the bank holds the account under the name you sent. `close_match`: under a close name, for example a
     # missing middle name or a typo. `no_match`: under another name, or there is no such account. `cannot_verify`: the
     # bank answered without comparing the name, for example for a blocked or closed account.
@@ -6618,6 +6651,13 @@ module Didit
       VALUES = [V1, V2, V3].freeze
     end
 
+    # Activity type.
+    module WebhookDestinationActivityType
+      FAILURE_ALERT = "failure_alert"
+
+      VALUES = [FAILURE_ALERT].freeze
+    end
+
     # Supported webhook event name. Use these exact strings in `subscribed_events`; unsupported values are rejected.
     module WebhookEvent
       STATUS_UPDATED = "status.updated"
@@ -7376,6 +7416,53 @@ module Didit
 
     class ApplicationAnalyticsWorkflowFunnelValueStepsValue < Didit::Model
       field :reached, "reached", :integer
+    end
+
+    class AsyncReport < Didit::Model
+      field :uuid, "uuid", :string
+      field :report_type, "report_type", :string
+      field :report_type_display, "report_type_display", :string
+      field :status, "status", :string
+      field :status_display, "status_display", :string
+      field :parameters, "parameters", :any
+      field :requested_by_user_id, "requested_by_user_id", :string
+      field :requested_by_email, "requested_by_email", :string
+      field :requested_by_name, "requested_by_name", :string
+      field :row_count, "row_count", :integer
+      field :failed_item_ids, "failed_item_ids", [:array, :string]
+      field :failed_count, "failed_count", :integer
+      field :file_size, "file_size", :integer
+      field :files, "files", [:array, "AsyncReportFile"]
+      field :scheduled_report, "scheduled_report", :string
+      field :error_message, "error_message", :string
+      field :deletion_pending, "deletion_pending", :boolean
+      field :eta_seconds, "eta_seconds", :integer
+      field :started_at, "started_at", :datetime
+      field :completed_at, "completed_at", :datetime
+      field :expires_at, "expires_at", :datetime
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    class AsyncReportFile < Didit::Model
+      field :name, "name", :string
+      field :format, "format", :string
+      field :rows, "rows", :integer
+      field :bytes, "bytes", :integer
+    end
+
+    class AsyncReportList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "AsyncReport"]
+      field :counts, "counts", "AsyncReportListCounts"
+    end
+
+    # Counts of all reports the caller can read, before the list filters.
+    class AsyncReportListCounts < Didit::Model
+      field :report_type, "report_type", [:map, :integer]
+      field :status, "status", [:map, :integer]
     end
 
     # Account check: the person types their account number and Didit checks it with the bank. Priced per country.
@@ -13895,6 +13982,20 @@ module Didit
       field :subscribed_events, "subscribed_events", [:array, :string]
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+    end
+
+    class WebhookDestinationActivity < Didit::Model
+      field :id, "id", :string
+      field :type, "type", :string
+      field :occurred_at, "occurred_at", :datetime
+      field :failure_count, "failure_count", :integer
+    end
+
+    class WebhookDestinationActivityList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "WebhookDestinationActivity"]
     end
 
     # One delivery attempt to a webhook destination. The first send of an event, each automatic retry and each resend
