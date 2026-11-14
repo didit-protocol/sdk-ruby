@@ -72,7 +72,7 @@ didit = Didit::Client.new(
 
 - One client per process is the intended use. It is thread safe, keeps connections open per host, and a forked child never reuses its parent's connections.
 - `with_options` returns a copy with some options changed that shares the connections: `didit.with_options(timeout: 5, max_retries: 0)`.
-- Every method takes `request_options:` for one call: `{ timeout:, max_retries:, extra_headers:, extra_query:, extra_body: }`.
+- Every method takes `request_options:` for one call: `{ timeout:, max_retries:, extra_headers:, extra_query:, extra_body:, idempotency_key: }`.
 - Application-scoped methods (all of `cases`, `networks`, `regulatory_reports`, `report_templates` and `business_sessions`, and some of `sessions`, `users`, `businesses` and `transactions`): the SDK fills `organization_id` and `application_id` from the client, and raises `Didit::ConfigurationError` before sending when either is missing.
 - The API key is sent only to `base_url`. It never appears in logs, error messages or error bodies.
 
@@ -135,6 +135,16 @@ end
 Failed requests are retried up to `max_retries` times (default 2) with exponential backoff from 0.5 s, full jitter, capped at 8 s, honouring `Retry-After` (capped at 60 s).
 GET, HEAD, PUT and DELETE are retried on connection errors, timeouts, 408, 429 and 5xx.
 POST and PATCH are retried only on 429 and when the connection failed before the request was sent, never after it may have reached the server.
+
+### Idempotency
+
+The `idempotency_key` request option sends an `Idempotency-Key` header, so repeating the same operation with the same key never runs or bills it twice.
+
+```ruby
+didit.sessions.create(workflow_id: "wf", request_options: { idempotency_key: "signup-8c1f" })
+```
+
+With a key, POST and PATCH are retried like GET.
 
 ## Pagination
 

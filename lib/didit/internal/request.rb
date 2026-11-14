@@ -20,7 +20,11 @@ module Didit
       INITIAL_RETRY_DELAY = 0.5
       MAX_RETRY_DELAY = 8.0
       MAX_RETRY_AFTER = 60.0
-      OPTION_KEYS = %i[timeout max_retries extra_headers extra_query extra_body].freeze
+      OPTION_KEYS = %i[timeout max_retries extra_headers extra_query extra_body idempotency_key].freeze
+      IDEMPOTENCY_HEADER = "Idempotency-Key"
+      IDEMPOTENCY_KEY_MAX = 255
+      KEY_METHODS = %i[post put patch delete].freeze
+      RETRYABLE_WITH_KEY = %i[post patch].freeze
       UNRESERVED = /[^A-Za-z0-9\-._~]/
 
       module_function
@@ -41,8 +45,20 @@ module Didit
           max_retries: Config.check_max_retries(opts.fetch(:max_retries, config.max_retries)),
           extra_headers: opts[:extra_headers] || {},
           extra_query: opts[:extra_query] || {},
-          extra_body: opts[:extra_body] || {}
+          extra_body: opts[:extra_body] || {},
+          idempotency_key: opts.key?(:idempotency_key) ? check_idempotency_key(opts[:idempotency_key]) : nil
         }
+      end
+
+      # The key must be a String of 1 to 255 characters.
+      def check_idempotency_key(value)
+        unless value.is_a?(String) && value.length.between?(1, IDEMPOTENCY_KEY_MAX)
+          shown = value.is_a?(String) ? "a String of #{value.length} characters" : value.inspect
+          raise ConfigurationError, "idempotency_key must be a String of 1 to #{IDEMPOTENCY_KEY_MAX} characters, " \
+                                    "got #{shown}."
+        end
+
+        value
       end
 
       # @return [Prepared]
@@ -58,8 +74,9 @@ module Didit
         body_bytes, content_type = encode_body(body, opts[:extra_body], encoding, file_fields)
         Prepared.new(
           http_method: http_method, uri: uri, origin: Util.origin(base),
-          headers: build_headers(config, auth, accept: accept, content_type: content_type, op_headers: headers,
-                                               extra_headers: opts[:extra_headers]),
+          headers: build_headers(config, auth, accept: accept, content_type: content_type,
+                                               op_headers: headers, extra_headers: opts[:extra_headers],
+                                               http_method: http_method, idempotency_key: opts[:idempotency_key]),
           body: body_bytes, timeout: opts[:timeout], max_retries: opts[:max_retries],
           redact: [config.api_key, config.account_token].compact
         )
@@ -177,16 +194,38 @@ module Didit
         end
       end
 
-      def build_headers(config, auth, accept:, content_type:, op_headers:, extra_headers:)
+      def build_headers(config, auth, accept:, content_type:, op_headers:, extra_headers:, http_method: :post,
+                        idempotency_key: nil)
         # @type var pairs: Array[[untyped, untyped]]
         pairs = [["Accept", accept], ["User-Agent", Util.user_agent], ["X-Didit-Client", Util.client_header]]
-        pairs.concat(config.default_headers.to_a)
+        # A client-wide default Idempotency-Key never counts.
+        pairs.concat(config.default_headers.to_a.reject { |name, _| idempotency_name?(name) })
         credential = credential_header(config, auth)
         pairs << credential if credential
         pairs << ["Content-Type", content_type] if content_type
         pairs.concat(op_headers.reject { |_, value| value.equal?(OMIT) }.to_a)
         pairs.concat(extra_headers.to_a)
-        merge_headers(pairs)
+        pairs << [IDEMPOTENCY_HEADER, idempotency_key] if idempotency_key
+        merge_headers(with_effective_key(pairs, http_method))
+      end
+
+      def idempotency_name?(name)
+        name.to_s.casecmp?(IDEMPOTENCY_HEADER)
+      end
+
+      # Collapses every Idempotency-Key pair into the effective key (the last one; nil removes it),
+      # validates it whatever its source, and sends it only on the allow-listed methods.
+      def with_effective_key(pairs, http_method)
+        keyed, others = pairs.partition { |name, _| idempotency_name?(name) }
+        effective = keyed.empty? ? nil : keyed.last&.last
+        return others if effective.nil?
+
+        check_idempotency_key(effective)
+        return others unless KEY_METHODS.include?(http_method)
+
+        # @type var pair: [untyped, untyped]
+        pair = [IDEMPOTENCY_HEADER, effective]
+        others + [pair]
       end
 
       # Header names are case-insensitive: a later value replaces an earlier one whatever its
@@ -258,7 +297,7 @@ module Didit
       def retry_delay(config, prepared, attempt, retries)
         left = prepared.max_retries - retries
         if (failure = attempt.failure)
-          return nil if attempt.streamed || left <= 0 || !retry_failure?(prepared.http_method, failure)
+          return nil if attempt.streamed || left <= 0 || !retry_failure?(prepared, failure)
 
           delay = backoff(retries)
           Log.retry(config, prepared, failure.timeout? ? "timed out" : failure.error.class.name, delay, left)
@@ -268,22 +307,48 @@ module Didit
         return nil unless response
 
         Log.response(config, prepared, response, attempt.elapsed)
-        return nil if left <= 0 || !retry_status?(prepared.http_method, response.status)
+        return nil if left <= 0 || !retry_status?(prepared, response)
 
         delay = retry_after(response.headers["retry-after"]) || backoff(retries)
         Log.retry(config, prepared, "HTTP #{response.status}", delay, left)
         delay
       end
 
-      def retry_status?(http_method, status)
+      def retry_status?(prepared, response)
+        status = response.status
         return true if status == 429
-        return false unless IDEMPOTENT.include?(http_method)
+        return key_in_progress?(response) if status == 409 && carries_key?(prepared)
+        return false unless safe_to_repeat?(prepared)
 
         status == 408 || status.between?(500, 599)
       end
 
-      def retry_failure?(http_method, failure)
-        !failure.sent || IDEMPOTENT.include?(http_method)
+      def retry_failure?(prepared, failure)
+        !failure.sent || safe_to_repeat?(prepared)
+      end
+
+      # GET, HEAD, PUT and DELETE, and a POST or PATCH that carries an Idempotency-Key.
+      def safe_to_repeat?(prepared)
+        IDEMPOTENT.include?(prepared.http_method) || keyed?(prepared)
+      end
+
+      # Whether the key makes this method retryable: only POST and PATCH (the others already are).
+      def keyed?(prepared)
+        RETRYABLE_WITH_KEY.include?(prepared.http_method) && carries_key?(prepared)
+      end
+
+      # Whether the request carries an Idempotency-Key (any of the four allow-listed methods).
+      def carries_key?(prepared)
+        KEY_METHODS.include?(prepared.http_method) &&
+          prepared.headers.keys.any? { |name| name.casecmp?(IDEMPOTENCY_HEADER) }
+      end
+
+      # A 409 whose JSON body says the first request with this key is still running.
+      def key_in_progress?(response)
+        body = JSON.parse(response.body.to_s)
+        body.is_a?(Hash) && body["code"] == "idempotency_key_in_progress"
+      rescue JSON::ParserError
+        false
       end
 
       # Exponential backoff from 0.5 s with full jitter, capped at 8 s.
