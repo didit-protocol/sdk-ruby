@@ -657,6 +657,35 @@ RSpec.describe Didit::Resources::TravelRule do
             "link_expires_at": "2026-01-02T03:04:05Z",
             "emailed_to": "emailed_to-value",
             "email_available": true
+          },
+          "proof_request": {
+            "request_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "status": "PENDING",
+            "expires_at": "2026-01-02T03:04:05Z",
+            "proof": {
+              "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "method": "MESSAGE_SIGNING",
+              "status": "PENDING",
+              "wallet_address": "wallet_address-value",
+              "chain": "chain-value",
+              "holder_name": "holder_name-value",
+              "is_ownership_verified": true,
+              "transaction_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "file_name": "file_name-value",
+              "content_type": "content_type-value",
+              "screenshot_url": "screenshot_url-value",
+              "attempts": 1,
+              "failure_reason": {},
+              "method_chosen_at": "2026-01-02T03:04:05Z",
+              "decided_at": "2026-01-02T03:04:05Z",
+              "decided_by": "decided_by-value",
+              "review_note": "review_note-value",
+              "created_at": "2026-01-02T03:04:05Z",
+              "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "holder_vendor_data": "holder_vendor_data-value",
+              "wallet_label": "wallet_label-value"
+            }
           }
         }
       }
@@ -2338,7 +2367,23 @@ RSpec.describe Didit::Resources::TravelRule do
         "travel_address": "travel_address-value",
         "address_hash": "address_hash-value",
         "memo": "memo-value",
-        "receiving_travel_address": "receiving_travel_address-value"
+        "receiving_travel_address": "receiving_travel_address-value",
+        "ownership_proof": {
+          "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "method": "MESSAGE_SIGNING",
+          "status": "PENDING",
+          "failure_reason": {},
+          "latest_attempt": {
+            "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "method": "MESSAGE_SIGNING",
+            "status": "PENDING",
+            "failure_reason": {}
+          },
+          "network_eligible": true,
+          "reuse_status": "NOT_LINKED"
+        },
+        "label": "label-value",
+        "owner_type": "customer"
       }
     JSON
     result = client.travel_rule.wallet_addresses.create(
@@ -2404,9 +2449,34 @@ RSpec.describe Didit::Resources::TravelRule do
             "travel_address": "travel_address-value",
             "address_hash": "address_hash-value",
             "memo": "memo-value",
-            "receiving_travel_address": "receiving_travel_address-value"
+            "receiving_travel_address": "receiving_travel_address-value",
+            "ownership_proof": {
+              "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "method": "MESSAGE_SIGNING",
+              "status": "PENDING",
+              "failure_reason": {},
+              "latest_attempt": {
+                "proof_id": "example",
+                "method": "example",
+                "status": "example",
+                "failure_reason": "example"
+              },
+              "network_eligible": true,
+              "reuse_status": "NOT_LINKED"
+            },
+            "label": "label-value",
+            "owner_type": "customer"
           }
-        ]
+        ],
+        "proof_totals": {
+          "wallets": 1,
+          "customer_wallets": 1,
+          "verified_control_wallets": 1,
+          "MESSAGE_SIGNING": 1,
+          "SATOSHI_TEST": 1,
+          "SCREENSHOT": 1,
+          "SELF_DECLARATION": 1
+        }
       }
     JSON
     result = client.travel_rule.wallet_addresses.list
@@ -2499,7 +2569,24 @@ RSpec.describe Didit::Resources::TravelRule do
         "holder_name": "holder_name-value",
         "holder_vendor_data": "holder_vendor_data-value",
         "entity_type": "entity_type-value",
-        "travel_address": "travel_address-value"
+        "travel_address": "travel_address-value",
+        "receiving_travel_address": "receiving_travel_address-value",
+        "label": "label-value",
+        "owner_type": "customer",
+        "ownership_proof": {
+          "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "method": "MESSAGE_SIGNING",
+          "status": "PENDING",
+          "failure_reason": {},
+          "latest_attempt": {
+            "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "method": "MESSAGE_SIGNING",
+            "status": "PENDING",
+            "failure_reason": {}
+          },
+          "network_eligible": true,
+          "reuse_status": "NOT_LINKED"
+        }
       }
     JSON
     result = client.travel_rule.wallet_addresses.update(
@@ -2519,7 +2606,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "holder_name" => "Ana Updated",
       "travel_address" => "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx"
     })
-    expect(result).to be_a(Didit::Types::WalletAddressEntryUpdate)
+    expect(result).to be_a(Didit::Types::WalletAddressEntryUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -2544,7 +2631,11 @@ RSpec.describe Didit::Resources::TravelRule do
         "decided_at": "2026-01-02T03:04:05Z",
         "decided_by": "decided_by-value",
         "review_note": "review_note-value",
-        "created_at": "2026-01-02T03:04:05Z"
+        "created_at": "2026-01-02T03:04:05Z",
+        "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+        "holder_vendor_data": "holder_vendor_data-value",
+        "wallet_label": "wallet_label-value"
       }
     JSON
     result = client.travel_rule.wallet_proofs.decide(
@@ -2594,7 +2685,11 @@ RSpec.describe Didit::Resources::TravelRule do
             "decided_at": "2026-01-02T03:04:05Z",
             "decided_by": "decided_by-value",
             "review_note": "review_note-value",
-            "created_at": "2026-01-02T03:04:05Z"
+            "created_at": "2026-01-02T03:04:05Z",
+            "application_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "holder_vendor_data": "holder_vendor_data-value",
+            "wallet_label": "wallet_label-value"
           }
         ]
       }

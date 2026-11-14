@@ -216,6 +216,7 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "WalletAddressEntry"]
+      field :proof_totals, "proof_totals", "TravelRuleWalletProofTotals"
     end
 
     class TravelRuleWalletAddressesListTransfersResponse < Didit::Model

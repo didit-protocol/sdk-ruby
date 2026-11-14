@@ -68,7 +68,7 @@ module Didit
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WalletAddressEntry]
         def list_transfers: (String entry_uuid, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletTransfer]
         def lookup: (address: String, chain: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletLookup
-        def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdate
+        def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdateResponse
       end
       class WalletProofs < Didit::Resource
         def decide: (String proof_uuid, decision: String, ?note: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletProofReview

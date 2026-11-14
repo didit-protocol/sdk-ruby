@@ -1554,8 +1554,9 @@ module Didit
         # Update wallet address holder metadata
         #
         # Partial update of holder_name, holder_vendor_data, entity_type, and travel_address. Setting travel_address
-        # attaches a TRP routing address to the entry; invalid values are rejected with 400. The response echoes only
-        # these four fields.
+        # attaches a TRP routing address to the entry; invalid values are rejected with 400. The response returns the
+        # updated entry: its label, owner type, receiving travel address and ownership proof summary, with the
+        # writable fields.
         #
         # +PATCH /v3/travel-rule/wallet-addresses/{entry_uuid}/+
         #
@@ -1565,7 +1566,7 @@ module Didit
         # @param entity_type [String]
         # @param travel_address [String]
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::WalletAddressEntryUpdate]
+        # @return [Didit::Types::WalletAddressEntryUpdateResponse]
         def update(
           entry_uuid,
           holder_name: OMIT,
@@ -1584,7 +1585,7 @@ module Didit
               "entity_type" => entity_type,
               "travel_address" => travel_address
             },
-            response: Types::WalletAddressEntryUpdate,
+            response: Types::WalletAddressEntryUpdateResponse,
             request_options: request_options
           )
         end

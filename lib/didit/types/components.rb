@@ -6022,6 +6022,16 @@ module Didit
       VALUES = [AWAITING_COUNTERPARTY, ON_HOLD, COMPLETED, FINISHED, CANCELLED, EXPIRED, COUNTERPARTY_MISMATCHED_DATA, COUNTERPARTY_VASP_NOT_FOUND, COUNTERPARTY_VASP_NOT_REACHABLE, UNCONFIRMED_OWNERSHIP, COUNTERPARTY_VASP_GENERAL_DECLINE, NOT_ENOUGH_COUNTERPARTY_DATA, NOT_APPLICABLE].freeze
     end
 
+    # COMPLETED when the request was completed; otherwise EXPIRED once expires_at has passed, or PENDING. This is the
+    # request status, not the proof verdict.
+    module TravelRuleTransferProofRequestStatus
+      PENDING = "PENDING"
+      COMPLETED = "COMPLETED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, COMPLETED, EXPIRED].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleTransferRowBeneficiaryWalletType
       VASP = "vasp"
@@ -6122,6 +6132,40 @@ module Didit
       VALUES = [VERIFIED].freeze
     end
 
+    # Proof method, or null when no proof exists.
+    module TravelRuleWalletOwnershipProofMethod
+      MESSAGE_SIGNING = "MESSAGE_SIGNING"
+      SATOSHI_TEST = "SATOSHI_TEST"
+      SCREENSHOT = "SCREENSHOT"
+      SELF_DECLARATION = "SELF_DECLARATION"
+
+      VALUES = [MESSAGE_SIGNING, SATOSHI_TEST, SCREENSHOT, SELF_DECLARATION].freeze
+    end
+
+    # NOT_LINKED when holder_vendor_data is empty; otherwise OWNERSHIP_CHANGED after reassignment without a current
+    # proof; VERIFIED for a current proof on a verified wallet; otherwise the latest REJECTED or EXPIRED status, or
+    # AWAITING_PROOF.
+    module TravelRuleWalletOwnershipProofReuseStatus
+      NOT_LINKED = "NOT_LINKED"
+      OWNERSHIP_CHANGED = "OWNERSHIP_CHANGED"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+      AWAITING_PROOF = "AWAITING_PROOF"
+
+      VALUES = [NOT_LINKED, OWNERSHIP_CHANGED, VERIFIED, REJECTED, EXPIRED, AWAITING_PROOF].freeze
+    end
+
+    # Proof status, or null when no proof exists.
+    module TravelRuleWalletOwnershipProofStatus
+      PENDING = "PENDING"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
+    end
+
     # Why a wallet-ownership proof, or its last attempt, fell short of VERIFIED. Empty when nothing failed. A PENDING
     # proof can carry one: the last attempt failed and the end user can try again. DEPOSIT_MISMATCH, DEPOSIT_STALE,
     # TXID_REUSED and REVIEW_REJECTED close the proof as REJECTED. SIGNATURE_INVALID: the signature does not match the
@@ -6133,11 +6177,13 @@ module Didit
     # this chain. WINDOW_EXPIRED: the test window closed. OWNERSHIP_CHANGED: the wallet's holder changed, or the
     # wallet was deleted from your address book, after the widget session was minted. METHOD_SWITCHED: the end user
     # picked another method before finishing this one. REVIEW_REJECTED: your reviewer rejected the screenshot.
-    # ABANDONED: the widget session lapsed before the end user finished.
+    # ABANDONED: the widget session lapsed before the end user finished. SIGNATURE_LOOKUP_FAILED: the chain could not
+    # be checked for a smart-contract wallet signature; retry verification.
     module TravelRuleWalletProofFailureReason
       VALUE = ""
       SIGNATURE_INVALID = "SIGNATURE_INVALID"
       SIGNATURE_UNSUPPORTED_SCHEME = "SIGNATURE_UNSUPPORTED_SCHEME"
+      SIGNATURE_LOOKUP_FAILED = "SIGNATURE_LOOKUP_FAILED"
       DEPOSIT_NOT_FOUND = "DEPOSIT_NOT_FOUND"
       DEPOSIT_UNCONFIRMED = "DEPOSIT_UNCONFIRMED"
       DEPOSIT_LOOKUP_FAILED = "DEPOSIT_LOOKUP_FAILED"
@@ -6151,7 +6197,17 @@ module Didit
       REVIEW_REJECTED = "REVIEW_REJECTED"
       ABANDONED = "ABANDONED"
 
-      VALUES = [VALUE, SIGNATURE_INVALID, SIGNATURE_UNSUPPORTED_SCHEME, DEPOSIT_NOT_FOUND, DEPOSIT_UNCONFIRMED, DEPOSIT_LOOKUP_FAILED, DEPOSIT_MISMATCH, DEPOSIT_STALE, TXID_REUSED, CHAIN_UNSUPPORTED, WINDOW_EXPIRED, OWNERSHIP_CHANGED, METHOD_SWITCHED, REVIEW_REJECTED, ABANDONED].freeze
+      VALUES = [VALUE, SIGNATURE_INVALID, SIGNATURE_UNSUPPORTED_SCHEME, SIGNATURE_LOOKUP_FAILED, DEPOSIT_NOT_FOUND, DEPOSIT_UNCONFIRMED, DEPOSIT_LOOKUP_FAILED, DEPOSIT_MISMATCH, DEPOSIT_STALE, TXID_REUSED, CHAIN_UNSUPPORTED, WINDOW_EXPIRED, OWNERSHIP_CHANGED, METHOD_SWITCHED, REVIEW_REJECTED, ABANDONED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofMethod
+      MESSAGE_SIGNING = "MESSAGE_SIGNING"
+      SATOSHI_TEST = "SATOSHI_TEST"
+      SCREENSHOT = "SCREENSHOT"
+      SELF_DECLARATION = "SELF_DECLARATION"
+
+      VALUES = [MESSAGE_SIGNING, SATOSHI_TEST, SCREENSHOT, SELF_DECLARATION].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -6163,6 +6219,36 @@ module Didit
 
     # Known values of an open enum: the API may send others.
     module TravelRuleWalletProofReviewStatus
+      PENDING = "PENDING"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleWalletProofStatus
+      PENDING = "PENDING"
+      VERIFIED = "VERIFIED"
+      REJECTED = "REJECTED"
+      EXPIRED = "EXPIRED"
+
+      VALUES = [PENDING, VERIFIED, REJECTED, EXPIRED].freeze
+    end
+
+    # Proof method, or null when no proof exists.
+    module TravelRuleWalletProofSummaryMethod
+      MESSAGE_SIGNING = "MESSAGE_SIGNING"
+      SATOSHI_TEST = "SATOSHI_TEST"
+      SCREENSHOT = "SCREENSHOT"
+      SELF_DECLARATION = "SELF_DECLARATION"
+
+      VALUES = [MESSAGE_SIGNING, SATOSHI_TEST, SCREENSHOT, SELF_DECLARATION].freeze
+    end
+
+    # Proof status, or null when no proof exists.
+    module TravelRuleWalletProofSummaryStatus
       PENDING = "PENDING"
       VERIFIED = "VERIFIED"
       REJECTED = "REJECTED"
@@ -6472,6 +6558,24 @@ module Didit
       ADDED_BY_YOU = "added_by_you"
 
       VALUES = [DIDIT_NETWORK, DIRECTORY, ADDED_BY_YOU].freeze
+    end
+
+    # Wallet owner type.
+    module WalletAddressEntryOwnerType
+      CUSTOMER = "customer"
+      INTERNAL = "internal"
+      VASP = "vasp"
+
+      VALUES = [CUSTOMER, INTERNAL, VASP].freeze
+    end
+
+    # Wallet owner type.
+    module WalletAddressEntryUpdateResponseOwnerType
+      CUSTOMER = "customer"
+      INTERNAL = "internal"
+      VASP = "vasp"
+
+      VALUES = [CUSTOMER, INTERNAL, VASP].freeze
     end
 
     # `created`: added to the book. `existing`: the wallet is already in the book and was left untouched. `duplicate`:
@@ -12578,6 +12682,7 @@ module Didit
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
       field :user_choice, "user_choice", "TravelRuleUserChoice"
+      field :proof_request, "proof_request", "TravelRuleTransferProofRequest"
     end
 
     # The counterparty's directory entry, or `null` when the transfer links none.
@@ -12815,6 +12920,7 @@ module Didit
       field :not_required_reason, "not_required_reason", :string
       field :proof_state, "proof_state", :string
       field :user_choice, "user_choice", "TravelRuleUserChoice"
+      field :proof_request, "proof_request", "TravelRuleTransferProofRequest"
     end
 
     # The counterparty's directory entry, or `null` when the transfer links none.
@@ -13413,6 +13519,7 @@ module Didit
       field :cancelled_by, "cancelled_by", :string
       field :notify_on_answer, "notify_on_answer", :boolean
       field :user_choice, "user_choice", "TravelRuleUserChoice"
+      field :proof_request, "proof_request", "TravelRuleTransferProofRequest"
     end
 
     class TravelRuleTransferDetailCounterpartyVasp < Didit::Model
@@ -13436,6 +13543,13 @@ module Didit
       field :detail, "detail", :string
       field :name_match, "name_match", "TravelRuleNameMatch"
       field :reason, "reason", :string
+    end
+
+    class TravelRuleTransferProofRequest < Didit::Model
+      field :request_id, "request_id", :string
+      field :status, "status", :string
+      field :expires_at, "expires_at", :datetime
+      field :proof, "proof", "TravelRuleWalletProof"
     end
 
     # One Travel Rule transfer as the transfers list shows it: VASP names, wallets, memos, the transaction's review
@@ -13521,6 +13635,47 @@ module Didit
       field :proof_state, "proof_state", :string
     end
 
+    # Current valid proof, preferring the most recently verified proof; otherwise the latest attempt. A failed retry
+    # does not replace a current valid proof. This metadata is read-only.
+    class TravelRuleWalletOwnershipProof < Didit::Model
+      field :proof_id, "proof_id", :string
+      field :method_, "method", :string
+      field :status, "status", :string
+      field :failure_reason, "failure_reason", :string
+      field :latest_attempt, "latest_attempt", "TravelRuleWalletProofSummary"
+      field :network_eligible, "network_eligible", :boolean
+      field :reuse_status, "reuse_status", :string
+    end
+
+    # Proof attached to a transfer request. Supports every ownership method; screenshot-only metadata can be null.
+    # Review history, notes and decision attribution remain available.
+    class TravelRuleWalletProof < Didit::Model
+      field :proof_id, "proof_id", :string
+      field :method_, "method", :string
+      field :status, "status", :string
+      field :wallet_address, "wallet_address", :string
+      field :chain, "chain", :string
+      field :holder_name, "holder_name", :string
+      field :is_ownership_verified, "is_ownership_verified", :boolean
+      field :transaction_id, "transaction_id", :string
+      field :file_name, "file_name", :string
+      field :content_type, "content_type", :string
+      field :screenshot_url, "screenshot_url", :string
+      field :attempts, "attempts", :integer
+      field :failure_reason, "failure_reason", :string
+      field :method_chosen_at, "method_chosen_at", :datetime
+      field :decided_at, "decided_at", :datetime
+      field :decided_by, "decided_by", :string
+      field :review_note, "review_note", :string
+      field :created_at, "created_at", :datetime
+      field :application_id, "application_id", :string
+      field :user_id, "user_id", :string
+      field :holder_vendor_data, "holder_vendor_data", :string
+      field :wallet_label, "wallet_label", :string
+    end
+
+    # Uploaded screenshot proof returned by the review queue and decision endpoint. Submitter attribution is
+    # independent of the current wallet holder.
     class TravelRuleWalletProofReview < Didit::Model
       field :proof_id, "proof_id", :string
       field :method_, "method", :string
@@ -13540,6 +13695,29 @@ module Didit
       field :decided_by, "decided_by", :string
       field :review_note, "review_note", :string
       field :created_at, "created_at", :datetime
+      field :application_id, "application_id", :string
+      field :user_id, "user_id", :string
+      field :holder_vendor_data, "holder_vendor_data", :string
+      field :wallet_label, "wallet_label", :string
+    end
+
+    class TravelRuleWalletProofSummary < Didit::Model
+      field :proof_id, "proof_id", :string
+      field :method_, "method", :string
+      field :status, "status", :string
+      field :failure_reason, "failure_reason", :string
+    end
+
+    # Exact totals over the entire application-scoped wallet set before limit/offset pagination. Method counts overlap
+    # and must not be summed to obtain distinct verified wallets.
+    class TravelRuleWalletProofTotals < Didit::Model
+      field :wallets, "wallets", :integer
+      field :customer_wallets, "customer_wallets", :integer
+      field :verified_control_wallets, "verified_control_wallets", :integer
+      field :message_signing, "MESSAGE_SIGNING", :integer
+      field :satoshi_test, "SATOSHI_TEST", :integer
+      field :screenshot, "SCREENSHOT", :integer
+      field :self_declaration, "SELF_DECLARATION", :integer
     end
 
     class TravelRuleWalletTransfer < Didit::Model
@@ -13817,15 +13995,22 @@ module Didit
       field :address_hash, "address_hash", :string
       field :memo, "memo", :string
       field :receiving_travel_address, "receiving_travel_address", :string
+      field :ownership_proof, "ownership_proof", "TravelRuleWalletOwnershipProof"
+      field :label, "label", :string
+      field :owner_type, "owner_type", :string
     end
 
-    # PATCH is a partial update; the response echoes only holder_name, holder_vendor_data, entity_type,
-    # travel_address, receiving_travel_address, label, and owner_type.
-    class WalletAddressEntryUpdate < Didit::Model
+    # Updated holder metadata and read-only ownership metadata. This is a partial wallet representation, not the full
+    # list/create entry.
+    class WalletAddressEntryUpdateResponse < Didit::Model
       field :holder_name, "holder_name", :string
       field :holder_vendor_data, "holder_vendor_data", :string
       field :entity_type, "entity_type", :string
       field :travel_address, "travel_address", :string
+      field :receiving_travel_address, "receiving_travel_address", :string
+      field :label, "label", :string
+      field :owner_type, "owner_type", :string
+      field :ownership_proof, "ownership_proof", "TravelRuleWalletOwnershipProof"
     end
 
     # What happened to each row of an import, in the order sent.
