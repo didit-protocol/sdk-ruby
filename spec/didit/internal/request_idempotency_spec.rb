@@ -66,7 +66,8 @@ RSpec.describe Didit::Internal::Request do
   describe "validation" do
     [["", "empty"], ["a" * 256, "256 characters"], [nil, "nil"], [123, "an Integer"],
      [:key, "a Symbol"], ["\u6ce8\u6587-1", "non-ASCII text"], ["caf\u00e9", "an accented letter"],
-     ["a\nb", "a newline"], ["key\n", "a trailing newline"]].each do |value, label|
+     ["a\nb", "a newline"], ["key\n", "a trailing newline"],
+     [" order-1", "a leading space"], ["order-1 ", "a trailing space"], ["   ", "only spaces"]].each do |value, label|
       it "rejects #{label} before sending anything" do
         stub = stub_request(:post, session_url).to_return(ok)
         expect { create_session(idempotency_key: value) }.to raise_error(Didit::ConfigurationError, /idempotency_key/)

@@ -23,7 +23,7 @@ module Didit
       OPTION_KEYS = %i[timeout max_retries extra_headers extra_query extra_body idempotency_key].freeze
       IDEMPOTENCY_HEADER = "Idempotency-Key"
       IDEMPOTENCY_KEY_MAX = 255
-      PRINTABLE_ASCII = /\A[ -~]*\z/
+      PRINTABLE_ASCII = /\A(?:[!-~]|[!-~][ -~]*[!-~])\z/
       KEY_METHODS = %i[post put patch delete].freeze
       RETRYABLE_WITH_KEY = %i[post patch].freeze
       UNRESERVED = /[^A-Za-z0-9\-._~]/
@@ -51,13 +51,13 @@ module Didit
         }
       end
 
-      # The key must be a String of 1 to 255 printable ASCII characters (space to "~"): it travels as an HTTP
-      # header value.
+      # The key must be a String of 1 to 255 printable ASCII characters (space to "~") that neither start nor
+      # end with a space: it travels as an HTTP header value that the server trims.
       def check_idempotency_key(value)
         unless value.is_a?(String) && value.length.between?(1, IDEMPOTENCY_KEY_MAX) && value.match?(PRINTABLE_ASCII)
           shown = value.is_a?(String) ? "a String of #{value.length} characters" : value.inspect
           raise ConfigurationError, "idempotency_key must be a String of 1 to #{IDEMPOTENCY_KEY_MAX} printable ASCII " \
-                                    "characters, got #{shown}."
+                                    "characters that neither start nor end with a space, got #{shown}."
         end
 
         value
