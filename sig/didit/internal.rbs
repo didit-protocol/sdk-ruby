@@ -115,6 +115,7 @@ module Didit
       OPTION_KEYS: Array[Symbol]
       IDEMPOTENCY_HEADER: String
       IDEMPOTENCY_KEY_MAX: Integer
+      PRINTABLE_ASCII: Regexp
       KEY_METHODS: Array[Symbol]
       RETRYABLE_WITH_KEY: Array[Symbol]
       UNRESERVED: Regexp
