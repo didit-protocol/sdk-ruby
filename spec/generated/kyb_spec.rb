@@ -94,7 +94,8 @@ RSpec.describe Didit::Resources::Kyb do
     JSON
     result = client.kyb.list_shareholders(
       kyb_response_id: "69aeeb95febb0f1704042259",
-      vendor_data: "company-1234"
+      vendor_data: "company-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -108,6 +109,7 @@ RSpec.describe Didit::Resources::Kyb do
       "kyb_response_id" => "69aeeb95febb0f1704042259",
       "vendor_data" => "company-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::KybListShareholdersResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -207,7 +209,8 @@ RSpec.describe Didit::Resources::Kyb do
     JSON
     result = client.kyb.list_ubos(
       kyb_response_id: "69aeeb95febb0f1704042259",
-      vendor_data: "company-1234"
+      vendor_data: "company-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -221,6 +224,7 @@ RSpec.describe Didit::Resources::Kyb do
       "kyb_response_id" => "69aeeb95febb0f1704042259",
       "vendor_data" => "company-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::KybListUbosResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -268,7 +272,8 @@ RSpec.describe Didit::Resources::Kyb do
       country_code: "GB",
       name: "Tesco",
       search_type: "contains",
-      vendor_data: "company-1234"
+      vendor_data: "company-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -284,6 +289,7 @@ RSpec.describe Didit::Resources::Kyb do
       "search_type" => "contains",
       "vendor_data" => "company-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::KybSearchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -377,7 +383,8 @@ RSpec.describe Didit::Resources::Kyb do
     JSON
     result = client.kyb.select(
       kyb_response_id: "69aeeb95febb0f1704042259",
-      vendor_data: "company-1234"
+      vendor_data: "company-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -391,6 +398,7 @@ RSpec.describe Didit::Resources::Kyb do
       "kyb_response_id" => "69aeeb95febb0f1704042259",
       "vendor_data" => "company-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::KybSelectResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -180,7 +180,8 @@ RSpec.describe Didit::Resources::Webhooks do
     result = client.webhooks.update_config(
       face_retention_policy: "retain_until_user_deleted",
       face_retention_days: 365,
-      biometric_consent_mode: "auto"
+      biometric_consent_mode: "auto",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -195,6 +196,7 @@ RSpec.describe Didit::Resources::Webhooks do
       "face_retention_days" => 365,
       "biometric_consent_mode" => "auto"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WebhookConfig)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -243,7 +245,8 @@ RSpec.describe Didit::Resources::Webhooks do
       subscribed_events: [
         "status.updated",
         "data.updated"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -262,6 +265,7 @@ RSpec.describe Didit::Resources::Webhooks do
         "data.updated"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WebhooksDestinationsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -270,7 +274,8 @@ RSpec.describe Didit::Resources::Webhooks do
   it "webhooks.destinations.delete sends DELETE /v3/webhook/destinations/{destination_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.webhooks.destinations.delete(
-      "11111111-2222-3333-4444-555555555555"
+      "11111111-2222-3333-4444-555555555555",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -281,6 +286,7 @@ RSpec.describe Didit::Resources::Webhooks do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -793,7 +799,8 @@ RSpec.describe Didit::Resources::Webhooks do
     JSON
     result = client.webhooks.destinations.resend_delivery(
       "11111111-2222-3333-4444-555555555555",
-      "66666666-7777-8888-9999-000000000001"
+      "66666666-7777-8888-9999-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -804,6 +811,7 @@ RSpec.describe Didit::Resources::Webhooks do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WebhookDestinationDeliveryDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1000,7 +1008,8 @@ RSpec.describe Didit::Resources::Webhooks do
     JSON
     result = client.webhooks.destinations.update(
       "11111111-2222-3333-4444-555555555555",
-      enabled: false
+      enabled: false,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1013,6 +1022,7 @@ RSpec.describe Didit::Resources::Webhooks do
     expect_json_body(request, {
       "enabled" => false
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WebhooksDestinationsUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

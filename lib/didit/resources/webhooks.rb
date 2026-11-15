@@ -78,6 +78,7 @@ module Didit
       #   may send the user back to with a session callback. Server-to-server calls are not affected. An empty list
       #   means no restriction. Didit stores each origin in lower case without a default port. An invalid entry fails
       #   with `400` o...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WebhookConfig]
       def update_config(
@@ -91,6 +92,7 @@ module Didit
         biometric_consent_mode: OMIT,
         allowed_return_hosts: OMIT,
         allowed_domains: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -108,6 +110,7 @@ module Didit
             "allowed_return_hosts" => allowed_return_hosts,
             "allowed_domains" => allowed_domains
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::WebhookConfig,
           request_options: request_options
         )
@@ -135,9 +138,18 @@ module Didit
         #   format; older versions are kept for backward compatibility with legacy integrations.
         # @param subscribed_events [Array<String>] Events to deliver. Effectively required: an explicit `[]` is
         #   rejected with 400, and omitting the field creates a destination with no subscriptions that receives nothing.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhooksDestinationsCreateResponse]
-        def create(label:, url:, enabled: OMIT, webhook_version: OMIT, subscribed_events: OMIT, request_options: nil)
+        def create(
+          label:,
+          url:,
+          enabled: OMIT,
+          webhook_version: OMIT,
+          subscribed_events: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/webhook/destinations/",
@@ -148,6 +160,7 @@ module Didit
               "webhook_version" => webhook_version,
               "subscribed_events" => subscribed_events
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WebhooksDestinationsCreateResponse,
             request_options: request_options
           )
@@ -166,13 +179,15 @@ module Didit
         # +DELETE /v3/webhook/destinations/{destination_uuid}/+
         #
         # @param destination_uuid [String] UUID of the destination to delete.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(destination_uuid, request_options: nil)
+        def delete(destination_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/webhook/destinations/{destination_uuid}/",
             path_params: { "destination_uuid" => destination_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -290,13 +305,15 @@ module Didit
         # @param destination_uuid [String] UUID of the destination the delivery was sent to.
         # @param delivery_uuid [String] UUID of the delivery to resend: the `uuid` of an entry returned by `GET
         #   /v3/webhook/destinations/{destination_uuid}/deliveries/`.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhookDestinationDeliveryDetail]
-        def resend_delivery(destination_uuid, delivery_uuid, request_options: nil)
+        def resend_delivery(destination_uuid, delivery_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/webhook/destinations/{destination_uuid}/deliveries/{delivery_uuid}/resend/",
             path_params: { "destination_uuid" => destination_uuid, "delivery_uuid" => delivery_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WebhookDestinationDeliveryDetail,
             request_options: request_options
           )
@@ -400,6 +417,7 @@ module Didit
         #   sent, the list must contain at least one valid event (an explicit `[]` is rejected with 400); a destination
         #   whose list is empty (field omitted at create) receives nothing. On update the list is replaced wholesale,
         #   never merged.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WebhooksDestinationsUpdateResponse]
         def update(
@@ -409,6 +427,7 @@ module Didit
           enabled: OMIT,
           webhook_version: OMIT,
           subscribed_events: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -422,6 +441,7 @@ module Didit
               "webhook_version" => webhook_version,
               "subscribed_events" => subscribed_events
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WebhooksDestinationsUpdateResponse,
             request_options: request_options
           )

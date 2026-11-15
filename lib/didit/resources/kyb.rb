@@ -41,6 +41,7 @@ module Didit
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
       # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
       #   billing and retrieval can be tracked; `false` returns `400`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybListShareholdersResponse, Didit::Types::KybListShareholdersResponse202]
       def list_shareholders(
@@ -48,6 +49,7 @@ module Didit
         vendor_data: OMIT,
         metadata: OMIT,
         save_api_request: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -59,6 +61,7 @@ module Didit
             "metadata" => metadata,
             "save_api_request" => save_api_request
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: { 200 => Types::KybListShareholdersResponse, 202 => Types::KybListShareholdersResponse202 },
           request_options: request_options
         )
@@ -101,9 +104,17 @@ module Didit
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
       # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
       #   billing and retrieval can be tracked; `false` returns `400`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybListUbosResponse, Didit::Types::KybListUbosResponse202]
-      def list_ubos(kyb_response_id:, vendor_data: OMIT, metadata: OMIT, save_api_request: OMIT, request_options: nil)
+      def list_ubos(
+        kyb_response_id:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        save_api_request: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/kyb/ubo/",
@@ -113,6 +124,7 @@ module Didit
             "metadata" => metadata,
             "save_api_request" => save_api_request
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: { 200 => Types::KybListUbosResponse, 202 => Types::KybListUbosResponse202 },
           request_options: request_options
         )
@@ -183,6 +195,7 @@ module Didit
       # @param metadata [Hash, nil] Free-form JSON; echoed back and included in the webhook callback.
       # @param webhook_url [String] Switches the search to asynchronous mode: the API returns immediately and POSTs an
       #   unsigned `kyb.registry_search.resolved` callback to this URL when the candidate list is ready.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybSearchResponse]
       def search(
@@ -194,6 +207,7 @@ module Didit
         vendor_data: OMIT,
         metadata: OMIT,
         webhook_url: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -209,6 +223,7 @@ module Didit
             "metadata" => metadata,
             "webhook_url" => webhook_url
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::KybSearchResponse,
           request_options: request_options
         )
@@ -242,9 +257,17 @@ module Didit
       # @param metadata [Hash, nil] Free-form JSON stored with the business session and echoed back.
       # @param save_api_request [Boolean] Must be `true` (the default). KYB registry selects are always persisted so
       #   billing and retrieval can be tracked; `false` returns `400`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KybSelectResponse]
-      def select(kyb_response_id:, vendor_data: OMIT, metadata: OMIT, save_api_request: OMIT, request_options: nil)
+      def select(
+        kyb_response_id:,
+        vendor_data: OMIT,
+        metadata: OMIT,
+        save_api_request: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/kyb/select/",
@@ -254,6 +277,7 @@ module Didit
             "metadata" => metadata,
             "save_api_request" => save_api_request
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::KybSelectResponse,
           request_options: request_options
         )

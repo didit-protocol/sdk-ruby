@@ -21,7 +21,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.assign_vasp(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      assignee_email: "reviewer@example.com"
+      assignee_email: "reviewer@example.com",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -34,6 +35,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "assignee_email" => "reviewer@example.com"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleAssignVaspResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -46,7 +48,8 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.clear_vasp_decision(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -57,6 +60,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyDecisionResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -87,7 +91,8 @@ RSpec.describe Didit::Resources::TravelRule do
       name: "Example VASP",
       email: "compliance@example.com",
       jurisdiction: "DE",
-      invite: false
+      invite: false,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -103,6 +108,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "jurisdiction" => "DE",
       "invite" => false
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::VaspDirectoryEntry)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -123,7 +129,8 @@ RSpec.describe Didit::Resources::TravelRule do
       holder_name: "Jane Doe",
       vendor_data: "user-042",
       transaction_id: "99999999-aaaa-bbbb-cccc-dddddddddddd",
-      expires_in_minutes: 60
+      expires_in_minutes: 60,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -141,6 +148,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "transaction_id" => "99999999-aaaa-bbbb-cccc-dddddddddddd",
       "expires_in_minutes" => 60
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWidgetSessionResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -706,7 +714,8 @@ RSpec.describe Didit::Resources::TravelRule do
         name: "Origin CASP SL",
         lei: "",
         travel_address: "ta9JbXbsBSuS5ozArJRFVgvBHMVnDGUnrPPChSZYQsuZTn3kPrJXUQ7RSLUEJ5KjyPvr8C9sAxmPtZfGsQVKCi4n8ShxP9BkbDdbtjtA9aumNybAZ1BxC"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -734,6 +743,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "travel_address" => "ta9JbXbsBSuS5ozArJRFVgvBHMVnDGUnrPPChSZYQsuZTn3kPrJXUQ7RSLUEJ5KjyPvr8C9sAxmPtZfGsQVKCi4n8ShxP9BkbDdbtjtA9aumNybAZ1BxC"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleInboundResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1119,7 +1129,8 @@ RSpec.describe Didit::Resources::TravelRule do
       screening_id: "7a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
       hit_id: "hit_0123456789",
       review_status: "False Positive",
-      reason: "Different company, same trade name."
+      reason: "Different company, same trade name.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1135,6 +1146,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "review_status" => "False Positive",
       "reason" => "Different company, same trade name."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleReviewVaspScreeningHitResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1157,7 +1169,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.screen_vasp(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      refresh: false
+      refresh: false,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1170,6 +1183,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "refresh" => false
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyScreeningResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1181,7 +1195,9 @@ RSpec.describe Didit::Resources::TravelRule do
         "sent_to": "compliance@your-vasp.example"
       }
     JSON
-    result = client.travel_rule.send_compliance_email_confirmation
+    result = client.travel_rule.send_compliance_email_confirmation(
+      idempotency_key: "idem-key-1"
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -1191,6 +1207,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1213,7 +1230,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.send_vasp_questionnaire(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      sent_to: "travelrule@counterparty.example"
+      sent_to: "travelrule@counterparty.example",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1226,6 +1244,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "sent_to" => "travelrule@counterparty.example"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyQuestionnaire)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1243,7 +1262,8 @@ RSpec.describe Didit::Resources::TravelRule do
       document_ids: [
         "11111111-2222-4333-8444-555555555555"
       ],
-      sent_to: "travelrule@counterparty.example"
+      sent_to: "travelrule@counterparty.example",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1259,6 +1279,7 @@ RSpec.describe Didit::Resources::TravelRule do
       ],
       "sent_to" => "travelrule@counterparty.example"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleDocumentShare)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1427,7 +1448,8 @@ RSpec.describe Didit::Resources::TravelRule do
       name_matching_strictness: "DEFAULT",
       confirmation_timeout_hours: 48,
       timeout_outcome: "HOLD",
-      is_discoverable: true
+      is_discoverable: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1446,6 +1468,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "timeout_outcome" => "HOLD",
       "is_discoverable" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleSettingsDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1466,7 +1489,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.update_vasp_decision(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       decision: "BLOCKED",
-      reason: "Unlicensed in its home jurisdiction"
+      reason: "Unlicensed in its home jurisdiction",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1480,6 +1504,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "decision" => "BLOCKED",
       "reason" => "Unlicensed in its home jurisdiction"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyDecisionResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1488,7 +1513,8 @@ RSpec.describe Didit::Resources::TravelRule do
   it "travel_rule.withdraw_vasp_documents sends DELETE /v3/travel-rule/vasps/{vasp_id}/shared-documents/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.travel_rule.withdraw_vasp_documents(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1499,6 +1525,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1506,7 +1533,8 @@ RSpec.describe Didit::Resources::TravelRule do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.travel_rule.withdraw_vasp_questionnaire(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1517,6 +1545,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1542,7 +1571,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.counterparty_contacts.create(
       counterparty: "0d6f3c2a-6a1e-4c55-9a39-1f2b0c7d8e91",
       email: "compliance@counterparty.example",
-      name: "Compliance desk"
+      name: "Compliance desk",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1557,6 +1587,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "email" => "compliance@counterparty.example",
       "name" => "Compliance desk"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyContact)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1565,7 +1596,8 @@ RSpec.describe Didit::Resources::TravelRule do
   it "travel_rule.counterparty_contacts.delete sends DELETE /v3/travel-rule/counterparty-contacts/{contact_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.travel_rule.counterparty_contacts.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1576,6 +1608,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1646,7 +1679,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.counterparty_contacts.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       role: "Compliance officer",
-      receives_requests: true
+      receives_requests: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1660,6 +1694,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "role" => "Compliance officer",
       "receives_requests" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleCounterpartyContact)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1678,7 +1713,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.documents.create(
       kind: "questionnaire",
-      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1701,6 +1737,7 @@ RSpec.describe Didit::Resources::TravelRule do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleDocument)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1709,7 +1746,8 @@ RSpec.describe Didit::Resources::TravelRule do
   it "travel_rule.documents.delete sends DELETE /v3/travel-rule/documents/{document_id}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.travel_rule.documents.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1720,6 +1758,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1800,7 +1839,8 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.networks.request_access(
-      "network-1"
+      "network-1",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1811,6 +1851,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleNetworkParticipant)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2004,7 +2045,9 @@ RSpec.describe Didit::Resources::TravelRule do
         "updated_at": "2026-01-02T03:04:05Z"
       }
     JSON
-    result = client.travel_rule.networks.submit_questionnaire
+    result = client.travel_rule.networks.submit_questionnaire(
+      idempotency_key: "idem-key-1"
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -2014,6 +2057,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2070,7 +2114,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.networks.update_questionnaire(
       legal_name: "Example VASP Ltd",
       incorporation_country: "ES",
-      aml_ctf_policy_attested: true
+      aml_ctf_policy_attested: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2085,6 +2130,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "incorporation_country" => "ES",
       "aml_ctf_policy_attested" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleNetworkQuestionnaire)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2245,7 +2291,8 @@ RSpec.describe Didit::Resources::TravelRule do
     JSON
     result = client.travel_rule.unmatched_deposits.match(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      transaction_id: "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24"
+      transaction_id: "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2258,6 +2305,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "transaction_id" => "e90a4d7b-1c2f-4b83-a6d5-8f0e3c1b7a24"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleManualMatchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2317,7 +2365,8 @@ RSpec.describe Didit::Resources::TravelRule do
             holder_name: "Ana Diaz"
           }
         ]
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2348,6 +2397,7 @@ RSpec.describe Didit::Resources::TravelRule do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WalletAddressImportReport)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2391,7 +2441,8 @@ RSpec.describe Didit::Resources::TravelRule do
       chain: "ETH",
       holder_name: "Ana Diaz",
       holder_vendor_data: "user-042",
-      self_declared: true
+      self_declared: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2408,6 +2459,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "holder_vendor_data" => "user-042",
       "self_declared" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WalletAddressEntry)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2416,7 +2468,8 @@ RSpec.describe Didit::Resources::TravelRule do
   it "travel_rule.wallet_addresses.delete sends DELETE /v3/travel-rule/wallet-addresses/{entry_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.travel_rule.wallet_addresses.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2427,6 +2480,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -2592,7 +2646,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.wallet_addresses.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       holder_name: "Ana Updated",
-      travel_address: "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx"
+      travel_address: "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2606,6 +2661,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "holder_name" => "Ana Updated",
       "travel_address" => "ta2ih1MicegQ3JqiKz9xT89KsSuwaDJYw8DgzmeSEp1h9tduJcNDZ5SgKLEHeyGMcS1s2HgbM6undFrMQknhM5aTXw3G9KBzi16hx"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WalletAddressEntryUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2641,7 +2697,8 @@ RSpec.describe Didit::Resources::TravelRule do
     result = client.travel_rule.wallet_proofs.decide(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       decision: "approve",
-      note: "Address matches the wallet app."
+      note: "Address matches the wallet app.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2655,6 +2712,7 @@ RSpec.describe Didit::Resources::TravelRule do
       "decision" => "approve",
       "note" => "Address matches the wallet app."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWalletProofReview)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2905,7 +2963,8 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.workspace.claim(
-      vasp_id: "0b0c9d3e-5a53-4a3e-9d6e-1f2f6f6a1c11"
+      vasp_id: "0b0c9d3e-5a53-4a3e-9d6e-1f2f6f6a1c11",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2918,6 +2977,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "vasp_id" => "0b0c9d3e-5a53-4a3e-9d6e-1f2f6f6a1c11"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3118,7 +3178,8 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.workspace.confirm_domain(
-      code: "123456"
+      code: "123456",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3131,6 +3192,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "code" => "123456"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3331,7 +3393,8 @@ RSpec.describe Didit::Resources::TravelRule do
       }
     JSON
     result = client.travel_rule.workspace.enable_billing(
-      enabled: true
+      enabled: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3344,6 +3407,7 @@ RSpec.describe Didit::Resources::TravelRule do
     expect_json_body(request, {
       "enabled" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3569,7 +3633,9 @@ RSpec.describe Didit::Resources::TravelRule do
         }
       }
     JSON
-    result = client.travel_rule.workspace.send_domain_code
+    result = client.travel_rule.workspace.send_domain_code(
+      idempotency_key: "idem-key-1"
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -3579,6 +3645,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWorkspaceDomainCodeResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3778,7 +3845,9 @@ RSpec.describe Didit::Resources::TravelRule do
         "licence": "licence-value"
       }
     JSON
-    result = client.travel_rule.workspace.verify_domain_dns
+    result = client.travel_rule.workspace.verify_domain_dns(
+      idempotency_key: "idem-key-1"
+    )
     request = expect_api_request(
       calls,
       method: :post,
@@ -3788,6 +3857,7 @@ RSpec.describe Didit::Resources::TravelRule do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleWorkspace)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -17,7 +17,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.add_images(
       "11111111-2222-3333-4444-555555555555",
       model_type: "kyc",
-      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -40,6 +41,7 @@ RSpec.describe Didit::Resources::Sessions do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsAddImagesResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -89,7 +91,8 @@ RSpec.describe Didit::Resources::Sessions do
         "1001",
         "1002",
         "1003"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -106,6 +109,7 @@ RSpec.describe Didit::Resources::Sessions do
         "1003"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsBatchDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -133,7 +137,8 @@ RSpec.describe Didit::Resources::Sessions do
           review_status: "False Positive"
         }
       ],
-      node_id_query: "feature_aml_1"
+      node_id_query: "feature_aml_1",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -160,6 +165,7 @@ RSpec.describe Didit::Resources::Sessions do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsBulkUpdateAmlHitStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -190,7 +196,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.cancel_feature_override(
       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3"
+      "9b2f4c1e-8d3a-4e5f-a6b7-c8d9e0f1a2b3",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -201,6 +208,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::FeatureStatusOverride)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -250,7 +258,8 @@ RSpec.describe Didit::Resources::Sessions do
           "P",
           "ID"
         ]
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -288,6 +297,7 @@ RSpec.describe Didit::Resources::Sessions do
         ]
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -326,7 +336,8 @@ RSpec.describe Didit::Resources::Sessions do
       ownership_percent: 60,
       nationality: "MEX",
       email: "ana.lopez@example.com",
-      date_of_birth: "1984-06-12"
+      date_of_birth: "1984-06-12",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -349,6 +360,7 @@ RSpec.describe Didit::Resources::Sessions do
       "email" => "ana.lopez@example.com",
       "date_of_birth" => "1984-06-12"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsCreateKybPartyDraftResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -369,7 +381,8 @@ RSpec.describe Didit::Resources::Sessions do
       "11111111-2222-3333-4444-555555555555",
       retain_face_embeddings: true,
       face_retention_days: 365,
-      instruction_id: "post-approval-cleanup-2026-08"
+      instruction_id: "post-approval-cleanup-2026-08",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -384,6 +397,7 @@ RSpec.describe Didit::Resources::Sessions do
       "face_retention_days" => 365,
       "instruction_id" => "post-approval-cleanup-2026-08"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -393,7 +407,8 @@ RSpec.describe Didit::Resources::Sessions do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.sessions.delete_kyb_party_draft(
       "33333333-4444-5555-6666-777777777777",
-      "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d"
+      "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -404,6 +419,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -451,7 +467,8 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.export_files(
-      "11111111-2222-3333-4444-555555555555"
+      "11111111-2222-3333-4444-555555555555",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -462,6 +479,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionFilesExport)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -536,7 +554,8 @@ RSpec.describe Didit::Resources::Sessions do
       share_token: "redacted-share_token",
       trust_review: false,
       workflow_id: "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
-      vendor_data: "user-1"
+      vendor_data: "user-1",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -552,6 +571,7 @@ RSpec.describe Didit::Resources::Sessions do
       "workflow_id" => "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
       "vendor_data" => "user-1"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1231,7 +1251,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.preview_decision_email(
       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      new_status: "Approved"
+      new_status: "Approved",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1244,6 +1265,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "new_status" => "Approved"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsPreviewDecisionEmailResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1281,7 +1303,8 @@ RSpec.describe Didit::Resources::Sessions do
           feature: "POA"
         }
       ],
-      email_language: "en"
+      email_language: "en",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1300,6 +1323,7 @@ RSpec.describe Didit::Resources::Sessions do
       ],
       "email_language" => "en"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsPreviewResubmissionResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1362,7 +1386,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.regenerate_kyb_party(
       "33333333-4444-5555-6666-777777777777",
-      "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41"
+      "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1373,6 +1398,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::KYBKeyPeopleParty)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3201,7 +3227,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.share(
       "11111111-2222-3333-4444-555555555555",
       for_application_id: "a5f3bca2-46e2-411e-90ef-a580900a57ee",
-      ttl_in_seconds: 7200
+      ttl_in_seconds: 7200,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3215,6 +3242,7 @@ RSpec.describe Didit::Resources::Sessions do
       "for_application_id" => "a5f3bca2-46e2-411e-90ef-a580900a57ee",
       "ttl_in_seconds" => 7200
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsShareResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3234,7 +3262,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.simulate(
       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       scenario: "decline_aml_hit",
-      send_webhooks: false
+      send_webhooks: false,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3248,6 +3277,7 @@ RSpec.describe Didit::Resources::Sessions do
       "scenario" => "decline_aml_hit",
       "send_webhooks" => false
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SandboxSimulateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3267,7 +3297,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.submit_kyb_parties(
       "33333333-4444-5555-6666-777777777777",
-      locale: "es"
+      locale: "es",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3280,6 +3311,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "locale" => "es"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsSubmitKybPartiesResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3297,7 +3329,8 @@ RSpec.describe Didit::Resources::Sessions do
       "11111111-2222-3333-4444-555555555555",
       hit_id: "hit_7c1e9a40b2d35f86e0a4c912",
       review_status: "False Positive",
-      node_id_query: "feature_aml_1"
+      node_id_query: "feature_aml_1",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3316,6 +3349,7 @@ RSpec.describe Didit::Resources::Sessions do
       "hit_id" => "hit_7c1e9a40b2d35f86e0a4c912",
       "review_status" => "False Positive"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateAmlHitStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3332,7 +3366,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.update_aml_status(
       "11111111-2222-3333-4444-555555555555",
       status: "Approved",
-      node_id_query: "feature_aml_1"
+      node_id_query: "feature_aml_1",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3350,6 +3385,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "status" => "Approved"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateAmlStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3402,7 +3438,8 @@ RSpec.describe Didit::Resources::Sessions do
         postal_code: "28013",
         country: "ES"
       },
-      node_id: "feature_ocr"
+      node_id: "feature_ocr",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3433,6 +3470,7 @@ RSpec.describe Didit::Resources::Sessions do
         "country" => "ES"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateDataResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3459,7 +3497,8 @@ RSpec.describe Didit::Resources::Sessions do
       extracted_data: {
         invoice_number: "INV-2026-0042"
       },
-      status: "Approved"
+      status: "Approved",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3475,6 +3514,7 @@ RSpec.describe Didit::Resources::Sessions do
       },
       "status" => "Approved"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateDocumentAiDataResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3513,7 +3553,8 @@ RSpec.describe Didit::Resources::Sessions do
       "11111111-2222-3333-4444-555555555555",
       "feature_ocr_1",
       new_status: "Approved",
-      comment: "Document manually verified by compliance."
+      comment: "Document manually verified by compliance.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3527,6 +3568,7 @@ RSpec.describe Didit::Resources::Sessions do
       "new_status" => "Approved",
       "comment" => "Document manually verified by compliance."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateFeatureStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3605,7 +3647,8 @@ RSpec.describe Didit::Resources::Sessions do
       email: "legal@docsprobe.example.com",
       phone: "+1 302 555 0143",
       registered_capital: "USD 50000",
-      nature_of_business: "Software development"
+      nature_of_business: "Software development",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3630,6 +3673,7 @@ RSpec.describe Didit::Resources::Sessions do
       "registered_capital" => "USD 50000",
       "nature_of_business" => "Software development"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateKybCompanyDataResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3652,7 +3696,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.update_kyb_party(
       "33333333-4444-5555-6666-777777777777",
       "0a3f1e2c-7c2f-4a1b-9d55-2f8d2a5d6b41",
-      is_skipped: true
+      is_skipped: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3665,6 +3710,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "is_skipped" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateKybPartyResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3694,7 +3740,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.update_kyb_party_draft(
       "33333333-4444-5555-6666-777777777777",
       "5b0d7a52-9d3e-4f0c-8c6a-0e5f3a1b2c4d",
-      ownership_percent: 55
+      ownership_percent: 55,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3707,6 +3754,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "ownership_percent" => 55
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateKybPartyDraftResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3765,7 +3813,8 @@ RSpec.describe Didit::Resources::Sessions do
         postal_code: "28013",
         country: "ES"
       },
-      node_id: "feature_poa"
+      node_id: "feature_poa",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3800,6 +3849,7 @@ RSpec.describe Didit::Resources::Sessions do
         "country" => "ES"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdatePoaDataResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3814,7 +3864,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.update_status(
       "11111111-2222-3333-4444-555555555555",
       new_status: "Approved",
-      comment: "All checks passed manual review"
+      comment: "All checks passed manual review",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3828,6 +3879,7 @@ RSpec.describe Didit::Resources::Sessions do
       "new_status" => "Approved",
       "comment" => "All checks passed manual review"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUpdateStatusResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3843,7 +3895,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.upload_kyb_documents(
       "33333333-4444-5555-6666-777777777777",
-      documents: Didit::FilePart.new("fake-documents-bytes", filename: "documents.jpg", content_type: "image/jpeg")
+      documents: Didit::FilePart.new("fake-documents-bytes", filename: "documents.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3864,6 +3917,7 @@ RSpec.describe Didit::Resources::Sessions do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsUploadKybDocumentsResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3914,7 +3968,8 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.imports.cancel(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3925,6 +3980,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3943,7 +3999,8 @@ RSpec.describe Didit::Resources::Sessions do
       credentials: {
         app_token: "redacted-app_token",
         secret_key: "redacted-secret_key"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3960,6 +4017,7 @@ RSpec.describe Didit::Resources::Sessions do
         "secret_key" => "redacted-secret_key"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsImportsCheckProviderResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3992,7 +4050,8 @@ RSpec.describe Didit::Resources::Sessions do
       import_type: "user_verification",
       workflow_id: "9f9b1234-aaaa-bbbb-cccc-1234567890ab",
       source_file_url: "https://files.example.com/exports/sessions.ndjson",
-      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4017,6 +4076,7 @@ RSpec.describe Didit::Resources::Sessions do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4285,7 +4345,8 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.imports.pause(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4296,6 +4357,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4346,7 +4408,8 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.imports.resume(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4357,6 +4420,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4488,7 +4552,8 @@ RSpec.describe Didit::Resources::Sessions do
         app_token: "redacted-app_token",
         secret_key: "redacted-secret_key"
       },
-      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4511,6 +4576,7 @@ RSpec.describe Didit::Resources::Sessions do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4561,7 +4627,8 @@ RSpec.describe Didit::Resources::Sessions do
       }
     JSON
     result = client.sessions.imports.start(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4572,6 +4639,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4589,7 +4657,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.reviews.create(
       "8c2f3a14-7e9b-4d23-9e83-3f7d5e8a1c6d",
       new_status: "In Review",
-      comment: "Flagging for manual document re-check."
+      comment: "Flagging for manual document re-check.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4603,6 +4672,7 @@ RSpec.describe Didit::Resources::Sessions do
       "new_status" => "In Review",
       "comment" => "Flagging for manual document re-check."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsReviewsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4873,7 +4943,8 @@ RSpec.describe Didit::Resources::Sessions do
     result = client.sessions.signatures.validate(
       "11111111-2222-3333-4444-555555555555",
       "feature_signature",
-      signature_id: "0e6c2a8e-6c2f-4b8e-9a51-3f2f6a7d9b10"
+      signature_id: "0e6c2a8e-6c2f-4b8e-9a51-3f2f6a7d9b10",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4886,6 +4957,7 @@ RSpec.describe Didit::Resources::Sessions do
     expect_json_body(request, {
       "signature_id" => "0e6c2a8e-6c2f-4b8e-9a51-3f2f6a7d9b10"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionsSignaturesValidateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4951,7 +5023,8 @@ RSpec.describe Didit::Resources::Sessions do
     JSON
     result = client.sessions.webhooks.resend(
       "22222222-3333-4444-5555-666666666666",
-      "66666666-7777-8888-9999-000000000001"
+      "66666666-7777-8888-9999-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4962,6 +5035,7 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionWebhookDelivery)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

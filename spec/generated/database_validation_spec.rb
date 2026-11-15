@@ -60,7 +60,8 @@ RSpec.describe Didit::Resources::DatabaseValidation do
       last_name: "Doe",
       date_of_birth: "1980-01-01",
       vendor_data: "user-1234",
-      selfie: Didit::FilePart.new("fake-selfie-bytes", filename: "selfie.jpg", content_type: "image/jpeg")
+      selfie: Didit::FilePart.new("fake-selfie-bytes", filename: "selfie.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -89,6 +90,7 @@ RSpec.describe Didit::Resources::DatabaseValidation do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::DatabaseValidationValidateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

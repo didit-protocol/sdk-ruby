@@ -15,7 +15,8 @@ RSpec.describe Didit::Resources::Blocklist do
     result = client.blocklist.add(
       session_id: "33333333-4444-5555-6666-777777777777",
       blocklist_face: true,
-      blocklist_document: true
+      blocklist_document: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -30,6 +31,7 @@ RSpec.describe Didit::Resources::Blocklist do
       "blocklist_face" => true,
       "blocklist_document" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BlocklistAddResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -96,7 +98,8 @@ RSpec.describe Didit::Resources::Blocklist do
     result = client.blocklist.remove(
       session_id: "33333333-4444-5555-6666-777777777777",
       unblock_face: true,
-      unblock_document: true
+      unblock_document: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -111,6 +114,7 @@ RSpec.describe Didit::Resources::Blocklist do
       "unblock_face" => true,
       "unblock_document" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BlocklistRemoveResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

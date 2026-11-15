@@ -20,9 +20,16 @@ module Didit
       # @param didit_internal_id_list [Array<String>] Didit's internal UUIDs (`didit_internal_id`) to delete.
       # @param delete_all [Boolean] If `true`, deletes every business in the application. Cannot be combined with the
       #   list selectors.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessesBatchDeleteResponse]
-      def batch_delete(vendor_data_list: OMIT, didit_internal_id_list: OMIT, delete_all: OMIT, request_options: nil)
+      def batch_delete(
+        vendor_data_list: OMIT,
+        didit_internal_id_list: OMIT,
+        delete_all: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/businesses/delete/",
@@ -31,6 +38,7 @@ module Didit
             "didit_internal_id_list" => didit_internal_id_list,
             "delete_all" => delete_all
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BusinessesBatchDeleteResponse,
           request_options: request_options
         )
@@ -40,7 +48,8 @@ module Didit
       #
       # Pre-create a [business](/entities/businesses) *without* a KYB session. All fields are optional, but you should
       # always send `vendor_data` - without it the record cannot be linked to sessions or transactions. When provided,
-      # `vendor_data` must be unique among non-deleted businesses (exact match; conflicts return 400). Not idempotent.
+      # `vendor_data` must be unique among non-deleted businesses (exact match; conflicts return 400). Not idempotent
+      # without an `Idempotency-Key`.
       #
       # +POST /v3/businesses/create/+
       #
@@ -54,6 +63,7 @@ module Didit
       # @param country_code [String, nil] Country of incorporation (ISO 3166-1 alpha-2, e.g. `GB`, `US`).
       # @param status [String] Initial lifecycle status. Defaults to `ACTIVE`.
       # @param metadata [Hash, nil] Arbitrary JSON object you attach to the business. Defaults to `{}`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
       def create(
@@ -64,6 +74,7 @@ module Didit
         country_code: OMIT,
         status: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -78,6 +89,7 @@ module Didit
             "status" => status,
             "metadata" => metadata
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BusinessDetailItem,
           request_options: request_options
         )
@@ -250,6 +262,7 @@ module Didit
       #   sent.
       # @param didit_internal_id_list [Array<String>] Didit internal ids of the businesses to toggle - the
       #   `didit_internal_id` returned by the create, get and list endpoints.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AMLMonitoringToggleResult, Didit::Types::AMLMonitoringJob]
       def set_aml_monitoring(
@@ -257,6 +270,7 @@ module Didit
         estimate_only: OMIT,
         vendor_data_list: OMIT,
         didit_internal_id_list: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -268,6 +282,7 @@ module Didit
             "vendor_data_list" => vendor_data_list,
             "didit_internal_id_list" => didit_internal_id_list
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: { 200 => Types::AMLMonitoringToggleResult, 202 => Types::AMLMonitoringJob },
           request_options: request_options
         )
@@ -291,6 +306,7 @@ module Didit
       # @param filter_date_from [Date, String]
       # @param filter_date_to [Date, String]
       # @param didit_internal_id_list [Array<String>] Entities to toggle. Required unless update_all is true.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::OngoingMonitoringToggleResult, Didit::Types::OngoingMonitoringJob]
       def set_ongoing_monitoring(
@@ -303,6 +319,7 @@ module Didit
         filter_date_from: OMIT,
         filter_date_to: OMIT,
         didit_internal_id_list: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -319,6 +336,7 @@ module Didit
             "filter_date_to" => filter_date_to,
             "didit_internal_id_list" => didit_internal_id_list
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: { 200 => Types::OngoingMonitoringToggleResult, 202 => Types::OngoingMonitoringJob },
           request_options: request_options
@@ -347,6 +365,7 @@ module Didit
       #   legacy toggle_all alias) is true.
       # @param toggle_all [Boolean] Legacy alias of update_all.
       # @param filter_workflow_id [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::OngoingMonitoringToggleResult, Didit::Types::OngoingMonitoringJob]
       def set_session_ongoing_monitoring(
@@ -361,6 +380,7 @@ module Didit
         session_numbers: OMIT,
         toggle_all: OMIT,
         filter_workflow_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -379,6 +399,7 @@ module Didit
             "toggle_all" => toggle_all,
             "filter_workflow_id" => filter_workflow_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: { 200 => Types::OngoingMonitoringToggleResult, 202 => Types::OngoingMonitoringJob },
           request_options: request_options
@@ -407,6 +428,7 @@ module Didit
       #   metadata on update - merge client-side if you only want to add keys.
       # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the company's
       #   **Activity** in the Business Console, only when the status actually changes. Webhooks do not carry it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
       def update(
@@ -418,6 +440,7 @@ module Didit
         status: OMIT,
         metadata: OMIT,
         reason: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -433,6 +456,7 @@ module Didit
             "metadata" => metadata,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BusinessDetailItem,
           request_options: request_options
         )
@@ -451,9 +475,10 @@ module Didit
       # @param status [String] New lifecycle status. `BLOCKED` also adds the `vendor_data` to the system blocklist.
       # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the company's
       #   **Activity** in the Business Console, only when the status actually changes. Webhooks do not carry it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BusinessDetailItem]
-      def update_status(vendor_data, status:, reason: OMIT, request_options: nil)
+      def update_status(vendor_data, status:, reason: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/businesses/{vendor_data}/update-status/",
@@ -462,6 +487,7 @@ module Didit
             "status" => status,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BusinessDetailItem,
           request_options: request_options
         )

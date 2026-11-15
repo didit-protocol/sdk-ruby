@@ -11,76 +11,76 @@ module Didit
       def wallet_addresses: () -> Didit::Resources::TravelRule::WalletAddresses
       def wallet_proofs: () -> Didit::Resources::TravelRule::WalletProofs
       def workspace: () -> Didit::Resources::TravelRule::Workspace
-      def assign_vasp: (String vasp_id, assignee_email: String?, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleAssignVaspResponse
-      def clear_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
-      def create_vasp: (name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
-      def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?wallet_entry_id: String, ?request_action: String, ?request_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
+      def assign_vasp: (String vasp_id, assignee_email: String?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleAssignVaspResponse
+      def clear_vasp_decision: (String vasp_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
+      def create_vasp: (name: String, email: String, ?lei: String, ?jurisdiction: String, ?invite: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
+      def create_widget_session: (?wallet_address: String, ?chain: String, ?holder_name: String, ?vendor_data: String, ?transaction_id: String?, ?satoshi_deposit_address: String, ?callback_url: String, ?expires_in_minutes: Integer, ?wallet_entry_id: String, ?request_action: String, ?request_key: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWidgetSessionResponse
       def list_vasp_decision_history: (String vasp_id, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleDecisionEvent]
       def list_vasp_questionnaires: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaireList
       def list_vasp_reviewers: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleListVaspReviewersResponse
       def list_vasp_shared_documents: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleListVaspSharedDocumentsResponse
       def list_vasps: (?search: String, ?network: String, ?jurisdiction: String, ?reachable: bool, ?kind: String, ?risk: String, ?responsiveness: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::VaspDirectoryEntry]
-      def register_inbound: (chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleInboundResponse
+      def register_inbound: (chain: String, txid: String, wallet_address: String, amount: String, currency: String, ?originator_data: Hash[String | Symbol, untyped], ?beneficiary_data: Hash[String | Symbol, untyped], ?originating_vasp: Didit::Types::travel_rule_register_inbound_params_originating_vasp, ?memo: String, ?utxo: Didit::Types::travel_rule_utxo, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleInboundResponse
       def retrieve_settings: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
       def retrieve_vasp: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::VaspDirectoryEntry
       def retrieve_vasp_decision: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
       def retrieve_vasp_screening: (String vasp_id, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningStatus
-      def review_vasp_screening_hit: (String vasp_id, screening_id: String, hit_id: String, review_status: String, ?reason: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleReviewVaspScreeningHitResponse
-      def screen_vasp: (String vasp_id, ?refresh: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningResult
-      def send_compliance_email_confirmation: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse
-      def send_vasp_questionnaire: (String vasp_id, ?sent_to: String, ?answer_by_days: Integer, ?requested_items: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaire
-      def share_vasp_documents: (String vasp_id, document_ids: Array[String], ?sent_to: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleDocumentShare
-      def update_settings: (?is_enabled: bool, ?legal_name: String, ?lei: String, ?jurisdiction: String, ?vasp_jurisdiction: String, ?name_matching_strictness: String, ?confirmation_timeout_hours: Integer, ?timeout_outcome: String, ?compliance_email: String, ?is_discoverable: bool, ?threshold_amount: String, ?ownership_validation_mode: String, ?simplified_validation_threshold: String, ?data_sharing_fields: Didit::Types::travel_rule_data_sharing_fields, ?matching_rules: Didit::Types::travel_rule_matching_rules, ?inbound_auto_accept: bool, ?allow_self_declaration: bool, ?allow_screenshot_proof: bool, ?auto_wallet_verification: bool, ?vasp_attribution_enabled: bool, ?counterparty_screening_enabled: bool, ?sunrise_policy: String, ?non_responsive_policy: String, ?disabled_networks: Array[String], ?licence: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
-      def update_vasp_decision: (String vasp_id, decision: String, ?reason: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
-      def withdraw_vasp_documents: (String vasp_id, ?request_options: Didit::request_options?) -> nil
-      def withdraw_vasp_questionnaire: (String vasp_id, String questionnaire_id, ?request_options: Didit::request_options?) -> nil
+      def review_vasp_screening_hit: (String vasp_id, screening_id: String, hit_id: String, review_status: String, ?reason: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleReviewVaspScreeningHitResponse
+      def screen_vasp: (String vasp_id, ?refresh: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyScreeningResult
+      def send_compliance_email_confirmation: (?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse
+      def send_vasp_questionnaire: (String vasp_id, ?sent_to: String, ?answer_by_days: Integer, ?requested_items: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyQuestionnaire
+      def share_vasp_documents: (String vasp_id, document_ids: Array[String], ?sent_to: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleDocumentShare
+      def update_settings: (?is_enabled: bool, ?legal_name: String, ?lei: String, ?jurisdiction: String, ?vasp_jurisdiction: String, ?name_matching_strictness: String, ?confirmation_timeout_hours: Integer, ?timeout_outcome: String, ?compliance_email: String, ?is_discoverable: bool, ?threshold_amount: String, ?ownership_validation_mode: String, ?simplified_validation_threshold: String, ?data_sharing_fields: Didit::Types::travel_rule_data_sharing_fields, ?matching_rules: Didit::Types::travel_rule_matching_rules, ?inbound_auto_accept: bool, ?allow_self_declaration: bool, ?allow_screenshot_proof: bool, ?auto_wallet_verification: bool, ?vasp_attribution_enabled: bool, ?counterparty_screening_enabled: bool, ?sunrise_policy: String, ?non_responsive_policy: String, ?disabled_networks: Array[String], ?licence: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleSettingsDetail
+      def update_vasp_decision: (String vasp_id, decision: String, ?reason: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyDecisionResponse
+      def withdraw_vasp_documents: (String vasp_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+      def withdraw_vasp_questionnaire: (String vasp_id, String questionnaire_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
       class CounterpartyContacts < Didit::Resource
-        def create: (counterparty: String, email: String, ?name: String, ?role: String, ?phone: String, ?receives_requests: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyContact
-        def delete: (String contact_uuid, ?request_options: Didit::request_options?) -> nil
+        def create: (counterparty: String, email: String, ?name: String, ?role: String, ?phone: String, ?receives_requests: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyContact
+        def delete: (String contact_uuid, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         def list: (?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleCounterpartyContact]
-        def update: (String contact_uuid, ?name: String, ?email: String, ?role: String, ?phone: String, ?receives_requests: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyContact
+        def update: (String contact_uuid, ?name: String, ?email: String, ?role: String, ?phone: String, ?receives_requests: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleCounterpartyContact
       end
       class Documents < Didit::Resource
-        def create: (kind: String, file: Didit::upload, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleDocument
-        def delete: (String document_id, ?request_options: Didit::request_options?) -> nil
+        def create: (kind: String, file: Didit::upload, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleDocument
+        def delete: (String document_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         def download: (String document_id, ?request_options: Didit::request_options?) -> String
                     | (String document_id, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleDocument]
       end
       class Networks < Didit::Resource
-        def request_access: (String network, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkParticipant
+        def request_access: (String network, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkParticipant
         def retrieve: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworksOverview
         def retrieve_questionnaire: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
-        def submit_questionnaire: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
-        def update_questionnaire: (?legal_name: String, ?registration_number: String, ?incorporation_country: String, ?registered_address: String, ?website: String, ?lei: String, ?licences: Array[Didit::Types::travel_rule_networks_update_questionnaire_params_licences], ?operating_jurisdictions: Array[String], ?compliance_officer_name: String, ?compliance_officer_email: String, ?aml_ctf_policy_attested: bool, ?sanctions_screening_attested: bool, ?data_protection_attested: bool, ?data_protection_contact_email: String, ?expected_monthly_transfers: Integer, ?expected_monthly_volume_usd: String, ?assets: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
+        def submit_questionnaire: (?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
+        def update_questionnaire: (?legal_name: String, ?registration_number: String, ?incorporation_country: String, ?registered_address: String, ?website: String, ?lei: String, ?licences: Array[Didit::Types::travel_rule_networks_update_questionnaire_params_licences], ?operating_jurisdictions: Array[String], ?compliance_officer_name: String, ?compliance_officer_email: String, ?aml_ctf_policy_attested: bool, ?sanctions_screening_attested: bool, ?data_protection_attested: bool, ?data_protection_contact_email: String, ?expected_monthly_transfers: Integer, ?expected_monthly_volume_usd: String, ?assets: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleNetworkQuestionnaire
       end
       class Transfers < Didit::Resource
         def list: (?search: String, ?direction: String, ?status: String, ?rail: String, ?kind: String, ?currency: String, ?start_date: Date | String, ?end_date: Date | String, ?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleTransferRow]
       end
       class UnmatchedDeposits < Didit::Resource
         def list: (?direction: String, ?status: String, ?rail: String, ?kind: String, ?currency: String, ?start_date: Date | String, ?end_date: Date | String, ?counterparty: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleTransferRow]
-        def match: (String transaction_uuid, transaction_id: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleManualMatchResponse
+        def match: (String transaction_uuid, transaction_id: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleManualMatchResponse
       end
       class WalletAddresses < Didit::Resource
-        def bulk_import: (body: (Didit::Types::travel_rule_wallet_addresses_bulk_import_params_variant1 | Array[Didit::Types::wallet_address_import_row]), ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressImportReport
-        def create: (address: String, ?chain: String, ?holder_vendor_data: String, ?holder_name: String, ?entity_type: String, ?self_declared: bool, ?travel_address: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntry
-        def delete: (String entry_uuid, ?request_options: Didit::request_options?) -> nil
+        def bulk_import: (body: (Didit::Types::travel_rule_wallet_addresses_bulk_import_params_variant1 | Array[Didit::Types::wallet_address_import_row]), ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressImportReport
+        def create: (address: String, ?chain: String, ?holder_vendor_data: String, ?holder_name: String, ?entity_type: String, ?self_declared: bool, ?travel_address: String, ?memo: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntry
+        def delete: (String entry_uuid, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::WalletAddressEntry]
         def list_transfers: (String entry_uuid, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletTransfer]
         def lookup: (address: String, chain: String, ?memo: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletLookup
-        def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdateResponse
+        def update: (String entry_uuid, ?holder_name: String, ?holder_vendor_data: String, ?entity_type: String, ?travel_address: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::WalletAddressEntryUpdateResponse
       end
       class WalletProofs < Didit::Resource
-        def decide: (String proof_uuid, decision: String, ?note: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletProofReview
+        def decide: (String proof_uuid, decision: String, ?note: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWalletProofReview
         def list: (?status: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::TravelRuleWalletProofReview]
       end
       class Workspace < Didit::Resource
-        def claim: (vasp_id: String, ?licence: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
-        def confirm_domain: (code: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
-        def enable_billing: (?enabled: bool, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
+        def claim: (vasp_id: String, ?licence: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
+        def confirm_domain: (code: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
+        def enable_billing: (?enabled: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
         def get: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
-        def send_domain_code: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspaceDomainCodeResponse
-        def verify_domain_dns: (?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
+        def send_domain_code: (?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspaceDomainCodeResponse
+        def verify_domain_dns: (?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::TravelRuleWorkspace
       end
     end
   end

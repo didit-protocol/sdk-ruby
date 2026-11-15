@@ -61,7 +61,8 @@ RSpec.describe Didit::Resources::Phone do
       }
     JSON
     result = client.phone.assess_risk(
-      phone_number: "+14155552671"
+      phone_number: "+14155552671",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -74,6 +75,7 @@ RSpec.describe Didit::Resources::Phone do
     expect_json_body(request, {
       "phone_number" => "+14155552671"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneRiskResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -151,7 +153,8 @@ RSpec.describe Didit::Resources::Phone do
     JSON
     result = client.phone.check_code(
       phone_number: "+14155552671",
-      code: "123456"
+      code: "123456",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -165,6 +168,7 @@ RSpec.describe Didit::Resources::Phone do
       "phone_number" => "+14155552671",
       "code" => "123456"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneVerificationCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -186,7 +190,8 @@ RSpec.describe Didit::Resources::Phone do
         preferred_channel: "whatsapp",
         locale: "en-US"
       },
-      vendor_data: "user-1234"
+      vendor_data: "user-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -204,6 +209,7 @@ RSpec.describe Didit::Resources::Phone do
       },
       "vendor_data" => "user-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneVerificationSendResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -97,7 +97,8 @@ RSpec.describe Didit::Resources::DocumentAi do
     JSON
     result = client.document_ai.analyze(
       fields: "[{\"key\": \"employer_name\", \"name\": \"Employer name\", \"instruction\": \"The employer or company issuing the payslip.\", \"type\": \"text\", \"required\": true, \"is_full_name\": false}, {\"key\": \"employee_name\", \"na",
-      document: Didit::FilePart.new("fake-document-bytes", filename: "document.jpg", content_type: "image/jpeg")
+      document: Didit::FilePart.new("fake-document-bytes", filename: "document.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -120,6 +121,7 @@ RSpec.describe Didit::Resources::DocumentAi do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::DocumentAiAnalyzeResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -115,7 +115,8 @@ RSpec.describe Didit::Resources::Questionnaires do
             }
           ]
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -181,6 +182,7 @@ RSpec.describe Didit::Resources::Questionnaires do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::QuestionnaireDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -189,7 +191,8 @@ RSpec.describe Didit::Resources::Questionnaires do
   it "questionnaires.delete sends DELETE /v3/questionnaires/{questionnaire_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.questionnaires.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -200,6 +203,7 @@ RSpec.describe Didit::Resources::Questionnaires do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -367,7 +371,8 @@ RSpec.describe Didit::Resources::Questionnaires do
     JSON
     result = client.questionnaires.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      title: "Updated Customer Onboarding"
+      title: "Updated Customer Onboarding",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -380,6 +385,7 @@ RSpec.describe Didit::Resources::Questionnaires do
     expect_json_body(request, {
       "title" => "Updated Customer Onboarding"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::QuestionnaireDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

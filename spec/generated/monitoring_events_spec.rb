@@ -47,7 +47,8 @@ RSpec.describe Didit::Resources::MonitoringEvents do
       },
       custom_values: {
         vip_tier: "gold"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -84,6 +85,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
         "vip_tier" => "gold"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::MonitoringEventIngestResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -158,7 +160,8 @@ RSpec.describe Didit::Resources::MonitoringEvents do
             status: "completed"
           }
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -199,6 +202,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::MonitoringEventsCreateBatchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -227,7 +231,8 @@ RSpec.describe Didit::Resources::MonitoringEvents do
       ],
       ttl_seconds: 900,
       max_uses: 1000,
-      bind_to_origin: "https://app.example.com"
+      bind_to_origin: "https://app.example.com",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -248,6 +253,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
       "max_uses" => 1000,
       "bind_to_origin" => "https://app.example.com"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::MonitoringEventsCreateSdkTokenResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -256,7 +262,8 @@ RSpec.describe Didit::Resources::MonitoringEvents do
   it "monitoring_events.delete sends DELETE /v3/events/{event_uuid}/delete/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.monitoring_events.delete(
-      "11111111-2222-3333-4444-555555555555"
+      "11111111-2222-3333-4444-555555555555",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -267,6 +274,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 

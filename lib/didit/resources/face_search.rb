@@ -70,6 +70,7 @@ module Didit
       #   session and echoed back. It does not exclude same-user faces from the search results.
       # @param metadata [Hash] Optional JSON object stored with the session (when `save_api_request=true`) and echoed
       #   back. In multipart requests, send it as a JSON-encoded string field - it is parsed into an object.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FaceSearchSearchResponse]
       def search(
@@ -79,6 +80,7 @@ module Didit
         save_api_request: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -94,6 +96,7 @@ module Didit
           },
           encoding: :multipart,
           file_fields: %w[user_image],
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::FaceSearchSearchResponse,
           request_options: request_options
         )

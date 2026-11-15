@@ -35,7 +35,8 @@ RSpec.describe Didit::Resources::AddressValidation do
       city: "Mountain View",
       region: "CA",
       postal_code: "94043",
-      country: "US"
+      country: "US",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -52,6 +53,7 @@ RSpec.describe Didit::Resources::AddressValidation do
       "postal_code" => "94043",
       "country" => "US"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::AddressValidationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

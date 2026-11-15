@@ -25,9 +25,10 @@ module Didit
       #   (withdrawal) counterparty. Accepts `inbound`, `outbound`, `deposit`, or `withdrawal`. Defaults to a neutral
       #   pre-transfer screen when omitted. This is passed to the provider as context only; it does not change the
       #   returned `risk_score`, `severity`, or the `source_of_funds`/`destination_of_funds` breakdowns, which a...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WalletScreeningResult]
-      def screen(wallet_address:, blockchain: OMIT, direction: OMIT, request_options: nil)
+      def screen(wallet_address:, blockchain: OMIT, direction: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/wallet-screening/",
@@ -36,6 +37,7 @@ module Didit
             "blockchain" => blockchain,
             "direction" => direction
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::WalletScreeningResult,
           request_options: request_options
         )

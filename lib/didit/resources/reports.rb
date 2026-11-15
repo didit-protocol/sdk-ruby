@@ -84,6 +84,7 @@ module Didit
       #   failed-item retry.
       # @param date_to [Date, String] Optional replacement period end, on or after date_from.
       # @param notify_on_ready [Boolean] Email the requester when ready, if a requester email is available.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AsyncReport]
       def retry(
@@ -92,6 +93,7 @@ module Didit
         date_from: OMIT,
         date_to: OMIT,
         notify_on_ready: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -104,6 +106,7 @@ module Didit
             "date_to" => date_to,
             "notify_on_ready" => notify_on_ready
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::AsyncReport,
           request_options: request_options

@@ -39,6 +39,7 @@ module Didit
       #   the response.
       # @param metadata [Hash, nil] Your non-sensitive JSON metadata. Stored on the API session and echoed in the
       #   response.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::IPRiskResponse]
       def assess_risk(
@@ -47,6 +48,7 @@ module Didit
         user_agent: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -59,6 +61,7 @@ module Didit
             "vendor_data" => vendor_data,
             "metadata" => metadata
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::IPRiskResponse,
           request_options: request_options
         )

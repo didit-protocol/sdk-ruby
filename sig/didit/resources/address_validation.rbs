@@ -3,7 +3,7 @@
 module Didit
   module Resources
     class AddressValidation < Didit::Resource
-      def validate: (country: String, ?address: String, ?address_line_1: String, ?address_line_2: String, ?city: String, ?region: String, ?postal_code: String, ?request_options: Didit::request_options?) -> Didit::Types::AddressValidationResponse
+      def validate: (country: String, ?address: String, ?address_line_1: String, ?address_line_2: String, ?city: String, ?region: String, ?postal_code: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::AddressValidationResponse
     end
   end
 end

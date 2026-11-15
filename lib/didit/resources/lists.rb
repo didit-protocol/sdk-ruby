@@ -30,9 +30,10 @@ module Didit
       #   (ISO 3166-1 alpha-3), `user` or `business` (your `vendor_data`), or `key` (any string). It decides how entry
       #   values are validated and matched. Cannot be changed later.
       # @param description [String] Optional free-text description.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ComplianceList]
-      def create(name:, list_type:, entry_type:, description: OMIT, request_options: nil)
+      def create(name:, list_type:, entry_type:, description: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/lists/",
@@ -42,6 +43,7 @@ module Didit
             "entry_type" => entry_type,
             "description" => description
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::ComplianceList,
           request_options: request_options
         )
@@ -59,13 +61,15 @@ module Didit
       # +DELETE /v3/lists/{list_uuid}/+
       #
       # @param list_uuid [String] UUID of the list, as returned by List lists or Create a list.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(list_uuid, request_options: nil)
+      def delete(list_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/lists/{list_uuid}/",
           path_params: { "list_uuid" => list_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -140,9 +144,10 @@ module Didit
       # @param list_uuid [String] UUID of the list, as returned by List lists or Create a list.
       # @param name [String] New name. Must differ from the name of every other list of the application.
       # @param description [String] New description. Send an empty string to clear it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ListsUpdateResponse]
-      def update(list_uuid, name: OMIT, description: OMIT, request_options: nil)
+      def update(list_uuid, name: OMIT, description: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/lists/{list_uuid}/",
@@ -151,6 +156,7 @@ module Didit
             "name" => name,
             "description" => description
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::ListsUpdateResponse,
           request_options: request_options
         )
@@ -201,6 +207,7 @@ module Didit
         #   `reference_id` so the console links back to the source. `reference_image_url` and `front_image_url` are set
         #   by Didit only and are dropped if you send them. For an entry read from a session, Didit's keys are merged
         #   with yours.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::ComplianceListEntry]
         def create(
@@ -213,6 +220,7 @@ module Didit
           display_label: OMIT,
           comment: OMIT,
           metadata: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -229,6 +237,7 @@ module Didit
               "comment" => comment,
               "metadata" => metadata
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::ComplianceListEntry,
             request_options: request_options
           )
@@ -248,13 +257,15 @@ module Didit
         #
         # @param list_uuid [String] UUID of the list that holds the entry.
         # @param entry_uuid [String] UUID of the entry, as returned by List list entries or Create a list entry.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(list_uuid, entry_uuid, request_options: nil)
+        def delete(list_uuid, entry_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/lists/{list_uuid}/entries/{entry_uuid}/",
             path_params: { "list_uuid" => list_uuid, "entry_uuid" => entry_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -311,9 +322,10 @@ module Didit
         # @param image [String] Base64-encoded JPEG or PNG, at most 2 MB once decoded, showing a clearly visible face.
         #   Send the bare base64 string, without a `data:image/...;base64,` prefix.
         # @param comment [String] Optional free-text note, such as the reason for listing.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::ComplianceListEntry]
-        def upload_face(list_uuid, image:, comment: OMIT, request_options: nil)
+        def upload_face(list_uuid, image:, comment: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/lists/{list_uuid}/entries/face-upload/",
@@ -322,6 +334,7 @@ module Didit
               "image" => image,
               "comment" => comment
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::ComplianceListEntry,
             request_options: request_options
           )

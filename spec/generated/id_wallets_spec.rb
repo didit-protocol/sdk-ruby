@@ -39,7 +39,8 @@ RSpec.describe Didit::Resources::IdWallets do
       }
     JSON
     result = client.id_wallets.cancel_verification(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -50,6 +51,7 @@ RSpec.describe Didit::Resources::IdWallets do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -129,7 +131,8 @@ RSpec.describe Didit::Resources::IdWallets do
       }
     JSON
     result = client.id_wallets.poll_verification(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -140,6 +143,7 @@ RSpec.describe Didit::Resources::IdWallets do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1978,7 +1982,8 @@ RSpec.describe Didit::Resources::IdWallets do
         data: {
           response: "<compact JWE returned by the wallet>"
         }
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1996,6 +2001,7 @@ RSpec.describe Didit::Resources::IdWallets do
         }
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::DigitalIdWalletApiWalletVerificationResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

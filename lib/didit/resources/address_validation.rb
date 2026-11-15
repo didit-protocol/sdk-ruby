@@ -41,6 +41,7 @@ module Didit
       # @param city [String] City or locality.
       # @param region [String] State, province or region.
       # @param postal_code [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AddressValidationResponse]
       def validate(
@@ -51,6 +52,7 @@ module Didit
         city: OMIT,
         region: OMIT,
         postal_code: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -65,6 +67,7 @@ module Didit
             "region" => region,
             "postal_code" => postal_code
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::AddressValidationResponse,
           request_options: request_options
         )

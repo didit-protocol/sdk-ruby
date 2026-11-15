@@ -70,6 +70,7 @@ module Didit
       #   aspect ratio), shown on a dark background. PNG, JPG or WebP, at least 512 px on the long side, at most **1
       #   MB**. Returned as `logo_rectangular_dark`.
       # @param image_favicon [Pathname, IO, String, Didit::FilePart] Favicon image. Max **500 KB**.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BrandingCustomization]
       def update(
@@ -104,6 +105,7 @@ module Didit
         image_rectangular: OMIT,
         image_rectangular_dark: OMIT,
         image_favicon: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -144,6 +146,7 @@ module Didit
           },
           encoding: :auto,
           file_fields: %w[image_favicon image_rectangular image_rectangular_dark image_square],
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BrandingCustomization,
           request_options: request_options
         )

@@ -212,6 +212,7 @@ module Didit
       #   images are compressed to ~1.5 MB before upload to the registry) for biometric validation services, e.g.
       #   Argentina RENAPER (`arg_renaper`) and Panama SIB (`pan_cedula_sib`, `pan_cedula_sib_plus`). Required whenever
       #   a selected service lists it as a required field. Only available via `multipart/form-data`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DatabaseValidationValidateResponse]
       def validate(
@@ -298,6 +299,7 @@ module Didit
         vendor_data: OMIT,
         metadata: OMIT,
         selfie: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -390,6 +392,7 @@ module Didit
           },
           encoding: :auto,
           file_fields: %w[selfie],
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::DatabaseValidationValidateResponse,
           request_options: request_options
         )

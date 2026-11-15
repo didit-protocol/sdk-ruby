@@ -166,7 +166,8 @@ RSpec.describe Didit::Resources::Reports do
       }
     JSON
     result = client.reports.retry(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -177,6 +178,7 @@ RSpec.describe Didit::Resources::Reports do
       accept: "application/json"
     )
     expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::AsyncReport)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

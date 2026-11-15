@@ -42,7 +42,8 @@ RSpec.describe Didit::Resources::Investigator do
     JSON
     result = client.investigator.accept_run(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      send_email: false
+      send_email: false,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -55,6 +56,7 @@ RSpec.describe Didit::Resources::Investigator do
     expect_json_body(request, {
       "send_email" => false
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::InvestigatorDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -80,7 +82,8 @@ RSpec.describe Didit::Resources::Investigator do
     result = client.investigator.batch_accept_runs(
       run_ids: [
         "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -95,6 +98,7 @@ RSpec.describe Didit::Resources::Investigator do
         "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::InvestigatorBatchAcceptResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -255,7 +259,8 @@ RSpec.describe Didit::Resources::Investigator do
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       action: "decline",
       category: "evidence_misread",
-      reason: "The proof of address is older than three months."
+      reason: "The proof of address is older than three months.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -270,6 +275,7 @@ RSpec.describe Didit::Resources::Investigator do
       "category" => "evidence_misread",
       "reason" => "The proof of address is older than three months."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::InvestigatorDecision)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -553,7 +559,8 @@ RSpec.describe Didit::Resources::Investigator do
     JSON
     result = client.investigator.update_settings(
       stage: "shadow",
-      monthly_spend_limit: "500.00"
+      monthly_spend_limit: "500.00",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -567,6 +574,7 @@ RSpec.describe Didit::Resources::Investigator do
       "stage" => "shadow",
       "monthly_spend_limit" => "500.00"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::InvestigatorSettings)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

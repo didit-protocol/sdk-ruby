@@ -9,8 +9,8 @@ module Didit
       #
       # Create a simple workflow. Send `features` in execution order (ordering rules apply); defaults to `published`
       # v1. The body accepts ONLY the fields listed in `SimpleWorkflowRequest` - any other key (including
-      # `workflow_type`) is rejected with a 400. Not idempotent - each call creates a new workflow. Maximum 50
-      # workflows per application.
+      # `workflow_type`) is rejected with a 400. Without an `Idempotency-Key` each call creates a new workflow.
+      # Maximum 50 workflows per application.
       #
       # +POST /v3/workflows/+
       #
@@ -40,6 +40,7 @@ module Didit
       #   feature-level config overrides it.
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
       #   maximum 4 weeks (2419200).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WorkflowDetail]
       def create(
@@ -55,6 +56,7 @@ module Didit
         face_liveness_max_attempts: OMIT,
         face_match_max_attempts: OMIT,
         session_expiration_time: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -74,6 +76,7 @@ module Didit
             "face_match_max_attempts" => face_match_max_attempts,
             "session_expiration_time" => session_expiration_time
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::WorkflowDetail,
           request_options: request_options
         )
@@ -87,13 +90,15 @@ module Didit
       # +DELETE /v3/workflows/{settings_uuid}/+
       #
       # @param settings_uuid [String] Per-version UUID of the workflow to delete.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(settings_uuid, request_options: nil)
+      def delete(settings_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/workflows/{settings_uuid}/",
           path_params: { "settings_uuid" => settings_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -181,6 +186,7 @@ module Didit
       #   into generated face-match workflow nodes unless the feature-level config overrides it.
       # @param session_expiration_time [Integer] Seconds before an unfinished session expires. Minimum 1 hour (3600),
       #   maximum 4 weeks (2419200).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::WorkflowDetail]
       def update(
@@ -197,6 +203,7 @@ module Didit
         face_liveness_max_attempts: OMIT,
         face_match_max_attempts: OMIT,
         session_expiration_time: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -217,6 +224,7 @@ module Didit
             "face_match_max_attempts" => face_match_max_attempts,
             "session_expiration_time" => session_expiration_time
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::WorkflowDetail,
           request_options: request_options
         )

@@ -58,7 +58,8 @@ RSpec.describe Didit::Resources::Email do
       }
     JSON
     result = client.email.assess_risk(
-      email: "alice@example.com"
+      email: "alice@example.com",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -71,6 +72,7 @@ RSpec.describe Didit::Resources::Email do
     expect_json_body(request, {
       "email" => "alice@example.com"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::EmailRiskResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -127,7 +129,8 @@ RSpec.describe Didit::Resources::Email do
     JSON
     result = client.email.check_code(
       email: "alice@example.com",
-      code: "123456"
+      code: "123456",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -141,6 +144,7 @@ RSpec.describe Didit::Resources::Email do
       "email" => "alice@example.com",
       "code" => "123456"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::EmailVerificationCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -161,7 +165,8 @@ RSpec.describe Didit::Resources::Email do
       options: {
         locale: "en"
       },
-      vendor_data: "user-1234"
+      vendor_data: "user-1234",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -178,6 +183,7 @@ RSpec.describe Didit::Resources::Email do
       },
       "vendor_data" => "user-1234"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::EmailVerificationSendResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

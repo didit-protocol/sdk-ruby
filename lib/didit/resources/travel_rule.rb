@@ -56,9 +56,10 @@ module Didit
       # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
       #   member.
       # @param assignee_email [String, nil] Email of an application member. null or an empty string unassigns.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleAssignVaspResponse]
-      def assign_vasp(vasp_id, assignee_email:, request_options: nil)
+      def assign_vasp(vasp_id, assignee_email:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/travel-rule/vasps/{vasp_id}/assign/",
@@ -66,6 +67,7 @@ module Didit
           body: {
             "assignee_email" => assignee_email
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleAssignVaspResponse,
           request_options: request_options
         )
@@ -80,13 +82,15 @@ module Didit
       #
       # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
       #   member.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleCounterpartyDecisionResponse]
-      def clear_vasp_decision(vasp_id, request_options: nil)
+      def clear_vasp_decision(vasp_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/travel-rule/vasps/{vasp_id}/decision/",
           path_params: { "vasp_id" => vasp_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleCounterpartyDecisionResponse,
           request_options: request_options
         )
@@ -106,9 +110,18 @@ module Didit
       # @param lei [String] Optional LEI, normalized to uppercase.
       # @param jurisdiction [String] Optional ISO 3166 alpha-2 or alpha-3 country code, normalized to uppercase.
       # @param invite [Boolean] Send an invitation to the supplied email.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::VaspDirectoryEntry]
-      def create_vasp(name:, email:, lei: OMIT, jurisdiction: OMIT, invite: OMIT, request_options: nil)
+      def create_vasp(
+        name:,
+        email:,
+        lei: OMIT,
+        jurisdiction: OMIT,
+        invite: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/travel-rule/vasps/",
@@ -119,6 +132,7 @@ module Didit
             "jurisdiction" => jurisdiction,
             "invite" => invite
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::VaspDirectoryEntry,
           request_options: request_options
         )
@@ -158,6 +172,7 @@ module Didit
       #   another; it needs `request_key`.
       # @param request_key [String] Only with `request_action: new`. An idempotency key: repeating the call with the
       #   same key returns the same link while it is active, and `410` once it has been revoked or has expired.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleWidgetSessionResponse]
       def create_widget_session(
@@ -172,6 +187,7 @@ module Didit
         wallet_entry_id: OMIT,
         request_action: OMIT,
         request_key: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -190,6 +206,7 @@ module Didit
             "request_action" => request_action,
             "request_key" => request_key
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleWidgetSessionResponse,
           request_options: request_options
         )
@@ -369,6 +386,7 @@ module Didit
       #   bytes, a 64-bit id or a 32-byte hash in hex. EOS: up to 256 bytes. ATOM: up to 256 characters....
       # @param utxo [Hash] Optional, UTXO chains only. The deposit transaction's inputs and outputs: the sender's
       #   wallet is the declared `originator_data.wallet_address`, else the largest input.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleInboundResponse]
       def register_inbound(
@@ -382,6 +400,7 @@ module Didit
         originating_vasp: OMIT,
         memo: OMIT,
         utxo: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -399,6 +418,7 @@ module Didit
             "memo" => memo,
             "utxo" => utxo
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleInboundResponse,
           request_options: request_options
         )
@@ -501,9 +521,18 @@ module Didit
       # @param hit_id [String] The hit's `id`.
       # @param review_status [String]
       # @param reason [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleReviewVaspScreeningHitResponse]
-      def review_vasp_screening_hit(vasp_id, screening_id:, hit_id:, review_status:, reason: OMIT, request_options: nil)
+      def review_vasp_screening_hit(
+        vasp_id,
+        screening_id:,
+        hit_id:,
+        review_status:,
+        reason: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/travel-rule/vasps/{vasp_id}/screening/",
@@ -514,6 +543,7 @@ module Didit
             "review_status" => review_status,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleReviewVaspScreeningHitResponse,
           request_options: request_options
         )
@@ -532,9 +562,10 @@ module Didit
       # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
       #   member.
       # @param refresh [Boolean] true screens again (and bills again) even when a fresh screening exists.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleCounterpartyScreeningResult]
-      def screen_vasp(vasp_id, refresh: OMIT, request_options: nil)
+      def screen_vasp(vasp_id, refresh: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/travel-rule/vasps/{vasp_id}/screening/",
@@ -542,6 +573,7 @@ module Didit
           body: {
             "refresh" => refresh
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleCounterpartyScreeningResult,
           request_options: request_options
         )
@@ -556,12 +588,14 @@ module Didit
       #
       # +POST /v3/travel-rule/settings/compliance-email/confirmation/+
       #
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleSendComplianceEmailConfirmationResponse]
-      def send_compliance_email_confirmation(request_options: nil)
+      def send_compliance_email_confirmation(idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/travel-rule/settings/compliance-email/confirmation/",
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleSendComplianceEmailConfirmationResponse,
           request_options: request_options
         )
@@ -586,6 +620,7 @@ module Didit
       #   window.
       # @param requested_items [Array<String>] Optional. What the counterparty must provide: the questionnaire answers
       #   and/or PDF documents.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleCounterpartyQuestionnaire]
       def send_vasp_questionnaire(
@@ -593,6 +628,7 @@ module Didit
         sent_to: OMIT,
         answer_by_days: OMIT,
         requested_items: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -604,6 +640,7 @@ module Didit
             "answer_by_days" => answer_by_days,
             "requested_items" => requested_items
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleCounterpartyQuestionnaire,
           request_options: request_options
         )
@@ -623,9 +660,10 @@ module Didit
       # @param sent_to [String] Optional. A compliance address on record for the counterparty, chosen the way
       #   `sent_to` of the questionnaire request is. Default: the address a Travel Rule email to the counterparty goes
       #   to.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleDocumentShare]
-      def share_vasp_documents(vasp_id, document_ids:, sent_to: OMIT, request_options: nil)
+      def share_vasp_documents(vasp_id, document_ids:, sent_to: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/travel-rule/vasps/{vasp_id}/shared-documents/",
@@ -634,6 +672,7 @@ module Didit
             "document_ids" => document_ids,
             "sent_to" => sent_to
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleDocumentShare,
           request_options: request_options
         )
@@ -691,6 +730,7 @@ module Didit
       # @param disabled_networks [Array<String>] Networks opted out of platform membership. Does not disable your
       #   connected own memberships or provision unavailable networks.
       # @param licence [String] VASP licence or registration reference. Empty when not supplied.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleSettingsDetail]
       def update_settings(
@@ -719,6 +759,7 @@ module Didit
         non_responsive_policy: OMIT,
         disabled_networks: OMIT,
         licence: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -751,6 +792,7 @@ module Didit
             "disabled_networks" => disabled_networks,
             "licence" => licence
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleSettingsDetail,
           request_options: request_options
         )
@@ -769,9 +811,10 @@ module Didit
       #   member.
       # @param decision [String]
       # @param reason [String] Optional. Replaces the previous reason; omit it to clear it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TravelRuleCounterpartyDecisionResponse]
-      def update_vasp_decision(vasp_id, decision:, reason: OMIT, request_options: nil)
+      def update_vasp_decision(vasp_id, decision:, reason: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :put,
           "/v3/travel-rule/vasps/{vasp_id}/decision/",
@@ -780,6 +823,7 @@ module Didit
             "decision" => decision,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TravelRuleCounterpartyDecisionResponse,
           request_options: request_options
         )
@@ -794,13 +838,15 @@ module Didit
       #
       # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
       #   member.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def withdraw_vasp_documents(vasp_id, request_options: nil)
+      def withdraw_vasp_documents(vasp_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/travel-rule/vasps/{vasp_id}/shared-documents/",
           path_params: { "vasp_id" => vasp_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -815,13 +861,15 @@ module Didit
       # @param vasp_id [String] The id of a row of GET /v3/travel-rule/vasps/: a directory entry or a Didit network
       #   member.
       # @param questionnaire_id [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def withdraw_vasp_questionnaire(vasp_id, questionnaire_id, request_options: nil)
+      def withdraw_vasp_questionnaire(vasp_id, questionnaire_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/travel-rule/vasps/{vasp_id}/questionnaires/{questionnaire_id}/",
           path_params: { "vasp_id" => vasp_id, "questionnaire_id" => questionnaire_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -842,6 +890,7 @@ module Didit
         # @param role [String] Optional. The contact's role.
         # @param phone [String] Optional. The contact's phone number.
         # @param receives_requests [Boolean] Whether due-diligence requests and reminders go to this contact.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleCounterpartyContact]
         def create(
@@ -851,6 +900,7 @@ module Didit
           role: OMIT,
           phone: OMIT,
           receives_requests: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -864,6 +914,7 @@ module Didit
               "phone" => phone,
               "receives_requests" => receives_requests
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleCounterpartyContact,
             request_options: request_options
           )
@@ -877,13 +928,15 @@ module Didit
         # +DELETE /v3/travel-rule/counterparty-contacts/{contact_uuid}/+
         #
         # @param contact_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(contact_uuid, request_options: nil)
+        def delete(contact_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/travel-rule/counterparty-contacts/{contact_uuid}/",
             path_params: { "contact_uuid" => contact_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -929,6 +982,7 @@ module Didit
         # @param role [String]
         # @param phone [String]
         # @param receives_requests [Boolean]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleCounterpartyContact]
         def update(
@@ -938,6 +992,7 @@ module Didit
           role: OMIT,
           phone: OMIT,
           receives_requests: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -951,6 +1006,7 @@ module Didit
               "phone" => phone,
               "receives_requests" => receives_requests
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleCounterpartyContact,
             request_options: request_options
           )
@@ -971,9 +1027,10 @@ module Didit
         #   of incorporation. `licence`: licence or registration. `aml_policy`: AML and CFT policy. `ownership`:
         #   ownership structure.
         # @param file [Pathname, IO, String, Didit::FilePart] A PDF of at most 5 MiB.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleDocument]
-        def create(kind:, file:, request_options: nil)
+        def create(kind:, file:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/documents/",
@@ -983,6 +1040,7 @@ module Didit
             },
             encoding: :multipart,
             file_fields: %w[file],
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleDocument,
             request_options: request_options
           )
@@ -996,13 +1054,15 @@ module Didit
         # +DELETE /v3/travel-rule/documents/{document_id}/+
         #
         # @param document_id [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(document_id, request_options: nil)
+        def delete(document_id, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/travel-rule/documents/{document_id}/",
             path_params: { "document_id" => document_id },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -1068,13 +1128,15 @@ module Didit
         # +POST /v3/travel-rule/networks/{network}/request/+
         #
         # @param network [String] The network to join through Didit's membership.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleNetworkParticipant]
-        def request_access(network, request_options: nil)
+        def request_access(network, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/networks/{network}/request/",
             path_params: { "network" => network },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleNetworkParticipant,
             request_options: request_options
           )
@@ -1126,12 +1188,14 @@ module Didit
         #
         # +POST /v3/travel-rule/networks/questionnaire/submit/+
         #
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleNetworkQuestionnaire]
-        def submit_questionnaire(request_options: nil)
+        def submit_questionnaire(idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/networks/questionnaire/submit/",
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleNetworkQuestionnaire,
             request_options: request_options
           )
@@ -1162,6 +1226,7 @@ module Didit
         # @param expected_monthly_volume_usd [String] Expected monthly volume in USD, up to 2 decimal places. Returned
         #   as a string.
         # @param assets [Array<String>] Asset tickers, stored upper-case, sorted and de-duplicated.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleNetworkQuestionnaire]
         def update_questionnaire(
@@ -1182,6 +1247,7 @@ module Didit
           expected_monthly_transfers: OMIT,
           expected_monthly_volume_usd: OMIT,
           assets: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1206,6 +1272,7 @@ module Didit
               "expected_monthly_volume_usd" => expected_monthly_volume_usd,
               "assets" => assets
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleNetworkQuestionnaire,
             request_options: request_options
           )
@@ -1352,9 +1419,10 @@ module Didit
         # @param transaction_uuid [String] The `transaction_id` of the unmatched deposit.
         # @param transaction_id [String] The `transaction_id` of the received Travel Rule message (a row with `kind:
         #   message`).
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleManualMatchResponse]
-        def match(transaction_uuid, transaction_id:, request_options: nil)
+        def match(transaction_uuid, transaction_id:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/unmatched/{transaction_uuid}/match/",
@@ -1362,6 +1430,7 @@ module Didit
             body: {
               "transaction_id" => transaction_id
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleManualMatchResponse,
             request_options: request_options
           )
@@ -1382,15 +1451,17 @@ module Didit
         # +POST /v3/travel-rule/wallet-addresses/import/+
         #
         # @param body [Hash, Array<Hash>]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressImportReport]
-        def bulk_import(body:, request_options: nil)
+        def bulk_import(body:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/wallet-addresses/import/",
             body: body,
             encoding: :auto,
             file_fields: %w[file],
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WalletAddressImportReport,
             request_options: request_options
           )
@@ -1422,6 +1493,7 @@ module Didit
         #   tag, a whole number from 0 to 4294967295 (a JSON number is accepted). XLM: a text memo of up to 28 bytes, a
         #   64-bit id or a 32-byte hash in hex. EOS: up to 256 bytes. ATOM: up to 256 characters. HBAR: up to 100 bytes.
         #   Bitcoin, EVM, Solana, Tron, Litecoin, Bitcoin Cash, Dogecoin and Lightning wallets take no memo:...
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntry]
         def create(
@@ -1433,6 +1505,7 @@ module Didit
           self_declared: OMIT,
           travel_address: OMIT,
           memo: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1448,6 +1521,7 @@ module Didit
               "travel_address" => travel_address,
               "memo" => memo
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WalletAddressEntry,
             request_options: request_options
           )
@@ -1462,13 +1536,15 @@ module Didit
         # +DELETE /v3/travel-rule/wallet-addresses/{entry_uuid}/+
         #
         # @param entry_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(entry_uuid, request_options: nil)
+        def delete(entry_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/travel-rule/wallet-addresses/{entry_uuid}/",
             path_params: { "entry_uuid" => entry_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -1565,6 +1641,7 @@ module Didit
         # @param holder_vendor_data [String]
         # @param entity_type [String]
         # @param travel_address [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::WalletAddressEntryUpdateResponse]
         def update(
@@ -1573,6 +1650,7 @@ module Didit
           holder_vendor_data: OMIT,
           entity_type: OMIT,
           travel_address: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1585,6 +1663,7 @@ module Didit
               "entity_type" => entity_type,
               "travel_address" => travel_address
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::WalletAddressEntryUpdateResponse,
             request_options: request_options
           )
@@ -1606,9 +1685,10 @@ module Didit
         # @param proof_uuid [String] proof_id from the review queue.
         # @param decision [String]
         # @param note [String] Optional. Kept with the proof and returned as review_note.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWalletProofReview]
-        def decide(proof_uuid, decision:, note: OMIT, request_options: nil)
+        def decide(proof_uuid, decision:, note: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/wallet-proofs/{proof_uuid}/decision/",
@@ -1617,6 +1697,7 @@ module Didit
               "decision" => decision,
               "note" => note
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWalletProofReview,
             request_options: request_options
           )
@@ -1668,9 +1749,10 @@ module Didit
         # @param licence [String] Optional licence or registration reference, up to 255 characters; empty clears it.
         #   Omission preserves it for the same directory entry and clears it when claiming a different entry. Applied to
         #   the VASP profile only when the claim is granted.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspace]
-        def claim(vasp_id:, licence: OMIT, request_options: nil)
+        def claim(vasp_id:, licence: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/claim/",
@@ -1678,6 +1760,7 @@ module Didit
               "vasp_id" => vasp_id,
               "licence" => licence
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWorkspace,
             request_options: request_options
           )
@@ -1690,15 +1773,17 @@ module Didit
         # +POST /v3/travel-rule/workspace/domain/confirm/+
         #
         # @param code [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspace]
-        def confirm_domain(code:, request_options: nil)
+        def confirm_domain(code:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/domain/confirm/",
             body: {
               "code" => code
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWorkspace,
             request_options: request_options
           )
@@ -1713,15 +1798,17 @@ module Didit
         #
         # @param enabled [Boolean] Only `true` is accepted: outbound billing cannot be turned back off through the
         #   API.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspace]
-        def enable_billing(enabled: OMIT, request_options: nil)
+        def enable_billing(enabled: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/billing/",
             body: {
               "enabled" => enabled
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWorkspace,
             request_options: request_options
           )
@@ -1753,12 +1840,14 @@ module Didit
         #
         # +POST /v3/travel-rule/workspace/domain/code/+
         #
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspaceDomainCodeResponse]
-        def send_domain_code(request_options: nil)
+        def send_domain_code(idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/domain/code/",
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWorkspaceDomainCodeResponse,
             request_options: request_options
           )
@@ -1771,12 +1860,14 @@ module Didit
         #
         # +POST /v3/travel-rule/workspace/domain/dns/+
         #
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleWorkspace]
-        def verify_domain_dns(request_options: nil)
+        def verify_domain_dns(idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/travel-rule/workspace/domain/dns/",
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleWorkspace,
             request_options: request_options
           )
