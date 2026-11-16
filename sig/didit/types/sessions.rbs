@@ -313,6 +313,27 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionsGeneratePdfParamsLanguage
+      EN: String
+      ES: String
+      AR: String
+      CA: String
+      DE: String
+      FR: String
+      HI: String
+      ID: String
+      IT: String
+      JA: String
+      KO: String
+      PT_BR: String
+      PT_PT: String
+      RU: String
+      SW: String
+      ZH: String
+
+      VALUES: Array[String]
+    end
+
     module SessionsImportsCheckProviderParamsProvider
       SUMSUB: String
       JUMIO: String

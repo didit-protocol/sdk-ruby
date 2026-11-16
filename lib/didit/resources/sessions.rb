@@ -875,8 +875,10 @@ module Didit
       #   followed by tags and review activity.
       #
       # **Branding.** If your application has white-label customization, the report is rendered with your logo and
-      # links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English - there
-      # is no language parameter.
+      # links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English by
+      # default; pass the `language` query parameter to print every word the report writes itself (section titles,
+      # labels, statuses, check names, notes, footers, dates and country names) in one of 16 languages, while values
+      # the end user submitted or a source returned print exactly as captured.
       #
       # **No caching.** Every call re-renders the PDF from the current session data, so a report generated after a
       # manual review reflects the reviewer’s decision. Two calls for the same session can produce byte-different
@@ -901,13 +903,20 @@ module Didit
       #   `Content-Disposition` filename on the response to tell which report type you received. **Must be a
       #   well-formed, lowercase UUID.** The route only matches valid UUIDs, so a malformed value is rejected by the
       #   URL...
+      # @param language [String] Language of the report. Every word the report writes itself prints in this language:
+      #   section titles, labels, table headers, statuses, check names and descriptions, notes, footers, page numbering,
+      #   the cover, the PDF outline, dates (month names and order per language) and country names. What the end user
+      #   submitted or a source returned (names, addresses, document fields, OCR values, watchlist profil...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
-      def generate_pdf(session_id, request_options: nil, &block)
+      def generate_pdf(session_id, language: OMIT, request_options: nil, &block)
         @client.request(
           :get,
           "/v3/session/{sessionId}/generate-pdf/",
           path_params: { "sessionId" => session_id },
+          query: {
+            "language" => language
+          },
           response: :binary,
           accept: "application/pdf, application/json",
           request_options: request_options, &block

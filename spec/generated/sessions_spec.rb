@@ -488,13 +488,19 @@ RSpec.describe Didit::Resources::Sessions do
   it "sessions.generate_pdf sends GET /v3/session/{sessionId}/generate-pdf/" do
     calls = stub_api(status: 200, body: "fake-binary-body", content_type: "application/pdf")
     result = client.sessions.generate_pdf(
-      "11111111-2222-3333-4444-555555555555"
+      "11111111-2222-3333-4444-555555555555",
+      language: "es"
     )
     request = expect_api_request(
       calls,
       method: :get,
       url: "https://verification.didit.me/v3/session/11111111-2222-3333-4444-555555555555/generate-pdf/",
-      query: [],
+      query: [
+        [
+          "language",
+          "es"
+        ]
+      ],
       auth: :api_key,
       accept: "application/pdf, application/json"
     )

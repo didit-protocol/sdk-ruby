@@ -361,6 +361,28 @@ module Didit
       VALUES = [RETAINED_WITH_USER, DELETED, NONE, INELIGIBLE_NO_VENDOR_USER].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module SessionsGeneratePdfParamsLanguage
+      EN = "en"
+      ES = "es"
+      AR = "ar"
+      CA = "ca"
+      DE = "de"
+      FR = "fr"
+      HI = "hi"
+      ID = "id"
+      IT = "it"
+      JA = "ja"
+      KO = "ko"
+      PT_BR = "pt-BR"
+      PT_PT = "pt-PT"
+      RU = "ru"
+      SW = "sw"
+      ZH = "zh"
+
+      VALUES = [EN, ES, AR, CA, DE, FR, HI, ID, IT, JA, KO, PT_BR, PT_PT, RU, SW, ZH].freeze
+    end
+
     # Migration source, from `GET /v3/session/imports/providers/`. Required when `source` is `provider`.
     module SessionsImportsCheckProviderParamsProvider
       SUMSUB = "sumsub"

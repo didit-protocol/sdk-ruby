@@ -1298,6 +1298,7 @@ module Didit
     autoload :SessionsDeleteParamsDeletionInstruction, "didit/types/sessions"
     autoload :SessionsDeleteResponse, "didit/types/sessions"
     autoload :SessionsDeleteResponseFaceRetentionOutcome, "didit/types/sessions"
+    autoload :SessionsGeneratePdfParamsLanguage, "didit/types/sessions"
     autoload :SessionsImportsCheckProviderParamsProvider, "didit/types/sessions"
     autoload :SessionsImportsCheckProviderResponse, "didit/types/sessions"
     autoload :SessionsImportsCreateParamsImportType, "didit/types/sessions"

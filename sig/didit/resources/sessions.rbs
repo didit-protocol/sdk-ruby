@@ -18,8 +18,8 @@ module Didit
       def export_aml_screening_history: (String session_id, ?node_id: String, ?month: String, ?request_options: Didit::request_options?) -> String
                                       | (String session_id, ?node_id: String, ?month: String, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
       def export_files: (String session_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionFilesExport
-      def generate_pdf: (String session_id, ?request_options: Didit::request_options?) -> String
-                      | (String session_id, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
+      def generate_pdf: (String session_id, ?language: String, ?request_options: Didit::request_options?) -> String
+                      | (String session_id, ?language: String, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
       def get_files_export: (String session_id, String export_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionFilesExport
       def import_shared: (share_token: String, trust_review: bool, workflow_id: String, ?vendor_data: String?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionDecision
       def list: (?session_kind: String, ?limit: Integer, ?offset: Integer, ?status: String, ?vendor_data: String, ?search: String, ?workflow_id: String, ?date_from: Date | String, ?date_to: Date | String, ?tags: String, ?decided_from: Time | String, ?decided_to: Time | String, ?country: String, ?document_type: String, ?document_name: String, ?region: String, ?didit_internal_id: String, ?session_type: String, ?api_service: String, ?screened_full_name: String, ?warning: String, ?status_initialized_as_in_review: bool, ?is_kyc_to_be_reviewed: bool, ?euuid: String, ?organization_name: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::SessionsListResponseResults]
