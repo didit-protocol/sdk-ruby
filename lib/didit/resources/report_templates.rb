@@ -21,9 +21,10 @@ module Didit
       #   submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to
       #   include) plus reporting_person, location, reason, and action defaults. Per-filing header fields (action,
       #   submission_date, transactions, jurisdiction) are enforced when the report is validated or finalized, not...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ReportTemplateDetail]
-      def create(name:, jurisdiction:, report_type:, field_config: OMIT, request_options: nil)
+      def create(name:, jurisdiction:, report_type:, field_config: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/report-templates/",
@@ -33,6 +34,7 @@ module Didit
             "report_type" => report_type,
             "field_config" => field_config
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::ReportTemplateDetail,
           request_options: request_options
@@ -46,13 +48,15 @@ module Didit
       # +DELETE /v3/organization/{organization_id}/application/{application_id}/report-templates/{template_uuid}/+
       #
       # @param template_uuid [String] Report template UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(template_uuid, request_options: nil)
+      def delete(template_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/organization/{organization_id}/application/{application_id}/report-templates/{template_uuid}/",
           path_params: { "template_uuid" => template_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           request_options: request_options
         )
@@ -116,6 +120,7 @@ module Didit
       #   submission_code, and currency_code_local (3-letter). Optional: enabled_fields (which optional report blocks to
       #   include) plus reporting_person, location, reason, and action defaults. Per-filing header fields (action,
       #   submission_date, transactions, jurisdiction) are enforced when the report is validated or finalized, not...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::ReportTemplateDetail]
       def update(
@@ -124,6 +129,7 @@ module Didit
         jurisdiction: OMIT,
         report_type: OMIT,
         field_config: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -136,6 +142,7 @@ module Didit
             "report_type" => report_type,
             "field_config" => field_config
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::ReportTemplateDetail,
           request_options: request_options

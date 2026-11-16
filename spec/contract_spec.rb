@@ -23,13 +23,26 @@ module Contract
   def spec_operations
     overlay = read("overlay.json").fetch("operations")
     { "verification.json" => "", "account.json" => "account " }.flat_map do |file, prefix|
-      read(file).fetch("paths").flat_map do |path, item|
+      document = read(file)
+      document.fetch("paths").flat_map do |path, item|
         item.slice(*HTTP_METHODS).map do |http_method, op|
           naming = op["x-didit-sdk"] || overlay.fetch("#{prefix}#{http_method.upcase} #{path}")
-          entry(naming, path, (item["parameters"] || []) + (op["parameters"] || []))
+          declared = (item["parameters"] || []) + (op["parameters"] || [])
+          entry(naming, path, declared.map { |parameter| resolve_parameter(document, parameter) })
         end
       end
     end
+  end
+
+  # A parameter, following a "#/components/parameters/<name>" reference (upstream shares Idempotency-Key that way).
+  def resolve_parameter(document, parameter)
+    ref = parameter["$ref"]
+    return parameter unless ref
+
+    prefix = "#/components/parameters/"
+    raise "unsupported parameter reference #{ref}" unless ref.start_with?(prefix)
+
+    document.dig("components", "parameters", ref.delete_prefix(prefix)) || raise("unresolved parameter #{ref}")
   end
 
   def deprecated_operations

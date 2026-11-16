@@ -21,9 +21,10 @@ module Didit
       #
       # @param network_uuid [String] Network UUID.
       # @param tag_uuid [String] UUID of one of your application's tags.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::NetworkDetailResponse]
-      def add_tag(network_uuid, tag_uuid:, request_options: nil)
+      def add_tag(network_uuid, tag_uuid:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/add/",
@@ -31,6 +32,7 @@ module Didit
           body: {
             "tag_uuid" => tag_uuid
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::NetworkDetailResponse,
           request_options: request_options
@@ -207,9 +209,10 @@ module Didit
       #
       # @param network_uuid [String] Network UUID.
       # @param tag_uuid [String] UUID of one of your application's tags.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::NetworkDetailResponse]
-      def remove_tag(network_uuid, tag_uuid:, request_options: nil)
+      def remove_tag(network_uuid, tag_uuid:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/tags/remove/",
@@ -217,6 +220,7 @@ module Didit
           body: {
             "tag_uuid" => tag_uuid
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::NetworkDetailResponse,
           request_options: request_options
@@ -357,9 +361,10 @@ module Didit
         # @param network_uuid [String] Network UUID.
         # @param comment [String]
         # @param client_reference [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::NetworkNote]
-        def create(network_uuid, comment:, client_reference:, request_options: nil)
+        def create(network_uuid, comment:, client_reference:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/notes/",
@@ -368,6 +373,7 @@ module Didit
               "comment" => comment,
               "client_reference" => client_reference
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::NetworkNote,
             request_options: request_options
@@ -383,13 +389,15 @@ module Didit
         #
         # @param network_uuid [String] Network UUID.
         # @param note_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(network_uuid, note_uuid, request_options: nil)
+        def delete(network_uuid, note_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/networks/{network_uuid}/notes/{note_uuid}/",
             path_params: { "network_uuid" => network_uuid, "note_uuid" => note_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )

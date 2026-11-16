@@ -127,7 +127,8 @@ RSpec.describe Didit::Resources::ProofOfAddress do
       poa_languages_allowed: "en,es",
       save_api_request: true,
       vendor_data: "user-123",
-      document: Didit::FilePart.new("fake-document-bytes", filename: "document.jpg", content_type: "image/jpeg")
+      document: Didit::FilePart.new("fake-document-bytes", filename: "document.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -156,6 +157,7 @@ RSpec.describe Didit::Resources::ProofOfAddress do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ProofOfAddressVerifyResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

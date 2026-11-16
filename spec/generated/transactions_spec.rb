@@ -14,7 +14,8 @@ RSpec.describe Didit::Resources::Transactions do
           "abcdef12-3456-7890-abcd-ef1234567890",
           "12345678-90ab-cdef-1234-567890abcdef"
         ]
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -30,6 +31,7 @@ RSpec.describe Didit::Resources::Transactions do
         "12345678-90ab-cdef-1234-567890abcdef"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -129,7 +131,8 @@ RSpec.describe Didit::Resources::Transactions do
         entity_type: "individual",
         vendor_data: "user-12345",
         full_name: "Maria Garcia"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -154,6 +157,7 @@ RSpec.describe Didit::Resources::Transactions do
         "full_name" => "Maria Garcia"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -169,7 +173,8 @@ RSpec.describe Didit::Resources::Transactions do
     result = client.transactions.create_sdk_token(
       vendor_data: "user-042",
       ttl_seconds: 900,
-      max_uses: 3
+      max_uses: 3,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -184,6 +189,7 @@ RSpec.describe Didit::Resources::Transactions do
       "ttl_seconds" => 900,
       "max_uses" => 3
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionsCreateSdkTokenResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -570,7 +576,8 @@ RSpec.describe Didit::Resources::Transactions do
       note: "Customer confirmed the withdrawal by phone.",
       mentioned_emails: [
         "analyst@example.com"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -586,6 +593,7 @@ RSpec.describe Didit::Resources::Transactions do
         "analyst@example.com"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -717,7 +725,8 @@ RSpec.describe Didit::Resources::Transactions do
           "INBOUND"
         ]
       },
-      period_days: 90
+      period_days: 90,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -778,6 +787,7 @@ RSpec.describe Didit::Resources::Transactions do
       },
       "period_days" => 90
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionRuleBacktestResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -906,7 +916,8 @@ RSpec.describe Didit::Resources::Transactions do
           type: "add_score",
           value: 35
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -976,6 +987,7 @@ RSpec.describe Didit::Resources::Transactions do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionRuleDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -984,7 +996,8 @@ RSpec.describe Didit::Resources::Transactions do
   it "transactions.rules.delete sends DELETE /v3/transactions/rules/{rule_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.transactions.rules.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -995,6 +1008,7 @@ RSpec.describe Didit::Resources::Transactions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1012,7 +1026,8 @@ RSpec.describe Didit::Resources::Transactions do
       library_keys: [
         "structuring-inbound",
         "structuring-outbound"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1028,6 +1043,7 @@ RSpec.describe Didit::Resources::Transactions do
         "structuring-outbound"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionRuleInstallResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1292,7 +1308,8 @@ RSpec.describe Didit::Resources::Transactions do
       }
     JSON
     result = client.transactions.rules.uninstall_library(
-      bundle: "responsible_gaming"
+      bundle: "responsible_gaming",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1305,6 +1322,7 @@ RSpec.describe Didit::Resources::Transactions do
     expect_json_body(request, {
       "bundle" => "responsible_gaming"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionRuleInstallResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1377,7 +1395,8 @@ RSpec.describe Didit::Resources::Transactions do
     JSON
     result = client.transactions.rules.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      mode: "ACTIVE"
+      mode: "ACTIVE",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1390,6 +1409,7 @@ RSpec.describe Didit::Resources::Transactions do
     expect_json_body(request, {
       "mode" => "ACTIVE"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TransactionRuleDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1624,7 +1644,8 @@ RSpec.describe Didit::Resources::Transactions do
     JSON
     result = client.transactions.travel_rule.confirm_ownership(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      confirmed: true
+      confirmed: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1637,6 +1658,7 @@ RSpec.describe Didit::Resources::Transactions do
     expect_json_body(request, {
       "confirmed" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleTransferDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1679,7 +1701,8 @@ RSpec.describe Didit::Resources::Transactions do
       body: "Please confirm the date of birth of the beneficiary.",
       requested_documents: [
         "Proof of address"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1696,6 +1719,7 @@ RSpec.describe Didit::Resources::Transactions do
         "Proof of address"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleMessage)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1712,7 +1736,8 @@ RSpec.describe Didit::Resources::Transactions do
     JSON
     result = client.transactions.travel_rule.create_user_link(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      channel: "link"
+      channel: "link",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1725,6 +1750,7 @@ RSpec.describe Didit::Resources::Transactions do
     expect_json_body(request, {
       "channel" => "link"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleUserLinkResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2045,7 +2071,8 @@ RSpec.describe Didit::Resources::Transactions do
       beneficiary_wallet_address: "0xYourSandboxWallet",
       scenario: "accept",
       amount: "1",
-      reference: "demo-001"
+      reference: "demo-001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2061,6 +2088,7 @@ RSpec.describe Didit::Resources::Transactions do
       "amount" => "1",
       "reference" => "demo-001"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleTestVaspInboundResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2295,7 +2323,8 @@ RSpec.describe Didit::Resources::Transactions do
     JSON
     result = client.transactions.travel_rule.update_transfer(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      payment_txn_id: "0xchainhash"
+      payment_txn_id: "0xchainhash",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2308,6 +2337,7 @@ RSpec.describe Didit::Resources::Transactions do
     expect_json_body(request, {
       "payment_txn_id" => "0xchainhash"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::TravelRuleTransferDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

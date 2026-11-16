@@ -16,13 +16,15 @@ module Didit
       # +POST /v3/id-verification/wallets/verifications/{request_id}/cancel/+
       #
       # @param request_id [String] The request_id the start endpoint returned.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def cancel_verification(request_id, request_options: nil)
+      def cancel_verification(request_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/id-verification/wallets/verifications/{request_id}/cancel/",
           path_params: { "request_id" => request_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::DigitalIdWalletApiWalletVerificationResponse,
           request_options: request_options
         )
@@ -55,13 +57,15 @@ module Didit
       # +POST /v3/id-verification/wallets/verifications/{request_id}/poll/+
       #
       # @param request_id [String] The request_id the start endpoint returned.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def poll_verification(request_id, request_options: nil)
+      def poll_verification(request_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/id-verification/wallets/verifications/{request_id}/poll/",
           path_params: { "request_id" => request_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::DigitalIdWalletApiWalletVerificationResponse,
           request_options: request_options
         )
@@ -1533,9 +1537,10 @@ module Didit
       # @param response [Hash] Exactly what the wallet returned: {protocol, data} of the DigitalCredential from
       #   navigator.credentials.get, or the parsed credentialJson of Android's DigitalCredential. Encrypted to Didit; do
       #   not alter it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::DigitalIdWalletApiWalletVerificationResponse]
-      def submit_verification_response(request_id, response:, request_options: nil)
+      def submit_verification_response(request_id, response:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/id-verification/wallets/verifications/{request_id}/response/",
@@ -1543,6 +1548,7 @@ module Didit
           body: {
             "response" => response
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::DigitalIdWalletApiWalletVerificationResponse,
           request_options: request_options
         )

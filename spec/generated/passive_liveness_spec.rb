@@ -48,7 +48,8 @@ RSpec.describe Didit::Resources::PassiveLiveness do
       metadata: {
         flow: "withdrawal"
       },
-      user_image: Didit::FilePart.new("fake-user_image-bytes", filename: "user_image.jpg", content_type: "image/jpeg")
+      user_image: Didit::FilePart.new("fake-user_image-bytes", filename: "user_image.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -75,6 +76,7 @@ RSpec.describe Didit::Resources::PassiveLiveness do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PassiveLivenessCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

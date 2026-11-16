@@ -29,6 +29,7 @@ module Didit
       # @param checks [Hash]
       # @param vendor_data [String]
       # @param metadata [Object]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FraudCheckResponse]
       def create(
@@ -40,6 +41,7 @@ module Didit
         checks: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -55,6 +57,7 @@ module Didit
             "vendor_data" => vendor_data,
             "metadata" => metadata
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::FraudCheckResponse,
           request_options: request_options
         )
@@ -76,6 +79,7 @@ module Didit
       # @param checks [Hash]
       # @param vendor_data [String]
       # @param metadata [Object]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FraudCheckPlan]
       def plan(
@@ -87,6 +91,7 @@ module Didit
         checks: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -102,6 +107,7 @@ module Didit
             "vendor_data" => vendor_data,
             "metadata" => metadata
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::FraudCheckPlan,
           request_options: request_options
         )

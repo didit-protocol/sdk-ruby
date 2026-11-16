@@ -27,7 +27,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
         rentity_id: "FIU-US-00123",
         submission_code: "E",
         currency_code_local: "USD"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -47,6 +48,7 @@ RSpec.describe Didit::Resources::ReportTemplates do
         "currency_code_local" => "USD"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ReportTemplateDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -55,7 +57,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
   it "report_templates.delete sends DELETE /v3/organization/{organization_id}/application/{application_id}/report-templates/{template_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.report_templates.delete(
-      "7ec00000-0000-4000-8000-000000000006"
+      "7ec00000-0000-4000-8000-000000000006",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -66,6 +69,7 @@ RSpec.describe Didit::Resources::ReportTemplates do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -152,7 +156,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
       "7ec00000-0000-4000-8000-000000000006",
       field_config: {
         rentity_id: "FIU-US-00124"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -167,6 +172,7 @@ RSpec.describe Didit::Resources::ReportTemplates do
         "rentity_id" => "FIU-US-00124"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ReportTemplateDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -102,7 +102,8 @@ RSpec.describe Didit::Resources::FraudChecks do
           "networks_cross_org",
           "email_risk"
         ]
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -134,6 +135,7 @@ RSpec.describe Didit::Resources::FraudChecks do
         ]
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::FraudCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -180,7 +182,8 @@ RSpec.describe Didit::Resources::FraudChecks do
           "networks_cross_org",
           "email_risk"
         ]
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -212,6 +215,7 @@ RSpec.describe Didit::Resources::FraudChecks do
         ]
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::FraudCheckPlan)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

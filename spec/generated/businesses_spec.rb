@@ -16,7 +16,8 @@ RSpec.describe Didit::Resources::Businesses do
       vendor_data_list: [
         "company-123",
         "company-456"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -32,6 +33,7 @@ RSpec.describe Didit::Resources::Businesses do
         "company-456"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BusinessesBatchDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -66,7 +68,8 @@ RSpec.describe Didit::Resources::Businesses do
     result = client.businesses.create(
       vendor_data: "company-456",
       legal_name: "New Corp Ltd",
-      country_code: "US"
+      country_code: "US",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -81,6 +84,7 @@ RSpec.describe Didit::Resources::Businesses do
       "legal_name" => "New Corp Ltd",
       "country_code" => "US"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BusinessDetailItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -399,7 +403,8 @@ RSpec.describe Didit::Resources::Businesses do
       vendor_data_list: [
         "company-123",
         "company-456"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -417,6 +422,7 @@ RSpec.describe Didit::Resources::Businesses do
         "company-456"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::AMLMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -440,7 +446,8 @@ RSpec.describe Didit::Resources::Businesses do
       is_enabled: true,
       didit_internal_id_list: [
         "b0000000-0000-4000-8000-0000000000b1"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -456,6 +463,7 @@ RSpec.describe Didit::Resources::Businesses do
         "b0000000-0000-4000-8000-0000000000b1"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -480,7 +488,8 @@ RSpec.describe Didit::Resources::Businesses do
       session_numbers: [
         "1001",
         "1002"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -497,6 +506,7 @@ RSpec.describe Didit::Resources::Businesses do
         "1002"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -546,7 +556,8 @@ RSpec.describe Didit::Resources::Businesses do
     JSON
     result = client.businesses.update(
       "company-123",
-      display_name: "Acme Corp"
+      display_name: "Acme Corp",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -559,6 +570,7 @@ RSpec.describe Didit::Resources::Businesses do
     expect_json_body(request, {
       "display_name" => "Acme Corp"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BusinessDetailItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -607,7 +619,8 @@ RSpec.describe Didit::Resources::Businesses do
     JSON
     result = client.businesses.update_status(
       "company-123",
-      status: "FLAGGED"
+      status: "FLAGGED",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -620,6 +633,7 @@ RSpec.describe Didit::Resources::Businesses do
     expect_json_body(request, {
       "status" => "FLAGGED"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BusinessDetailItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -61,6 +61,7 @@ module Didit
       # @param status [String, nil]
       # @param tags [Array<String>]
       # @param note [String, nil]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseActionCaseEntityActionResult]
       def apply_entity_action(
@@ -71,6 +72,7 @@ module Didit
         status: OMIT,
         tags: OMIT,
         note: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -85,6 +87,7 @@ module Didit
             "tags" => tags,
             "note" => note
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseActionCaseEntityActionResult,
           request_options: request_options
@@ -100,13 +103,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/approve/+
       #
       # @param case_uuid [String] Case UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def approve_resolution(case_uuid, request_options: nil)
+      def approve_resolution(case_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/approve/",
           path_params: { "case_uuid" => case_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -124,9 +129,17 @@ module Didit
       # @param assignee_user_id [String, nil] null to unassign.
       # @param assignee_email [String, nil]
       # @param assignee_name [String, nil]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def assign(case_uuid, assignee_user_id:, assignee_email: OMIT, assignee_name: OMIT, request_options: nil)
+      def assign(
+        case_uuid,
+        assignee_user_id:,
+        assignee_email: OMIT,
+        assignee_name: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/assign/",
@@ -136,6 +149,7 @@ module Didit
             "assignee_email" => assignee_email,
             "assignee_name" => assignee_name
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -153,9 +167,17 @@ module Didit
       # @param assignee_user_id [String, nil]
       # @param assignee_email [String, nil]
       # @param assignee_name [String, nil]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseBulkUpdateResult]
-      def bulk_assign(case_uuids:, assignee_user_id:, assignee_email: OMIT, assignee_name: OMIT, request_options: nil)
+      def bulk_assign(
+        case_uuids:,
+        assignee_user_id:,
+        assignee_email: OMIT,
+        assignee_name: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/bulk/assign/",
@@ -165,6 +187,7 @@ module Didit
             "assignee_email" => assignee_email,
             "assignee_name" => assignee_name
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseBulkUpdateResult,
           request_options: request_options
@@ -183,9 +206,17 @@ module Didit
       # @param status [String]
       # @param resolution [String] Required when status is RESOLVED.
       # @param note [String, nil]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseBulkUpdateResult]
-      def bulk_update_status(case_uuids:, status:, resolution: OMIT, note: OMIT, request_options: nil)
+      def bulk_update_status(
+        case_uuids:,
+        status:,
+        resolution: OMIT,
+        note: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/bulk/status/",
@@ -195,6 +226,7 @@ module Didit
             "resolution" => resolution,
             "note" => note
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseBulkUpdateResult,
           request_options: request_options
@@ -227,6 +259,7 @@ module Didit
       #   protection. Omitting it preserves existing API behavior.
       # @param separate_incident_reason [String]
       # @param source_context [Hash]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
       def create(
@@ -241,6 +274,7 @@ module Didit
         review_duplicates: OMIT,
         separate_incident_reason: OMIT,
         source_context: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -259,6 +293,7 @@ module Didit
             "separate_incident_reason" => separate_incident_reason,
             "source_context" => source_context
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -277,13 +312,15 @@ module Didit
       # +DELETE /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/+
       #
       # @param case_uuid [String] Case UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(case_uuid, request_options: nil)
+      def delete(case_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/",
           path_params: { "case_uuid" => case_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           request_options: request_options
         )
@@ -297,13 +334,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/escalate/+
       #
       # @param case_uuid [String] Case UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def escalate(case_uuid, request_options: nil)
+      def escalate(case_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/escalate/",
           path_params: { "case_uuid" => case_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -318,9 +357,10 @@ module Didit
       # @param subject [Hash]
       # @param links [Array<Hash>]
       # @param offset [Integer]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDuplicateCaseDuplicatePage]
-      def find_duplicates(subject: OMIT, links: OMIT, offset: OMIT, request_options: nil)
+      def find_duplicates(subject: OMIT, links: OMIT, offset: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/duplicates/",
@@ -329,6 +369,7 @@ module Didit
             "links" => links,
             "offset" => offset
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDuplicateCaseDuplicatePage,
           request_options: request_options
@@ -523,9 +564,10 @@ module Didit
       #
       # @param case_uuid [String] Case UUID.
       # @param notes [String, nil]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def reject_resolution(case_uuid, notes: OMIT, request_options: nil)
+      def reject_resolution(case_uuid, notes: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reject-approval/",
@@ -533,6 +575,7 @@ module Didit
           body: {
             "notes" => notes
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -547,13 +590,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reopen/+
       #
       # @param case_uuid [String] Case UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def reopen(case_uuid, request_options: nil)
+      def reopen(case_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/reopen/",
           path_params: { "case_uuid" => case_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -568,13 +613,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/request-info/+
       #
       # @param case_uuid [String] Case UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def request_info(case_uuid, request_options: nil)
+      def request_info(case_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/request-info/",
           path_params: { "case_uuid" => case_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -604,9 +651,10 @@ module Didit
       #   resolution (the same id as `assigned_to.uuid` on a case, or `members[].user_id` on a review team). The member
       #   must have case access to this application and cannot be the officer who submits the resolution. Omit it or
       #   send null to leave the resolution to the checker queue.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def resolve(case_uuid, resolution:, note: OMIT, checker: OMIT, request_options: nil)
+      def resolve(case_uuid, resolution:, note: OMIT, checker: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/resolve/",
@@ -616,6 +664,7 @@ module Didit
             "note" => note,
             "checker" => checker
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -696,13 +745,15 @@ module Didit
       #
       # @param case_uuid [String]
       # @param receipt_uuid [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseActionCaseActionReceipt]
-      def retry_action_receipt(case_uuid, receipt_uuid, request_options: nil)
+      def retry_action_receipt(case_uuid, receipt_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/action-receipts/{receipt_uuid}/retry/",
           path_params: { "case_uuid" => case_uuid, "receipt_uuid" => receipt_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseActionCaseActionReceipt,
           request_options: request_options
@@ -718,9 +769,10 @@ module Didit
       #
       # @param case_uuid [String] Case UUID.
       # @param target_blueprint [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def transfer(case_uuid, target_blueprint:, request_options: nil)
+      def transfer(case_uuid, target_blueprint:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/transfer/",
@@ -728,6 +780,7 @@ module Didit
           body: {
             "target_blueprint" => target_blueprint
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -752,9 +805,19 @@ module Didit
       # @param tags [Array<String>] The complete tag list. It replaces the current tags.
       # @param team [String, nil] UUID of the review team that owns the case. It must be an active team of this
       #   application. Send null to clear the team.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::CaseDetail]
-      def update(case_uuid, title: OMIT, priority: OMIT, due_at: OMIT, tags: OMIT, team: OMIT, request_options: nil)
+      def update(
+        case_uuid,
+        title: OMIT,
+        priority: OMIT,
+        due_at: OMIT,
+        tags: OMIT,
+        team: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/",
@@ -766,6 +829,7 @@ module Didit
             "tags" => tags,
             "team" => team
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::CaseDetail,
           request_options: request_options
@@ -784,15 +848,17 @@ module Didit
         # +POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/ai-draft/+
         #
         # @param prompt [String] Nonblank description of the review policy to propose.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintAiDraftResponse]
-        def ai_draft(prompt:, request_options: nil)
+        def ai_draft(prompt:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/ai-draft/",
             body: {
               "prompt" => prompt
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseBlueprintAiDraftResponse,
             request_options: request_options
@@ -834,6 +900,7 @@ module Didit
         #   integrations.
         # @param applies_to [Array<String>] Case types this blueprint describes. Optional on create and update; new
         #   blueprints default to an empty list. Stored in the accepted case policy snapshot.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def create(
@@ -852,6 +919,7 @@ module Didit
           default_deadline_hours: OMIT,
           publish: OMIT,
           applies_to: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -874,6 +942,7 @@ module Didit
               "publish" => publish,
               "applies_to" => applies_to
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseBlueprintDetail,
             request_options: request_options
@@ -890,13 +959,15 @@ module Didit
         # +DELETE /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/+
         #
         # @param blueprint_uuid [String] Blueprint UUID.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(blueprint_uuid, request_options: nil)
+        def delete(blueprint_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/",
             path_params: { "blueprint_uuid" => blueprint_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )
@@ -907,9 +978,16 @@ module Didit
         # @param blueprint_uuid [String]
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def discard_draft(blueprint_uuid, expected_version:, expected_revision:, request_options: nil)
+        def discard_draft(
+          blueprint_uuid,
+          expected_version:,
+          expected_revision:,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/draft/",
@@ -918,6 +996,7 @@ module Didit
               "expected_version" => expected_version,
               "expected_revision" => expected_revision
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )
@@ -932,15 +1011,17 @@ module Didit
         #
         # @param preset_keys [Array<String>, nil] Subset of screening_hit, aml_investigation, suspicious_activity,
         #   kyc. Omit to install all.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintPresetInstallResult]
-        def install_presets(preset_keys: OMIT, request_options: nil)
+        def install_presets(preset_keys: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/presets/install/",
             body: {
               "preset_keys" => preset_keys
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseBlueprintPresetInstallResult,
             request_options: request_options
@@ -1019,9 +1100,10 @@ module Didit
         # @param blueprint_uuid [String]
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CasePublicationCaseBlueprint]
-        def publish(blueprint_uuid, expected_version:, expected_revision:, request_options: nil)
+        def publish(blueprint_uuid, expected_version:, expected_revision:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/publish/",
@@ -1030,6 +1112,7 @@ module Didit
               "expected_version" => expected_version,
               "expected_revision" => expected_revision
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CasePublicationCaseBlueprint,
             request_options: request_options
@@ -1079,9 +1162,17 @@ module Didit
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
         # @param changes [Hash]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CasePublicationPolicyDraft]
-        def save_draft(blueprint_uuid, expected_version:, expected_revision:, changes:, request_options: nil)
+        def save_draft(
+          blueprint_uuid,
+          expected_version:,
+          expected_revision:,
+          changes:,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :put,
             "/v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/draft/",
@@ -1091,6 +1182,7 @@ module Didit
               "expected_revision" => expected_revision,
               "changes" => changes
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CasePublicationPolicyDraft,
             request_options: request_options
@@ -1130,6 +1222,7 @@ module Didit
         #   changing the review policy.
         # @param applies_to [Array<String>] Case types this blueprint describes. Optional on create and update; new
         #   blueprints default to an empty list. Stored in the accepted case policy snapshot.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseBlueprintDetail]
         def update(
@@ -1149,6 +1242,7 @@ module Didit
           default_deadline_hours: OMIT,
           expected_version: OMIT,
           applies_to: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1172,6 +1266,7 @@ module Didit
               "expected_version" => expected_version,
               "applies_to" => applies_to
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseBlueprintDetail,
             request_options: request_options
@@ -1212,9 +1307,10 @@ module Didit
         # @param case_uuid [String] Case UUID.
         # @param item_uuid [String] Checklist item UUID.
         # @param is_completed [Boolean]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseChecklistItem]
-        def toggle_item(case_uuid, item_uuid, is_completed:, request_options: nil)
+        def toggle_item(case_uuid, item_uuid, is_completed:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :patch,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/checklist/{item_uuid}/",
@@ -1222,6 +1318,7 @@ module Didit
             body: {
               "is_completed" => is_completed
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseChecklistItem,
             request_options: request_options
@@ -1244,9 +1341,10 @@ module Didit
         # @param entity_type [String] Type of record to attach. A network must be visible and contain the selected
         #   case subject.
         # @param entity_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseLink]
-        def create(case_uuid, entity_type:, entity_uuid:, request_options: nil)
+        def create(case_uuid, entity_type:, entity_uuid:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/links/",
@@ -1255,6 +1353,7 @@ module Didit
               "entity_type" => entity_type,
               "entity_uuid" => entity_uuid
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseLink,
             request_options: request_options
@@ -1269,13 +1368,15 @@ module Didit
         #
         # @param case_uuid [String] Case UUID.
         # @param link_uuid [String] Link UUID.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(case_uuid, link_uuid, request_options: nil)
+        def delete(case_uuid, link_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/links/{link_uuid}/",
             path_params: { "case_uuid" => case_uuid, "link_uuid" => link_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )
@@ -1318,6 +1419,7 @@ module Didit
         # @param is_internal [Boolean]
         # @param attachments [Array<Hash>]
         # @param tags [Array<String>]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseCollaborationCaseNote]
         def create(
@@ -1329,6 +1431,7 @@ module Didit
           is_internal: OMIT,
           attachments: OMIT,
           tags: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1344,6 +1447,7 @@ module Didit
               "attachments" => attachments,
               "tags" => tags
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseCollaborationCaseNote,
             request_options: request_options
@@ -1359,9 +1463,10 @@ module Didit
         #
         # @param case_uuid [String] Case UUID.
         # @param file [Pathname, IO, String, Didit::FilePart]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CasesNotesCreateAttachmentUploadResponse]
-        def create_attachment_upload(case_uuid, file:, request_options: nil)
+        def create_attachment_upload(case_uuid, file:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/presign/",
@@ -1371,6 +1476,7 @@ module Didit
             },
             encoding: :multipart,
             file_fields: %w[file],
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CasesNotesCreateAttachmentUploadResponse,
             request_options: request_options
@@ -1381,13 +1487,15 @@ module Didit
         #
         # @param case_uuid [String]
         # @param note_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(case_uuid, note_uuid, request_options: nil)
+        def delete(case_uuid, note_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/{note_uuid}/",
             path_params: { "case_uuid" => case_uuid, "note_uuid" => note_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )
@@ -1449,9 +1557,10 @@ module Didit
         # @param case_uuid [String]
         # @param note_uuid [String]
         # @param is_pinned [Boolean]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseCollaborationCaseNote]
-        def update(case_uuid, note_uuid, is_pinned: OMIT, request_options: nil)
+        def update(case_uuid, note_uuid, is_pinned: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :patch,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/notes/{note_uuid}/",
@@ -1459,6 +1568,7 @@ module Didit
             body: {
               "is_pinned" => is_pinned
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseCollaborationCaseNote,
             request_options: request_options
@@ -1502,6 +1612,7 @@ module Didit
         # @param narrative [Hash]
         # @param report_indicators [Array<String>]
         # @param included_fields [Array<String>]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::RegulatoryReportDetail]
         def create(
@@ -1525,6 +1636,7 @@ module Didit
           narrative: OMIT,
           report_indicators: OMIT,
           included_fields: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1552,6 +1664,7 @@ module Didit
               "report_indicators" => report_indicators,
               "included_fields" => included_fields
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::RegulatoryReportDetail,
             request_options: request_options
@@ -1591,13 +1704,15 @@ module Didit
         #
         # @param case_uuid [String]
         # @param request_uuid [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequest]
-        def cancel(case_uuid, request_uuid, request_options: nil)
+        def cancel(case_uuid, request_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/{request_uuid}/cancel/",
             path_params: { "case_uuid" => case_uuid, "request_uuid" => request_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CustomerMessagingCaseRequest,
             request_options: request_options
@@ -1624,6 +1739,7 @@ module Didit
         #   seven days. Changing the expiry without a matching preview is rejected.
         # @param preview_token [String]
         # @param language [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequest]
         def create(
@@ -1634,6 +1750,7 @@ module Didit
           expires_at:,
           preview_token:,
           language: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1648,6 +1765,7 @@ module Didit
               "preview_token" => preview_token,
               "language" => language
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CustomerMessagingCaseRequest,
             request_options: request_options
@@ -1692,9 +1810,10 @@ module Didit
         #   `purpose_of_payment` - Request a document explaining the payment purpose. Both are available for person and
         #   busin...
         # @param language [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CustomerMessagingCaseRequestPreviewResponse]
-        def preview(case_uuid, contact_id:, purpose:, language: OMIT, request_options: nil)
+        def preview(case_uuid, contact_id:, purpose:, language: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/preview/",
@@ -1704,6 +1823,7 @@ module Didit
               "purpose" => purpose,
               "language" => language
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CustomerMessagingCaseRequestPreviewResponse,
             request_options: request_options
@@ -1725,13 +1845,15 @@ module Didit
         #
         # @param case_uuid [String] Case UUID.
         # @param request_uuid [String] Customer request UUID, from the case's request list.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CasesRequestsRemindResponse]
-        def remind(case_uuid, request_uuid, request_options: nil)
+        def remind(case_uuid, request_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/requests/{request_uuid}/remind/",
             path_params: { "case_uuid" => case_uuid, "request_uuid" => request_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CasesRequestsRemindResponse,
             request_options: request_options
@@ -1793,6 +1915,7 @@ module Didit
         # @param publish [Boolean] Set false to save a never-published draft. The record remains inactive at version 0
         #   until the draft is explicitly published. Omitting this field preserves immediate creation for existing
         #   integrations.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
         def create(
@@ -1805,6 +1928,7 @@ module Didit
           team: OMIT,
           is_active: OMIT,
           publish: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1821,6 +1945,7 @@ module Didit
               "is_active" => is_active,
               "publish" => publish
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseRoutingRule,
             request_options: request_options
@@ -1832,9 +1957,16 @@ module Didit
         # @param record_uuid [String]
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def discard_draft(record_uuid, expected_version:, expected_revision:, request_options: nil)
+        def discard_draft(
+          record_uuid,
+          expected_version:,
+          expected_revision:,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :delete,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/{record_uuid}/draft/",
@@ -1843,6 +1975,7 @@ module Didit
               "expected_version" => expected_version,
               "expected_revision" => expected_revision
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             request_options: request_options
           )
@@ -1909,9 +2042,18 @@ module Didit
         # @param tags [Array<String>]
         # @param rule_uuid [String]
         # @param draft [Hash]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingPreview]
-        def preview(source:, priority: OMIT, tags: OMIT, rule_uuid: OMIT, draft: OMIT, request_options: nil)
+        def preview(
+          source:,
+          priority: OMIT,
+          tags: OMIT,
+          rule_uuid: OMIT,
+          draft: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/preview/",
@@ -1922,6 +2064,7 @@ module Didit
               "rule_uuid" => rule_uuid,
               "draft" => draft
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseRoutingPreview,
             request_options: request_options
@@ -1933,9 +2076,10 @@ module Didit
         # @param record_uuid [String]
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::RoutingPublicationCaseRoutingRule]
-        def publish(record_uuid, expected_version:, expected_revision:, request_options: nil)
+        def publish(record_uuid, expected_version:, expected_revision:, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/{record_uuid}/publish/",
@@ -1944,6 +2088,7 @@ module Didit
               "expected_version" => expected_version,
               "expected_revision" => expected_revision
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::RoutingPublicationCaseRoutingRule,
             request_options: request_options
@@ -1992,9 +2137,17 @@ module Didit
         # @param expected_version [Integer]
         # @param expected_revision [String, nil]
         # @param changes [Hash]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::RoutingPublicationPolicyDraft]
-        def save_draft(record_uuid, expected_version:, expected_revision:, changes:, request_options: nil)
+        def save_draft(
+          record_uuid,
+          expected_version:,
+          expected_revision:,
+          changes:,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :put,
             "/v3/organization/{organization_id}/application/{application_id}/cases/routing-rules/{record_uuid}/draft/",
@@ -2004,6 +2157,7 @@ module Didit
               "expected_revision" => expected_revision,
               "changes" => changes
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::RoutingPublicationPolicyDraft,
             request_options: request_options
@@ -2027,6 +2181,7 @@ module Didit
         # @param is_active [Boolean]
         # @param expected_version [Integer] Version opened by the editor. When supplied, stale writes return 409
         #   without changing the rule.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseRoutingRule]
         def update(
@@ -2040,6 +2195,7 @@ module Didit
           team: OMIT,
           is_active: OMIT,
           expected_version: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -2057,6 +2213,7 @@ module Didit
               "is_active" => is_active,
               "expected_version" => expected_version
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseRoutingRule,
             request_options: request_options
@@ -2076,9 +2233,10 @@ module Didit
         # @param members [Array<Hash>]
         # @param description [String]
         # @param is_active [Boolean]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseReviewTeam]
-        def create(name:, members:, description: OMIT, is_active: OMIT, request_options: nil)
+        def create(name:, members:, description: OMIT, is_active: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/organization/{organization_id}/application/{application_id}/cases/teams/",
@@ -2088,6 +2246,7 @@ module Didit
               "description" => description,
               "is_active" => is_active
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseReviewTeam,
             request_options: request_options
@@ -2149,9 +2308,18 @@ module Didit
         # @param description [String]
         # @param members [Array<Hash>]
         # @param is_active [Boolean]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::CaseReviewTeam]
-        def update(record_uuid, name: OMIT, description: OMIT, members: OMIT, is_active: OMIT, request_options: nil)
+        def update(
+          record_uuid,
+          name: OMIT,
+          description: OMIT,
+          members: OMIT,
+          is_active: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :patch,
             "/v3/organization/{organization_id}/application/{application_id}/cases/teams/{record_uuid}/",
@@ -2162,6 +2330,7 @@ module Didit
               "members" => members,
               "is_active" => is_active
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             scope: :application,
             response: Types::CaseReviewTeam,
             request_options: request_options

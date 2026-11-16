@@ -16,7 +16,8 @@ RSpec.describe Didit::Resources::Users do
       vendor_data_list: [
         "user-123",
         "user-456"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -32,6 +33,7 @@ RSpec.describe Didit::Resources::Users do
         "user-456"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::UsersBatchDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -70,7 +72,8 @@ RSpec.describe Didit::Resources::Users do
     JSON
     result = client.users.create(
       vendor_data: "user-abc-123",
-      full_name: "John Doe"
+      full_name: "John Doe",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -84,6 +87,7 @@ RSpec.describe Didit::Resources::Users do
       "vendor_data" => "user-abc-123",
       "full_name" => "John Doe"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::UsersCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -459,7 +463,8 @@ RSpec.describe Didit::Resources::Users do
       vendor_data_list: [
         "user-123",
         "user-456"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -477,6 +482,7 @@ RSpec.describe Didit::Resources::Users do
         "user-456"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::AMLMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -500,7 +506,8 @@ RSpec.describe Didit::Resources::Users do
       is_enabled: true,
       didit_internal_id_list: [
         "5b9a0000-0000-4000-8000-00000000f00d"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -516,6 +523,7 @@ RSpec.describe Didit::Resources::Users do
         "5b9a0000-0000-4000-8000-00000000f00d"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::OngoingMonitoringToggleResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -599,7 +607,8 @@ RSpec.describe Didit::Resources::Users do
     JSON
     result = client.users.update(
       "user-abc-123",
-      display_name: "Jane S."
+      display_name: "Jane S.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -612,6 +621,7 @@ RSpec.describe Didit::Resources::Users do
     expect_json_body(request, {
       "display_name" => "Jane S."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::UserDetailItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -712,7 +722,8 @@ RSpec.describe Didit::Resources::Users do
     JSON
     result = client.users.update_status(
       "vendor-data-1",
-      status: "ACTIVE"
+      status: "ACTIVE",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -725,6 +736,7 @@ RSpec.describe Didit::Resources::Users do
     expect_json_body(request, {
       "status" => "ACTIVE"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::UserDetailItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -743,7 +755,8 @@ RSpec.describe Didit::Resources::Users do
     result = client.users.upload_face(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       image: "/9j/4AAQSkZJRgABAQEA...",
-      comment: "Imported from previous KYC provider"
+      comment: "Imported from previous KYC provider",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -757,6 +770,7 @@ RSpec.describe Didit::Resources::Users do
       "image" => "/9j/4AAQSkZJRgABAQEA...",
       "comment" => "Imported from previous KYC provider"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::UsersUploadFaceResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

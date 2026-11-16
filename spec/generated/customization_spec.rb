@@ -95,7 +95,8 @@ RSpec.describe Didit::Resources::Customization do
       image_favicon: Didit::FilePart.new("fake-image_favicon-bytes", filename: "image_favicon.jpg", content_type: "image/jpeg"),
       image_rectangular: Didit::FilePart.new("fake-image_rectangular-bytes", filename: "image_rectangular.jpg", content_type: "image/jpeg"),
       image_rectangular_dark: Didit::FilePart.new("fake-image_rectangular_dark-bytes", filename: "image_rectangular_dark.jpg", content_type: "image/jpeg"),
-      image_square: Didit::FilePart.new("fake-image_square-bytes", filename: "image_square.jpg", content_type: "image/jpeg")
+      image_square: Didit::FilePart.new("fake-image_square-bytes", filename: "image_square.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -136,6 +137,7 @@ RSpec.describe Didit::Resources::Customization do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BrandingCustomization)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

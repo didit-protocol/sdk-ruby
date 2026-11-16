@@ -38,13 +38,15 @@ module Didit
       # +DELETE /v3/organization/{organization_id}/application/{application_id}/transactions/delete/+
       #
       # @param body [Hash]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def batch_delete(body:, request_options: nil)
+      def batch_delete(body:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/organization/{organization_id}/application/{application_id}/transactions/delete/",
           body: body,
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           request_options: request_options
         )
@@ -88,6 +90,7 @@ module Didit
       #   crypto screening is skipped even if enabled in the application settings. When omitted or `null`, the
       #   application-level default configured in the Console is used. Crypto screening requires
       #   `transaction_details.direction`, `currency_kind...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionDetail]
       def create(
@@ -102,6 +105,7 @@ module Didit
         travel_rule_details: OMIT,
         network_snapshot: OMIT,
         include_crypto_screening: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -120,6 +124,7 @@ module Didit
             "network_snapshot" => network_snapshot,
             "include_crypto_screening" => include_crypto_screening
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TransactionDetail,
           request_options: request_options
         )
@@ -141,9 +146,10 @@ module Didit
       #   hours).
       # @param max_uses [Integer, nil] Maximum number of successful submissions allowed with this token. Omit or null
       #   for unlimited uses within the TTL.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::TransactionsCreateSdkTokenResponse]
-      def create_sdk_token(vendor_data:, ttl_seconds: OMIT, max_uses: OMIT, request_options: nil)
+      def create_sdk_token(vendor_data:, ttl_seconds: OMIT, max_uses: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/transactions/sdk-token/",
@@ -152,6 +158,7 @@ module Didit
             "ttl_seconds" => ttl_seconds,
             "max_uses" => max_uses
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::TransactionsCreateSdkTokenResponse,
           request_options: request_options
         )
@@ -356,9 +363,10 @@ module Didit
         #   rejected. No length limit.
         # @param mentioned_emails [Array<String>] Emails of members of your organization to mention. Each must be a
         #   valid email of an organization member.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionNote]
-        def create(transaction_id, note:, mentioned_emails: OMIT, request_options: nil)
+        def create(transaction_id, note:, mentioned_emails: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/transactions/{transaction_id}/notes/",
@@ -367,6 +375,7 @@ module Didit
               "note" => note,
               "mentioned_emails" => mentioned_emails
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionNote,
             request_options: request_options
           )
@@ -428,6 +437,7 @@ module Didit
         # @param period_days [Integer]
         # @param rule_id [String] Optional ID of the rule being edited. Excludes that rule from overlap comparisons;
         #   does not change the candidate configuration.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleBacktestResult]
         def backtest(
@@ -437,6 +447,7 @@ module Didit
           scope: OMIT,
           period_days: OMIT,
           rule_id: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -450,6 +461,7 @@ module Didit
               "period_days" => period_days,
               "rule_id" => rule_id
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionRuleBacktestResult,
             request_options: request_options
           )
@@ -479,6 +491,7 @@ module Didit
         # @param aggregation [Array<Hash>]
         # @param actions [Array<Hash>]
         # @param metadata [Hash] Free-form metadata stored on the rule.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleDetail]
         def create(
@@ -492,6 +505,7 @@ module Didit
           aggregation: OMIT,
           actions: OMIT,
           metadata: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -509,6 +523,7 @@ module Didit
               "actions" => actions,
               "metadata" => metadata
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionRuleDetail,
             request_options: request_options
           )
@@ -524,13 +539,15 @@ module Didit
         # +DELETE /v3/transactions/rules/{rule_uuid}/+
         #
         # @param rule_uuid [String] The rule's uuid from list or create.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
-        def delete(rule_uuid, request_options: nil)
+        def delete(rule_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/transactions/rules/{rule_uuid}/",
             path_params: { "rule_uuid" => rule_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             request_options: request_options
           )
         end
@@ -549,9 +566,10 @@ module Didit
         #
         # @param library_keys [Array<String>] Specific presets to install or uninstall.
         # @param bundle [String] Install or uninstall every preset in this bundle instead.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleInstallResult]
-        def install_library(library_keys: OMIT, bundle: OMIT, request_options: nil)
+        def install_library(library_keys: OMIT, bundle: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/transactions/rules/install/",
@@ -559,6 +577,7 @@ module Didit
               "library_keys" => library_keys,
               "bundle" => bundle
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionRuleInstallResult,
             request_options: request_options
           )
@@ -672,9 +691,10 @@ module Didit
         #
         # @param library_keys [Array<String>] Specific presets to install or uninstall.
         # @param bundle [String] Install or uninstall every preset in this bundle instead.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleInstallResult]
-        def uninstall_library(library_keys: OMIT, bundle: OMIT, request_options: nil)
+        def uninstall_library(library_keys: OMIT, bundle: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :delete,
             "/v3/transactions/rules/install/",
@@ -682,6 +702,7 @@ module Didit
               "library_keys" => library_keys,
               "bundle" => bundle
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionRuleInstallResult,
             request_options: request_options
           )
@@ -715,6 +736,7 @@ module Didit
         # @param aggregation [Array<Hash>]
         # @param actions [Array<Hash>]
         # @param metadata [Hash] Free-form metadata stored on the rule.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TransactionRuleDetail]
         def update(
@@ -729,6 +751,7 @@ module Didit
           aggregation: OMIT,
           actions: OMIT,
           metadata: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -747,6 +770,7 @@ module Didit
               "actions" => actions,
               "metadata" => metadata
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TransactionRuleDetail,
             request_options: request_options
           )
@@ -789,9 +813,16 @@ module Didit
         #   beneficiary_data.wallet_address. On a declared self-hosted wallet transfer that names no counterparty
         #   wallet, the wallet whose ownership you verified; without it the request is rejected with 400. Ignored for
         #   other transfers.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
-        def confirm_ownership(transaction_id, confirmed:, wallet_address: OMIT, request_options: nil)
+        def confirm_ownership(
+          transaction_id,
+          confirmed:,
+          wallet_address: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/transactions/{transaction_id}/travel-rule/ownership/",
@@ -800,6 +831,7 @@ module Didit
               "confirmed" => confirmed,
               "wallet_address" => wallet_address
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options
           )
@@ -823,6 +855,7 @@ module Didit
         # @param reply_to [String, nil] A message of the same transfer. A reply that carries a document fulfils the
         #   document request it answers.
         # @param files [Array<Pathname, IO, String, Didit::FilePart>] Multipart only. Up to 5 files of 10 MB each.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleMessage]
         def create_message(
@@ -832,6 +865,7 @@ module Didit
           requested_documents: OMIT,
           reply_to: OMIT,
           files: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -845,6 +879,7 @@ module Didit
               "reply_to" => reply_to,
               "files" => files
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleMessage,
             request_options: request_options
           )
@@ -864,9 +899,10 @@ module Didit
         # @param transaction_id [String] Didit-stable transaction UUID that owns the transfer.
         # @param channel [String] link returns a new link; email also attempts to send it to the end user's
         #   Didit-record email.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleUserLinkResponse]
-        def create_user_link(transaction_id, channel: OMIT, request_options: nil)
+        def create_user_link(transaction_id, channel: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/transactions/{transaction_id}/travel-rule/user-link/",
@@ -874,6 +910,7 @@ module Didit
             body: {
               "channel" => channel
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleUserLinkResponse,
             request_options: request_options
           )
@@ -948,6 +985,7 @@ module Didit
         # @param currency [String] Asset code.
         # @param reference [String] Optional idempotency key. A repeat with the same value returns the transfer the
         #   first call booked.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTestVaspInboundResponse]
         def trigger_test_vasp_inbound(
@@ -957,6 +995,7 @@ module Didit
           amount: OMIT,
           currency: OMIT,
           reference: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -970,6 +1009,7 @@ module Didit
               "currency" => currency,
               "reference" => reference
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleTestVaspInboundResponse,
             request_options: request_options
           )
@@ -1033,6 +1073,7 @@ module Didit
         #   clears the previous country hint.
         # @param vasp_name [String] With action=update_compliance_email: optional counterparty name saved with the
         #   address when nonempty.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::TravelRuleTransferDetail]
         def update_transfer(
@@ -1049,6 +1090,7 @@ module Didit
           lei: OMIT,
           country: OMIT,
           vasp_name: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -1069,6 +1111,7 @@ module Didit
               "country" => country,
               "vasp_name" => vasp_name
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::TravelRuleTransferDetail,
             request_options: request_options
           )

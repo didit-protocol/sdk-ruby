@@ -49,6 +49,7 @@ module Didit
       # @param enable_social [Boolean] When true, also look up the social footprint of the number - the messaging,
       #   social, e-commerce and professional platforms it is registered on. Billed as one `phone_social` unit per
       #   request in addition to this endpoint's own price.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneRiskResponse]
       def assess_risk(
@@ -58,6 +59,7 @@ module Didit
         vendor_data: OMIT,
         metadata: OMIT,
         enable_social: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -71,6 +73,7 @@ module Didit
             "metadata" => metadata,
             "enable_social" => enable_social
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneRiskResponse,
           request_options: request_options
         )
@@ -165,6 +168,7 @@ module Didit
       # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number
       #   registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint;
       #   REVIEW is available on the workflow configuration key of the same name.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationCheckResponse]
       def check_code(
@@ -180,6 +184,7 @@ module Didit
         low_phone_trust_action: OMIT,
         enable_social: OMIT,
         phone_no_social_presence_action: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -199,6 +204,7 @@ module Didit
             "enable_social" => enable_social,
             "phone_no_social_presence_action" => phone_no_social_presence_action
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneVerificationCheckResponse,
           request_options: request_options
         )
@@ -268,6 +274,7 @@ module Didit
       #   and the Business Console. Use it to correlate Didit's `request_id` with your user record.
       # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the
       #   send response, the matching check response, webhooks, and the Business Console.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationSendResponse]
       def send_code(
@@ -276,6 +283,7 @@ module Didit
         signals: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -288,6 +296,7 @@ module Didit
             "vendor_data" => vendor_data,
             "metadata" => metadata
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneVerificationSendResponse,
           request_options: request_options
         )

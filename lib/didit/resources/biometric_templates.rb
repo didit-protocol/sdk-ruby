@@ -35,6 +35,7 @@ module Didit
       # @param source_type [String] Only with `delete_all`.
       # @param retained_from [Time, String] Only with `delete_all`.
       # @param retained_to [Time, String] Only with `delete_all`. Must not be earlier than `retained_from`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesBatchDeleteResponse]
       def batch_delete(
@@ -46,6 +47,7 @@ module Didit
         source_type: OMIT,
         retained_from: OMIT,
         retained_to: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -61,6 +63,7 @@ module Didit
             "retained_from" => retained_from,
             "retained_to" => retained_to
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BiometricTemplatesBatchDeleteResponse,
           request_options: request_options
         )
@@ -136,13 +139,15 @@ module Didit
       #
       # @param template_uuid [String] Template id, as returned in `biometric_template_uuid` by the session deletion
       #   endpoints, `biometric_template_id` on a Face Search match, or the list endpoint.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BiometricTemplatesDeleteResponse]
-      def delete(template_uuid, request_options: nil)
+      def delete(template_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/biometric-templates/{template_uuid}/",
           path_params: { "template_uuid" => template_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BiometricTemplatesDeleteResponse,
           request_options: request_options
         )

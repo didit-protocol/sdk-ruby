@@ -64,7 +64,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
     JSON
     result = client.regulatory_reports.create(
       case: "c1a5e000-0000-4000-8000-000000000001",
-      template: "7ec00000-0000-4000-8000-000000000006"
+      template: "7ec00000-0000-4000-8000-000000000006",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -78,6 +79,7 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       "case" => "c1a5e000-0000-4000-8000-000000000001",
       "template" => "7ec00000-0000-4000-8000-000000000006"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -87,7 +89,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.regulatory_reports.delete(
       "5ec00000-0000-4000-8000-000000000007",
-      confirm_delete: true
+      confirm_delete: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -100,6 +103,7 @@ RSpec.describe Didit::Resources::RegulatoryReports do
     expect_json_body(request, {
       "confirm_delete" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -160,7 +164,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       }
     JSON
     result = client.regulatory_reports.finalize(
-      "5ec00000-0000-4000-8000-000000000007"
+      "5ec00000-0000-4000-8000-000000000007",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -171,6 +176,7 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -411,7 +417,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
     result = client.regulatory_reports.update(
       "5ec00000-0000-4000-8000-000000000007",
       rentity_id: "FIU-US-00123",
-      currency_code_local: "USD"
+      currency_code_local: "USD",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -425,6 +432,7 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       "rentity_id" => "FIU-US-00123",
       "currency_code_local" => "USD"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -444,7 +452,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       }
     JSON
     result = client.regulatory_reports.validate(
-      "5ec00000-0000-4000-8000-000000000007"
+      "5ec00000-0000-4000-8000-000000000007",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -455,6 +464,7 @@ RSpec.describe Didit::Resources::RegulatoryReports do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RegulatoryReportsValidateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

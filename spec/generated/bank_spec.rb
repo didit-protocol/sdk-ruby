@@ -27,7 +27,8 @@ RSpec.describe Didit::Resources::Bank do
       holder: {
         full_name: "Maria Oliveira"
       },
-      vendor_data: "payout_20481"
+      vendor_data: "payout_20481",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -48,6 +49,7 @@ RSpec.describe Didit::Resources::Bank do
       },
       "vendor_data" => "payout_20481"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BankAccountCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

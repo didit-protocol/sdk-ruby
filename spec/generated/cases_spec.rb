@@ -41,7 +41,8 @@ RSpec.describe Didit::Resources::Cases do
       action: "add_tags",
       tags: [
         "source-of-funds-reviewed"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -58,6 +59,7 @@ RSpec.describe Didit::Resources::Cases do
         "source-of-funds-reviewed"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseActionCaseEntityActionResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -263,7 +265,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.approve_resolution(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -274,6 +277,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -480,7 +484,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.assign(
       "c1a5e000-0000-4000-8000-000000000001",
-      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa"
+      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -493,6 +498,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "assignee_user_id" => "9a000000-0000-4000-8000-0000000000aa"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -514,7 +520,8 @@ RSpec.describe Didit::Resources::Cases do
       case_uuids: [
         "c1a5e000-0000-4000-8000-000000000001"
       ],
-      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa"
+      assignee_user_id: "9a000000-0000-4000-8000-0000000000aa",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -530,6 +537,7 @@ RSpec.describe Didit::Resources::Cases do
       ],
       "assignee_user_id" => "9a000000-0000-4000-8000-0000000000aa"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -552,7 +560,8 @@ RSpec.describe Didit::Resources::Cases do
         "c1a5e000-0000-4000-8000-000000000001"
       ],
       status: "RESOLVED",
-      resolution: "FALSE_POSITIVE"
+      resolution: "FALSE_POSITIVE",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -569,6 +578,7 @@ RSpec.describe Didit::Resources::Cases do
       "status" => "RESOLVED",
       "resolution" => "FALSE_POSITIVE"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBulkUpdateResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -783,7 +793,8 @@ RSpec.describe Didit::Resources::Cases do
       },
       tags: [
         "review"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -805,6 +816,7 @@ RSpec.describe Didit::Resources::Cases do
         "review"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -813,7 +825,8 @@ RSpec.describe Didit::Resources::Cases do
   it "cases.delete sends DELETE /v3/organization/{organization_id}/application/{application_id}/cases/{case_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.cases.delete(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -824,6 +837,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -1027,7 +1041,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.escalate(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1038,6 +1053,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1064,7 +1080,8 @@ RSpec.describe Didit::Resources::Cases do
       subject: {
         type: "user",
         uuid: "5b9a0000-0000-4000-8000-00000000f00d"
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1080,6 +1097,7 @@ RSpec.describe Didit::Resources::Cases do
         "uuid" => "5b9a0000-0000-4000-8000-00000000f00d"
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDuplicateCaseDuplicatePage)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1642,7 +1660,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.reject_resolution(
       "c1a5e000-0000-4000-8000-000000000001",
-      notes: "Needs a clearer rationale before this can be approved."
+      notes: "Needs a clearer rationale before this can be approved.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1655,6 +1674,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "notes" => "Needs a clearer rationale before this can be approved."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -1860,7 +1880,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.reopen(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -1871,6 +1892,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2076,7 +2098,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.request_info(
-      "c1a5e000-0000-4000-8000-000000000001"
+      "c1a5e000-0000-4000-8000-000000000001",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2087,6 +2110,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2294,7 +2318,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.resolve(
       "c1a5e000-0000-4000-8000-000000000001",
       resolution: "FALSE_POSITIVE",
-      note: "Confirmed legitimate activity after reviewing documents."
+      note: "Confirmed legitimate activity after reviewing documents.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2308,6 +2333,7 @@ RSpec.describe Didit::Resources::Cases do
       "resolution" => "FALSE_POSITIVE",
       "note" => "Confirmed legitimate activity after reviewing documents."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2656,7 +2682,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.retry_action_receipt(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2667,6 +2694,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseActionCaseActionReceipt)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -2873,7 +2901,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.transfer(
       "c1a5e000-0000-4000-8000-000000000001",
-      target_blueprint: "b1de0000-0000-4000-8000-000000000002"
+      target_blueprint: "b1de0000-0000-4000-8000-000000000002",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -2886,6 +2915,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "target_blueprint" => "b1de0000-0000-4000-8000-000000000002"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3093,7 +3123,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.update(
       "c1a5e000-0000-4000-8000-000000000001",
       priority: "HIGH",
-      due_at: "2026-11-01T00:00:00Z"
+      due_at: "2026-11-01T00:00:00Z",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3107,6 +3138,7 @@ RSpec.describe Didit::Resources::Cases do
       "priority" => "HIGH",
       "due_at" => "2026-11-01T00:00:00Z"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3136,7 +3168,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.blueprints.ai_draft(
-      prompt: "Draft an AML review policy with triage and evidence review stages."
+      prompt: "Draft an AML review policy with triage and evidence review stages.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3149,6 +3182,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "prompt" => "Draft an AML review policy with triage and evidence review stages."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBlueprintAiDraftResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3279,7 +3313,8 @@ RSpec.describe Didit::Resources::Cases do
       },
       applies_to: [
         "AML"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3317,6 +3352,7 @@ RSpec.describe Didit::Resources::Cases do
         "AML"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBlueprintDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3325,7 +3361,8 @@ RSpec.describe Didit::Resources::Cases do
   it "cases.blueprints.delete sends DELETE /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.cases.blueprints.delete(
-      "b1de0000-0000-4000-8000-000000000002"
+      "b1de0000-0000-4000-8000-000000000002",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3336,6 +3373,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -3344,7 +3382,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.blueprints.discard_draft(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3358,6 +3397,7 @@ RSpec.describe Didit::Resources::Cases do
       "expected_version" => 1,
       "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -3373,7 +3413,8 @@ RSpec.describe Didit::Resources::Cases do
       preset_keys: [
         "aml_investigation",
         "kyc"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3389,6 +3430,7 @@ RSpec.describe Didit::Resources::Cases do
         "kyc"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBlueprintPresetInstallResult)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3641,7 +3683,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.blueprints.publish(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3655,6 +3698,7 @@ RSpec.describe Didit::Resources::Cases do
       "expected_version" => 1,
       "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CasePublicationCaseBlueprint)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3821,7 +3865,8 @@ RSpec.describe Didit::Resources::Cases do
       expected_revision: "4e5f0000-0000-4000-8000-000000000003",
       changes: {
         max_active_cases: 20
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3838,6 +3883,7 @@ RSpec.describe Didit::Resources::Cases do
         "max_active_cases" => 20
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CasePublicationPolicyDraft)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -3944,7 +3990,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.blueprints.update(
       "b1de0000-0000-4000-8000-000000000002",
-      transfer_enabled: true
+      transfer_enabled: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -3957,6 +4004,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "transfer_enabled" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseBlueprintDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4006,7 +4054,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.checklist.toggle_item(
       "c1a5e000-0000-4000-8000-000000000001",
       "c4ec0000-0000-4000-8000-000000000005",
-      is_completed: true
+      is_completed: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4019,6 +4068,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "is_completed" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseChecklistItem)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4037,7 +4087,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.links.create(
       "c1a5e000-0000-4000-8000-000000000001",
       entity_type: "transaction",
-      entity_uuid: "77000000-0000-4000-8000-000000000077"
+      entity_uuid: "77000000-0000-4000-8000-000000000077",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4051,6 +4102,7 @@ RSpec.describe Didit::Resources::Cases do
       "entity_type" => "transaction",
       "entity_uuid" => "77000000-0000-4000-8000-000000000077"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseLink)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4060,7 +4112,8 @@ RSpec.describe Didit::Resources::Cases do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.cases.links.delete(
       "c1a5e000-0000-4000-8000-000000000001",
-      "11000000-0000-4000-8000-000000000004"
+      "11000000-0000-4000-8000-000000000004",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4071,6 +4124,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -4127,7 +4181,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.notes.create(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      comment: "Proof of address matches the ID document."
+      comment: "Proof of address matches the ID document.",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4140,6 +4195,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "comment" => "Proof of address matches the ID document."
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseCollaborationCaseNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4156,7 +4212,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.notes.create_attachment_upload(
       "c1a5e000-0000-4000-8000-000000000001",
-      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg")
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4177,6 +4234,7 @@ RSpec.describe Didit::Resources::Cases do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CasesNotesCreateAttachmentUploadResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4186,7 +4244,8 @@ RSpec.describe Didit::Resources::Cases do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.cases.notes.delete(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4197,6 +4256,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -4303,7 +4363,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.notes.update(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      is_pinned: true
+      is_pinned: true,
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4316,6 +4377,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "is_pinned" => true
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseCollaborationCaseNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4379,7 +4441,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.regulatory_reports.create(
       "c1a5e000-0000-4000-8000-000000000001",
-      template: "7ec00000-0000-4000-8000-000000000006"
+      template: "7ec00000-0000-4000-8000-000000000006",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4392,6 +4455,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "template" => "7ec00000-0000-4000-8000-000000000006"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RegulatoryReportDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4498,7 +4562,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.requests.cancel(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4509,6 +4574,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CustomerMessagingCaseRequest)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4538,7 +4604,8 @@ RSpec.describe Didit::Resources::Cases do
       purpose: "identity_document",
       request_id: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expires_at: "2026-01-02T03:04:05Z",
-      preview_token: "preview_token-value"
+      preview_token: "preview_token-value",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4555,6 +4622,7 @@ RSpec.describe Didit::Resources::Cases do
       "expires_at" => "2026-01-02T03:04:05Z",
       "preview_token" => "preview_token-value"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CustomerMessagingCaseRequest)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4619,7 +4687,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.requests.preview(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       contact_id: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      purpose: "identity_document"
+      purpose: "identity_document",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4633,6 +4702,7 @@ RSpec.describe Didit::Resources::Cases do
       "contact_id" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       "purpose" => "identity_document"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CustomerMessagingCaseRequestPreviewResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4663,7 +4733,8 @@ RSpec.describe Didit::Resources::Cases do
     JSON
     result = client.cases.requests.remind(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4674,6 +4745,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CasesRequestsRemindResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4768,7 +4840,8 @@ RSpec.describe Didit::Resources::Cases do
           value: "AML_SCREENING"
         }
       ],
-      blueprint: "b1de0000-0000-4000-8000-000000000002"
+      blueprint: "b1de0000-0000-4000-8000-000000000002",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4789,6 +4862,7 @@ RSpec.describe Didit::Resources::Cases do
       ],
       "blueprint" => "b1de0000-0000-4000-8000-000000000002"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseRoutingRule)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4799,7 +4873,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.routing_rules.discard_draft(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4813,6 +4888,7 @@ RSpec.describe Didit::Resources::Cases do
       "expected_version" => 1,
       "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -4928,7 +5004,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.routing_rules.preview(
-      source: "MANUAL"
+      source: "MANUAL",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4941,6 +5018,7 @@ RSpec.describe Didit::Resources::Cases do
     expect_json_body(request, {
       "source" => "MANUAL"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseRoutingPreview)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -4976,7 +5054,8 @@ RSpec.describe Didit::Resources::Cases do
     result = client.cases.routing_rules.publish(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       expected_version: 1,
-      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      expected_revision: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -4990,6 +5069,7 @@ RSpec.describe Didit::Resources::Cases do
       "expected_version" => 1,
       "expected_revision" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RoutingPublicationCaseRoutingRule)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -5084,7 +5164,8 @@ RSpec.describe Didit::Resources::Cases do
       expected_revision: "4e5f0000-0000-4000-8000-000000000003",
       changes: {
         priority: 10
-      }
+      },
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -5101,6 +5182,7 @@ RSpec.describe Didit::Resources::Cases do
         "priority" => 10
       }
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::RoutingPublicationPolicyDraft)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -5134,7 +5216,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.routing_rules.update(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -5145,6 +5228,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseRoutingRule)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -5180,7 +5264,8 @@ RSpec.describe Didit::Resources::Cases do
           user_id: "9a000000-0000-4000-8000-0000000000aa",
           capacity: 10
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -5199,6 +5284,7 @@ RSpec.describe Didit::Resources::Cases do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseReviewTeam)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -5312,7 +5398,8 @@ RSpec.describe Didit::Resources::Cases do
       }
     JSON
     result = client.cases.teams.update(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -5323,6 +5410,7 @@ RSpec.describe Didit::Resources::Cases do
       accept: "application/json"
     )
     expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::CaseReviewTeam)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

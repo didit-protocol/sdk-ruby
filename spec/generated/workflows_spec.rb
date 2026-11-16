@@ -58,7 +58,8 @@ RSpec.describe Didit::Resources::Workflows do
             face_match_score_review_threshold: 60
           }
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -92,6 +93,7 @@ RSpec.describe Didit::Resources::Workflows do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WorkflowDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -100,7 +102,8 @@ RSpec.describe Didit::Resources::Workflows do
   it "workflows.delete sends DELETE /v3/workflows/{settings_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.workflows.delete(
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -111,6 +114,7 @@ RSpec.describe Didit::Resources::Workflows do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -313,7 +317,8 @@ RSpec.describe Didit::Resources::Workflows do
         {
           feature: "AML"
         }
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -333,6 +338,7 @@ RSpec.describe Didit::Resources::Workflows do
         }
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::WorkflowDetail)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

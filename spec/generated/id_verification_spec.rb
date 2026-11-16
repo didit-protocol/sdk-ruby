@@ -176,7 +176,8 @@ RSpec.describe Didit::Resources::IdVerification do
         flow: "onboarding"
       },
       back_image: Didit::FilePart.new("fake-back_image-bytes", filename: "back_image.jpg", content_type: "image/jpeg"),
-      front_image: Didit::FilePart.new("fake-front_image-bytes", filename: "front_image.jpg", content_type: "image/jpeg")
+      front_image: Didit::FilePart.new("fake-front_image-bytes", filename: "front_image.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -207,6 +208,7 @@ RSpec.describe Didit::Resources::IdVerification do
         ]
       }
     )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::IdVerificationVerifyResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -23,6 +23,7 @@ module Didit
       #   state, document type, document number and full name.
       # @param blocklist_phone [Boolean] Blocklist the session's phone number.
       # @param blocklist_email [Boolean] Blocklist the session's email address.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BlocklistAddResponse]
       def add(
@@ -31,6 +32,7 @@ module Didit
         blocklist_document: OMIT,
         blocklist_phone: OMIT,
         blocklist_email: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -43,6 +45,7 @@ module Didit
             "blocklist_phone" => blocklist_phone,
             "blocklist_email" => blocklist_email
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BlocklistAddResponse,
           request_options: request_options
         )
@@ -101,6 +104,7 @@ module Didit
       # @param unblock_document [Boolean] Lift the block on the session's identity document.
       # @param unblock_phone [Boolean] Lift the block on the session's phone number.
       # @param unblock_email [Boolean] Lift the block on the session's email address.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BlocklistRemoveResponse]
       def remove(
@@ -109,6 +113,7 @@ module Didit
         unblock_document: OMIT,
         unblock_phone: OMIT,
         unblock_email: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -121,6 +126,7 @@ module Didit
             "unblock_phone" => unblock_phone,
             "unblock_email" => unblock_email
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BlocklistRemoveResponse,
           request_options: request_options
         )

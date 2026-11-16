@@ -25,7 +25,8 @@ RSpec.describe Didit::Resources::BiometricTemplates do
       template_uuids: [
         "9d2f4b6e-1c3a-4e8f-b7d5-0a1c2e3f4a5b",
         "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
-      ]
+      ],
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -41,6 +42,7 @@ RSpec.describe Didit::Resources::BiometricTemplates do
         "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
       ]
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BiometricTemplatesBatchDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -75,7 +77,8 @@ RSpec.describe Didit::Resources::BiometricTemplates do
       }
     JSON
     result = client.biometric_templates.delete(
-      "9d2f4b6e-1c3a-4e8f-b7d5-0a1c2e3f4a5b"
+      "9d2f4b6e-1c3a-4e8f-b7d5-0a1c2e3f4a5b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -86,6 +89,7 @@ RSpec.describe Didit::Resources::BiometricTemplates do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::BiometricTemplatesDeleteResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

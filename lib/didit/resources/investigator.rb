@@ -18,6 +18,7 @@ module Didit
       # @param send_email [Boolean] Email the person about the decision.
       # @param email_address [String] Required when `send_email` is true.
       # @param email_language [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::InvestigatorDecision]
       def accept_run(
@@ -26,6 +27,7 @@ module Didit
         send_email: OMIT,
         email_address: OMIT,
         email_language: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -38,6 +40,7 @@ module Didit
             "email_address" => email_address,
             "email_language" => email_language
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::InvestigatorDecision,
           request_options: request_options
         )
@@ -52,15 +55,17 @@ module Didit
       # +POST /v3/investigator/runs/batch-accept/+
       #
       # @param run_ids [Array<String>]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::InvestigatorBatchAcceptResponse]
-      def batch_accept_runs(run_ids:, request_options: nil)
+      def batch_accept_runs(run_ids:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/investigator/runs/batch-accept/",
           body: {
             "run_ids" => run_ids
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::InvestigatorBatchAcceptResponse,
           request_options: request_options
         )
@@ -229,6 +234,7 @@ module Didit
       # @param send_email [Boolean] Email the person about the decision.
       # @param email_address [String] Required when `send_email` is true.
       # @param email_language [String]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::InvestigatorDecision]
       def override_run(
@@ -239,6 +245,7 @@ module Didit
         send_email: OMIT,
         email_address: OMIT,
         email_language: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -253,6 +260,7 @@ module Didit
             "email_address" => email_address,
             "email_language" => email_language
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::InvestigatorDecision,
           request_options: request_options
         )
@@ -403,9 +411,10 @@ module Didit
       # @param stage [String]
       # @param monthly_spend_limit [String, nil] Monthly limit in your billing currency, 0.01 to 1,000,000. Null turns
       #   it off.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::InvestigatorSettings]
-      def update_settings(stage: OMIT, monthly_spend_limit: OMIT, request_options: nil)
+      def update_settings(stage: OMIT, monthly_spend_limit: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/investigator/settings/",
@@ -413,6 +422,7 @@ module Didit
             "stage" => stage,
             "monthly_spend_limit" => monthly_spend_limit
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::InvestigatorSettings,
           request_options: request_options
         )

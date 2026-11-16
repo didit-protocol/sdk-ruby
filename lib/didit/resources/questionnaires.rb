@@ -20,6 +20,7 @@ module Didit
       # @param default_language [String] Default language. Must be included in `languages`.
       # @param is_active [Boolean]
       # @param status [String] Omit this field to create a published questionnaire ready for workflows.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::QuestionnaireDetail]
       def create(
@@ -30,6 +31,7 @@ module Didit
         default_language: OMIT,
         is_active: OMIT,
         status: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -44,6 +46,7 @@ module Didit
             "is_active" => is_active,
             "status" => status
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::QuestionnaireDetail,
           request_options: request_options
         )
@@ -58,13 +61,15 @@ module Didit
       # +DELETE /v3/questionnaires/{questionnaire_uuid}/+
       #
       # @param questionnaire_uuid [String] Per-version UUID of the questionnaire to delete.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(questionnaire_uuid, request_options: nil)
+      def delete(questionnaire_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/questionnaires/{questionnaire_uuid}/",
           path_params: { "questionnaire_uuid" => questionnaire_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -135,6 +140,7 @@ module Didit
       # @param is_active [Boolean]
       # @param status [String]
       # @param form_elements [Array<Hash>] If provided, this replaces the full linear question list.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::QuestionnaireDetail]
       def update(
@@ -146,6 +152,7 @@ module Didit
         is_active: OMIT,
         status: OMIT,
         form_elements: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -161,6 +168,7 @@ module Didit
             "status" => status,
             "form_elements" => form_elements
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::QuestionnaireDetail,
           request_options: request_options
         )

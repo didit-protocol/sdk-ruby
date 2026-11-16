@@ -33,6 +33,7 @@ module Didit
       # @param narrative [Hash]
       # @param report_indicators [Array<String>]
       # @param included_fields [Array<String>]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportDetail]
       def create(
@@ -56,6 +57,7 @@ module Didit
         narrative: OMIT,
         report_indicators: OMIT,
         included_fields: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -83,6 +85,7 @@ module Didit
             "report_indicators" => report_indicators,
             "included_fields" => included_fields
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::RegulatoryReportDetail,
           request_options: request_options
@@ -105,9 +108,10 @@ module Didit
       # @param report_uuid [String] Report UUID.
       # @param confirm_delete [Boolean] Set to true to confirm that a finalized report and its generated files are
       #   deleted permanently.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(report_uuid, confirm_delete: OMIT, request_options: nil)
+      def delete(report_uuid, confirm_delete: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/",
@@ -115,6 +119,7 @@ module Didit
           body: {
             "confirm_delete" => confirm_delete
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           request_options: request_options
         )
@@ -128,13 +133,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/finalize/+
       #
       # @param report_uuid [String] Report UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportDetail]
-      def finalize(report_uuid, request_options: nil)
+      def finalize(report_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/finalize/",
           path_params: { "report_uuid" => report_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::RegulatoryReportDetail,
           request_options: request_options
@@ -238,6 +245,7 @@ module Didit
       # @param narrative [Hash]
       # @param report_indicators [Array<String>]
       # @param included_fields [Array<String>]
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportDetail]
       def update(
@@ -258,6 +266,7 @@ module Didit
         narrative: OMIT,
         report_indicators: OMIT,
         included_fields: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -282,6 +291,7 @@ module Didit
             "report_indicators" => report_indicators,
             "included_fields" => included_fields
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::RegulatoryReportDetail,
           request_options: request_options
@@ -302,13 +312,15 @@ module Didit
       # +POST /v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/validate/+
       #
       # @param report_uuid [String] Report UUID.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::RegulatoryReportsValidateResponse]
-      def validate(report_uuid, request_options: nil)
+      def validate(report_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/regulatory-reports/{report_uuid}/validate/",
           path_params: { "report_uuid" => report_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::RegulatoryReportsValidateResponse,
           request_options: request_options

@@ -25,7 +25,8 @@ RSpec.describe Didit::Resources::Lists do
       name: "Trusted office IPs",
       description: "Office egress ranges",
       list_type: "allowlist",
-      entry_type: "ip_address"
+      entry_type: "ip_address",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -41,6 +42,7 @@ RSpec.describe Didit::Resources::Lists do
       "list_type" => "allowlist",
       "entry_type" => "ip_address"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ComplianceList)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -49,7 +51,8 @@ RSpec.describe Didit::Resources::Lists do
   it "lists.delete sends DELETE /v3/lists/{list_uuid}/" do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.lists.delete(
-      "11111111-2222-3333-4444-555555555555"
+      "11111111-2222-3333-4444-555555555555",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -60,6 +63,7 @@ RSpec.describe Didit::Resources::Lists do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -154,7 +158,8 @@ RSpec.describe Didit::Resources::Lists do
     JSON
     result = client.lists.update(
       "11111111-2222-3333-4444-555555555555",
-      name: "Trusted office and VPN IPs"
+      name: "Trusted office and VPN IPs",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -167,6 +172,7 @@ RSpec.describe Didit::Resources::Lists do
     expect_json_body(request, {
       "name" => "Trusted office and VPN IPs"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ListsUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -191,7 +197,8 @@ RSpec.describe Didit::Resources::Lists do
     result = client.lists.entries.create(
       "11111111-2222-3333-4444-555555555555",
       value: "+14155552671",
-      comment: "Reported fraud"
+      comment: "Reported fraud",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -205,6 +212,7 @@ RSpec.describe Didit::Resources::Lists do
       "value" => "+14155552671",
       "comment" => "Reported fraud"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ComplianceListEntry)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -214,7 +222,8 @@ RSpec.describe Didit::Resources::Lists do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.lists.entries.delete(
       "11111111-2222-3333-4444-555555555555",
-      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+      "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -225,6 +234,7 @@ RSpec.describe Didit::Resources::Lists do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 
@@ -309,7 +319,8 @@ RSpec.describe Didit::Resources::Lists do
     result = client.lists.entries.upload_face(
       "11111111-2222-3333-4444-555555555555",
       image: "/9j/4AAQSkZJRgABAQAAAQABAAD...",
-      comment: "Known fraud attempt"
+      comment: "Known fraud attempt",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -323,6 +334,7 @@ RSpec.describe Didit::Resources::Lists do
       "image" => "/9j/4AAQSkZJRgABAQAAAQABAAD...",
       "comment" => "Known fraud attempt"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::ComplianceListEntry)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

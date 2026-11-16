@@ -41,7 +41,8 @@ RSpec.describe Didit::Resources::Ip do
       }
     JSON
     result = client.ip.assess_risk(
-      ip_address: "8.8.8.8"
+      ip_address: "8.8.8.8",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -54,6 +55,7 @@ RSpec.describe Didit::Resources::Ip do
     expect_json_body(request, {
       "ip_address" => "8.8.8.8"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::IPRiskResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)

@@ -48,9 +48,10 @@ module Didit
       #   result.
       # @param file_password [String] Password of an encrypted PDF. Without it, or with a wrong one, an encrypted PDF
       #   returns `400`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsAddImagesResponse]
-      def add_images(session_id, file:, model_type:, file_password: OMIT, request_options: nil)
+      def add_images(session_id, file:, model_type:, file_password: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/session/{sessionId}/add-images/",
@@ -62,6 +63,7 @@ module Didit
           },
           encoding: :multipart,
           file_fields: %w[file],
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsAddImagesResponse,
           request_options: request_options
         )
@@ -242,6 +244,7 @@ module Didit
       #   comma-separated string or an array. With an API key it can only match your own organization's name, so it
       #   selects all of your sessions or none. Ignored without `delete_all`. An empty value is ignored and does not
       #   narrow the selection.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsBatchDeleteResponse, Didit::Types::SessionDeletionJob]
       def batch_delete(
@@ -271,6 +274,7 @@ module Didit
         filter_is_kyc_to_be_reviewed: OMIT,
         filter_euuid: OMIT,
         filter_organization_name: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -304,6 +308,7 @@ module Didit
             "filter_euuid" => filter_euuid,
             "filter_organization_name" => filter_organization_name
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: { 200 => Types::SessionsBatchDeleteResponse, 202 => Types::SessionDeletionJob },
           request_options: request_options
         )
@@ -331,9 +336,17 @@ module Didit
       #   multiple AML checks.
       # @param node_id_query [String] Workflow graph node ID. Required only when the session has multiple AML checks
       #   (one per node); omit it for single-AML sessions.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsBulkUpdateAmlHitStatusResponse]
-      def bulk_update_aml_hit_status(session_id, hit_updates:, node_id: OMIT, node_id_query: OMIT, request_options: nil)
+      def bulk_update_aml_hit_status(
+        session_id,
+        hit_updates:,
+        node_id: OMIT,
+        node_id_query: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/bulk-update-aml-hit-status/",
@@ -345,6 +358,7 @@ module Didit
             "hit_updates" => hit_updates,
             "node_id" => node_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsBulkUpdateAmlHitStatusResponse,
           request_options: request_options
         )
@@ -368,13 +382,15 @@ module Didit
       # @param session_id [String] UUID of the verification session. Accepts both user (KYC) and business (KYB)
       #   session IDs.
       # @param override_id [String] The `id` of the override to cancel.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::FeatureStatusOverride]
-      def cancel_feature_override(session_id, override_id, request_options: nil)
+      def cancel_feature_override(session_id, override_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/session/{sessionId}/features/overrides/{overrideId}/cancel/",
           path_params: { "sessionId" => session_id, "overrideId" => override_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::FeatureStatusOverride,
           request_options: request_options
         )
@@ -473,6 +489,7 @@ module Didit
       #   the requirement, so the verification flow does not ask again, and the decision records it as `status: "given"`
       #   with trigger `customer_collected`. An answer the person already gave in the flow is never replaced. See
       #   [Biometric consent](/getting-started/biometric-consent).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsCreateResponse]
       def create(
@@ -492,6 +509,7 @@ module Didit
         sign: OMIT,
         user_state: OMIT,
         biometric_consent: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -515,6 +533,7 @@ module Didit
             "user_state" => user_state,
             "biometric_consent" => biometric_consent
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsCreateResponse,
           request_options: request_options
         )
@@ -553,6 +572,7 @@ module Didit
       #   allows skipping in the workflow's Key People settings.
       # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
       #   node; by default Didit uses the session's own node.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsCreateKybPartyDraftResponse]
       def create_kyb_party_draft(
@@ -574,6 +594,7 @@ module Didit
         custom_fields: OMIT,
         skip_verification: OMIT,
         node_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -601,6 +622,7 @@ module Didit
             "custom_fields" => custom_fields,
             "skip_verification" => skip_verification
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsCreateKybPartyDraftResponse,
           request_options: request_options
         )
@@ -663,9 +685,9 @@ module Didit
       # `deleted_child_verifications`. Earlier versions of this endpoint returned `204 No Content`; update clients
       # that assert on `204`. Keep your `instruction_id` in your own erasure log.
       #
-      # **Idempotency:** not idempotent at the HTTP level: the first call returns `200`; repeating it returns `404`
-      # because the session no longer resolves. After a `503` the session is still in place; repeat the same request
-      # to finish deleting it.
+      # **Idempotency:** without an `Idempotency-Key`, repeating a delete returns `404` because the session no longer
+      # resolves; with the same key, a repeat of a successful delete returns the first `200` response. After a `503`
+      # the session is still in place; repeat the same request to finish deleting it.
       #
       # **Authentication:** send your application's API key in the `x-api-key` header; the session must belong to that
       # application. Console user access tokens (`Authorization: Bearer ...`) may also call this endpoint when they
@@ -703,6 +725,7 @@ module Didit
       #   true` (`...
       # @param instruction_id [String] Your durable reference for this deletion instruction (for example an
       #   erasure-ticket id). Recorded on the audit trail and on any retained template. Generated by Didit when omitted.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsDeleteResponse]
       def delete(
@@ -712,6 +735,7 @@ module Didit
         face_retention_deadline: OMIT,
         deletion_instruction: OMIT,
         instruction_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -725,6 +749,7 @@ module Didit
             "deletion_instruction" => deletion_instruction,
             "instruction_id" => instruction_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsDeleteResponse,
           request_options: request_options
         )
@@ -741,9 +766,10 @@ module Didit
       # @param draft_id [String] UUID of the party draft (`draft_id` returned when it was created).
       # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
       #   node; by default Didit uses the session's own node.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete_kyb_party_draft(session_id, draft_id, node_id: OMIT, request_options: nil)
+      def delete_kyb_party_draft(session_id, draft_id, node_id: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/session/{sessionId}/kyb/parties/drafts/{draftId}/",
@@ -751,6 +777,7 @@ module Didit
           query: {
             "node_id" => node_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
@@ -809,13 +836,15 @@ module Didit
       # @param session_id [String] UUID of the verification session (the `session_id` returned by `POST
       #   /v3/session/`). Accepts both User Verification (KYC) and Business Verification (KYB) session IDs. A deleted
       #   session returns `404`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionFilesExport]
-      def export_files(session_id, request_options: nil)
+      def export_files(session_id, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/session/{sessionId}/files-export/",
           path_params: { "sessionId" => session_id },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionFilesExport,
           request_options: request_options
         )
@@ -846,8 +875,10 @@ module Didit
       #   followed by tags and review activity.
       #
       # **Branding.** If your application has white-label customization, the report is rendered with your logo and
-      # links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English - there
-      # is no language parameter.
+      # links to your privacy-policy URL; otherwise it carries Didit branding. Reports are rendered in English by
+      # default; pass the `language` query parameter to print every word the report writes itself (section titles,
+      # labels, statuses, check names, notes, footers, dates and country names) in one of 16 languages, while values
+      # the end user submitted or a source returned print exactly as captured.
       #
       # **No caching.** Every call re-renders the PDF from the current session data, so a report generated after a
       # manual review reflects the reviewer’s decision. Two calls for the same session can produce byte-different
@@ -872,13 +903,20 @@ module Didit
       #   `Content-Disposition` filename on the response to tell which report type you received. **Must be a
       #   well-formed, lowercase UUID.** The route only matches valid UUIDs, so a malformed value is rejected by the
       #   URL...
+      # @param language [String] Language of the report. Every word the report writes itself prints in this language:
+      #   section titles, labels, table headers, statuses, check names and descriptions, notes, footers, page numbering,
+      #   the cover, the PDF outline, dates (month names and order per language) and country names. What the end user
+      #   submitted or a source returned (names, addresses, document fields, OCR values, watchlist profil...
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [String, nil] the body bytes, or nil when a block receives the chunks
-      def generate_pdf(session_id, request_options: nil, &block)
+      def generate_pdf(session_id, language: OMIT, request_options: nil, &block)
         @client.request(
           :get,
           "/v3/session/{sessionId}/generate-pdf/",
           path_params: { "sessionId" => session_id },
+          query: {
+            "language" => language
+          },
           response: :binary,
           accept: "application/pdf, application/json",
           request_options: request_options, &block
@@ -912,8 +950,9 @@ module Didit
 
       # Redeem a share token to clone a verification session into your application
       #
-      # Redeem a share token to clone a KYC or KYB session into the calling application with a fresh `session_id`. Not
-      # idempotent - a token redeems once per receiver.
+      # Redeem a share token to clone a KYC or KYB session into the calling application with a fresh `session_id`.
+      # Without an `Idempotency-Key` a token redeems once per receiver; repeat it with the same key to get the first
+      # response back.
       #
       # +POST /v3/session/import-shared/+
       #
@@ -924,9 +963,17 @@ module Didit
       # @param workflow_id [String] UUID of a workflow in the calling application. Cross-application IDs are rejected
       #   with `404`.
       # @param vendor_data [String, nil] Optional override for the cloned session's `vendor_data`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionDecision]
-      def import_shared(share_token:, trust_review:, workflow_id:, vendor_data: OMIT, request_options: nil)
+      def import_shared(
+        share_token:,
+        trust_review:,
+        workflow_id:,
+        vendor_data: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/session/import-shared/",
@@ -936,6 +983,7 @@ module Didit
             "workflow_id" => workflow_id,
             "vendor_data" => vendor_data
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionDecision,
           request_options: request_options
         )
@@ -1355,9 +1403,16 @@ module Didit
       # @param new_status [String] The decision whose email you want to preview.
       # @param email_language [String] Language of the email, the same default as Update Session Status. A language
       #   that is not offered falls back to English; `language` in the response says which one is used.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsPreviewDecisionEmailResponse]
-      def preview_decision_email(session_id, new_status:, email_language: OMIT, request_options: nil)
+      def preview_decision_email(
+        session_id,
+        new_status:,
+        email_language: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/session/{sessionId}/decision-email-preview/",
@@ -1366,6 +1421,7 @@ module Didit
             "new_status" => new_status,
             "email_language" => email_language
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsPreviewDecisionEmailResponse,
           request_options: request_options
         )
@@ -1410,6 +1466,7 @@ module Didit
       #   email is sent by this call.
       # @param email_language [String] Language for the notification email. Accepts any string at schema level;
       #   unsupported codes silently fall back to English (`en`).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsPreviewResubmissionResponse]
       def preview_resubmission(
@@ -1417,6 +1474,7 @@ module Didit
         nodes_to_resubmit: OMIT,
         email_address: OMIT,
         email_language: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -1428,6 +1486,7 @@ module Didit
             "email_address" => email_address,
             "email_language" => email_language
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsPreviewResubmissionResponse,
           request_options: request_options
         )
@@ -1457,13 +1516,15 @@ module Didit
       # @param session_id [String] UUID of the parent Business Verification (KYB) session.
       # @param party_uuid [String] UUID of the Key People party (`key_people_checks[].submitted.parties[].uuid` on the
       #   business session decision). Must belong to the session referenced by `sessionId`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::KYBKeyPeopleParty]
-      def regenerate_kyb_party(session_id, party_uuid, request_options: nil)
+      def regenerate_kyb_party(session_id, party_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/session/{sessionId}/kyb/parties/{partyUuid}/regenerate/",
           path_params: { "sessionId" => session_id, "partyUuid" => party_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::KYBKeyPeopleParty,
           request_options: request_options
         )
@@ -1575,9 +1636,10 @@ module Didit
       #   → Application**.
       # @param ttl_in_seconds [Integer] Token lifetime, in seconds. Minimum `60`, maximum `86400` (24 h). Defaults to
       #   `3600` (1 h).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsShareResponse]
-      def share(session_id, for_application_id:, ttl_in_seconds: OMIT, request_options: nil)
+      def share(session_id, for_application_id:, ttl_in_seconds: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/session/{sessionId}/share/",
@@ -1586,6 +1648,7 @@ module Didit
             "for_application_id" => for_application_id,
             "ttl_in_seconds" => ttl_in_seconds
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsShareResponse,
           request_options: request_options
         )
@@ -1629,6 +1692,7 @@ module Didit
       #   `business.status.updated` / `business.data.updated`) events the change causes, for destinations subscribed to
       #   them. `false` changes the status without logging or sending any webhook: the missed-webhook recovery never
       #   re-...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SandboxSimulateResponse]
       def simulate(
@@ -1639,6 +1703,7 @@ module Didit
         risk: OMIT,
         node_id: OMIT,
         send_webhooks: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -1653,6 +1718,7 @@ module Didit
             "node_id" => node_id,
             "send_webhooks" => send_webhooks
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SandboxSimulateResponse,
           request_options: request_options
         )
@@ -1675,9 +1741,10 @@ module Didit
       # @param locale [String] Locale used to translate the response of the step the session advances to.
       # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
       #   node; by default Didit uses the session's own node.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsSubmitKybPartiesResponse]
-      def submit_kyb_parties(session_id, locale: OMIT, node_id: OMIT, request_options: nil)
+      def submit_kyb_parties(session_id, locale: OMIT, node_id: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/session/{sessionId}/kyb/parties/submit/",
@@ -1688,6 +1755,7 @@ module Didit
           body: {
             "locale" => locale
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsSubmitKybPartiesResponse,
           request_options: request_options
         )
@@ -1722,6 +1790,7 @@ module Didit
       #   multiple AML checks.
       # @param node_id_query [String] Workflow graph node ID. Required only when the session has multiple AML checks
       #   (one per node); omit it for single-AML sessions.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateAmlHitStatusResponse]
       def update_aml_hit_status(
@@ -1730,6 +1799,7 @@ module Didit
         review_status:,
         node_id: OMIT,
         node_id_query: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -1744,6 +1814,7 @@ module Didit
             "review_status" => review_status,
             "node_id" => node_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateAmlHitStatusResponse,
           request_options: request_options
         )
@@ -1770,9 +1841,17 @@ module Didit
       # @param node_id [String] Workflow graph node ID of the AML check, as an alternative to the query parameter.
       # @param node_id_query [String] Workflow graph node ID of the AML check to update. Needed only when the session
       #   ran more than one AML step. Takes precedence over `node_id` in the body.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateAmlStatusResponse]
-      def update_aml_status(session_id, status:, node_id: OMIT, node_id_query: OMIT, request_options: nil)
+      def update_aml_status(
+        session_id,
+        status:,
+        node_id: OMIT,
+        node_id_query: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/session/{sessionId}/update-aml-status/",
@@ -1784,6 +1863,7 @@ module Didit
             "status" => status,
             "node_id" => node_id
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateAmlStatusResponse,
           request_options: request_options
         )
@@ -1870,6 +1950,7 @@ module Didit
       #   ID-verification steps (also accepted as a `node_id` body field). When omitted, the most recent KYC record on
       #   the session is patched. If no KYC exists for the given node, the call returns `404` (`"The session does not
       #   have a KYC for node '<node_id>'."`).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateDataResponse]
       def update_data(
@@ -1892,6 +1973,7 @@ module Didit
         extra_fields: OMIT,
         parsed_address: OMIT,
         node_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -1920,6 +2002,7 @@ module Didit
             "extra_fields" => extra_fields,
             "parsed_address" => parsed_address
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateDataResponse,
           request_options: request_options
         )
@@ -1947,9 +2030,17 @@ module Didit
       #   Must be a JSON object; merged key by key into the stored data. Leave it out rather than sending `null`, which
       #   returns `400`.
       # @param status [String] New review status of the document.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateDocumentAiDataResponse]
-      def update_document_ai_data(session_id, document_uuid, extracted_data: OMIT, status: OMIT, request_options: nil)
+      def update_document_ai_data(
+        session_id,
+        document_uuid,
+        extracted_data: OMIT,
+        status: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :patch,
           "/v3/document-ai/{sessionId}/documents/{documentUuid}/",
@@ -1958,6 +2049,7 @@ module Didit
             "extracted_data" => extracted_data,
             "status" => status
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateDocumentAiDataResponse,
           request_options: request_options
         )
@@ -2015,6 +2107,7 @@ module Didit
       # @param defer_until_flow_finishes [Boolean] While the person is still in the flow, store the override as
       #   `pending_until_flow_finishes` and apply it when the flow finishes, instead of at once. Omitted or `false`, the
       #   override applies at once. On a session whose flow already ended it applies at once either way.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateFeatureStatusResponse]
       def update_feature_status(
@@ -2024,6 +2117,7 @@ module Didit
         comment: OMIT,
         feature_type: OMIT,
         defer_until_flow_finishes: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2036,6 +2130,7 @@ module Didit
             "feature_type" => feature_type,
             "defer_until_flow_finishes" => defer_until_flow_finishes
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateFeatureStatusResponse,
           request_options: request_options
         )
@@ -2124,6 +2219,7 @@ module Didit
       #   unchanged.
       # @param control_scheme [String] Control / governance scheme when the registry exposes it. Stored in the
       #   registry snapshot only.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateKybCompanyDataResponse]
       def update_kyb_company_data(
@@ -2153,6 +2249,7 @@ module Didit
         location_of_registration: OMIT,
         vat_number: OMIT,
         control_scheme: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2185,6 +2282,7 @@ module Didit
             "vat_number" => vat_number,
             "control_scheme" => control_scheme
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateKybCompanyDataResponse,
           request_options: request_options
         )
@@ -2221,9 +2319,10 @@ module Didit
       #   referenced by `sessionId`.
       # @param is_skipped [Boolean] `true` exempts the party from verification so the Key People check can settle
       #   without it; `false` puts it back in scope.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateKybPartyResponse]
-      def update_kyb_party(session_id, party_uuid, is_skipped:, request_options: nil)
+      def update_kyb_party(session_id, party_uuid, is_skipped:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/session/{sessionId}/kyb/parties/{partyUuid}/",
@@ -2231,6 +2330,7 @@ module Didit
           body: {
             "is_skipped" => is_skipped
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateKybPartyResponse,
           request_options: request_options
         )
@@ -2268,6 +2368,7 @@ module Didit
       #   allows skipping in the workflow's Key People settings.
       # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
       #   node; by default Didit uses the session's own node.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateKybPartyDraftResponse]
       def update_kyb_party_draft(
@@ -2290,6 +2391,7 @@ module Didit
         custom_fields: OMIT,
         skip_verification: OMIT,
         node_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2317,6 +2419,7 @@ module Didit
             "custom_fields" => custom_fields,
             "skip_verification" => skip_verification
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateKybPartyDraftResponse,
           request_options: request_options
         )
@@ -2391,6 +2494,7 @@ module Didit
       #   of Address steps (also accepted as a `node_id` body field). When omitted, the most recent POA record on the
       #   session is patched. If no POA exists for the given node, the call returns `404` (`"The session does not have a
       #   POA for node '<node_id>'."`).
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdatePoaDataResponse]
       def update_poa_data(
@@ -2405,6 +2509,7 @@ module Didit
         extra_fields: OMIT,
         poa_parsed_address: OMIT,
         node_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2425,6 +2530,7 @@ module Didit
             "extra_fields" => extra_fields,
             "poa_parsed_address" => poa_parsed_address
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdatePoaDataResponse,
           request_options: request_options
         )
@@ -2522,6 +2628,7 @@ module Didit
       # @param link_reason [String] Reviewer reason for the same-person link, required with link_to_session_id and
       #   rejected without it. Leading and trailing whitespace is trimmed; the result must be nonblank and at most 2000
       #   characters. Recorded in the separate link audit. comment does not substitute for this field.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUpdateStatusResponse]
       def update_status(
@@ -2535,6 +2642,7 @@ module Didit
         email_preview_token: OMIT,
         link_to_session_id: OMIT,
         link_reason: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2552,6 +2660,7 @@ module Didit
             "link_to_session_id" => link_to_session_id,
             "link_reason" => link_reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUpdateStatusResponse,
           request_options: request_options
         )
@@ -2579,6 +2688,7 @@ module Didit
       # @param locale [String] Locale used to translate the response of the next step.
       # @param node_id [String] Workflow node of the KYB step. Only needed when the workflow has more than one KYB
       #   node; by default Didit uses the session's own node.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SessionsUploadKybDocumentsResponse]
       def upload_kyb_documents(
@@ -2588,6 +2698,7 @@ module Didit
         document_group: OMIT,
         locale: OMIT,
         node_id: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -2605,6 +2716,7 @@ module Didit
           },
           encoding: :multipart,
           file_fields: %w[documents],
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::SessionsUploadKybDocumentsResponse,
           request_options: request_options
         )
@@ -2619,13 +2731,15 @@ module Didit
         # +POST /v3/session/imports/{importId}/cancel/+
         #
         # @param import_id [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
-        def cancel(import_id, request_options: nil)
+        def cancel(import_id, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/imports/{importId}/cancel/",
             path_params: { "importId" => import_id },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -2644,9 +2758,17 @@ module Didit
         #   JSON string in multipart.
         # @param options [Hash]
         # @param record_ids [Array<String>] For `api_ids` providers: the first record ID of your export.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionsImportsCheckProviderResponse]
-        def check_provider(provider:, credentials:, options: OMIT, record_ids: OMIT, request_options: nil)
+        def check_provider(
+          provider:,
+          credentials:,
+          options: OMIT,
+          record_ids: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
           @client.request(
             :post,
             "/v3/session/imports/providers/check/",
@@ -2656,6 +2778,7 @@ module Didit
               "options" => options,
               "record_ids" => record_ids
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionsImportsCheckProviderResponse,
             request_options: request_options
           )
@@ -2703,6 +2826,7 @@ module Didit
         # @param file [Pathname, IO, String, Didit::FilePart] Canonical CSV or NDJSON file. Use NDJSON for large
         #   imports. Maximum upload size 25 MB (use `source_file_url` for bigger files). Mutually exclusive with
         #   `source_file_url`.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
         def create(
@@ -2719,6 +2843,7 @@ module Didit
           face_templates: OMIT,
           lawful_basis_confirmed: OMIT,
           file: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -2741,6 +2866,7 @@ module Didit
             },
             encoding: :auto,
             file_fields: %w[file],
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -2837,13 +2963,15 @@ module Didit
         # +POST /v3/session/imports/{importId}/pause/+
         #
         # @param import_id [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
-        def pause(import_id, request_options: nil)
+        def pause(import_id, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/imports/{importId}/pause/",
             path_params: { "importId" => import_id },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -2856,13 +2984,15 @@ module Didit
         # +POST /v3/session/imports/{importId}/resume/+
         #
         # @param import_id [String]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
-        def resume(import_id, request_options: nil)
+        def resume(import_id, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/imports/{importId}/resume/",
             path_params: { "importId" => import_id },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -2925,9 +3055,10 @@ module Didit
         #   JSON string in multipart.
         # @param file [Pathname, IO, String, Didit::FilePart] The record IDs or export file again, for `api_ids` and
         #   `export_file` providers.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
-        def retry(import_id, credentials: OMIT, file: OMIT, request_options: nil)
+        def retry(import_id, credentials: OMIT, file: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/imports/{importId}/retry/",
@@ -2938,6 +3069,7 @@ module Didit
             },
             encoding: :multipart,
             file_fields: %w[file],
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -2957,6 +3089,7 @@ module Didit
         #   application's faces and blocklist. Matches are flagged for review only. Requires `lawful_basis_confirmed`.
         # @param lawful_basis_confirmed [Boolean] Confirms you have a lawful basis to share these selfies with Didit
         #   as processor.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionImportJob]
         def start(
@@ -2964,6 +3097,7 @@ module Didit
           status_mapping: OMIT,
           face_templates: OMIT,
           lawful_basis_confirmed: OMIT,
+          idempotency_key: OMIT,
           request_options: nil
         )
           @client.request(
@@ -2975,6 +3109,7 @@ module Didit
               "face_templates" => face_templates,
               "lawful_basis_confirmed" => lawful_basis_confirmed
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionImportJob,
             request_options: request_options
           )
@@ -3010,9 +3145,10 @@ module Didit
         #   session's actual status - use the update-status endpoint for that.
         # @param comment [String, nil] Optional free-text note (no enforced length limit). Stored verbatim; `@email`
         #   mentions are not processed on this endpoint.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionsReviewsCreateResponse]
-        def create(session_id, new_status: OMIT, comment: OMIT, request_options: nil)
+        def create(session_id, new_status: OMIT, comment: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/sessions/{session_id}/reviews/",
@@ -3021,6 +3157,7 @@ module Didit
               "new_status" => new_status,
               "comment" => comment
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionsReviewsCreateResponse,
             request_options: request_options
           )
@@ -3171,9 +3308,10 @@ module Didit
         # @param session_id [String] The User Verification (KYC) or Business Verification (KYB) session.
         # @param node_id [String] The E-signature step: `node_id` of the item in `signatures[]`.
         # @param signature_id [String] `id` of one signer's item in `signatures[]`.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionsSignaturesValidateResponse]
-        def validate(session_id, node_id, signature_id: OMIT, request_options: nil)
+        def validate(session_id, node_id, signature_id: OMIT, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/{sessionId}/signatures/{nodeId}/validate/",
@@ -3181,6 +3319,7 @@ module Didit
             body: {
               "signature_id" => signature_id
             },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionsSignaturesValidateResponse,
             request_options: request_options
           )
@@ -3238,13 +3377,15 @@ module Didit
         #   e...
         # @param webhook_uuid [String] UUID of the delivery to resend: the `uuid` of an entry returned by `GET
         #   /v3/session/{sessionId}/webhooks/`. It must belong to the session in the path.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [Didit::Types::SessionWebhookDelivery]
-        def resend(session_id, webhook_uuid, request_options: nil)
+        def resend(session_id, webhook_uuid, idempotency_key: OMIT, request_options: nil)
           @client.request(
             :post,
             "/v3/session/{sessionId}/webhook/{webhook_uuid}/resend",
             path_params: { "sessionId" => session_id, "webhook_uuid" => webhook_uuid },
+            headers: { "Idempotency-Key" => idempotency_key },
             response: Types::SessionWebhookDelivery,
             request_options: request_options
           )

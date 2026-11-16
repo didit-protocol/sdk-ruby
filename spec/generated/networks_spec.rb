@@ -134,7 +134,8 @@ RSpec.describe Didit::Resources::Networks do
     JSON
     result = client.networks.add_tag(
       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      tag_uuid: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+      tag_uuid: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -147,6 +148,7 @@ RSpec.describe Didit::Resources::Networks do
     expect_json_body(request, {
       "tag_uuid" => "7c9e6679-7425-40de-944b-e07fc1f90ae7"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::NetworkDetailResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -504,7 +506,8 @@ RSpec.describe Didit::Resources::Networks do
     JSON
     result = client.networks.remove_tag(
       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      tag_uuid: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+      tag_uuid: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -517,6 +520,7 @@ RSpec.describe Didit::Resources::Networks do
     expect_json_body(request, {
       "tag_uuid" => "7c9e6679-7425-40de-944b-e07fc1f90ae7"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::NetworkDetailResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -875,7 +879,8 @@ RSpec.describe Didit::Resources::Networks do
     result = client.networks.notes.create(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
       comment: "comment-value",
-      client_reference: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      client_reference: "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -889,6 +894,7 @@ RSpec.describe Didit::Resources::Networks do
       "comment" => "comment-value",
       "client_reference" => "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
     })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::NetworkNote)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
@@ -898,7 +904,8 @@ RSpec.describe Didit::Resources::Networks do
     calls = stub_api(status: 204, body: nil, content_type: nil)
     result = client.networks.notes.delete(
       "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
     )
     request = expect_api_request(
       calls,
@@ -909,6 +916,7 @@ RSpec.describe Didit::Resources::Networks do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
   end
 

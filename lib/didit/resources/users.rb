@@ -40,6 +40,7 @@ module Didit
       # @param face_retention_days [Integer] Number of days the image-free biometric template is kept when
       #   `retain_face_embeddings` is `true`. Required with it, and rejected without it with a `400` on
       #   `face_retention_days`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersBatchDeleteResponse]
       def batch_delete(
@@ -48,6 +49,7 @@ module Didit
         delete_all: OMIT,
         retain_face_embeddings: OMIT,
         face_retention_days: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -60,6 +62,7 @@ module Didit
             "retain_face_embeddings" => retain_face_embeddings,
             "face_retention_days" => face_retention_days
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::UsersBatchDeleteResponse,
           request_options: request_options
         )
@@ -68,7 +71,8 @@ module Didit
       # Create user
       #
       # Create a [user](/entities/users) by `vendor_data`, before or without a verification session. `vendor_data`
-      # must be unique among the application's users (a duplicate returns `400`). Not idempotent.
+      # must be unique among the application's users (a duplicate returns `400`). Not idempotent without an
+      # `Idempotency-Key`.
       #
       # **Contact details:** `email` and `phone_number` are stored in `metadata.contact`, and `country` in
       # `metadata.address`. When you send `first_name` or `last_name` without `full_name`, Didit joins them into
@@ -116,6 +120,7 @@ module Didit
       # @param language [String] Language of the verification email, as a [supported
       #   language](/integration/supported-languages) code. English when omitted. Ignored when `send_verification_link`
       #   is not `true`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersCreateResponse]
       def create(
@@ -136,6 +141,7 @@ module Didit
         send_verification_link: OMIT,
         workflow_id: OMIT,
         language: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -160,6 +166,7 @@ module Didit
             "workflow_id" => workflow_id,
             "language" => language
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::UsersCreateResponse,
           request_options: request_options
         )
@@ -337,6 +344,7 @@ module Didit
       # @param vendor_data_list [Array<String>] Your own identifiers of the users to toggle, matched exactly as sent.
       # @param didit_internal_id_list [Array<String>] Didit internal ids of the users to toggle - the
       #   `didit_internal_id` returned by the create, get and list endpoints.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::AMLMonitoringToggleResult, Didit::Types::AMLMonitoringJob]
       def set_aml_monitoring(
@@ -344,6 +352,7 @@ module Didit
         estimate_only: OMIT,
         vendor_data_list: OMIT,
         didit_internal_id_list: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -355,6 +364,7 @@ module Didit
             "vendor_data_list" => vendor_data_list,
             "didit_internal_id_list" => didit_internal_id_list
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: { 200 => Types::AMLMonitoringToggleResult, 202 => Types::AMLMonitoringJob },
           request_options: request_options
         )
@@ -379,6 +389,7 @@ module Didit
       # @param filter_date_from [Date, String]
       # @param filter_date_to [Date, String]
       # @param didit_internal_id_list [Array<String>] Entities to toggle. Required unless update_all is true.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::OngoingMonitoringToggleResult, Didit::Types::OngoingMonitoringJob]
       def set_ongoing_monitoring(
@@ -391,6 +402,7 @@ module Didit
         filter_date_from: OMIT,
         filter_date_to: OMIT,
         didit_internal_id_list: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -407,6 +419,7 @@ module Didit
             "filter_date_to" => filter_date_to,
             "didit_internal_id_list" => didit_internal_id_list
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: { 200 => Types::OngoingMonitoringToggleResult, 202 => Types::OngoingMonitoringJob },
           request_options: request_options
@@ -440,6 +453,7 @@ module Didit
       # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the user's activity
       #   (`comments[].comment`, and **Activity** in the Business Console), only when the status actually changes.
       #   Webhooks do not carry it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
       def update(
@@ -453,6 +467,7 @@ module Didit
         approved_phones: OMIT,
         issuing_states: OMIT,
         reason: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -470,6 +485,7 @@ module Didit
             "issuing_states" => issuing_states,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::UserDetailItem,
           request_options: request_options
         )
@@ -490,9 +506,10 @@ module Didit
       # @param reason [String, nil] Why the status changed. Recorded on the status-change entry of the user's activity
       #   (`comments[].comment`, and **Activity** in the Business Console), only when the status actually changes.
       #   Webhooks do not carry it.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UserDetailItem]
-      def update_status(vendor_data, status:, reason: OMIT, request_options: nil)
+      def update_status(vendor_data, status:, reason: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :patch,
           "/v3/users/{vendor_data}/update-status/",
@@ -501,6 +518,7 @@ module Didit
             "status" => status,
             "reason" => reason
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::UserDetailItem,
           request_options: request_options
         )
@@ -519,9 +537,10 @@ module Didit
       # @param image [String] Raw base64-encoded JPG or PNG face image. Do not include a `data:image/...;base64,`
       #   prefix. Max decoded size: 2 MB.
       # @param comment [String] Optional operator-visible note for the uploaded face.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::UsersUploadFaceResponse]
-      def upload_face(didit_internal_id, image:, comment: OMIT, request_options: nil)
+      def upload_face(didit_internal_id, image:, comment: OMIT, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/organization/{organization_id}/application/{application_id}/vendor-users/by-id/{didit_internal_id}/faces/upload/",
@@ -530,6 +549,7 @@ module Didit
             "image" => image,
             "comment" => comment
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           scope: :application,
           response: Types::UsersUploadFaceResponse,
           request_options: request_options

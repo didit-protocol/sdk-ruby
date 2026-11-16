@@ -52,6 +52,7 @@ module Didit
       # @param custom_values [Hash{String => String, Numeric, Boolean, nil}] Up to 100 keys of your own, addressable
       #   from rules as `custom_values.<key>`. Values must be scalars (string, number, boolean or null); nested objects
       #   and arrays are rejected.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::MonitoringEventIngestResult]
       def create(
@@ -67,6 +68,7 @@ module Didit
         transaction_context: OMIT,
         payload: OMIT,
         custom_values: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -86,6 +88,7 @@ module Didit
             "payload" => payload,
             "custom_values" => custom_values
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::MonitoringEventIngestResult,
           request_options: request_options
         )
@@ -105,15 +108,17 @@ module Didit
       #
       # @param events [Array<Hash>] 1 to 500 events. Each item follows `MonitoringEventCreateRequest`, including the
       #   7-day past and 5-minute future window on `occurred_at`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::MonitoringEventsCreateBatchResponse]
-      def create_batch(events:, request_options: nil)
+      def create_batch(events:, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :post,
           "/v3/events/batch/",
           body: {
             "events" => events
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::MonitoringEventsCreateBatchResponse,
           request_options: request_options
         )
@@ -144,6 +149,7 @@ module Didit
       #   Send `null` for no cap within the lifetime.
       # @param bind_to_origin [String, nil] When set, the browser `Origin` header of every device request must equal
       #   this value exactly; a request without `Origin` is refused.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::MonitoringEventsCreateSdkTokenResponse]
       def create_sdk_token(
@@ -153,6 +159,7 @@ module Didit
         ttl_seconds: OMIT,
         max_uses: OMIT,
         bind_to_origin: OMIT,
+        idempotency_key: OMIT,
         request_options: nil
       )
         @client.request(
@@ -166,6 +173,7 @@ module Didit
             "max_uses" => max_uses,
             "bind_to_origin" => bind_to_origin
           },
+          headers: { "Idempotency-Key" => idempotency_key },
           response: Types::MonitoringEventsCreateSdkTokenResponse,
           request_options: request_options
         )
@@ -185,13 +193,15 @@ module Didit
       #
       # @param event_uuid [String] Didit identifier of the event (`event_uuid` from the create, batch, list or
       #   timeline response), not your own `event_id`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [nil]
-      def delete(event_uuid, request_options: nil)
+      def delete(event_uuid, idempotency_key: OMIT, request_options: nil)
         @client.request(
           :delete,
           "/v3/events/{event_uuid}/delete/",
           path_params: { "event_uuid" => event_uuid },
+          headers: { "Idempotency-Key" => idempotency_key },
           request_options: request_options
         )
       end
