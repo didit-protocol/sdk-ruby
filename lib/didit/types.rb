@@ -551,6 +551,8 @@ module Didit
     autoload :GeolocationCheckStatus, "didit/types/components"
     autoload :GeolocationCheckWarnings, "didit/types/components"
     autoload :GeolocationCheckWarningsFeature, "didit/types/components"
+    autoload :GeolocationParsedAddress, "didit/types/components"
+    autoload :GeolocationParsedAddressDocumentLocation, "didit/types/components"
     autoload :IPRiskResponse, "didit/types/components"
     autoload :IPRiskResponseIp, "didit/types/components"
     autoload :IPRiskResponseIpStatus, "didit/types/components"

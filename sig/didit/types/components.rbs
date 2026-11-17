@@ -7650,6 +7650,7 @@ module Didit
       def country_code: () -> String?
       def region_code: () -> String?
       def city: () -> String?
+      def parsed_address: () -> Didit::Types::GeolocationParsedAddress?
       def geofence: () -> Didit::Types::GeolocationAttemptGeofence?
       def inside_geofence: () -> bool?
       def geofence_basis: () -> String?
@@ -7708,6 +7709,7 @@ module Didit
       def country_code: () -> String?
       def region_code: () -> String?
       def city: () -> String?
+      def parsed_address: () -> Didit::Types::GeolocationParsedAddress?
       def geofence: () -> Didit::Types::GeolocationCheckGeofence?
       def inside_geofence: () -> bool?
       def geofence_basis: () -> String?
@@ -7753,6 +7755,24 @@ module Didit
       def short_description: () -> String?
       def long_description: () -> String?
       def node_id: () -> String?
+    end
+
+    class GeolocationParsedAddress < Didit::Model
+      def street_1: () -> String?
+      def street_2: () -> String?
+      def city: () -> String?
+      def region: () -> String?
+      def country: () -> String?
+      def postal_code: () -> String?
+      def address_type: () -> String?
+      def formatted_address: () -> String?
+      def raw_results: () -> Hash[String, untyped]?
+      def document_location: () -> Didit::Types::GeolocationParsedAddressDocumentLocation?
+    end
+
+    class GeolocationParsedAddressDocumentLocation < Didit::Model
+      def latitude: () -> Float?
+      def longitude: () -> Float?
     end
 
     class IPRiskResponse < Didit::Model
