@@ -8860,6 +8860,7 @@ module Didit
       field :country_code, "country_code", :string
       field :region_code, "region_code", :string
       field :city, "city", :string
+      field :parsed_address, "parsed_address", "GeolocationParsedAddress"
       field :geofence, "geofence", "GeolocationAttemptGeofence"
       field :inside_geofence, "inside_geofence", :boolean
       field :geofence_basis, "geofence_basis", :string
@@ -8923,6 +8924,7 @@ module Didit
       field :country_code, "country_code", :string
       field :region_code, "region_code", :string
       field :city, "city", :string
+      field :parsed_address, "parsed_address", "GeolocationParsedAddress"
       field :geofence, "geofence", "GeolocationCheckGeofence"
       field :inside_geofence, "inside_geofence", :boolean
       field :geofence_basis, "geofence_basis", :string
@@ -8971,6 +8973,29 @@ module Didit
       field :short_description, "short_description", :string
       field :long_description, "long_description", :string
       field :node_id, "node_id", :string
+    end
+
+    # The street address at the device fix, reverse geocoded, in the same shape as `id_verifications[].parsed_address`
+    # and `poa_verifications[].poa_parsed_address`. It is only as precise as `accuracy_m`. `null` when there is no
+    # device fix (permission denied, timeout or skip), when the Location step only used the IP address, in sandbox
+    # sessions, when the geocoder places the point nowhere, or when the geocoder failed.
+    class GeolocationParsedAddress < Didit::Model
+      field :street_1, "street_1", :string
+      field :street_2, "street_2", :string
+      field :city, "city", :string
+      field :region, "region", :string
+      field :country, "country", :string
+      field :postal_code, "postal_code", :string
+      field :address_type, "address_type", :string
+      field :formatted_address, "formatted_address", :string
+      field :raw_results, "raw_results", :any
+      field :document_location, "document_location", "GeolocationParsedAddressDocumentLocation"
+    end
+
+    # Coordinates of the address point.
+    class GeolocationParsedAddressDocumentLocation < Didit::Model
+      field :latitude, "latitude", :float
+      field :longitude, "longitude", :float
     end
 
     class IPRiskResponse < Didit::Model
