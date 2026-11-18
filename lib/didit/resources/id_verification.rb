@@ -21,8 +21,8 @@ module Didit
       #
       # **Decision logic.** `status` is `Approved` unless at least one warning resolves to a decline. Fraud and
       # hard-failure risks always decline: `DOCUMENT_EXPIRED`, `SCREEN_CAPTURE_DETECTED`, `PRINTED_COPY_DETECTED`,
-      # `PORTRAIT_MANIPULATION_DETECTED`, `PUBLIC_DOCUMENT_IMAGE_DETECTED`, plus extraction failures
-      # (`NAME_NOT_DETECTED`, `DATE_OF_BIRTH_NOT_DETECTED`, `DOCUMENT_NUMBER_NOT_DETECTED`).
+      # `PORTRAIT_MANIPULATION_DETECTED`, `PUBLIC_DOCUMENT_IMAGE_DETECTED`, `SPECIMEN_DOCUMENT_DETECTED`, plus
+      # extraction failures (`NAME_NOT_DETECTED`, `DATE_OF_BIRTH_NOT_DETECTED`, `DOCUMENT_NUMBER_NOT_DETECTED`).
       # (`PORTRAIT_IMAGE_NOT_DETECTED`, `INVALID_DATE`, and `MRZ_NOT_DETECTED` exist in workflow sessions but are
       # never produced by this standalone endpoint. `COULD_NOT_DETECT_DOCUMENT_TYPE` is returned here when the front
       # image does not match a known official document design with high confidence, and declines the request.) Three
