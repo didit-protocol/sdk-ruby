@@ -40,7 +40,8 @@ module Didit
     end
 
     # What a `partial_match` does to `database_validation.status`. Defaults to `NO_ACTION` (status stays `Approved`,
-    # with a warning).
+    # with a warning). When the registry confirmed the identification number but returned a different name,
+    # `NO_ACTION` answers `In Review` instead of `Approved`; `DECLINE` still declines.
     module DatabaseValidationValidateParamsPartialMatchAction
       DECLINE = "DECLINE"
       NO_ACTION = "NO_ACTION"
@@ -61,9 +62,10 @@ module Didit
 
     # `Declined` when the overall `match_type` triggers a `DECLINE` action (`no_match_action` defaults to `DECLINE`,
     # `partial_match_action` to `NO_ACTION`); `In Review` when no service produced a usable comparison, for example
-    # when the only selected service came back `REGISTRY_UNAVAILABLE` or `INCONCLUSIVE`; `Approved` otherwise. A
-    # request that selected several services can be `Approved` on one service's match while another was unavailable,
-    # so check `errors` and the per-service `outcome_code`s too.
+    # when the only selected service came back `REGISTRY_UNAVAILABLE` or `INCONCLUSIVE`, and when the registry
+    # confirmed the identification number but returned a different name while `partial_match_action` is `NO_ACTION`;
+    # `Approved` otherwise. A request that selected several services can be `Approved` on one service's match while
+    # another was unavailable, so check `errors` and the per-service `outcome_code`s too.
     module DatabaseValidationValidateResponseDatabaseValidationStatus
       APPROVED = "Approved"
       DECLINED = "Declined"

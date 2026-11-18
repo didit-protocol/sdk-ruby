@@ -200,7 +200,9 @@ module Didit
       # @param country_of_residence [String] ISO 3166-1 alpha-2 country of residence. It was used only by the retired
       #   global identity-enrichment service (`glb_identity_enrichment`), which Didit no longer offers.
       # @param partial_match_action [String] What a `partial_match` does to `database_validation.status`. Defaults to
-      #   `NO_ACTION` (status stays `Approved`, with a warning).
+      #   `NO_ACTION` (status stays `Approved`, with a warning). When the registry confirmed the identification number
+      #   but returned a different name, `NO_ACTION` answers `In Review` instead of `Approved`; `DECLINE` still
+      #   declines.
       # @param no_match_action [String] What a `no_match` does to `database_validation.status`. Defaults to `DECLINE`.
       # @param save_api_request [Boolean] Persist the validation as a session (console visibility, decision endpoint,
       #   `status.updated` webhook). Also changes the `validations` response shape: per-service objects when `true`
