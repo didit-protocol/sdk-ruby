@@ -87,7 +87,7 @@ module Didit
       #   ECU→personal...
       # @param first_name [String] The individual's first name. Required by some services/countries.
       # @param last_name [String] The individual's last name. Required by some services/countries.
-      # @param middle_name [String] Middle name, used by some country services (AUS, NZL, …).
+      # @param middle_name [String] Middle name, used by some country services (NZL, …).
       # @param full_name [String] Full name - some services accept this in lieu of first/last name (e.g. CHN services,
       #   which match the native-script name).
       # @param date_of_birth [Date, String] Date of birth, `YYYY-MM-DD`. Required by many services.
@@ -122,29 +122,28 @@ module Didit
       # @param address_element_5 [String] Postcode or postal code. `postal_code` is accepted as an alias.
       # @param postal_code [String] Postal code for address-based services (alias of `address_element_5`).
       # @param driver_license_number [String] Driver licence number for government document-verification services
-      #   (AUS, NZL, IND).
+      #   (NZL, IND).
       # @param driver_license_card_number [String] Physical driver licence card number, where required separately from
-      #   the licence number (AUS).
-      # @param driver_license_state [String] Driver licence state or territory of issue (AUS).
+      #   the licence number.
+      # @param driver_license_state [String] Driver licence state or territory of issue.
       # @param driver_license_version [String] Driver licence version code (NZL).
-      # @param passport_number [String] Passport number for government passport-verification services (AUS, NZL, IND,
-      #   CHN).
+      # @param passport_number [String] Passport number for government passport-verification services (NZL, IND, CHN).
       # @param passport_expiration_date [Date, String] Passport expiry date, `YYYY-MM-DD`, for passport-verification
       #   services.
       # @param passport_file_number [String] Passport file number (IND).
       # @param passport_issue_country [String] Issuing country of the passport (ISO 3166-1 alpha-3) for
       #   passport-verification services.
-      # @param medicare_card_number [String] Medicare card number (AUS).
-      # @param immi_card_number [String] Australian ImmiCard number.
-      # @param immi_card_expiry_date [Date, String] Australian ImmiCard expiry date.
-      # @param citizenship_certificate_number [String] Citizenship certificate number (AUS).
-      # @param birth_registration_number [String] Birth-certificate registration number (AUS).
-      # @param birth_registration_date [Date, String] Birth-certificate registration date (AUS).
-      # @param birth_registration_state [String] Birth-certificate registration state (AUS).
-      # @param marriage_certificate_number [String] Marriage certificate number (AUS).
-      # @param change_of_name_certificate_number [String] Change-of-name certificate number (AUS).
-      # @param first_partner_name [String] First name of the partner on a marriage certificate (AUS).
-      # @param last_partner_name [String] Last name of the partner on a marriage certificate (AUS).
+      # @param medicare_card_number [String] Medicare card number.
+      # @param immi_card_number [String]
+      # @param immi_card_expiry_date [Date, String]
+      # @param citizenship_certificate_number [String] Citizenship certificate number.
+      # @param birth_registration_number [String] Birth-certificate registration number.
+      # @param birth_registration_date [Date, String] Birth-certificate registration date.
+      # @param birth_registration_state [String] Birth-certificate registration state.
+      # @param marriage_certificate_number [String] Marriage certificate number.
+      # @param change_of_name_certificate_number [String] Change-of-name certificate number.
+      # @param first_partner_name [String] First name of the partner on a marriage certificate.
+      # @param last_partner_name [String] Last name of the partner on a marriage certificate.
       # @param voter_id [String] Voter registration number (IND EPIC, IRL).
       # @param epic_card [String] India EPIC voter card number.
       # @param pan [String] India PAN (Permanent Account Number).
