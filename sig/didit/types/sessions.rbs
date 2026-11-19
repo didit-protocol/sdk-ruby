@@ -1780,6 +1780,8 @@ module Didit
 
     type sessions_imports_create_params_options = { ?region: String }
 
+    type sessions_imports_request_limit_params = { ?note: String }
+
     type sessions_imports_retry_params = { ?credentials: Hash[String | Symbol, String], ?file: Didit::upload }
 
     type sessions_imports_start_params = { ?status_mapping: Hash[String | Symbol, String], ?face_templates: bool, ?lawful_basis_confirmed: bool }

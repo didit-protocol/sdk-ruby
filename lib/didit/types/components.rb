@@ -1869,6 +1869,20 @@ module Didit
       VALUES = [APPROVED, IN_REVIEW].freeze
     end
 
+    # `all_approved_no_media`: at least 95% of the records are Approved and at most 5% carry any image (selfie,
+    # document or video), on 100 records or more. It applies to file imports only (a provider's export file included),
+    # because records read from a provider's API carry their images only once they are imported. `repeated_documents`:
+    # the same document number and issuing country appears under a different name or date of birth in at least 2% of
+    # the records and at least 20 records (User Verification imports). `implausible_dates`: a verification date in the
+    # future or before 2010, or a date of birth giving an age under 14 or over 110, in at least 2% of the records.
+    module ImportCheckCode
+      ALL_APPROVED_NO_MEDIA = "all_approved_no_media"
+      REPEATED_DOCUMENTS = "repeated_documents"
+      IMPLAUSIBLE_DATES = "implausible_dates"
+
+      VALUES = [ALL_APPROVED_NO_MEDIA, REPEATED_DOCUMENTS, IMPLAUSIBLE_DATES].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module ImportJobSummaryKind
       SESSIONS = "sessions"
@@ -1880,6 +1894,15 @@ module Didit
       VALUES = [SESSIONS, BUSINESSES, USERS, STATUS_RULES, TRANSACTIONS].freeze
     end
 
+    # The monthly limit this job counts against: `provider` for a migration read from another provider
+    # (`source=provider`), `file` for an upload or file URL.
+    module ImportJobSummaryLimitLane
+      PROVIDER = "provider"
+      FILE = "file"
+
+      VALUES = [PROVIDER, FILE].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module ImportJobSummarySource
       FILE = "file"
@@ -1889,7 +1912,9 @@ module Didit
       VALUES = [FILE, API, PROVIDER].freeze
     end
 
-    # The job's state as the console shows it; `errors` is a completed job with rejected rows.
+    # The job's state as the console shows it; `errors` is a completed job with rejected rows. `waiting`: the month's
+    # import limit is used up. `held`: a check holds the import for review by Didit. `declined`: Didit declined the
+    # held import. `undoing` and `undone`: Undo import is running or finished.
     module ImportJobSummaryState
       READY = "ready"
       QUEUED = "queued"
@@ -1899,8 +1924,57 @@ module Didit
       ERRORS = "errors"
       FAILED = "failed"
       CANCELLED = "cancelled"
+      WAITING = "waiting"
+      HELD = "held"
+      DECLINED = "declined"
+      UNDOING = "undoing"
+      UNDONE = "undone"
 
-      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED].freeze
+      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED, WAITING, HELD, DECLINED, UNDOING, UNDONE].freeze
+    end
+
+    # Why a `WAITING` job waits. `null` otherwise.
+    module ImportJobSummaryWaitingReason
+      LIMIT = "limit"
+
+      VALUES = [LIMIT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module ImportLimitRequestStatus
+      PENDING = "pending"
+      APPROVED = "approved"
+      DECLINED = "declined"
+
+      VALUES = [PENDING, APPROVED, DECLINED].freeze
+    end
+
+    # The level that sets the monthly limits: `never_paid` until the first paid top-up, `paid` after it, `contract` on
+    # an enterprise contract.
+    module ImportLimitsLevel
+      NEVER_PAID = "never_paid"
+      PAID = "paid"
+      CONTRACT = "contract"
+
+      VALUES = [NEVER_PAID, PAID, CONTRACT].freeze
+    end
+
+    # The import mode of the organization. `automatic` applies the monthly limits; `always_allowed` has no monthly
+    # limit and its files are never held for a check; `turned_off` imports nothing.
+    module ImportLimitsMode
+      AUTOMATIC = "automatic"
+      ALWAYS_ALLOWED = "always_allowed"
+      TURNED_OFF = "turned_off"
+
+      VALUES = [AUTOMATIC, ALWAYS_ALLOWED, TURNED_OFF].freeze
+    end
+
+    # Why `can_import` is `false`; `null` otherwise.
+    module ImportLimitsReason
+      TURNED_OFF = "turned_off"
+      SANDBOX = "sandbox"
+
+      VALUES = [TURNED_OFF, SANDBOX].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -4325,6 +4399,15 @@ module Didit
       VALUES = [USER_VERIFICATION, BUSINESS_VERIFICATION, STATUS_RULES, TRANSACTIONS].freeze
     end
 
+    # The monthly limit this job counts against: `provider` for a migration read from another provider
+    # (`source=provider`), `file` for an upload or file URL.
+    module SessionImportJobLimitLane
+      PROVIDER = "provider"
+      FILE = "file"
+
+      VALUES = [PROVIDER, FILE].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module SessionImportJobSource
       FILE = "file"
@@ -4342,7 +4425,9 @@ module Didit
       VALUES = [CSV, NDJSON].freeze
     end
 
-    # The job's state as the console shows it; `errors` is a completed job with rejected rows.
+    # The job's state as the console shows it; `errors` is a completed job with rejected rows. `waiting`: the month's
+    # import limit is used up. `held`: a check holds the import for review by Didit. `declined`: Didit declined the
+    # held import. `undoing` and `undone`: Undo import is running or finished.
     module SessionImportJobState
       READY = "ready"
       QUEUED = "queued"
@@ -4352,11 +4437,19 @@ module Didit
       ERRORS = "errors"
       FAILED = "failed"
       CANCELLED = "cancelled"
+      WAITING = "waiting"
+      HELD = "held"
+      DECLINED = "declined"
+      UNDOING = "undoing"
+      UNDONE = "undone"
 
-      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED].freeze
+      VALUES = [READY, QUEUED, RUNNING, PAUSED, COMPLETED, ERRORS, FAILED, CANCELLED, WAITING, HELD, DECLINED, UNDOING, UNDONE].freeze
     end
 
-    # Known values of an open enum: the API may send others.
+    # `WAITING`: the month's limit is used up. The import continues by itself when the limit goes up (a top-up, the
+    # next month, or Didit approving a limit request). `HELD`: a check held the file for review by Didit; nothing is
+    # written. `DECLINED`: Didit declined the held file (`review_note` says why); nothing was written and the source
+    # and credentials are erased. `UNDOING` and `UNDONE`: an Undo import is running or has finished.
     module SessionImportJobStatus
       PENDING = "PENDING"
       PROCESSING = "PROCESSING"
@@ -4365,8 +4458,20 @@ module Didit
       PAUSED = "PAUSED"
       CANCELLED = "CANCELLED"
       READY = "READY"
+      WAITING = "WAITING"
+      HELD = "HELD"
+      DECLINED = "DECLINED"
+      UNDOING = "UNDOING"
+      UNDONE = "UNDONE"
 
-      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED, PAUSED, CANCELLED, READY].freeze
+      VALUES = [PENDING, PROCESSING, COMPLETED, FAILED, PAUSED, CANCELLED, READY, WAITING, HELD, DECLINED, UNDOING, UNDONE].freeze
+    end
+
+    # Why a `WAITING` job waits. `null` otherwise.
+    module SessionImportJobWaitingReason
+      LIMIT = "limit"
+
+      VALUES = [LIMIT].freeze
     end
 
     # `all` places one field per match; the keys after the first get `_2`, `_3` and so on.
@@ -9033,6 +9138,13 @@ module Didit
       field :threat, "threat", :any
     end
 
+    class ImportCheck < Didit::Model
+      field :code, "code", :string
+      field :count, "count", :integer
+      field :share, "share", :float
+      field :holds, "holds", :boolean
+    end
+
     # One import job of any kind, in the shape the console's Import jobs drawer reads.
     class ImportJobSummary < Didit::Model
       field :id, "id", :string
@@ -9054,6 +9166,16 @@ module Didit
       field :created_at, "created_at", :datetime
       field :started_at, "started_at", :datetime
       field :completed_at, "completed_at", :datetime
+      field :limit_lane, "limit_lane", :string
+      field :waiting_reason, "waiting_reason", :string
+      field :checks, "checks", [:array, "ImportCheck"]
+      field :review_note, "review_note", :string
+      field :limit_request, "limit_request", "ImportLimitRequest"
+      field :granted_records, "granted_records", :integer
+      field :can_undo, "can_undo", :boolean
+      field :undone_count, "undone_count", :integer
+      field :undone_at, "undone_at", :datetime
+      field :undone_by, "undone_by", :string
     end
 
     class ImportJobSummaryFaceTemplates < Didit::Model
@@ -9077,6 +9199,44 @@ module Didit
     class ImportJobSummaryStartedBy < Didit::Model
       field :name, "name", :string
       field :email, "email", :string
+    end
+
+    class ImportLimitLane < Didit::Model
+      field :limit, "limit", :integer
+      field :used, "used", :integer
+      field :remaining, "remaining", :integer
+    end
+
+    class ImportLimitRequest < Didit::Model
+      field :id, "id", :string
+      field :status, "status", :string
+      field :requested_records, "requested_records", :integer
+      field :note, "note", :string
+      field :created_at, "created_at", :datetime
+      field :decided_at, "decided_at", :datetime
+      field :staff_note, "staff_note", :string
+    end
+
+    class ImportLimits < Didit::Model
+      field :mode, "mode", :string
+      field :level, "level", :string
+      field :can_import, "can_import", :boolean
+      field :reason, "reason", :string
+      field :checks_can_hold, "checks_can_hold", :boolean
+      field :period, "period", "ImportLimitsPeriod"
+      field :lanes, "lanes", "ImportLimitsLanes"
+    end
+
+    # Monthly limits per lane. `provider` counts migrations that read records from another provider with your key
+    # (`source=provider`); `file` counts file uploads and file URLs sent through the API.
+    class ImportLimitsLanes < Didit::Model
+      field :provider, "provider", "ImportLimitLane"
+      field :file, "file", "ImportLimitLane"
+    end
+
+    class ImportLimitsPeriod < Didit::Model
+      field :starts_at, "starts_at", :datetime
+      field :resets_at, "resets_at", :datetime
     end
 
     class ImportProvider < Didit::Model
@@ -12233,6 +12393,16 @@ module Didit
       field :face_blocklist_hits_count, "face_blocklist_hits_count", :integer
       field :created_by_name, "created_by_name", :string
       field :created_by_email, "created_by_email", :string
+      field :limit_lane, "limit_lane", :string
+      field :waiting_reason, "waiting_reason", :string
+      field :checks, "checks", [:array, "ImportCheck"]
+      field :review_note, "review_note", :string
+      field :limit_request, "limit_request", "ImportLimitRequest"
+      field :granted_records, "granted_records", :integer
+      field :can_undo, "can_undo", :boolean
+      field :undone_count, "undone_count", :integer
+      field :undone_at, "undone_at", :datetime
+      field :undone_by, "undone_by", :string
     end
 
     # One webhook delivery attempt recorded for a verification session, with the exact request headers and body Didit
