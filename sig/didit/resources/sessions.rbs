@@ -57,12 +57,15 @@ module Didit
         def list_jobs: (?scope: String, ?limit: Integer, ?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsListJobsResponse
         def list_providers: (?request_options: Didit::request_options?) -> Didit::Types::SessionsImportsListProvidersResponse
         def pause: (String import_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def request_limit: (String import_id, ?note: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
         def resume: (String import_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
         def retrieve: (String import_id, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def retrieve_limits: (?request_options: Didit::request_options?) -> Didit::Types::ImportLimits
         def retrieve_template: (?import_type: String, ?request_options: Didit::request_options?) -> String
                              | (?import_type: String, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
         def `retry`: (String import_id, ?credentials: Hash[String | Symbol, String], ?file: Didit::upload, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
         def start: (String import_id, ?status_mapping: Hash[String | Symbol, String], ?face_templates: bool, ?lawful_basis_confirmed: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
+        def undo: (String import_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionImportJob
       end
       class Reviews < Didit::Resource
         def create: (String session_id, ?new_status: String?, ?comment: String?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::SessionsReviewsCreateResponse

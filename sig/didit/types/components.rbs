@@ -1524,12 +1524,27 @@ module Didit
       VALUES: Array[String]
     end
 
+    module ImportCheckCode
+      ALL_APPROVED_NO_MEDIA: String
+      REPEATED_DOCUMENTS: String
+      IMPLAUSIBLE_DATES: String
+
+      VALUES: Array[String]
+    end
+
     module ImportJobSummaryKind
       SESSIONS: String
       BUSINESSES: String
       USERS: String
       STATUS_RULES: String
       TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportJobSummaryLimitLane
+      PROVIDER: String
+      FILE: String
 
       VALUES: Array[String]
     end
@@ -1551,6 +1566,48 @@ module Didit
       ERRORS: String
       FAILED: String
       CANCELLED: String
+      WAITING: String
+      HELD: String
+      DECLINED: String
+      UNDOING: String
+      UNDONE: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportJobSummaryWaitingReason
+      LIMIT: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportLimitRequestStatus
+      PENDING: String
+      APPROVED: String
+      DECLINED: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportLimitsLevel
+      NEVER_PAID: String
+      PAID: String
+      CONTRACT: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportLimitsMode
+      AUTOMATIC: String
+      ALWAYS_ALLOWED: String
+      TURNED_OFF: String
+
+      VALUES: Array[String]
+    end
+
+    module ImportLimitsReason
+      TURNED_OFF: String
+      SANDBOX: String
 
       VALUES: Array[String]
     end
@@ -3607,6 +3664,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module SessionImportJobLimitLane
+      PROVIDER: String
+      FILE: String
+
+      VALUES: Array[String]
+    end
+
     module SessionImportJobSource
       FILE: String
       API: String
@@ -3631,6 +3695,11 @@ module Didit
       ERRORS: String
       FAILED: String
       CANCELLED: String
+      WAITING: String
+      HELD: String
+      DECLINED: String
+      UNDOING: String
+      UNDONE: String
 
       VALUES: Array[String]
     end
@@ -3643,6 +3712,17 @@ module Didit
       PAUSED: String
       CANCELLED: String
       READY: String
+      WAITING: String
+      HELD: String
+      DECLINED: String
+      UNDOING: String
+      UNDONE: String
+
+      VALUES: Array[String]
+    end
+
+    module SessionImportJobWaitingReason
+      LIMIT: String
 
       VALUES: Array[String]
     end
@@ -7809,6 +7889,13 @@ module Didit
       def threat: () -> Hash[String, untyped]
     end
 
+    class ImportCheck < Didit::Model
+      def code: () -> String
+      def count: () -> Integer
+      def share: () -> Float
+      def holds: () -> bool
+    end
+
     class ImportJobSummary < Didit::Model
       def id: () -> String?
       def kind: () -> String?
@@ -7829,6 +7916,16 @@ module Didit
       def created_at: () -> Time?
       def started_at: () -> Time?
       def completed_at: () -> Time?
+      def limit_lane: () -> String?
+      def waiting_reason: () -> String?
+      def checks: () -> Array[Didit::Types::ImportCheck]?
+      def review_note: () -> String?
+      def limit_request: () -> Didit::Types::ImportLimitRequest?
+      def granted_records: () -> Integer?
+      def can_undo: () -> bool?
+      def undone_count: () -> Integer?
+      def undone_at: () -> Time?
+      def undone_by: () -> String?
     end
 
     class ImportJobSummaryFaceTemplates < Didit::Model
@@ -7852,6 +7949,42 @@ module Didit
     class ImportJobSummaryStartedBy < Didit::Model
       def name: () -> String?
       def email: () -> String?
+    end
+
+    class ImportLimitLane < Didit::Model
+      def limit: () -> Integer?
+      def used: () -> Integer
+      def remaining: () -> Integer?
+    end
+
+    class ImportLimitRequest < Didit::Model
+      def id: () -> String
+      def status: () -> String
+      def requested_records: () -> Integer
+      def note: () -> String?
+      def created_at: () -> Time
+      def decided_at: () -> Time?
+      def staff_note: () -> String?
+    end
+
+    class ImportLimits < Didit::Model
+      def mode: () -> String
+      def level: () -> String
+      def can_import: () -> bool
+      def reason: () -> String?
+      def checks_can_hold: () -> bool
+      def period: () -> Didit::Types::ImportLimitsPeriod
+      def lanes: () -> Didit::Types::ImportLimitsLanes
+    end
+
+    class ImportLimitsLanes < Didit::Model
+      def provider: () -> Didit::Types::ImportLimitLane
+      def file: () -> Didit::Types::ImportLimitLane
+    end
+
+    class ImportLimitsPeriod < Didit::Model
+      def starts_at: () -> Time
+      def resets_at: () -> Time
     end
 
     class ImportProvider < Didit::Model
@@ -10775,6 +10908,16 @@ module Didit
       def face_blocklist_hits_count: () -> Integer?
       def created_by_name: () -> String?
       def created_by_email: () -> String?
+      def limit_lane: () -> String?
+      def waiting_reason: () -> String?
+      def checks: () -> Array[Didit::Types::ImportCheck]?
+      def review_note: () -> String?
+      def limit_request: () -> Didit::Types::ImportLimitRequest?
+      def granted_records: () -> Integer?
+      def can_undo: () -> bool?
+      def undone_count: () -> Integer?
+      def undone_at: () -> Time?
+      def undone_by: () -> String?
     end
 
     class SessionWebhookDelivery < Didit::Model

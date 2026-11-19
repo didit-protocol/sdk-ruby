@@ -3970,7 +3970,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.cancel(
@@ -4128,7 +4153,32 @@ RSpec.describe Didit::Resources::Sessions do
             "eta_seconds": 1,
             "created_at": "2026-01-02T03:04:05Z",
             "started_at": "2026-01-02T03:04:05Z",
-            "completed_at": "2026-01-02T03:04:05Z"
+            "completed_at": "2026-01-02T03:04:05Z",
+            "limit_lane": "provider",
+            "waiting_reason": "limit",
+            "checks": [
+              {
+                "code": "example",
+                "count": "example",
+                "share": "example",
+                "holds": "example"
+              }
+            ],
+            "review_note": "review_note-value",
+            "limit_request": {
+              "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "status": "pending",
+              "requested_records": 1,
+              "note": "note-value",
+              "created_at": "2026-01-02T03:04:05Z",
+              "decided_at": "2026-01-02T03:04:05Z",
+              "staff_note": "staff_note-value"
+            },
+            "granted_records": 1,
+            "can_undo": true,
+            "undone_count": 1,
+            "undone_at": "2026-01-02T03:04:05Z",
+            "undone_by": "undone_by-value"
           }
         ],
         "running": 1
@@ -4229,7 +4279,32 @@ RSpec.describe Didit::Resources::Sessions do
             "eta_seconds": 1,
             "created_at": "2026-01-02T03:04:05Z",
             "started_at": "2026-01-02T03:04:05Z",
-            "completed_at": "2026-01-02T03:04:05Z"
+            "completed_at": "2026-01-02T03:04:05Z",
+            "limit_lane": "provider",
+            "waiting_reason": "limit",
+            "checks": [
+              {
+                "code": "example",
+                "count": "example",
+                "share": "example",
+                "holds": "example"
+              }
+            ],
+            "review_note": "review_note-value",
+            "limit_request": {
+              "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+              "status": "pending",
+              "requested_records": 1,
+              "note": "note-value",
+              "created_at": "2026-01-02T03:04:05Z",
+              "decided_at": "2026-01-02T03:04:05Z",
+              "staff_note": "staff_note-value"
+            },
+            "granted_records": 1,
+            "can_undo": true,
+            "undone_count": 1,
+            "undone_at": "2026-01-02T03:04:05Z",
+            "undone_by": "undone_by-value"
           }
         ],
         "counts": {
@@ -4347,7 +4422,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.pause(
@@ -4363,6 +4463,48 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.request_limit sends POST /v3/session/imports/{importId}/request-limit/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "uuid": "3f9c1a2b-4d5e-4f60-8a7b-9c0d1e2f3a4b",
+        "status": "WAITING",
+        "import_type": "user_verification",
+        "source": "file",
+        "limit_lane": "file",
+        "waiting_reason": "limit",
+        "limit_request": {
+          "id": "7d1f0c1e-2b3a-4c5d-8e9f-0a1b2c3d4e5f",
+          "status": "pending",
+          "requested_records": 8011,
+          "note": "Migrating our full 2023-2026 history from the previous provider.",
+          "created_at": "2026-11-18T10:15:00Z",
+          "decided_at": null,
+          "staff_note": null
+        }
+      }
+    JSON
+    result = client.sessions.imports.request_limit(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      note: "Migrating our full 2023-2026 history from the previous provider.",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/request-limit/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "note" => "Migrating our full 2023-2026 history from the previous provider."
+    })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
@@ -4410,7 +4552,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.resume(
@@ -4473,7 +4640,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.retrieve(
@@ -4489,6 +4681,47 @@ RSpec.describe Didit::Resources::Sessions do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.retrieve_limits sends GET /v3/session/imports/limits/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "mode": "automatic",
+        "level": "never_paid",
+        "can_import": true,
+        "reason": null,
+        "checks_can_hold": true,
+        "period": {
+          "starts_at": "2026-11-01T00:00:00Z",
+          "resets_at": "2026-12-01T00:00:00Z"
+        },
+        "lanes": {
+          "provider": {
+            "limit": 2000,
+            "used": 0,
+            "remaining": 2000
+          },
+          "file": {
+            "limit": 500,
+            "used": 0,
+            "remaining": 500
+          }
+        }
+      }
+    JSON
+    result = client.sessions.imports.retrieve_limits
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/session/imports/limits/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::ImportLimits)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -4549,7 +4782,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.retry(
@@ -4629,7 +4887,32 @@ RSpec.describe Didit::Resources::Sessions do
         "face_duplicates_count": 1,
         "face_blocklist_hits_count": 1,
         "created_by_name": "created_by_name-value",
-        "created_by_email": "created_by_email-value"
+        "created_by_email": "created_by_email-value",
+        "limit_lane": "provider",
+        "waiting_reason": "limit",
+        "checks": [
+          {
+            "code": "all_approved_no_media",
+            "count": 1,
+            "share": 1.5,
+            "holds": true
+          }
+        ],
+        "review_note": "review_note-value",
+        "limit_request": {
+          "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+          "status": "pending",
+          "requested_records": 1,
+          "note": "note-value",
+          "created_at": "2026-01-02T03:04:05Z",
+          "decided_at": "2026-01-02T03:04:05Z",
+          "staff_note": "staff_note-value"
+        },
+        "granted_records": 1,
+        "can_undo": true,
+        "undone_count": 1,
+        "undone_at": "2026-01-02T03:04:05Z",
+        "undone_by": "undone_by-value"
       }
     JSON
     result = client.sessions.imports.start(
@@ -4645,6 +4928,39 @@ RSpec.describe Didit::Resources::Sessions do
       accept: "application/json"
     )
     expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::SessionImportJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "sessions.imports.undo sends POST /v3/session/imports/{importId}/undo/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "uuid": "3f9c1a2b-4d5e-4f60-8a7b-9c0d1e2f3a4b",
+        "status": "UNDOING",
+        "import_type": "user_verification",
+        "source": "file",
+        "limit_lane": "file",
+        "can_undo": false,
+        "undone_count": 0,
+        "undone_at": null,
+        "undone_by": null
+      }
+    JSON
+    result = client.sessions.imports.undo(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/session/imports/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/undo/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::SessionImportJob)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
