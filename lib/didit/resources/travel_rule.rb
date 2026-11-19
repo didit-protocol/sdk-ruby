@@ -688,7 +688,10 @@ module Didit
       #
       # @param is_enabled [Boolean]
       # @param legal_name [String]
-      # @param lei [String]
+      # @param lei [String] Your Legal Entity Identifier (ISO 17442): 20 letters and digits whose last two are check
+      #   digits (ISO 7064 MOD 97-10). It is stored in upper case. Anything else answers 400 with 'Enter a valid LEI: 20
+      #   letters and digits whose last two are its check digits (ISO 17442).' Send an empty string to clear it. When
+      #   the LEI, the legal name or the country changes, Didit checks the LEI with GLEIF; didit_netw...
       # @param jurisdiction [String]
       # @param vasp_jurisdiction [String] Your VASP profile's own jurisdiction, up to 3 characters (for example `GB`
       #   or `USA`), shown to other Didit customers in the VASP directory. Independent of `jurisdiction`, which sets the
@@ -702,8 +705,8 @@ module Didit
       #   /v3/travel-rule/settings/compliance-email/confirmation/); changing it needs a new confirmation.
       # @param is_discoverable [Boolean] Whether your VASP profile can be listed in the Didit network: found in GET
       #   /v3/travel-rule/vasps/ by other Didit customers and reached on the INTERNAL rail. Listing also needs a live
-      #   application, Travel Rule on, a legal name and a confirmed compliance email; didit_network says which are
-      #   missing. Default true.
+      #   application, Travel Rule on, a legal name, a confirmed compliance email, an LEI that GLEIF lists as issued to
+      #   an active entity and a review by Didit that you are a virtual asset service provider; didit_network says w...
       # @param threshold_amount [String] Decimal string, zero or greater, in your application's default currency.
       #   Minimum transfer amount that triggers a managed exchange.
       # @param ownership_validation_mode [String] See the response field of the same name.

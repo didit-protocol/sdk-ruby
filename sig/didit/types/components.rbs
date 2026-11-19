@@ -4997,15 +4997,40 @@ module Didit
       VALUES: Array[String]
     end
 
+    module TravelRuleSettingsDetailDiditNetworkLeiCheckReason
+      NO_LEI: String
+      NO_GLEIF_RECORD: String
+      GLEIF_LEI_UNKNOWN: String
+      GLEIF_OTHER_LEI: String
+      GLEIF_ENTITY_INACTIVE: String
+      GLEIF_LEI_NOT_ISSUED: String
+      GLEIF_NAME_MISMATCH: String
+      GLEIF_COUNTRY_MISMATCH: String
+      GLEIF_CONSISTENT: String
+
+      VALUES: Array[String]
+    end
+
+    module TravelRuleSettingsDetailDiditNetworkLeiCheckStatus
+      PASS: String
+      FAIL: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
     module TravelRuleSettingsDetailDiditNetworkMissing
       TRAVEL_RULE_OFF: String
       SANDBOX_APPLICATION: String
       NOT_DISCOVERABLE: String
       LEGAL_NAME_MISSING: String
+      LEI_MISSING: String
+      LEI_UNVERIFIED: String
       COMPLIANCE_EMAIL_MISSING: String
       COMPLIANCE_EMAIL_UNCONFIRMED: String
       EXCLUDED_BY_STAFF: String
       INTERNAL_ORGANIZATION: String
+      REVIEW_PENDING: String
 
       VALUES: Array[String]
     end
@@ -12043,6 +12068,14 @@ module Didit
       def listed: () -> bool?
       def missing: () -> Array[String]?
       def compliance_email_confirmed: () -> bool?
+      def lei_check: () -> Didit::Types::TravelRuleSettingsDetailDiditNetworkLeiCheck?
+    end
+
+    class TravelRuleSettingsDetailDiditNetworkLeiCheck < Didit::Model
+      def status: () -> String?
+      def reason: () -> String?
+      def gleif_legal_name: () -> String?
+      def checked_at: () -> Time?
     end
 
     class TravelRuleSettingsDetailNetworks < Didit::Model
