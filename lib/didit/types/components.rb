@@ -5972,18 +5972,49 @@ module Didit
       VALUES = [SELECT_COUNTERPARTY_VASP, DECLARE_SELF_HOSTED, ADD_VASP_HINT, UPDATE_COMPLIANCE_EMAIL, RESEND].freeze
     end
 
+    # no_lei: no LEI is set. no_gleif_record: GLEIF has not been asked yet. gleif_lei_unknown: GLEIF has no record of
+    # this LEI. gleif_other_lei: the GLEIF record on file is for a different LEI. gleif_entity_inactive: the GLEIF
+    # entity is not active. gleif_lei_not_issued: the LEI is not in issued status (for example it lapsed).
+    # gleif_name_mismatch: GLEIF's legal name does not match your legal name. gleif_country_mismatch: GLEIF's country
+    # does not match your country. gleif_consistent: active, issued and consistent with your legal name and country.
+    module TravelRuleSettingsDetailDiditNetworkLeiCheckReason
+      NO_LEI = "no_lei"
+      NO_GLEIF_RECORD = "no_gleif_record"
+      GLEIF_LEI_UNKNOWN = "gleif_lei_unknown"
+      GLEIF_OTHER_LEI = "gleif_other_lei"
+      GLEIF_ENTITY_INACTIVE = "gleif_entity_inactive"
+      GLEIF_LEI_NOT_ISSUED = "gleif_lei_not_issued"
+      GLEIF_NAME_MISMATCH = "gleif_name_mismatch"
+      GLEIF_COUNTRY_MISMATCH = "gleif_country_mismatch"
+      GLEIF_CONSISTENT = "gleif_consistent"
+
+      VALUES = [NO_LEI, NO_GLEIF_RECORD, GLEIF_LEI_UNKNOWN, GLEIF_OTHER_LEI, GLEIF_ENTITY_INACTIVE, GLEIF_LEI_NOT_ISSUED, GLEIF_NAME_MISMATCH, GLEIF_COUNTRY_MISMATCH, GLEIF_CONSISTENT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module TravelRuleSettingsDetailDiditNetworkLeiCheckStatus
+      PASS = "pass"
+      FAIL = "fail"
+      UNKNOWN = "unknown"
+
+      VALUES = [PASS, FAIL, UNKNOWN].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module TravelRuleSettingsDetailDiditNetworkMissing
       TRAVEL_RULE_OFF = "travel_rule_off"
       SANDBOX_APPLICATION = "sandbox_application"
       NOT_DISCOVERABLE = "not_discoverable"
       LEGAL_NAME_MISSING = "legal_name_missing"
+      LEI_MISSING = "lei_missing"
+      LEI_UNVERIFIED = "lei_unverified"
       COMPLIANCE_EMAIL_MISSING = "compliance_email_missing"
       COMPLIANCE_EMAIL_UNCONFIRMED = "compliance_email_unconfirmed"
       EXCLUDED_BY_STAFF = "excluded_by_staff"
       INTERNAL_ORGANIZATION = "internal_organization"
+      REVIEW_PENDING = "review_pending"
 
-      VALUES = [TRAVEL_RULE_OFF, SANDBOX_APPLICATION, NOT_DISCOVERABLE, LEGAL_NAME_MISSING, COMPLIANCE_EMAIL_MISSING, COMPLIANCE_EMAIL_UNCONFIRMED, EXCLUDED_BY_STAFF, INTERNAL_ORGANIZATION].freeze
+      VALUES = [TRAVEL_RULE_OFF, SANDBOX_APPLICATION, NOT_DISCOVERABLE, LEGAL_NAME_MISSING, LEI_MISSING, LEI_UNVERIFIED, COMPLIANCE_EMAIL_MISSING, COMPLIANCE_EMAIL_UNCONFIRMED, EXCLUDED_BY_STAFF, INTERNAL_ORGANIZATION, REVIEW_PENDING].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -13653,11 +13684,23 @@ module Didit
     end
 
     # Whether the Didit network lists your VASP profile, so other Didit customers find it in the directory and reach
-    # it on the INTERNAL rail, and each condition it still misses.
+    # it on the INTERNAL rail, and each condition it still misses. Listing needs: a live (not sandbox) application
+    # with Travel Rule on, Discoverable on, a legal name, a compliance email confirmed through the emailed link, an
+    # LEI that GLEIF lists as issued to an active entity, and a review by Didit that the company is a virtual asset
+    # service provider (the review is for that LEI: changing the LEI or the legal name needs a new review).
     class TravelRuleSettingsDetailDiditNetwork < Didit::Model
       field :listed, "listed", :boolean
       field :missing, "missing", [:array, :string]
       field :compliance_email_confirmed, "compliance_email_confirmed", :boolean
+      field :lei_check, "lei_check", "TravelRuleSettingsDetailDiditNetworkLeiCheck"
+    end
+
+    # What GLEIF said about your current LEI. null before the LEI was first checked.
+    class TravelRuleSettingsDetailDiditNetworkLeiCheck < Didit::Model
+      field :status, "status", :string
+      field :reason, "reason", :string
+      field :gleif_legal_name, "gleif_legal_name", :string
+      field :checked_at, "checked_at", :datetime
     end
 
     # Per network, how this application would send and why it cannot. No network, including GTR, is included by
@@ -14051,10 +14094,11 @@ module Didit
 
     # A VASP of the directory or a member of the Didit network, with the routes your application has to it. A customer
     # is a member of the Didit network only while its application is live, its Travel Rule is on, its profile is
-    # discoverable, has a legal name and a confirmed compliance email, and Didit has not marked the application as a
-    # test, demo or internal one. Each row also carries the shared due-diligence assessment (dd_score, risk_level,
-    # responsiveness, essential_checks) and your application's own decision, entity screening and questionnaires,
-    # which no other customer sees.
+    # discoverable, has a legal name and a confirmed compliance email, has an LEI that GLEIF lists as issued to an
+    # active entity and has been reviewed by Didit as a virtual asset service provider, and Didit has not marked the
+    # application as a test, demo, internal or not-a-VASP one. Each row also carries the shared due-diligence
+    # assessment (dd_score, risk_level, responsiveness, essential_checks) and your application's own decision, entity
+    # screening and questionnaires, which no other customer sees.
     class VaspDirectoryEntry < Didit::Model
       field :id, "id", :string
       field :kind, "kind", :string
@@ -14122,7 +14166,10 @@ module Didit
     # LEI register), licence (a MiCA authorisation is on record and current), domain (the entry's domain matches its
     # TRP endpoint or the website its register gives) and lei (its LEI record is active, issued and consistent with
     # the entry's names and country). The essentials component of dd_score is the share of decided checks that pass.
-    # Empty until the weekly directory refresh first checks the entry, and always empty for a Didit network member.
+    # Empty until the weekly directory refresh first checks the entry. A Didit network member (kind didit) carries the
+    # report too: registration, licence and domain come from the registered directory entry with the same LEI when
+    # there is one (else registration fails with no_register, licence is unknown with no_licence_record and domain is
+    # unknown with no_domain), and the lei check is GLEIF's answer against the member's own legal name and country.
     class VaspDirectoryEntryEssentialChecks < Didit::Model
       field :level, "level", :string
       field :checked_at, "checked_at", :datetime

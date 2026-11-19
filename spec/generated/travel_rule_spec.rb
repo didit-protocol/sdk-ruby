@@ -829,9 +829,12 @@ RSpec.describe Didit::Resources::TravelRule do
           "missing": [
             "travel_rule_off",
             "legal_name_missing",
-            "compliance_email_missing"
+            "lei_missing",
+            "compliance_email_missing",
+            "review_pending"
           ],
-          "compliance_email_confirmed": false
+          "compliance_email_confirmed": false,
+          "lei_check": null
         }
       }
     JSON
@@ -1436,7 +1439,13 @@ RSpec.describe Didit::Resources::TravelRule do
           "missing": [
             "travel_rule_off"
           ],
-          "compliance_email_confirmed": true
+          "compliance_email_confirmed": true,
+          "lei_check": {
+            "status": "pass",
+            "reason": "no_lei",
+            "gleif_legal_name": "gleif_legal_name-value",
+            "checked_at": "2026-01-02T03:04:05Z"
+          }
         },
         "licence": "REG-EXAMPLE"
       }
@@ -2947,7 +2956,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "missing": [
               "travel_rule_off"
             ],
-            "compliance_email_confirmed": true
+            "compliance_email_confirmed": true,
+            "lei_check": {
+              "status": "pass",
+              "reason": "no_lei",
+              "gleif_legal_name": "gleif_legal_name-value",
+              "checked_at": "2026-01-02T03:04:05Z"
+            }
           },
           "licence": "REG-EXAMPLE"
         },
@@ -3162,7 +3177,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "missing": [
               "travel_rule_off"
             ],
-            "compliance_email_confirmed": true
+            "compliance_email_confirmed": true,
+            "lei_check": {
+              "status": "pass",
+              "reason": "no_lei",
+              "gleif_legal_name": "gleif_legal_name-value",
+              "checked_at": "2026-01-02T03:04:05Z"
+            }
           },
           "licence": "REG-EXAMPLE"
         },
@@ -3377,7 +3398,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "missing": [
               "travel_rule_off"
             ],
-            "compliance_email_confirmed": true
+            "compliance_email_confirmed": true,
+            "lei_check": {
+              "status": "pass",
+              "reason": "no_lei",
+              "gleif_legal_name": "gleif_legal_name-value",
+              "checked_at": "2026-01-02T03:04:05Z"
+            }
           },
           "licence": "REG-EXAMPLE"
         },
@@ -3592,7 +3619,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "missing": [
               "travel_rule_off"
             ],
-            "compliance_email_confirmed": true
+            "compliance_email_confirmed": true,
+            "lei_check": {
+              "status": "pass",
+              "reason": "no_lei",
+              "gleif_legal_name": "gleif_legal_name-value",
+              "checked_at": "2026-01-02T03:04:05Z"
+            }
           },
           "licence": "REG-EXAMPLE"
         },
@@ -3830,7 +3863,13 @@ RSpec.describe Didit::Resources::TravelRule do
             "missing": [
               "travel_rule_off"
             ],
-            "compliance_email_confirmed": true
+            "compliance_email_confirmed": true,
+            "lei_check": {
+              "status": "pass",
+              "reason": "no_lei",
+              "gleif_legal_name": "gleif_legal_name-value",
+              "checked_at": "2026-01-02T03:04:05Z"
+            }
           },
           "licence": "REG-EXAMPLE"
         },
