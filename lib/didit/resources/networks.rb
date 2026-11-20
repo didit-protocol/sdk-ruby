@@ -347,6 +347,60 @@ module Didit
         )
       end
 
+      # Search signals
+      #
+      # Check one value against every network of your organization before you open an investigation. Choose a
+      # `signal_type` and send its value: an address, a phone number, an email, a device fingerprint, a document
+      # number with its issuing state and type, or a face image. A `wallet_address` search takes the address and
+      # optionally its destination tag or memo in `tag`, and answers with the `wallet` object: accounts, payouts, the
+      # amount paid out and the payout dates. A wallet many accounts use is a shared service: it answers `match_count:
+      # 0` and no matches, with `is_shared_service: true`.
+      #
+      # Requires the `read:networks` permission. Searches are limited per organization: when the budget is spent the
+      # call answers `429`.
+      #
+      # +POST /v3/organization/{organization_id}/application/{application_id}/networks/signals/search/+
+      #
+      # @param signal_type [String]
+      # @param value [String] The value to search. Required for every type but `face`, which refuses it. For
+      #   `wallet_address` it is the address.
+      # @param image [Pathname, IO, String, Didit::FilePart] A JPG, JPEG, PNG, WebP or TIFF image of at most 5 MB.
+      #   `face` only, and required there. Send the request as `multipart/form-data`.
+      # @param issuing_state [String] `document_number` only, and required there.
+      # @param document_type [String] `document_number` only, and required there.
+      # @param region [String] `document_number` only, required for a regionally issued document.
+      # @param tag [String] The destination tag or memo of a wallet. `wallet_address` only, blank allowed. Any other
+      #   type returns `400` `tag only applies to wallet_address searches.`
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::NetworkSignalSearchResponse]
+      def search_signals(
+        signal_type:,
+        value: OMIT,
+        image: OMIT,
+        issuing_state: OMIT,
+        document_type: OMIT,
+        region: OMIT,
+        tag: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/organization/{organization_id}/application/{application_id}/networks/signals/search/",
+          body: {
+            "signal_type" => signal_type,
+            "value" => value,
+            "image" => image,
+            "issuing_state" => issuing_state,
+            "document_type" => document_type,
+            "region" => region,
+            "tag" => tag
+          },
+          scope: :application,
+          response: Types::NetworkSignalSearchResponse,
+          request_options: request_options
+        )
+      end
+
       # The +networks.notes+ resource.
       class Notes < Didit::Resource
         # Add a private network note
