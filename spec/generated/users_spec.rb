@@ -110,6 +110,44 @@ RSpec.describe Didit::Resources::Users do
     expect(result).to eq("fake-binary-body")
   end
 
+  it "users.get_lookup sends GET /v3/users/lookup/{lookup_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "lookup_id": "b3a6f0c2-6a2e-4c0a-9d0e-5f3c1d2a7e11",
+        "requested": 4,
+        "found": 3,
+        "not_found": [
+          {
+            "identifier": "usr_7001",
+            "position": 4
+          }
+        ],
+        "expires_at": "2026-11-19T10:30:00Z",
+        "identifiers": [
+          "usr_8842",
+          "maria.o@gmail.com",
+          "f4e5e1f2-94a9-4f86-8c16-2b7d9b4db418",
+          "usr_7001"
+        ]
+      }
+    JSON
+    result = client.users.get_lookup(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/users/lookup/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::UsersLookupDetail)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "users.list sends GET /v3/users/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -276,6 +314,50 @@ RSpec.describe Didit::Resources::Users do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::EntityNetworkMembershipList)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "users.lookup sends POST /v3/users/lookup/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "lookup_id": "b3a6f0c2-6a2e-4c0a-9d0e-5f3c1d2a7e11",
+        "requested": 4,
+        "found": 3,
+        "not_found": [
+          {
+            "identifier": "usr_7001",
+            "position": 4
+          }
+        ],
+        "expires_at": "2026-11-19T10:30:00Z"
+      }
+    JSON
+    result = client.users.lookup(
+      identifiers: [
+        "usr_8842",
+        "maria.o@gmail.com",
+        "f4e5e1f2-94a9-4f86-8c16-2b7d9b4db418",
+        "usr_7001"
+      ]
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/users/lookup/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "identifiers" => [
+        "usr_8842",
+        "maria.o@gmail.com",
+        "f4e5e1f2-94a9-4f86-8c16-2b7d9b4db418",
+        "usr_7001"
+      ]
+    })
+    expect(result).to be_a(Didit::Types::UsersLookupResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

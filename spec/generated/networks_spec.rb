@@ -708,7 +708,19 @@ RSpec.describe Didit::Resources::Networks do
         "nodes": [
           {
             "id": "id-value",
-            "kind": "vendor_user"
+            "kind": "vendor_user",
+            "wallet": {
+              "asset": "USDT",
+              "network": "tron",
+              "account_count": 1,
+              "payout_count": 1,
+              "paid_out": {
+                "amount": "example",
+                "currency": "example"
+              },
+              "first_payout_at": "2026-01-02T03:04:05Z",
+              "last_payout_at": "2026-01-02T03:04:05Z"
+            }
           }
         ],
         "edges": [
@@ -862,6 +874,55 @@ RSpec.describe Didit::Resources::Networks do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::NetworksRetrieveTimelineResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "networks.search_signals sends POST /v3/organization/{organization_id}/application/{application_id}/networks/signals/search/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "signal_type": "wallet_address",
+        "match_count": 1,
+        "matches": [],
+        "cross_organization": {
+          "available": false,
+          "signals_checked": 0,
+          "insights": []
+        },
+        "wallet": {
+          "signal_id": "8f1f6b0e-2f64-4f0b-9e0d-3c5b9a2f7d10",
+          "is_shared_service": false,
+          "account_count": 3,
+          "payout_count": 14,
+          "paid_out": {
+            "amount": "5950.00",
+            "currency": "USD"
+          },
+          "first_payout_at": "2026-09-02T10:14:00Z",
+          "last_payout_at": "2026-11-16T18:02:00Z",
+          "recent_payouts": []
+        }
+      }
+    JSON
+    result = client.networks.search_signals(
+      signal_type: "wallet_address",
+      value: "TXyZ1k3m9q2Ho8vJ6cWn5aRb4dLpUe7sFt",
+      tag: ""
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/organization/org-7f3a/application/app-91c2/networks/signals/search/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "signal_type" => "wallet_address",
+      "value" => "TXyZ1k3m9q2Ho8vJ6cWn5aRb4dLpUe7sFt",
+      "tag" => ""
+    })
+    expect(result).to be_a(Didit::Types::NetworkSignalSearchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

@@ -1366,8 +1366,9 @@ module Didit
       PHONE = "phone"
       EMAIL = "email"
       ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
 
-      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
     end
 
     # Why a waiting override never applied, or `null`. `cancelled_by_reviewer`: cancelled with the cancel endpoint.
@@ -2528,8 +2529,9 @@ module Didit
       PHONE = "phone"
       EMAIL = "email"
       ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
 
-      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
     end
 
     # Network lifecycle status. Distinct from the per-applicant outcome_status inside a network
@@ -2552,8 +2554,9 @@ module Didit
       PHONE = "phone"
       EMAIL = "email"
       ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
 
-      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -2573,6 +2576,15 @@ module Didit
       SIGNAL = "signal"
 
       VALUES = [VENDOR_USER, VENDOR_BUSINESS, TRANSACTION_PARTY, SIGNAL].freeze
+    end
+
+    # The blockchain, read from the address format only. `null` for EVM addresses and other formats.
+    module NetworkGraphNodeWalletNetwork
+      TRON = "tron"
+      BITCOIN = "bitcoin"
+      SOLANA = "solana"
+
+      VALUES = [TRON, BITCOIN, SOLANA].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -2599,8 +2611,9 @@ module Didit
       PHONE = "phone"
       EMAIL = "email"
       ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
 
-      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
     end
 
     # Network lifecycle status. Distinct from the per-applicant outcome_status inside a network
@@ -2690,8 +2703,9 @@ module Didit
       PHONE = "phone"
       EMAIL = "email"
       ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
 
-      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS].freeze
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
     end
 
     # `didit` for a Didit preset tag, `custom` for a tag your team created.
@@ -9836,10 +9850,30 @@ module Didit
     # transaction_party) carry id, kind, subject, node_status (approved | in_review | declined | not_completed), and
     # tags. Signal nodes (kind: signal) carry id, kind, uuid, signal_type, subject_count, coverage, is_hub,
     # is_datacenter_ip, is_high_collision_device, node_status (signal_active | signal_guarded), tags, risk_evidence,
-    # first_seen_at, and last_seen_at.
+    # first_seen_at, and last_seen_at. A signal node with `signal_type: wallet_address` also carries `wallet`: where
+    # the money went through that wallet. Every other node has no `wallet` key.
     class NetworkGraphNode < Didit::Model
       field :id, "id", :string
       field :kind, "kind", :string
+      field :wallet, "wallet", "NetworkGraphNodeWallet"
+    end
+
+    # Only on a signal node of type `wallet_address`.
+    class NetworkGraphNodeWallet < Didit::Model
+      field :asset, "asset", :string
+      field :network, "network", :string
+      field :account_count, "account_count", :integer
+      field :payout_count, "payout_count", :integer
+      field :paid_out, "paid_out", "NetworkGraphNodeWalletPaidOut"
+      field :first_payout_at, "first_payout_at", :datetime
+      field :last_payout_at, "last_payout_at", :datetime
+    end
+
+    # Sum of each payout's amount in the application's default currency. Payouts without one are counted but not
+    # summed. `null` when none.
+    class NetworkGraphNodeWalletPaidOut < Didit::Model
+      field :amount, "amount", :string
+      field :currency, "currency", :string
     end
 
     # Network counts for the list's views and filter options, each network counted once. Returned only when `summary`
@@ -10048,6 +10082,80 @@ module Didit
       field :risk_evidence, "risk_evidence", :any
       field :first_seen_at, "first_seen_at", :datetime
       field :last_seen_at, "last_seen_at", :datetime
+    end
+
+    class NetworkSignalSearchMatch < Didit::Model
+      field :uuid, "uuid", :string
+      field :signal_type, "signal_type", :string
+      field :quality_flags, "quality_flags", "NetworkSignalSearchMatchQualityFlags"
+      field :subject_count, "subject_count", :integer
+      field :first_seen_at, "first_seen_at", :datetime
+      field :last_seen_at, "last_seen_at", :datetime
+      field :subjects, "subjects", [:array, :any]
+      field :networks, "networks", [:array, "NetworkListItem"]
+    end
+
+    class NetworkSignalSearchMatchQualityFlags < Didit::Model
+      field :is_datacenter_ip, "is_datacenter_ip", :boolean
+      field :is_high_collision_device, "is_high_collision_device", :boolean
+      field :is_hub, "is_hub", :boolean
+    end
+
+    class NetworkSignalSearchRecentPayout < Didit::Model
+      field :uuid, "uuid", :string
+      field :transaction_number, "transaction_number", :integer
+      field :txn_id, "txn_id", :string
+      field :txn_date, "txn_date", :datetime
+      field :amount, "amount", :string
+      field :currency, "currency", :string
+      field :paid_out, "paid_out", "NetworkSignalSearchRecentPayoutPaidOut"
+      field :account, "account", "NetworkSignalSearchRecentPayoutAccount"
+    end
+
+    class NetworkSignalSearchRecentPayoutAccount < Didit::Model
+      field :vendor_user_id, "vendor_user_id", :string
+      field :vendor_data, "vendor_data", :string
+      field :full_name, "full_name", :string
+    end
+
+    class NetworkSignalSearchRecentPayoutPaidOut < Didit::Model
+      field :amount, "amount", :string
+      field :currency, "currency", :string
+    end
+
+    class NetworkSignalSearchResponse < Didit::Model
+      field :signal_type, "signal_type", :string
+      field :match_count, "match_count", :integer
+      field :matches, "matches", [:array, "NetworkSignalSearchMatch"]
+      field :enrichment_available, "enrichment_available", :boolean
+      field :enrichment, "enrichment", :any
+      field :cross_organization, "cross_organization", "NetworkSignalSearchResponseCrossOrganization"
+      field :wallet, "wallet", "NetworkSignalSearchWallet"
+    end
+
+    class NetworkSignalSearchResponseCrossOrganization < Didit::Model
+      field :available, "available", :boolean
+      field :signals_checked, "signals_checked", :integer
+      field :insights, "insights", [:array, :any]
+    end
+
+    # Only on a `wallet_address` search: what the address did in your organization.
+    class NetworkSignalSearchWallet < Didit::Model
+      field :signal_id, "signal_id", :string
+      field :is_shared_service, "is_shared_service", :boolean
+      field :account_count, "account_count", :integer
+      field :payout_count, "payout_count", :integer
+      field :paid_out, "paid_out", "NetworkSignalSearchWalletPaidOut"
+      field :first_payout_at, "first_payout_at", :datetime
+      field :last_payout_at, "last_payout_at", :datetime
+      field :recent_payouts, "recent_payouts", [:array, "NetworkSignalSearchRecentPayout"]
+    end
+
+    # Sum of each payout's amount in the application's default currency. Payouts without one are counted but not
+    # summed.
+    class NetworkSignalSearchWalletPaidOut < Didit::Model
+      field :amount, "amount", :string
+      field :currency, "currency", :string
     end
 
     # One of your application's tags on the network.
@@ -14090,6 +14198,23 @@ module Didit
       field :uuid, "uuid", :string
       field :name, "name", :string
       field :color, "color", :string
+    end
+
+    class UsersLookupNotFound < Didit::Model
+      field :identifier, "identifier", :string
+      field :position, "position", :integer
+    end
+
+    class UsersLookupResponse < Didit::Model
+      field :lookup_id, "lookup_id", :string
+      field :requested, "requested", :integer
+      field :found, "found", :integer
+      field :not_found, "not_found", [:array, "UsersLookupNotFound"]
+      field :expires_at, "expires_at", :datetime
+    end
+
+    class UsersLookupDetail < UsersLookupResponse
+      field :identifiers, "identifiers", [:array, :string]
     end
 
     # A VASP of the directory or a member of the Didit network, with the routes your application has to it. A customer

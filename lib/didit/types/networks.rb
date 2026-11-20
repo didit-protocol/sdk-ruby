@@ -76,6 +76,20 @@ module Didit
       VALUES = [NETWORK_DETECTED, SIGNAL_OBSERVED, NETWORK_ACTIVE, NETWORK_IN_REVIEW, NETWORK_RESOLVED, NETWORK_DISMISSED, VERIFICATION_ATTEMPT, TRANSACTION, LOGIN, RULE_HIT, CASE_LINKED, NOTE_ADDED].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module NetworksSearchSignalsParamsSignalType
+      IP_ADDRESS = "ip_address"
+      DEVICE = "device"
+      FACE = "face"
+      DOCUMENT_NUMBER = "document_number"
+      PHONE = "phone"
+      EMAIL = "email"
+      ADDRESS = "address"
+      WALLET_ADDRESS = "wallet_address"
+
+      VALUES = [IP_ADDRESS, DEVICE, FACE, DOCUMENT_NUMBER, PHONE, EMAIL, ADDRESS, WALLET_ADDRESS].freeze
+    end
+
     class NetworksListMembersResponse < Didit::Model
       field :results, "results", [:array, "NetworkMember"]
     end

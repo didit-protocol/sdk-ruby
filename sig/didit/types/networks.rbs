@@ -64,6 +64,19 @@ module Didit
       VALUES: Array[String]
     end
 
+    module NetworksSearchSignalsParamsSignalType
+      IP_ADDRESS: String
+      DEVICE: String
+      FACE: String
+      DOCUMENT_NUMBER: String
+      PHONE: String
+      EMAIL: String
+      ADDRESS: String
+      WALLET_ADDRESS: String
+
+      VALUES: Array[String]
+    end
+
     class NetworksListMembersResponse < Didit::Model
       def results: () -> Array[Didit::Types::NetworkMember]?
     end
@@ -109,5 +122,7 @@ module Didit
     type networks_notes_create_params = { comment: String, client_reference: String }
 
     type networks_remove_tag_params = { tag_uuid: String }
+
+    type networks_search_signals_params = { signal_type: String, ?value: String, ?image: Didit::upload, ?issuing_state: String, ?document_type: String, ?region: String, ?tag: String }
   end
 end

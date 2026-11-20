@@ -1122,6 +1122,7 @@ module Didit
       PHONE: String
       EMAIL: String
       ADDRESS: String
+      WALLET_ADDRESS: String
 
       VALUES: Array[String]
     end
@@ -2094,6 +2095,7 @@ module Didit
       PHONE: String
       EMAIL: String
       ADDRESS: String
+      WALLET_ADDRESS: String
 
       VALUES: Array[String]
     end
@@ -2115,6 +2117,7 @@ module Didit
       PHONE: String
       EMAIL: String
       ADDRESS: String
+      WALLET_ADDRESS: String
 
       VALUES: Array[String]
     end
@@ -2132,6 +2135,14 @@ module Didit
       VENDOR_BUSINESS: String
       TRANSACTION_PARTY: String
       SIGNAL: String
+
+      VALUES: Array[String]
+    end
+
+    module NetworkGraphNodeWalletNetwork
+      TRON: String
+      BITCOIN: String
+      SOLANA: String
 
       VALUES: Array[String]
     end
@@ -2158,6 +2169,7 @@ module Didit
       PHONE: String
       EMAIL: String
       ADDRESS: String
+      WALLET_ADDRESS: String
 
       VALUES: Array[String]
     end
@@ -2234,6 +2246,7 @@ module Didit
       PHONE: String
       EMAIL: String
       ADDRESS: String
+      WALLET_ADDRESS: String
 
       VALUES: Array[String]
     end
@@ -8545,6 +8558,22 @@ module Didit
     class NetworkGraphNode < Didit::Model
       def id: () -> String?
       def kind: () -> String?
+      def wallet: () -> Didit::Types::NetworkGraphNodeWallet?
+    end
+
+    class NetworkGraphNodeWallet < Didit::Model
+      def asset: () -> String?
+      def network: () -> String?
+      def account_count: () -> Integer?
+      def payout_count: () -> Integer?
+      def paid_out: () -> Didit::Types::NetworkGraphNodeWalletPaidOut?
+      def first_payout_at: () -> Time?
+      def last_payout_at: () -> Time?
+    end
+
+    class NetworkGraphNodeWalletPaidOut < Didit::Model
+      def amount: () -> String?
+      def currency: () -> String?
     end
 
     class NetworkListCounts < Didit::Model
@@ -8726,6 +8755,77 @@ module Didit
       def risk_evidence: () -> Hash[String, untyped]?
       def first_seen_at: () -> Time?
       def last_seen_at: () -> Time?
+    end
+
+    class NetworkSignalSearchMatch < Didit::Model
+      def uuid: () -> String?
+      def signal_type: () -> String?
+      def quality_flags: () -> Didit::Types::NetworkSignalSearchMatchQualityFlags?
+      def subject_count: () -> Integer?
+      def first_seen_at: () -> Time?
+      def last_seen_at: () -> Time?
+      def subjects: () -> Array[Hash[String, untyped]]?
+      def networks: () -> Array[Didit::Types::NetworkListItem]?
+    end
+
+    class NetworkSignalSearchMatchQualityFlags < Didit::Model
+      def is_datacenter_ip: () -> bool?
+      def is_high_collision_device: () -> bool?
+      def is_hub: () -> bool?
+    end
+
+    class NetworkSignalSearchRecentPayout < Didit::Model
+      def uuid: () -> String?
+      def transaction_number: () -> Integer?
+      def txn_id: () -> String?
+      def txn_date: () -> Time?
+      def amount: () -> String?
+      def currency: () -> String?
+      def paid_out: () -> Didit::Types::NetworkSignalSearchRecentPayoutPaidOut?
+      def account: () -> Didit::Types::NetworkSignalSearchRecentPayoutAccount?
+    end
+
+    class NetworkSignalSearchRecentPayoutAccount < Didit::Model
+      def vendor_user_id: () -> String?
+      def vendor_data: () -> String?
+      def full_name: () -> String?
+    end
+
+    class NetworkSignalSearchRecentPayoutPaidOut < Didit::Model
+      def amount: () -> String
+      def currency: () -> String
+    end
+
+    class NetworkSignalSearchResponse < Didit::Model
+      def signal_type: () -> String
+      def match_count: () -> Integer
+      def matches: () -> Array[Didit::Types::NetworkSignalSearchMatch]
+      def enrichment_available: () -> bool?
+      def enrichment: () -> Hash[String, untyped]?
+      def cross_organization: () -> Didit::Types::NetworkSignalSearchResponseCrossOrganization?
+      def wallet: () -> Didit::Types::NetworkSignalSearchWallet?
+    end
+
+    class NetworkSignalSearchResponseCrossOrganization < Didit::Model
+      def available: () -> bool?
+      def signals_checked: () -> Integer?
+      def insights: () -> Array[Hash[String, untyped]]?
+    end
+
+    class NetworkSignalSearchWallet < Didit::Model
+      def signal_id: () -> String?
+      def is_shared_service: () -> bool?
+      def account_count: () -> Integer?
+      def payout_count: () -> Integer?
+      def paid_out: () -> Didit::Types::NetworkSignalSearchWalletPaidOut?
+      def first_payout_at: () -> Time?
+      def last_payout_at: () -> Time?
+      def recent_payouts: () -> Array[Didit::Types::NetworkSignalSearchRecentPayout]?
+    end
+
+    class NetworkSignalSearchWalletPaidOut < Didit::Model
+      def amount: () -> String
+      def currency: () -> String
     end
 
     class NetworkTag < Didit::Model
@@ -12439,6 +12539,23 @@ module Didit
       def uuid: () -> String?
       def name: () -> String?
       def color: () -> String?
+    end
+
+    class UsersLookupDetail < Didit::Types::UsersLookupResponse
+      def identifiers: () -> Array[String]
+    end
+
+    class UsersLookupNotFound < Didit::Model
+      def identifier: () -> String
+      def position: () -> Integer
+    end
+
+    class UsersLookupResponse < Didit::Model
+      def lookup_id: () -> String
+      def requested: () -> Integer
+      def found: () -> Integer
+      def not_found: () -> Array[Didit::Types::UsersLookupNotFound]
+      def expires_at: () -> Time
     end
 
     class VaspDirectoryEntry < Didit::Model

@@ -15,6 +15,7 @@ module Didit
       def retrieve_graph: (String network_uuid, ?depth: String, ?focus_kind: String, ?focus_id: String, ?request_options: Didit::request_options?) -> Didit::Types::NetworkGraph
       def retrieve_map: (String network_uuid, ?request_options: Didit::request_options?) -> Didit::Types::NetworkMap
       def retrieve_timeline: (String network_uuid, ?contract: String, ?limit: Integer, ?cursor: String, ?event_type: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::NetworksRetrieveTimelineResponse
+      def search_signals: (signal_type: String, ?value: String, ?image: Didit::upload, ?issuing_state: String, ?document_type: String, ?region: String, ?tag: String, ?request_options: Didit::request_options?) -> Didit::Types::NetworkSignalSearchResponse
       class Notes < Didit::Resource
         def create: (String network_uuid, comment: String, client_reference: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::NetworkNote
         def delete: (String network_uuid, String note_uuid, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
