@@ -1172,12 +1172,13 @@ module Didit
       #
       # List every completed ongoing-monitoring re-screen of a session's AML check, newest first by `completed_at`,
       # including the runs where nothing changed: alerts, activity entries and webhooks fire only when a result moves,
-      # so this history is the evidence that a clean subject was still being screened. Works for KYC and KYB session
-      # IDs; pass `node_id` when the session ran more than one AML step. Only ongoing-monitoring re-screens are listed
-      # (the first screening is part of the session decision) and runs from before this history existed are not
-      # reconstructed, so a session without ongoing monitoring returns an empty list. `count` is exact up to 100 and
-      # capped at 100 above that, so follow `next` until it is `null`. Pass `month` to read one calendar month at a
-      # time. A scoped API key needs `decisions: read`; see [Continuous AML
+      # so this history is the record of the re-screens a clean subject had. The daily monitoring date is
+      # `last_ongoing_screening_at` on the AML report. Works for KYC and KYB session IDs; pass `node_id` when the
+      # session ran more than one AML step. Only ongoing-monitoring re-screens are listed (the first screening is part
+      # of the session decision) and runs from before this history existed are not reconstructed, so a session without
+      # ongoing monitoring returns an empty list. `count` is exact up to 100 and capped at 100 above that, so follow
+      # `next` until it is `null`. Pass `month` to read one calendar month at a time. A scoped API key needs
+      # `decisions: read`; see [Continuous AML
       # monitoring](https://docs.didit.me/core-technology/aml-screening/continuous-monitoring-aml-screening).
       #
       # +GET /v3/session/{sessionId}/aml-screening-history/+
@@ -1770,7 +1771,7 @@ module Didit
       #
       # `review_status` is one of `Unreviewed`, `Confirmed Match`, `False Positive`, or `Inconclusive`. Reviewer
       # decisions are preserved across ongoing-monitoring updates, so a hit you mark `False Positive` stays that way
-      # when the provider re-screens.
+      # when the provider sends an update.
       #
       # A successful call fires a `data.updated` webhook and appends an activity entry (with actor attribution) to the
       # session's review trail. For graph workflows with multiple AML checks, pass `node_id` to target a specific
