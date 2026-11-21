@@ -21,9 +21,15 @@ RSpec.describe Didit::Resources::WalletScreening do
         "block_timestamp": null,
         "total_value_usd": null,
         "fee_usd": null,
-        "sender_rows": [],
-        "receiver_rows": [],
-        "transaction_flows": [],
+        "sender_rows": [
+      
+        ],
+        "receiver_rows": [
+      
+        ],
+        "transaction_flows": [
+      
+        ],
         "transaction_flows_status": null,
         "transaction_flows_error": null,
         "source_of_funds": [
@@ -123,8 +129,12 @@ RSpec.describe Didit::Resources::WalletScreening do
             "provider_entity_id": null
           }
         ],
-        "network_nodes": [],
-        "network_edges": [],
+        "network_nodes": [
+      
+        ],
+        "network_edges": [
+      
+        ],
         "sanctions_hit": true,
         "pep_counterparty": null,
         "dominant_risk_category": "sanctioned",

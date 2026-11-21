@@ -15,14 +15,22 @@ RSpec.describe Didit::Resources::Email do
           "status": "Approved",
           "email": "alice@example.com",
           "is_breached": false,
-          "breaches": [],
+          "breaches": [
+      
+          ],
           "is_disposable": false,
           "is_undeliverable": false,
           "verification_attempts": 0,
           "verified_at": null,
-          "warnings": [],
-          "lifecycle": [],
-          "matches": [],
+          "warnings": [
+      
+          ],
+          "lifecycle": [
+      
+          ],
+          "matches": [
+      
+          ],
           "email_intelligence": {
             "score": 4.0,
             "deliverable": "high",
@@ -34,7 +42,9 @@ RSpec.describe Didit::Resources::Email do
             "is_free_domain": false,
             "is_breached": false,
             "no_of_breaches": 0,
-            "reason_codes": []
+            "reason_codes": [
+      
+            ]
           },
           "enrichment": {
             "score": 4.0,
@@ -47,7 +57,9 @@ RSpec.describe Didit::Resources::Email do
             "is_free_domain": false,
             "is_breached": false,
             "no_of_breaches": 0,
-            "reason_codes": []
+            "reason_codes": [
+      
+            ]
           }
         },
         "vendor_data": "lead-123",
@@ -88,12 +100,16 @@ RSpec.describe Didit::Resources::Email do
           "status": "Approved",
           "email": "alice@example.com",
           "is_breached": false,
-          "breaches": [],
+          "breaches": [
+      
+          ],
           "is_disposable": false,
           "is_undeliverable": false,
           "verification_attempts": 1,
           "verified_at": "2026-06-12T01:24:47.311323Z",
-          "warnings": [],
+          "warnings": [
+      
+          ],
           "lifecycle": [
             {
               "type": "EMAIL_VERIFICATION_MESSAGE_SENT",
@@ -120,7 +136,9 @@ RSpec.describe Didit::Resources::Email do
               "fee": 0
             }
           ],
-          "matches": []
+          "matches": [
+      
+          ]
         },
         "vendor_data": "user-1234",
         "metadata": null,

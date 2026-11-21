@@ -42,7 +42,8 @@ RSpec.describe Didit::Resources::Pricing do
                 "available": false,
                 "market": null,
                 "price_usd": null,
-                "add_ons": {}
+                "add_ons": {
+                }
               },
               "account_lookup": {
                 "available": false,

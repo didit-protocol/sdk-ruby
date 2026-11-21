@@ -112,7 +112,9 @@ RSpec.describe Didit::Resources::ProofOfAddress do
             }
           ],
           "status": "Approved",
-          "warnings": []
+          "warnings": [
+      
+          ]
         },
         "vendor_data": "user-123",
         "metadata": null,

@@ -31,7 +31,9 @@ RSpec.describe Didit::Resources::AgeEstimation do
             "best_angle": 0
           },
           "age_estimation": 27.33,
-          "warnings": []
+          "warnings": [
+      
+          ]
         },
         "vendor_data": "user-123",
         "metadata": {

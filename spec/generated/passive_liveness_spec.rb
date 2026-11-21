@@ -31,7 +31,9 @@ RSpec.describe Didit::Resources::PassiveLiveness do
             ],
             "best_angle": 0
           },
-          "warnings": [],
+          "warnings": [
+      
+          ],
           "face_quality": 84.21,
           "face_luminance": 50.33
         },
