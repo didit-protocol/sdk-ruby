@@ -10,6 +10,7 @@ module Didit
     autoload :Aml, "didit/resources/aml"
     autoload :AmlMonitoring, "didit/resources/aml_monitoring"
     autoload :Analytics, "didit/resources/analytics"
+    autoload :AuthenticationSetup, "didit/resources/authentication_setup"
     autoload :Bank, "didit/resources/bank"
     autoload :Billing, "didit/resources/billing"
     autoload :BiometricTemplates, "didit/resources/biometric_templates"
@@ -79,6 +80,11 @@ module Didit
       # @return [Didit::Resources::Analytics]
       def analytics
         @analytics ||= Resources::Analytics.new(self)
+      end
+
+      # @return [Didit::Resources::AuthenticationSetup]
+      def authentication_setup
+        @authentication_setup ||= Resources::AuthenticationSetup.new(self)
       end
 
       # @return [Didit::Resources::Bank]

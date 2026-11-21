@@ -189,7 +189,7 @@ RSpec.describe Didit::Resources::Investigator do
             "run_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "kind": "session",
             "queue": "kyc",
-            "stage": "shadow",
+            "stage": "none",
             "subject": {},
             "recommendation": "approve",
             "recommendation_detail": "recommendation_detail-value",
@@ -200,7 +200,9 @@ RSpec.describe Didit::Resources::Investigator do
             "guardrails": {},
             "waiting_since": "2026-01-02T03:04:05Z",
             "due_at": "2026-01-02T03:04:05Z",
-            "prepared_at": "2026-01-02T03:04:05Z"
+            "prepared_at": "2026-01-02T03:04:05Z",
+            "free_report": true,
+            "example": true
           }
         ]
       }
@@ -308,6 +310,32 @@ RSpec.describe Didit::Resources::Investigator do
     exercise_readers(result)
   end
 
+  it "investigator.retrieve_offer sends GET /v3/investigator/offer/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "show": true,
+        "manual_decisions_30d": 1,
+        "avg_handling_seconds": 1,
+        "stopped_halfway_30d": 1,
+        "stage": "none",
+        "followups_on": true
+      }
+    JSON
+    result = client.investigator.retrieve_offer
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/investigator/offer/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::InvestigatorRetrieveOfferResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "investigator.retrieve_performance sends GET /v3/investigator/performance/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -338,7 +366,7 @@ RSpec.describe Didit::Resources::Investigator do
         "run_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "kind": "session",
         "queue": "kyc",
-        "stage": "shadow",
+        "stage": "none",
         "subject": {},
         "recommendation": "approve",
         "recommendation_detail": "recommendation_detail-value",
@@ -350,6 +378,8 @@ RSpec.describe Didit::Resources::Investigator do
         "waiting_since": "2026-01-02T03:04:05Z",
         "due_at": "2026-01-02T03:04:05Z",
         "prepared_at": "2026-01-02T03:04:05Z",
+        "free_report": true,
+        "example": true,
         "status": "status-value",
         "is_open": true,
         "lookups": 1,
@@ -452,7 +482,12 @@ RSpec.describe Didit::Resources::Investigator do
         "open": 1,
         "decided_today": 1,
         "automation_rate_month": 1.5,
-        "preparing": 1
+        "preparing": 1,
+        "free_reports": {
+          "limit": 1,
+          "used": 1,
+          "remaining": 1
+        }
       }
     JSON
     result = client.investigator.retrieve_summary
