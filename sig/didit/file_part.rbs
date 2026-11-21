@@ -1,0 +1,19 @@
+module Didit
+  class FilePart
+    CONTENT_TYPES: Hash[String, String]
+    DEFAULT_CONTENT_TYPE: String
+
+    @content_type: String?
+
+    attr_reader content: String | Pathname | IO | StringIO
+    attr_reader filename: String?
+
+    def initialize: (String | Pathname | IO | StringIO content, ?filename: String?, ?content_type: String?) -> void
+    def self.from_path: (String | Pathname path, ?filename: String?, ?content_type: String?) -> FilePart
+    def self.wrap: (untyped value, String field) -> FilePart
+    def self.default_filename: (untyped content) -> String?
+    def content_type: () -> String
+    def read: () -> String
+    def inspect: () -> String
+  end
+end
