@@ -19,9 +19,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
         "retention_class": "standard",
         "expires_at": "2026-11-16T09:15:02.481000Z",
         "idempotent_replay": true,
-        "rule_matches": [
-      
-        ]
+        "rule_matches": []
       }
     JSON
     result = client.monitoring_events.create(
@@ -113,9 +111,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
             "retention_class": "standard",
             "expires_at": "2026-11-16T09:15:02.481000Z",
             "idempotent_replay": false,
-            "rule_matches": [
-      
-            ]
+            "rule_matches": []
           },
           {
             "index": 1,
@@ -130,9 +126,7 @@ RSpec.describe Didit::Resources::MonitoringEvents do
             "retention_class": "monetary_or_compliance",
             "expires_at": null,
             "idempotent_replay": true,
-            "rule_matches": [
-      
-            ]
+            "rule_matches": []
           }
         ]
       }

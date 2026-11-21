@@ -81,9 +81,7 @@ RSpec.describe Didit::Resources::Networks do
             }
           }
         },
-        "fraud_tags": [
-      
-        ],
+        "fraud_tags": [],
         "risk_signals": {
           "residential_proxy_reuse": {
             "detected": false,
@@ -196,27 +194,19 @@ RSpec.describe Didit::Resources::Networks do
             "signal_types": [
               "ip_address"
             ],
-            "member_counts": {
-            },
-            "member_status": {
-            },
-            "signal_coverage": {
-            },
+            "member_counts": {},
+            "member_status": {},
+            "signal_coverage": {},
             "first_activity_at": "2026-01-02T03:04:05Z",
             "last_activity_at": "2026-01-02T03:04:05Z"
           }
         ],
         "kpis": {
-          "active": {
-          },
-          "in_review": {
-          },
-          "applicants_involved": {
-          },
-          "detected_this_period": {
-          },
-          "false_positive_rate": {
-          }
+          "active": {},
+          "in_review": {},
+          "applicants_involved": {},
+          "detected_this_period": {},
+          "false_positive_rate": {}
         },
         "counts": {
           "scopes": {
@@ -298,8 +288,7 @@ RSpec.describe Didit::Resources::Networks do
       {
         "results": [
           {
-            "subject": {
-            },
+            "subject": {},
             "outcome_status": "outcome_status-value",
             "node_status": "approved",
             "tags": [
@@ -316,10 +305,8 @@ RSpec.describe Didit::Resources::Networks do
               "band": "low",
               "bar": 1.5
             },
-            "signal_coverage": {
-            },
-            "shared_infrastructure": {
-            },
+            "signal_coverage": {},
+            "shared_infrastructure": {},
             "joined_at": "2026-01-02T03:04:05Z",
             "last_seen_at": "2026-01-02T03:04:05Z",
             "provenance": {
@@ -376,8 +363,7 @@ RSpec.describe Didit::Resources::Networks do
                 "category": "example"
               }
             ],
-            "risk_evidence": {
-            },
+            "risk_evidence": {},
             "first_seen_at": "2026-01-02T03:04:05Z",
             "last_seen_at": "2026-01-02T03:04:05Z"
           }
@@ -476,9 +462,7 @@ RSpec.describe Didit::Resources::Networks do
             }
           }
         },
-        "fraud_tags": [
-      
-        ],
+        "fraud_tags": [],
         "risk_signals": {
           "residential_proxy_reuse": {
             "detected": false,
@@ -502,9 +486,7 @@ RSpec.describe Didit::Resources::Networks do
         "sharing_mode": "global",
         "cross_org_available": true,
         "cross_org_unavailable_reason": null,
-        "tags": [
-      
-        ],
+        "tags": [],
         "outcomes": {
           "approved": 1,
           "declined": 1,
@@ -619,9 +601,7 @@ RSpec.describe Didit::Resources::Networks do
             }
           }
         },
-        "fraud_tags": [
-      
-        ],
+        "fraud_tags": [],
         "risk_signals": {
           "residential_proxy_reuse": {
             "detected": false,
@@ -708,22 +688,16 @@ RSpec.describe Didit::Resources::Networks do
           "signal_types": [
             "ip_address"
           ],
-          "member_counts": {
-          },
-          "member_status": {
-          },
-          "signal_coverage": {
-          },
+          "member_counts": {},
+          "member_status": {},
+          "signal_coverage": {},
           "first_activity_at": "2026-01-02T03:04:05Z",
           "last_activity_at": "2026-01-02T03:04:05Z",
-          "stats": {
-          },
+          "stats": {},
           "fraud_tags": [
-            {
-            }
+            {}
           ],
-          "risk_signals": {
-          },
+          "risk_signals": {},
           "reviewed_at": "2026-01-02T03:04:05Z",
           "reviewed_by": "reviewed_by-value",
           "review_reason": "review_reason-value",
@@ -805,22 +779,16 @@ RSpec.describe Didit::Resources::Networks do
           "signal_types": [
             "ip_address"
           ],
-          "member_counts": {
-          },
-          "member_status": {
-          },
-          "signal_coverage": {
-          },
+          "member_counts": {},
+          "member_status": {},
+          "signal_coverage": {},
           "first_activity_at": "2026-01-02T03:04:05Z",
           "last_activity_at": "2026-01-02T03:04:05Z",
-          "stats": {
-          },
+          "stats": {},
           "fraud_tags": [
-            {
-            }
+            {}
           ],
-          "risk_signals": {
-          },
+          "risk_signals": {},
           "reviewed_at": "2026-01-02T03:04:05Z",
           "reviewed_by": "reviewed_by-value",
           "review_reason": "review_reason-value",
@@ -915,15 +883,11 @@ RSpec.describe Didit::Resources::Networks do
       {
         "signal_type": "wallet_address",
         "match_count": 1,
-        "matches": [
-      
-        ],
+        "matches": [],
         "cross_organization": {
           "available": false,
           "signals_checked": 0,
-          "insights": [
-      
-          ]
+          "insights": []
         },
         "wallet": {
           "signal_id": "8f1f6b0e-2f64-4f0b-9e0d-3c5b9a2f7d10",
@@ -936,9 +900,7 @@ RSpec.describe Didit::Resources::Networks do
           },
           "first_payout_at": "2026-09-02T10:14:00Z",
           "last_payout_at": "2026-11-16T18:02:00Z",
-          "recent_payouts": [
-      
-          ]
+          "recent_payouts": []
         }
       }
     JSON

@@ -27,15 +27,9 @@ RSpec.describe Didit::Resources::Phone do
           "verification_method": null,
           "verification_attempts": 0,
           "verified_at": null,
-          "warnings": [
-      
-          ],
-          "lifecycle": [
-      
-          ],
-          "matches": [
-      
-          ],
+          "warnings": [],
+          "lifecycle": [],
+          "matches": [],
           "phone_intelligence": {
             "score": 3.0,
             "phone_type_risk": "Low",
@@ -45,9 +39,7 @@ RSpec.describe Didit::Resources::Phone do
             "is_ported": false,
             "is_recently_ported": false,
             "carrier_type": "mobile",
-            "reason_codes": [
-      
-            ]
+            "reason_codes": []
           },
           "enrichment": {
             "score": 3.0,
@@ -58,9 +50,7 @@ RSpec.describe Didit::Resources::Phone do
             "is_ported": false,
             "is_recently_ported": false,
             "carrier_type": "mobile",
-            "reason_codes": [
-      
-            ]
+            "reason_codes": []
           }
         },
         "vendor_data": "lead-123",
@@ -113,9 +103,7 @@ RSpec.describe Didit::Resources::Phone do
           "verification_method": "whatsapp",
           "verification_attempts": 1,
           "verified_at": "2026-06-12T01:24:47.311323Z",
-          "warnings": [
-      
-          ],
+          "warnings": [],
           "lifecycle": [
             {
               "type": "PHONE_VERIFICATION_MESSAGE_SENT",
@@ -156,9 +144,7 @@ RSpec.describe Didit::Resources::Phone do
               "fee": 0
             }
           ],
-          "matches": [
-      
-          ]
+          "matches": []
         },
         "vendor_data": "user-1234",
         "metadata": null,

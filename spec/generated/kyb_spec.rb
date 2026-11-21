@@ -67,9 +67,7 @@ RSpec.describe Didit::Resources::Kyb do
               "kyc_session_url": null
             }
           ],
-          "beneficial_owners": [
-      
-          ],
+          "beneficial_owners": [],
           "addresses": [
             {
               "address": "Tesco House, Shire Park, Kestrel Way, Welwyn Garden City, United Kingdom, AL7 1GA",
@@ -83,8 +81,7 @@ RSpec.describe Didit::Resources::Kyb do
             "next_account": "26 February 2026",
             "due_by_date": "26 August 2026"
           },
-          "registry_data": {
-          },
+          "registry_data": {},
           "user_provided_data": null,
           "confirmed_by_user_at": null,
           "last_console_edit_at": null,
@@ -179,9 +176,7 @@ RSpec.describe Didit::Resources::Kyb do
               "kyc_session_url": null
             }
           ],
-          "beneficial_owners": [
-      
-          ],
+          "beneficial_owners": [],
           "addresses": [
             {
               "address": "Tesco House, Shire Park, Kestrel Way, Welwyn Garden City, United Kingdom, AL7 1GA",
@@ -197,15 +192,9 @@ RSpec.describe Didit::Resources::Kyb do
           },
           "registry_data": {
             "ubo_resolution": {
-              "parent_chain": [
-      
-              ],
-              "subsidiaries": [
-      
-              ],
-              "unresolved": [
-      
-              ]
+              "parent_chain": [],
+              "subsidiaries": [],
+              "unresolved": []
             }
           },
           "user_provided_data": null,
@@ -367,9 +356,7 @@ RSpec.describe Didit::Resources::Kyb do
               "kyc_session_url": null
             }
           ],
-          "beneficial_owners": [
-      
-          ],
+          "beneficial_owners": [],
           "addresses": [
             {
               "address": "Tesco House, Shire Park, Kestrel Way, Welwyn Garden City, United Kingdom, AL7 1GA",
@@ -383,8 +370,7 @@ RSpec.describe Didit::Resources::Kyb do
             "next_account": "26 February 2026",
             "due_by_date": "26 August 2026"
           },
-          "registry_data": {
-          },
+          "registry_data": {},
           "user_provided_data": null,
           "confirmed_by_user_at": null,
           "last_console_edit_at": null,

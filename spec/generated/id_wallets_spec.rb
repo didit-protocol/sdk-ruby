@@ -1815,18 +1815,15 @@ RSpec.describe Didit::Resources::IdWallets do
           "status": "status-value",
           "outcome": "pending",
           "error": "error-value",
-          "interaction": {
-          },
+          "interaction": {},
           "simulated": true,
           "expires_at": "2026-01-02T03:04:05Z",
           "next_action": {
-            "type": {
-            },
+            "type": {},
             "url": "https://example.com/callback",
             "digital_credentials": {
               "protocol": "protocol-value",
-              "request": {
-              }
+              "request": {}
             },
             "verification_code": "verification_code-value",
             "poll_interval_seconds": 1
@@ -1839,16 +1836,14 @@ RSpec.describe Didit::Resources::IdWallets do
             "nationality": "nationality-value",
             "issuing_state": "issuing_state-value"
           },
-          "attributes": {
-          },
+          "attributes": {},
           "level_of_assurance": "level_of_assurance-value",
           "verified_at": "2026-01-02T03:04:05Z",
           "signature_valid": true,
           "credential_type": "credential_type-value"
         },
         "vendor_data": "vendor_data-value",
-        "metadata": {
-        },
+        "metadata": {},
         "created_at": "2026-01-02T03:04:05Z"
       }
     JSON

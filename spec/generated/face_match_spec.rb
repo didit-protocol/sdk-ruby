@@ -47,9 +47,7 @@ RSpec.describe Didit::Resources::FaceMatch do
             ],
             "best_angle": 0
           },
-          "warnings": [
-      
-          ]
+          "warnings": []
         },
         "vendor_data": "user-123",
         "metadata": {

@@ -27,17 +27,13 @@ RSpec.describe Didit::Resources::BusinessSessions do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {
-              },
-              "member_status": {
-              },
-              "signal_coverage": {
-              },
+              "member_counts": {},
+              "member_status": {},
+              "signal_coverage": {},
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {
-            },
+            "subject": {},
             "signal_types": [
               "ip_address"
             ],
