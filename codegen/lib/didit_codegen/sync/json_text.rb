@@ -35,7 +35,7 @@ module DiditCodegen
         return nil unless naming.is_a?(Hash) && naming["server"] == true
         return nil unless naming["resource"].is_a?(String) && naming["method"].is_a?(String)
 
-        "#{naming["resource"]}.#{naming["method"]}"
+        Naming.qualified_method(naming["resource"], naming["method"])
       end
 
       # "sessions.imports.create" for any naming (server or not), else nil.

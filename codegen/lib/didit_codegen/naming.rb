@@ -84,6 +84,7 @@ module DiditCodegen
       return word unless word.end_with?("s")
       return word if word.end_with?("ss", "us", "is")
       return "#{word[0..-4]}y" if word.end_with?("ies") && word.length > 3
+      return word.delete_suffix("es") if word.end_with?("sses")
 
       word[0..-2]
     end
@@ -94,6 +95,10 @@ module DiditCodegen
       return method unless OBJECT_RESERVED.include?(method)
 
       "#{method}_#{singular(resource.split(".").last)}"
+    end
+
+    def qualified_method(resource, method)
+      "#{resource}.#{operation_method(resource, method)}"
     end
   end
 end

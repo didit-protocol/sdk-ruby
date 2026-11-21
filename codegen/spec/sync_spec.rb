@@ -510,6 +510,22 @@ RSpec.describe DiditCodegen::Sync do
   end
 
   describe "renamed operations (listed, not counted: docs/DESIGN.md section 3.1)" do
+    it "reports and retains the callable Ruby name of a reserved operation" do
+      repo
+      changed = verification
+      message = op("Send", responses: ok({ "type" => "object" }), naming: naming("messages", "send"))
+      changed["paths"]["/v3/messages/"] = { "post" => message }
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(section("Operations")).to include("`POST /v3/messages/`: `messages.send_message`")
+
+      message["x-didit-sdk"]["method"] = "deliver"
+      upstream(verification: changed)
+      expect(sync).to eq(0)
+      expect(section("Operations")).to include("`messages.send_message` renamed to `messages.deliver`")
+      expect(generated("lib/didit/resources/messages.rb")).to include("def send_message(", "def deliver(")
+    end
+
     it "keeps the old name as a deprecated alias, and renaming back drops it" do
       repo
       changed = verification
