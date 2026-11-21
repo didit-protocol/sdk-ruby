@@ -9,6 +9,7 @@ module Didit
       def aml: () -> Didit::Resources::Aml
       def aml_monitoring: () -> Didit::Resources::AmlMonitoring
       def analytics: () -> Didit::Resources::Analytics
+      def authentication_setup: () -> Didit::Resources::AuthenticationSetup
       def bank: () -> Didit::Resources::Bank
       def billing: () -> Didit::Resources::Billing
       def biometric_templates: () -> Didit::Resources::BiometricTemplates

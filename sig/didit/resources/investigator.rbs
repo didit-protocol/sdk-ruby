@@ -12,6 +12,7 @@ module Didit
       def list_queue: (?scope: String, ?kind: String, ?queue: String, ?recommendation: String, ?confidence: String, ?ready: bool, ?search: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::InvestigatorQueueRow]
       def override_run: (String run_id, action: String, category: String, reason: String, ?send_email: bool, ?email_address: String, ?email_language: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::InvestigatorDecision
       def retrieve_dashboard: (?scope: String, ?request_options: Didit::request_options?) -> Didit::Types::InvestigatorRetrieveDashboardResponse
+      def retrieve_offer: (?request_options: Didit::request_options?) -> Didit::Types::InvestigatorRetrieveOfferResponse
       def retrieve_performance: (?scope: String, ?period: String, ?request_options: Didit::request_options?) -> Didit::Types::InvestigatorRetrievePerformanceResponse
       def retrieve_run: (String run_id, ?request_options: Didit::request_options?) -> Didit::Types::InvestigatorRunDetail
       def retrieve_settings: (?request_options: Didit::request_options?) -> Didit::Types::InvestigatorSettings

@@ -1793,6 +1793,7 @@ module Didit
     end
 
     module InvestigatorQueueRowStage
+      NONE: String
       SHADOW: String
       LIVE: String
 
@@ -8125,6 +8126,8 @@ module Didit
       def waiting_since: () -> Time?
       def due_at: () -> Time?
       def prepared_at: () -> Time?
+      def free_report: () -> bool?
+      def example: () -> bool?
     end
 
     class InvestigatorRunDetail < Didit::Types::InvestigatorQueueRow

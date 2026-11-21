@@ -108,6 +108,14 @@ module Didit
       VALUES: Array[String]
     end
 
+    module InvestigatorRetrieveOfferResponseStage
+      NONE: String
+      SHADOW: String
+      LIVE: String
+
+      VALUES: Array[String]
+    end
+
     module InvestigatorRetrievePerformanceParamsPeriod
       V_7: String
       V_30: String
@@ -178,6 +186,15 @@ module Didit
       def hours_saved: () -> Float?
     end
 
+    class InvestigatorRetrieveOfferResponse < Didit::Model
+      def show: () -> bool?
+      def manual_decisions_30d: () -> Integer?
+      def avg_handling_seconds: () -> Integer?
+      def stopped_halfway_30d: () -> Integer?
+      def stage: () -> String?
+      def followups_on: () -> bool?
+    end
+
     class InvestigatorRetrievePerformanceResponse < Didit::Model
       def period: () -> Integer?
       def start: () -> Date?
@@ -194,6 +211,13 @@ module Didit
       def decided_today: () -> Integer?
       def automation_rate_month: () -> Float?
       def preparing: () -> Integer?
+      def free_reports: () -> Didit::Types::InvestigatorRetrieveSummaryResponseFreeReports?
+    end
+
+    class InvestigatorRetrieveSummaryResponseFreeReports < Didit::Model
+      def limit: () -> Integer?
+      def used: () -> Integer?
+      def remaining: () -> Integer?
     end
 
     class InvestigatorRetrieveTransactionResponse < Didit::Model

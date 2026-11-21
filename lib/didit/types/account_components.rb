@@ -59,6 +59,237 @@ module Didit
       VALUES = [ENABLED, EARLY_ACCESS, DISABLED].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module SetupBrandTheme
+      DEVICE = "device"
+
+      VALUES = [DEVICE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupConfigurationSignupPolicy
+      ANYONE = "anyone"
+      INVITED = "invited"
+      ALLOWED_DOMAINS = "allowed_domains"
+
+      VALUES = [ANYONE, INVITED, ALLOWED_DOMAINS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupCustomDomainDnsRecordType
+      CNAME = "CNAME"
+
+      VALUES = [CNAME].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupCustomDomainStatus
+      PENDING = "pending"
+      ISSUING = "issuing"
+      VERIFIED = "verified"
+      ACTIVE = "active"
+      FAILED = "failed"
+
+      VALUES = [PENDING, ISSUING, VERIFIED, ACTIVE, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupEmailSummaryKey
+      CODE = "code"
+      MAGIC = "magic"
+      RESET = "reset"
+      DEVICE = "device"
+      INVITE = "invite"
+      ORG = "org"
+      AGENT = "agent"
+      AGENTOFF = "agentoff"
+
+      VALUES = [CODE, MAGIC, RESET, DEVICE, INVITE, ORG, AGENT, AGENTOFF].freeze
+    end
+
+    # Returned only for social methods.
+    module SetupMethodResultCredentialSource
+      OWN = "own"
+      DIDIT_TEST = "didit_test"
+
+      VALUES = [OWN, DIDIT_TEST].freeze
+    end
+
+    # `own` for the application's credentials, `didit_test` for Didit's sandbox app, `null` for a method that takes no
+    # social credentials.
+    module SetupMethodSummaryCredentialSource
+      OWN = "own"
+      DIDIT_TEST = "didit_test"
+
+      VALUES = [OWN, DIDIT_TEST].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupMethodSummaryName
+      PASSWORD = "password"
+      CODE = "code"
+      MAGIC = "magic"
+      PHONE = "phone"
+      PASSKEY = "passkey"
+      GOOGLE = "google"
+      MICROSOFT = "microsoft"
+      APPLE = "apple"
+      GITHUB = "github"
+      SSO = "sso"
+      WALLET = "wallet"
+
+      VALUES = [PASSWORD, CODE, MAGIC, PHONE, PASSKEY, GOOGLE, MICROSOFT, APPLE, GITHUB, SSO, WALLET].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupOnboardingCompleted
+      METHODS = "methods"
+      REDIRECTS = "redirects"
+      IMPORT = "import"
+      TEST = "test"
+
+      VALUES = [METHODS, REDIRECTS, IMPORT, TEST].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupOnboardingSignInUi
+      HOSTED = "hosted"
+      OWN = "own"
+
+      VALUES = [HOSTED, OWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupOnboardingTestStatus
+      VERIFIED = "verified"
+      SKIPPED = "skipped"
+      NOT_STARTED = "not_started"
+
+      VALUES = [VERIFIED, SKIPPED, NOT_STARTED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupProtectionPolicyKey
+      BOTS = "bots"
+      STUFFING = "stuffing"
+      BRUTE = "brute"
+      DISPOSABLE = "disposable"
+      VPN = "vpn"
+      TRAVEL = "travel"
+
+      VALUES = [BOTS, STUFFING, BRUTE, DISPOSABLE, VPN, TRAVEL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupProtectionPolicyMode
+      OFF = "off"
+      LOG = "log"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [OFF, LOG, CHALLENGE, BLOCK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsAgentApproval
+      PASSKEY = "passkey"
+      SIGN_IN = "sign_in"
+
+      VALUES = [PASSKEY, SIGN_IN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsAgentScopes
+      READ = "read"
+      ACT = "act"
+
+      VALUES = [READ, ACT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsDefaultMemberRole
+      ADMIN = "admin"
+      MEMBER = "member"
+      BILLING = "billing"
+
+      VALUES = [ADMIN, MEMBER, BILLING].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsMfaPolicy
+      OPTIONAL = "optional"
+      EVERYONE = "everyone"
+      ORGANIZATION_ADMINS = "organization_admins"
+
+      VALUES = [OPTIONAL, EVERYONE, ORGANIZATION_ADMINS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsSignInUi
+      HOSTED = "hosted"
+      OWN = "own"
+
+      VALUES = [HOSTED, OWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupSettingsWebhookEventsDisabled
+      AUTH_SIGN_IN = "auth.sign_in"
+      AUTH_SIGN_IN_FAILED = "auth.sign_in_failed"
+      AUTH_NEW_DEVICE = "auth.new_device"
+      AUTH_ACCOUNT_LOCKED = "auth.account_locked"
+      AUTH_TWO_FACTOR_CHANGED = "auth.two_factor_changed"
+      AUTH_SESSION_REVOKED = "auth.session_revoked"
+      AUTH_AGENT_ACCESS_APPROVED = "auth.agent_access_approved"
+      AUTH_AGENT_ACCESS_REVOKED = "auth.agent_access_revoked"
+
+      VALUES = [AUTH_SIGN_IN, AUTH_SIGN_IN_FAILED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, AUTH_TWO_FACTOR_CHANGED, AUTH_SESSION_REVOKED, AUTH_AGENT_ACCESS_APPROVED, AUTH_AGENT_ACCESS_REVOKED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupVerifiedClaims
+      OVER_18 = "over_18"
+      OVER_21 = "over_21"
+      GIVEN_NAME = "given_name"
+      FAMILY_NAME = "family_name"
+      BIRTHDATE = "birthdate"
+      NATIONALITY = "nationality"
+      COUNTRY = "country"
+      DOCUMENT_VERIFIED = "document_verified"
+      LIVENESS = "liveness"
+
+      VALUES = [OVER_18, OVER_21, GIVEN_NAME, FAMILY_NAME, BIRTHDATE, NATIONALITY, COUNTRY, DOCUMENT_VERIFIED, LIVENESS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupVerifiedRuleMethod
+      LIVENESS = "liveness"
+      SELFIE = "selfie"
+      FULL_ID = "full_id"
+
+      VALUES = [LIVENESS, SELFIE, FULL_ID].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupVerifiedRuleRule
+      PAYOUT = "payout"
+      BANK = "bank"
+      CONTACT = "contact"
+      DEVICE = "device"
+      SIGN_IN = "sign_in"
+
+      VALUES = [PAYOUT, BANK, CONTACT, DEVICE, SIGN_IN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module SetupVerifiedSignupLevel
+      NONE = "none"
+      LIVENESS = "liveness"
+      FULL_ID = "full_id"
+
+      VALUES = [NONE, LIVENESS, FULL_ID].freeze
+    end
+
     # Full application record. `uuid`, `client_id`, and `api_key` never change after creation. `data_location` doesn't
     # either, except once on the live application created with your organization, before it is used (see the update
     # request).
@@ -135,6 +366,341 @@ module Didit
     class RegisterResponse < Didit::Model
       field :message, "message", :string
       field :email, "email", :string
+    end
+
+    class SetupAndroidApp < Didit::Model
+      field :package_name, "package_name", :string
+      field :sha256_cert_fingerprints, "sha256_cert_fingerprints", [:array, :string]
+    end
+
+    # The brand as Customization sets it. Read-only here.
+    class SetupBrand < Didit::Model
+      field :source, "source", :string
+      field :name, "name", :string
+      field :logo, "logo", :string
+      field :logo_dark, "logo_dark", :string
+      field :brand_colour, "brand_colour", :string
+      field :brand_colour_dark, "brand_colour_dark", :string
+      field :button_text_colour, "button_text_colour", :string
+      field :background, "background", :string
+      field :background_dark, "background_dark", :string
+      field :corner_radius, "corner_radius", :integer
+      field :font, "font", :string
+      field :theme, "theme", :string
+    end
+
+    class SetupBranding < Didit::Model
+      field :brand, "brand", "SetupBrand"
+      field :texts, "texts", [:map, "SetupBrandingTexts"]
+      field :defaults, "defaults", "SetupBrandingDefaults"
+      field :terms_url, "terms_url", :string
+      field :privacy_url, "privacy_url", :string
+      field :languages, "languages", [:array, :string]
+      field :badge, "badge", "SetupBrandingBadge"
+      field :hosted_url, "hosted_url", :string
+    end
+
+    class SetupBrandingBadge < Didit::Model
+      field :visible, "visible", :boolean
+      field :plan, "plan", :string
+      field :early_access, "early_access", :boolean
+    end
+
+    # Didit's own copy for the language you asked for.
+    class SetupBrandingDefaults < Didit::Model
+      field :sign_in_title, "sign_in_title", :string
+      field :subtitle, "subtitle", :string
+      field :sign_up_title, "sign_up_title", :string
+    end
+
+    # The texts of the hosted sign-in, sign-up and subtitle lines. A field left empty falls back to Didit's copy.
+    class SetupBrandingTexts < Didit::Model
+      field :sign_in_title, "sign_in_title", :string
+      field :subtitle, "subtitle", :string
+      field :sign_up_title, "sign_up_title", :string
+    end
+
+    class SetupConfiguration < Didit::Model
+      field :application_id, "application_id", :string
+      field :publishable_key, "publishable_key", :string
+      field :enabled, "enabled", :boolean
+      field :methods_, "methods", [:array, "SetupMethodSummary"]
+      field :didit_test_credentials, "didit_test_credentials", "SetupDiditTestCredentials"
+      field :redirect_uris, "redirect_uris", [:array, :string]
+      field :allowed_origins, "allowed_origins", [:array, :string]
+      field :post_logout_redirect_uri, "post_logout_redirect_uri", :string
+      field :session_lifetime, "session_lifetime", :integer
+      field :idle_timeout, "idle_timeout", :integer
+      field :multiple_sessions, "multiple_sessions", :boolean
+      field :password_min_length, "password_min_length", :integer
+      field :revoke_on_password_change, "revoke_on_password_change", :boolean
+      field :allow_subaddresses, "allow_subaddresses", :boolean
+      field :signup_policy, "signup_policy", :string
+      field :allowed_email_domains, "allowed_email_domains", [:array, :string]
+    end
+
+    class SetupCustomDomain < Didit::Model
+      field :domain, "domain", :string
+      field :status, "status", :string
+      field :failure_reason, "failure_reason", :string
+      field :dns_record, "dns_record", "SetupCustomDomainDnsRecord"
+      field :certificate, "certificate", "SetupCustomDomainCertificate"
+      field :dns_checked_at, "dns_checked_at", :datetime
+      field :verified_at, "verified_at", :datetime
+      field :activated_at, "activated_at", :datetime
+    end
+
+    class SetupCustomDomainCertificate < Didit::Model
+      field :status, "status", :string
+      field :expires_at, "expires_at", :datetime
+    end
+
+    class SetupCustomDomainDnsRecord < Didit::Model
+      field :type, "type", :string
+      field :name, "name", :string
+      field :value, "value", :string
+    end
+
+    # Which social providers Didit's own sandbox apps can serve for this application. Every value is `false` on a live
+    # application.
+    class SetupDiditTestCredentials < Didit::Model
+      field :google, "google", :boolean
+      field :microsoft, "microsoft", :boolean
+      field :apple, "apple", :boolean
+      field :github, "github", :boolean
+    end
+
+    class SetupDomain < Didit::Model
+      field :host, "host", :string
+      field :default_origin, "default_origin", :string
+      field :origin, "origin", :string
+      field :hosted_url, "hosted_url", :string
+      field :issuer, "issuer", :string
+      field :passkey_rp_id, "passkey_rp_id", :string
+      field :sandbox, "sandbox", :boolean
+      field :sandbox_origin, "sandbox_origin", :string
+      field :custom_domains_available, "custom_domains_available", :boolean
+      field :custom_domain, "custom_domain", "SetupCustomDomain"
+    end
+
+    class SetupEmail < Didit::Model
+      field :key, "key", :string
+      field :from, "from", :string
+      field :to, "to", :string
+      field :subject, "subject", :string
+      field :html, "html", :string
+      field :enabled, "enabled", :boolean
+    end
+
+    class SetupEmailSummary < Didit::Model
+      field :key, "key", :string
+      field :icon, "icon", :string
+      field :sent, "sent", :boolean
+      field :enabled, "enabled", :boolean
+      field :subject, "subject", :string
+    end
+
+    class SetupEmails < Didit::Model
+      field :senders, "senders", "SetupEmailsSenders"
+      field :emails, "emails", [:array, "SetupEmailSummary"]
+      field :language, "language", :string
+    end
+
+    # Read-only: they come from Customization.
+    class SetupEmailsSenders < Didit::Model
+      field :email, "email", "SetupEmailsSendersEmail"
+      field :sms, "sms", "SetupEmailsSendersSms"
+    end
+
+    class SetupEmailsSendersEmail < Didit::Model
+      field :name, "name", :string
+      field :email, "email", :string
+      field :header, "header", :string
+      field :own, "own", :boolean
+    end
+
+    class SetupEmailsSendersSms < Didit::Model
+      field :name, "name", :string
+    end
+
+    class SetupMethodResult < Didit::Model
+      field :name, "name", :string
+      field :enabled, "enabled", :boolean
+      field :credential_source, "credential_source", :string
+      field :configured, "configured", :boolean
+      field :client_id, "client_id", :string
+      field :callback_uri, "callback_uri", :string
+    end
+
+    # One sign-in method. `credential_source` is `null` for a method that holds no social credentials, and `always_on`
+    # appears on the methods that are on for every application.
+    class SetupMethodSummary < Didit::Model
+      field :name, "name", :string
+      field :enabled, "enabled", :boolean
+      field :credential_source, "credential_source", :string
+      field :always_on, "always_on", :boolean
+      field :available, "available", :boolean
+      field :configured, "configured", :boolean
+      field :client_id, "client_id", :string
+      field :callback_uri, "callback_uri", :string
+    end
+
+    class SetupNativeApps < Didit::Model
+      field :ios_app_ids, "ios_app_ids", [:array, :string]
+      field :android_apps, "android_apps", [:array, "SetupAndroidApp"]
+    end
+
+    class SetupOnboarding < Didit::Model
+      field :completed, "completed", [:array, :string]
+      field :ready, "ready", :boolean
+      field :sign_in_ui, "sign_in_ui", :string
+      field :test_sign_in, "test_sign_in", :any
+      field :test_status, "test_status", :string
+    end
+
+    class SetupProtection < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :breached_password_check, "breached_password_check", :boolean
+      field :protections, "protections", [:array, "SetupProtectionPolicy"]
+      field :daily, "daily", [:array, "SetupProtectionDaily"]
+      field :challenges_daily, "challenges_daily", [:array, "SetupProtectionChallengesDaily"]
+      field :period_days, "period_days", :integer
+      field :calendar_month, "calendar_month", "SetupProtectionCalendarMonth"
+      field :attack_mode, "attack_mode", "SetupProtectionAttackMode"
+      field :selfie_available, "selfie_available", :boolean
+    end
+
+    class SetupProtectionAttackMode < Didit::Model
+      field :active, "active", :boolean
+      field :started_at, "started_at", :datetime
+      field :expires_at, "expires_at", :datetime
+    end
+
+    # This calendar month against the previous one.
+    class SetupProtectionCalendarMonth < Didit::Model
+      field :start, "start", :datetime
+      field :as_of, "as_of", :datetime
+      field :previous_start, "previous_start", :datetime
+      field :previous_end, "previous_end", :datetime
+      field :protections, "protections", [:array, "SetupProtectionCalendarMonthProtections"]
+      field :challenges, "challenges", "SetupProtectionCalendarMonthChallenges"
+    end
+
+    class SetupProtectionCalendarMonthChallenges < Didit::Model
+      field :passed, "passed", :integer
+      field :failed, "failed", :integer
+      field :previous_passed, "previous_passed", :integer
+      field :previous_failed, "previous_failed", :integer
+    end
+
+    class SetupProtectionCalendarMonthProtections < Didit::Model
+      field :key, "key", :string
+      field :counts, "counts", "SetupProtectionCalendarMonthProtectionsCounts"
+      field :previous_counts, "previous_counts", "SetupProtectionCalendarMonthProtectionsPreviousCounts"
+      field :counts_delta, "counts_delta", "SetupProtectionCalendarMonthProtectionsCountsDelta"
+      field :accounts, "accounts", :integer
+      field :previous_accounts, "previous_accounts", :integer
+      field :accounts_delta, "accounts_delta", :integer
+    end
+
+    class SetupProtectionCalendarMonthProtectionsCounts < Didit::Model
+      field :log, "log", :integer
+      field :challenge, "challenge", :integer
+      field :block, "block", :integer
+    end
+
+    class SetupProtectionCalendarMonthProtectionsCountsDelta < Didit::Model
+      field :log, "log", :integer
+      field :challenge, "challenge", :integer
+      field :block, "block", :integer
+    end
+
+    class SetupProtectionCalendarMonthProtectionsPreviousCounts < Didit::Model
+      field :log, "log", :integer
+      field :challenge, "challenge", :integer
+      field :block, "block", :integer
+    end
+
+    class SetupProtectionChallengesDaily < Didit::Model
+      field :date, "date", :date
+      field :passed, "passed", :integer
+      field :failed, "failed", :integer
+    end
+
+    class SetupProtectionDaily < Didit::Model
+      field :date, "date", :date
+      field :protection, "protection", :string
+      field :action, "action", :string
+      field :count, "count", :integer
+    end
+
+    class SetupProtectionPolicy < Didit::Model
+      field :key, "key", :string
+      field :mode, "mode", :string
+      field :available, "available", :boolean
+      field :counts, "counts", "SetupProtectionPolicyCounts"
+      field :accounts, "accounts", :integer
+    end
+
+    class SetupProtectionPolicyCounts < Didit::Model
+      field :log, "log", :integer
+      field :challenge, "challenge", :integer
+      field :block, "block", :integer
+    end
+
+    class SetupSettings < Didit::Model
+      field :sign_in_ui, "sign_in_ui", :string
+      field :agent_humans_only, "agent_humans_only", :boolean
+      field :agents_enabled, "agents_enabled", :boolean
+      field :agent_scopes, "agent_scopes", [:array, :string]
+      field :agent_lifetime, "agent_lifetime", :integer
+      field :agent_idle_timeout, "agent_idle_timeout", :integer
+      field :agent_approval, "agent_approval", :string
+      field :organizations_enabled, "organizations_enabled", :boolean
+      field :mfa_policy, "mfa_policy", :string
+      field :default_member_role, "default_member_role", :string
+      field :webhook_events_disabled, "webhook_events_disabled", [:array, :string]
+    end
+
+    class SetupVerified < Didit::Model
+      field :signup_level, "signup_level", :string
+      field :signup, "signup", "SetupVerifiedSignup"
+      field :rules, "rules", [:array, "SetupVerifiedRule"]
+      field :claims, "claims", [:array, :string]
+      field :available_claims, "available_claims", [:array, :string]
+      field :workflows, "workflows", "SetupVerifiedWorkflows"
+      field :wallet, "wallet", "SetupVerifiedWallet"
+      field :since, "since", :datetime
+    end
+
+    class SetupVerifiedRule < Didit::Model
+      field :rule, "rule", :string
+      field :enabled, "enabled", :boolean
+      field :method_, "method", :string
+      field :threshold, "threshold", :string
+      field :currency, "currency", :string
+      field :checks, "checks", :integer
+      field :passed, "passed", :integer
+      field :failed, "failed", :integer
+    end
+
+    class SetupVerifiedSignup < Didit::Model
+      field :checks, "checks", :integer
+      field :passed, "passed", :integer
+      field :failed, "failed", :integer
+    end
+
+    class SetupVerifiedWallet < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :sign_ins, "sign_ins", :integer
+      field :people, "people", :integer
+    end
+
+    # The verification workflow behind each method; `null` until one is created.
+    class SetupVerifiedWorkflows < Didit::Model
+      field :liveness, "liveness", :string
+      field :selfie, "selfie", :string
+      field :full_id, "full_id", :string
     end
 
     class VerifyEmailResponse < Didit::Model

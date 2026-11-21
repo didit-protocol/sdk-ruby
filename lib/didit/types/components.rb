@@ -2183,10 +2183,11 @@ module Didit
 
     # Known values of an open enum: the API may send others.
     module InvestigatorQueueRowStage
+      NONE = "none"
       SHADOW = "shadow"
       LIVE = "live"
 
-      VALUES = [SHADOW, LIVE].freeze
+      VALUES = [NONE, SHADOW, LIVE].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -9392,6 +9393,8 @@ module Didit
       field :waiting_since, "waiting_since", :datetime
       field :due_at, "due_at", :datetime
       field :prepared_at, "prepared_at", :datetime
+      field :free_report, "free_report", :boolean
+      field :example, "example", :boolean
     end
 
     class InvestigatorRunDetail < InvestigatorQueueRow

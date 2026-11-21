@@ -122,6 +122,15 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module InvestigatorRetrieveOfferResponseStage
+      NONE = "none"
+      SHADOW = "shadow"
+      LIVE = "live"
+
+      VALUES = [NONE, SHADOW, LIVE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module InvestigatorRetrievePerformanceParamsPeriod
       V_7 = "7"
       V_30 = "30"
@@ -195,6 +204,15 @@ module Didit
       field :hours_saved, "hours_saved", :float
     end
 
+    class InvestigatorRetrieveOfferResponse < Didit::Model
+      field :show, "show", :boolean
+      field :manual_decisions_30d, "manual_decisions_30d", :integer
+      field :avg_handling_seconds, "avg_handling_seconds", :integer
+      field :stopped_halfway_30d, "stopped_halfway_30d", :integer
+      field :stage, "stage", :string
+      field :followups_on, "followups_on", :boolean
+    end
+
     class InvestigatorRetrievePerformanceResponse < Didit::Model
       field :period, "period", :integer
       field :start, "start", :date
@@ -211,6 +229,14 @@ module Didit
       field :decided_today, "decided_today", :integer
       field :automation_rate_month, "automation_rate_month", :float
       field :preparing, "preparing", :integer
+      field :free_reports, "free_reports", "InvestigatorRetrieveSummaryResponseFreeReports"
+    end
+
+    # The organization's free reports: the first reports run with no setup, on any plan, and are never charged.
+    class InvestigatorRetrieveSummaryResponseFreeReports < Didit::Model
+      field :limit, "limit", :integer
+      field :used, "used", :integer
+      field :remaining, "remaining", :integer
     end
 
     class InvestigatorRetrieveTransactionResponse < Didit::Model

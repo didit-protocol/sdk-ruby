@@ -290,6 +290,26 @@ module Didit
         )
       end
 
+      # Investigator agent offer
+      #
+      # Whether to offer the Investigator agent to this application: its decisions taken by hand in the last 30 days,
+      # the average handling time, the people who stopped halfway and whether follow-ups are on. Read from the daily
+      # analytics, never from a scan of sessions. `show` is true when 20 or more decisions were taken by hand and the
+      # agent is not set up, or when follow-ups are off and 50 or more people stopped halfway.
+      #
+      # +GET /v3/investigator/offer/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::InvestigatorRetrieveOfferResponse]
+      def retrieve_offer(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/investigator/offer/",
+          response: Types::InvestigatorRetrieveOfferResponse,
+          request_options: request_options
+        )
+      end
+
       # Investigator performance
       #
       # Agreement with your team, volume, time saved, confidence calibration, per-queue results, override reasons and
