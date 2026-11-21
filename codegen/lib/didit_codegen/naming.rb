@@ -12,8 +12,9 @@ module DiditCodegen
       until when while yield
     ].freeze
 
-    # Public methods every Ruby object has (Object.instance_methods on Ruby 3.1). An operation with
-    # one of these names gets the resource singular appended instead; see #operation_method.
+    # Public methods every Ruby 3.1 object has, the supported floor. The list is fixed so generated
+    # names do not vary by the Ruby version that runs the generator. An operation with one of these
+    # names gets the resource singular appended instead; see #operation_method.
     OBJECT_RESERVED = %w[
       ! != !~ <=> == === =~ __id__ __send__ class clone define_singleton_method display dup enum_for eql? equal?
       extend freeze frozen? hash inspect instance_eval instance_exec instance_of? instance_variable_defined?
