@@ -120,7 +120,7 @@ RSpec.describe Didit::Resources::ProofOfAddress do
       }
     JSON
     result = client.proof_of_address.verify(
-      expected_address: "Av. Monse\u00F1or Tavella 1291, Salta, Argentina",
+      expected_address: "Av. Monseñor Tavella 1291, Salta, Argentina",
       expected_country: "ARG",
       expected_first_name: "Sophia",
       expected_last_name: "Martinez",
@@ -141,7 +141,7 @@ RSpec.describe Didit::Resources::ProofOfAddress do
     expect_multipart_body(
       request,
       fields: {
-        "expected_address" => "Av. Monse\u00F1or Tavella 1291, Salta, Argentina",
+        "expected_address" => "Av. Monseñor Tavella 1291, Salta, Argentina",
         "expected_country" => "ARG",
         "expected_first_name" => "Sophia",
         "expected_last_name" => "Martinez",
