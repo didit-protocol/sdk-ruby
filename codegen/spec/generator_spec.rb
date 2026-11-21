@@ -137,6 +137,13 @@ RSpec.describe DiditCodegen::Generator do
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /scope application needs a path/)
     end
 
+    it "renames a method every Ruby object has by appending the singular resource" do
+      paths["/v3/messages/"] = { "post" => operation("Send", naming("messages", "send")) }
+      generator = build(dir)
+      expect(generator.methods.map { |m| "#{m.resource}.#{m.name}" }).to include("messages.send_message")
+      expect(generator.files.fetch("lib/didit/resources/messages.rb")).to include("def send_message(")
+    end
+
     it "refuses names that would replace built-in methods" do
       paths["/v3/send/"] = { "post" => operation("x", naming("things", "send")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /built-in Ruby method/)
