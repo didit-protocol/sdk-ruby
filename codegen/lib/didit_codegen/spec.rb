@@ -188,7 +188,8 @@ module DiditCodegen
         sdk = SdkNaming.parse(where, entry["x-didit-sdk"])
         if Naming.qualified_method(sdk.resource, sdk.method) != name
           raise Error,
-                "#{where}: the entry name must equal its resource.method."
+                "#{where}: the entry name must equal its Ruby method name " \
+                "(#{Naming.qualified_method(sdk.resource, sdk.method)})."
         end
         if live.key?(name)
           raise Error, "#{where}: #{live[name]} provides #{name} again, so it is no longer deprecated; " \

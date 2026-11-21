@@ -361,14 +361,15 @@ module DiditCodegen
       basic_request(document, schema, hint, group)
     end
 
-    # If the alternatives only require subsets of the parent's properties, those properties
-    # supply the keyword types. A field required by every alternative is also mandatory.
+    # If the alternatives only narrow which of the parent's properties are required, those
+    # properties supply the keyword types: a field required by every alternative is also
+    # mandatory. Anything else (a union of different payloads) keeps the union path.
     def shared_required_fields(document, schema, members)
       properties = schema["properties"]
       return unless properties && !members.empty?
 
       branches = members.map { |member| document.resolve(member) }
-      return unless branches.all? { |branch| branch.keys == ["required"] }
+      return unless branches.all? { |branch| branch.keys == ["required"] && branch["required"].is_a?(Array) }
 
       alternatives = branches.map { |branch| branch.fetch("required") }
       return unless alternatives.all? { |names| (names - properties.keys).empty? }
