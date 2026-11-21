@@ -139,11 +139,10 @@ module DiditCodegen
       resources = @methods.map(&:resource).uniq
       @methods.each do |meth|
         child = "#{meth.resource}.#{meth.name}"
-        next unless resources.any? { |resource| resource == child || resource.start_with?("#{child}.") }
-
-        raise Error, "#{meth.op.key}: method #{meth.name.inspect} clashes with the nested resource #{child.inspect}."
-      end
-      @methods.each do |meth|
+        if resources.any? { |resource| resource == child || resource.start_with?("#{child}.") }
+          raise Error, "#{meth.op.key}: method #{meth.name.inspect} clashes with the nested resource " \
+                       "#{child.inspect}."
+        end
         next unless RESOURCE_RESERVED.include?(meth.name)
 
         raise Error, "#{meth.op.key}: the method name #{meth.name.inspect} would replace a built-in Ruby method; " \
