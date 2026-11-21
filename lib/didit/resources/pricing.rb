@@ -36,6 +36,41 @@ module Didit
           request_options: request_options
         )
       end
+
+      # Get the price book (public, unauthenticated)
+      #
+      # Returns Didit's public list prices: every plan with its monthly and yearly price and its discount, the white
+      # label price, Didit's fee on each Messages channel, and every flat usage price. Use it to quote Didit's prices
+      # in your own product or to check a price before you build a workflow.
+      #
+      # Public: send no auth header. The response contains no organization data and is the same for every caller. It
+      # carries an `ETag`, so send `If-None-Match` to get a `304 Not Modified` when nothing changed.
+      #
+      # **Messages fees.** An SMS costs the carrier's price per segment plus Didit's fee per segment
+      # (`message_fee_usd_by_channel.sms`, also `messages_fee_usd`). A WhatsApp message sent from Didit's number costs
+      # WhatsApp's rate plus Didit's own WhatsApp fee (`message_fee_usd_by_channel.whatsapp`); sent from your own
+      # WhatsApp Business account, WhatsApp bills you directly and Didit charges only its fee. The carrier's and
+      # WhatsApp's parts are passed on at cost.
+      #
+      # These are list prices before your plan discount, which applies to Didit's fee only on carrier-priced items and
+      # to the whole price everywhere else. A negotiated or contract price replaces the list price for your
+      # organization. Per-item prices are on their own feeds, such as [phone verification
+      # prices](/getting-started/phone-verification-pricing) and [bank verification
+      # prices](/getting-started/bank-verification-pricing).
+      #
+      # +GET /v3/organization/price-book/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::PublicPriceBook]
+      def price_book(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/organization/price-book/",
+          auth: :none,
+          response: Types::PublicPriceBook,
+          request_options: request_options
+        )
+      end
     end
   end
 end

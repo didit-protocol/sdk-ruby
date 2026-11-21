@@ -2344,6 +2344,21 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PublicPriceBookCurrency
+      USD: String
+
+      VALUES: Array[String]
+    end
+
+    module PublicPriceBookPlanKey
+      FREE: String
+      GROWTH: String
+      SCALE: String
+      ENTERPRISE: String
+
+      VALUES: Array[String]
+    end
+
     module QuestionnaireDetailStatus
       DRAFT: String
       PUBLISHED: String
@@ -9082,6 +9097,36 @@ module Didit
       def reason: () -> String?
       def vendor_data: () -> String?
       def metadata: () -> Hash[String, untyped]?
+    end
+
+    class PublicPriceBook < Didit::Model
+      def currency: () -> String
+      def plans: () -> Array[Didit::Types::PublicPriceBookPlan]
+      def white_label_usd: () -> String?
+      def messages_fee_usd: () -> String?
+      def message_fee_usd_by_channel: () -> Didit::Types::PublicPriceBookMessageFees
+      def lines: () -> Array[Didit::Types::PublicPriceBookLine]
+    end
+
+    class PublicPriceBookLine < Didit::Model
+      def key: () -> String
+      def product: () -> String
+      def feature: () -> String
+      def unit: () -> String
+      def list_price_usd: () -> String
+    end
+
+    class PublicPriceBookMessageFees < Didit::Model
+      def sms: () -> String?
+      def whatsapp: () -> String?
+    end
+
+    class PublicPriceBookPlan < Didit::Model
+      def key: () -> String
+      def price_usd_month: () -> String?
+      def price_usd_year: () -> String?
+      def discount_percent: () -> Integer?
+      def transactions_included_per_month: () -> Integer?
     end
 
     class QuestionnaireDetail < Didit::Model
