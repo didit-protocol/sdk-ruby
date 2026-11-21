@@ -21,9 +21,11 @@ RSpec.describe Didit::Resources::FraudChecks do
           {
             "reference": "reference-value",
             "type": "email",
-            "namespace": {},
+            "namespace": {
+            },
             "quality": "quality-value",
-            "normalization": {},
+            "normalization": {
+            },
             "availability": "available"
           }
         ],
@@ -38,10 +40,12 @@ RSpec.describe Didit::Resources::FraudChecks do
           }
         ],
         "attribute_evidence": [
-          {}
+          {
+          }
         ],
         "compound_evidence": [
-          {}
+          {
+          }
         ],
         "risk": [
           {
@@ -58,8 +62,10 @@ RSpec.describe Didit::Resources::FraudChecks do
             ]
           }
         ],
-        "network": {},
-        "enrichment": {},
+        "network": {
+        },
+        "enrichment": {
+        },
         "identity_relationship": {
           "result": "match",
           "reference_type": "reference_type-value",
@@ -74,12 +80,15 @@ RSpec.describe Didit::Resources::FraudChecks do
         "decision_reasons": [
           "decision_reasons-value"
         ],
-        "coverage": {},
+        "coverage": {
+        },
         "usage": [
-          {}
+          {
+          }
         ],
         "vendor_data": "vendor_data-value",
-        "metadata": {}
+        "metadata": {
+        }
       }
     JSON
     result = client.fraud_checks.create(
@@ -236,9 +245,11 @@ RSpec.describe Didit::Resources::FraudChecks do
           {
             "reference": "reference-value",
             "type": "email",
-            "namespace": {},
+            "namespace": {
+            },
             "quality": "quality-value",
-            "normalization": {},
+            "normalization": {
+            },
             "availability": "available"
           }
         ],
@@ -253,10 +264,12 @@ RSpec.describe Didit::Resources::FraudChecks do
           }
         ],
         "attribute_evidence": [
-          {}
+          {
+          }
         ],
         "compound_evidence": [
-          {}
+          {
+          }
         ],
         "risk": [
           {
@@ -273,8 +286,10 @@ RSpec.describe Didit::Resources::FraudChecks do
             ]
           }
         ],
-        "network": {},
-        "enrichment": {},
+        "network": {
+        },
+        "enrichment": {
+        },
         "identity_relationship": {
           "result": "match",
           "reference_type": "reference_type-value",
@@ -289,12 +304,15 @@ RSpec.describe Didit::Resources::FraudChecks do
         "decision_reasons": [
           "decision_reasons-value"
         ],
-        "coverage": {},
+        "coverage": {
+        },
         "usage": [
-          {}
+          {
+          }
         ],
         "vendor_data": "vendor_data-value",
-        "metadata": {}
+        "metadata": {
+        }
       }
     JSON
     result = client.fraud_checks.retrieve(

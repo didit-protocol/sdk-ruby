@@ -49,22 +49,36 @@ RSpec.describe Didit::Resources::Users do
         "date_of_birth": null,
         "effective_name": "John Doe",
         "status": "ACTIVE",
-        "metadata": {},
+        "metadata": {
+        },
         "portrait_image_url": null,
         "session_count": 0,
         "approved_count": 0,
         "declined_count": 0,
         "in_review_count": 0,
-        "issuing_states": [],
-        "approved_emails": [],
-        "approved_phones": [],
-        "features": {},
-        "features_list": [],
+        "issuing_states": [
+      
+        ],
+        "approved_emails": [
+      
+        ],
+        "approved_phones": [
+      
+        ],
+        "features": {
+        },
+        "features_list": [
+      
+        ],
         "last_session_at": null,
         "last_activity_at": "2025-06-15T10:30:00Z",
         "first_session_at": null,
-        "tags": [],
-        "comments": [],
+        "tags": [
+      
+        ],
+        "comments": [
+      
+        ],
         "created_at": "2025-06-15T10:30:00Z",
         "updated_at": "2025-06-15T10:30:00Z",
         "verification_link": null
@@ -226,9 +240,15 @@ RSpec.describe Didit::Resources::Users do
             "approved_count": 0,
             "declined_count": 0,
             "in_review_count": 1,
-            "issuing_states": [],
-            "approved_emails": [],
-            "approved_phones": [],
+            "issuing_states": [
+      
+            ],
+            "approved_emails": [
+      
+            ],
+            "approved_phones": [
+      
+            ],
             "features": {
               "ID_VERIFICATION": "In Review"
             },
@@ -241,7 +261,9 @@ RSpec.describe Didit::Resources::Users do
             "last_session_at": "2025-06-20T14:00:00Z",
             "last_activity_at": "2025-06-20T14:05:00Z",
             "first_session_at": "2025-06-20T14:00:00Z",
-            "tags": [],
+            "tags": [
+      
+            ],
             "created_at": "2025-06-20T14:00:00Z"
           }
         ]
@@ -284,13 +306,17 @@ RSpec.describe Didit::Resources::Users do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {},
-              "member_status": {},
-              "signal_coverage": {},
+              "member_counts": {
+              },
+              "member_status": {
+              },
+              "signal_coverage": {
+              },
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {},
+            "subject": {
+            },
             "signal_types": [
               "ip_address"
             ],
@@ -445,9 +471,13 @@ RSpec.describe Didit::Resources::Users do
             "new_status": "ACTIVE",
             "previous_value": null,
             "new_value": null,
-            "changed_fields": [],
+            "changed_fields": [
+      
+            ],
             "metadata": null,
-            "mentioned_emails": [],
+            "mentioned_emails": [
+      
+            ],
             "created_at": "2025-06-01T10:30:00Z"
           }
         ],
@@ -682,7 +712,9 @@ RSpec.describe Didit::Resources::Users do
             "created_at": "2025-06-02T11:00:00Z"
           }
         ],
-        "comments": [],
+        "comments": [
+      
+        ],
         "created_at": "2025-06-01T08:00:00Z",
         "updated_at": "2025-06-15T10:30:00Z"
       }
@@ -792,9 +824,13 @@ RSpec.describe Didit::Resources::Users do
             "new_status": "BLOCKED",
             "previous_value": null,
             "new_value": null,
-            "changed_fields": [],
+            "changed_fields": [
+      
+            ],
             "metadata": null,
-            "mentioned_emails": [],
+            "mentioned_emails": [
+      
+            ],
             "created_at": "2025-06-15T10:30:00Z"
           }
         ],

@@ -2372,6 +2372,127 @@ module Didit
       VALUES = [OFFICIAL].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module MessageAttemptChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # SMS only: the alphabet the text is sent in. `null` once the text is erased.
+    module MessageAttemptEncoding
+      GSM_7 = "GSM-7"
+      UCS_2 = "UCS-2"
+
+      VALUES = [GSM_7, UCS_2].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageAttemptStatus
+      SCHEDULED = "scheduled"
+      QUEUED = "queued"
+      SENDING = "sending"
+      SENT = "sent"
+      DELIVERED = "delivered"
+      READ = "read"
+      FAILED = "failed"
+      CANCELLED = "cancelled"
+
+      VALUES = [SCHEDULED, QUEUED, SENDING, SENT, DELIVERED, READ, FAILED, CANCELLED].freeze
+    end
+
+    # The channel of the latest attempt.
+    module MessageChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageChannelPriceChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageChannelPriceUnit
+      SEGMENT = "segment"
+      MESSAGE = "message"
+
+      VALUES = [SEGMENT, MESSAGE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageEncoding
+      GSM_7 = "GSM-7"
+      UCS_2 = "UCS-2"
+
+      VALUES = [GSM_7, UCS_2].freeze
+    end
+
+    # `invalid_recipient`: the address is not valid for the channel, or the number has no account on it.
+    # `unreachable`: the carrier could not reach the device. `rejected`: the carrier or platform refused the message.
+    # `opted_out`: the recipient opted out of the channel. `expired`: `expires_at` passed before it could go out.
+    # `template_required`: WhatsApp only delivers an approved WhatsApp template. `channel_unavailable`: the channel is
+    # switched off, not configured, not in your contract or locked until your first top-up. `insufficient_credits`:
+    # the balance does not cover it. `rate_limited`: throttled and retries ran out. `delivery_unconfirmed`: the
+    # outcome is unknown and it is not sent again automatically. `cancelled`: cancelled before its time.
+    # `template_channel_missing`, `template_variable_missing`, `empty_body`, `body_too_long`: the content cannot go
+    # out on this channel. `unknown`: any other failure.
+    module MessageErrorCode
+      INVALID_RECIPIENT = "invalid_recipient"
+      UNREACHABLE = "unreachable"
+      REJECTED = "rejected"
+      OPTED_OUT = "opted_out"
+      EXPIRED = "expired"
+      TEMPLATE_REQUIRED = "template_required"
+      CHANNEL_UNAVAILABLE = "channel_unavailable"
+      INSUFFICIENT_CREDITS = "insufficient_credits"
+      RATE_LIMITED = "rate_limited"
+      DELIVERY_UNCONFIRMED = "delivery_unconfirmed"
+      CANCELLED = "cancelled"
+      TEMPLATE_CHANNEL_MISSING = "template_channel_missing"
+      TEMPLATE_VARIABLE_MISSING = "template_variable_missing"
+      EMPTY_BODY = "empty_body"
+      BODY_TOO_LONG = "body_too_long"
+      UNKNOWN = "unknown"
+
+      VALUES = [INVALID_RECIPIENT, UNREACHABLE, REJECTED, OPTED_OUT, EXPIRED, TEMPLATE_REQUIRED, CHANNEL_UNAVAILABLE, INSUFFICIENT_CREDITS, RATE_LIMITED, DELIVERY_UNCONFIRMED, CANCELLED, TEMPLATE_CHANNEL_MISSING, TEMPLATE_VARIABLE_MISSING, EMPTY_BODY, BODY_TOO_LONG, UNKNOWN].freeze
+    end
+
+    # `scheduled`: waiting for `schedule_at`. `queued`: accepted, waiting to go out. `sending`: being handed to the
+    # carrier. `sent`: the carrier or platform accepted it. `delivered`: delivered to the device or inbox. `read`: a
+    # WhatsApp read receipt or an email open. `failed`: not delivered, see `error`. `cancelled`: cancelled before its
+    # time.
+    module MessageStatus
+      SCHEDULED = "scheduled"
+      QUEUED = "queued"
+      SENDING = "sending"
+      SENT = "sent"
+      DELIVERED = "delivered"
+      READ = "read"
+      FAILED = "failed"
+      CANCELLED = "cancelled"
+
+      VALUES = [SCHEDULED, QUEUED, SENDING, SENT, DELIVERED, READ, FAILED, CANCELLED].freeze
+    end
+
     # Event category.
     module MonitoringEventCreateRequestEventCategory
       AUTH = "auth"
@@ -6966,8 +7087,9 @@ module Didit
       INVESTIGATOR_SLA_BREACHED = "investigator.sla.breached"
       INVESTIGATOR_QA_FAILED = "investigator.qa.failed"
       INVESTIGATOR_EXTERNAL_REPORT_READY = "investigator.external.report.ready"
+      MESSAGE_STATUS_UPDATED = "message.status.updated"
 
-      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY].freeze
+      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, MESSAGE_STATUS_UPDATED].freeze
     end
 
     # Draft versions are editable; published versions are immutable and used for new sessions.
@@ -9672,6 +9794,98 @@ module Didit
     class KYBRegistryUboResolutionUnresolved < Didit::Model
       field :reason, "reason", :string
       field :section, "section", :string
+    end
+
+    # A transactional message: its latest attempt's state, then every attempt in order. `id` is the first attempt's
+    # id; the message is also found by any attempt's id. Statuses never move back within one attempt; a failed attempt
+    # followed by another channel makes the message `queued` again on that channel.
+    class Message < Didit::Model
+      field :id, "id", :string
+      field :status, "status", :string
+      field :to, "to", :string
+      field :channel, "channel", :string
+      field :channels, "channels", [:array, :string]
+      field :body, "body", :string
+      field :subject, "subject", :string
+      field :template_id, "template_id", :string
+      field :locale, "locale", :string
+      field :correlation_id, "correlation_id", :string
+      field :segments, "segments", :integer
+      field :encoding, "encoding", :string
+      field :price, "price", "MessagePrice"
+      field :error, "error", "MessageError"
+      field :schedule_at, "schedule_at", :datetime
+      field :expires_at, "expires_at", :datetime
+      field :created_at, "created_at", :datetime
+      field :sent_at, "sent_at", :datetime
+      field :delivered_at, "delivered_at", :datetime
+      field :read_at, "read_at", :datetime
+      field :failed_at, "failed_at", :datetime
+      field :attempts, "attempts", [:array, "MessageAttempt"]
+      field :is_sandbox, "is_sandbox", :boolean
+    end
+
+    # One channel's attempt. A channel that could not take the message is kept as a `failed` attempt that never left,
+    # with its `error` and no price.
+    class MessageAttempt < Didit::Model
+      field :id, "id", :string
+      field :channel, "channel", :string
+      field :to, "to", :string
+      field :status, "status", :string
+      field :error, "error", "MessageError"
+      field :price, "price", "MessagePrice"
+      field :segments, "segments", :integer
+      field :encoding, "encoding", :string
+      field :created_at, "created_at", :datetime
+      field :sent_at, "sent_at", :datetime
+      field :delivered_at, "delivered_at", :datetime
+      field :read_at, "read_at", :datetime
+      field :failed_at, "failed_at", :datetime
+    end
+
+    class MessageChannelPrice < Didit::Model
+      field :channel, "channel", :string
+      field :unit, "unit", :string
+      field :category, "category", :string
+      field :carrier, "carrier", :string
+      field :fee, "fee", :string
+      field :price, "price", :string
+    end
+
+    # Why an attempt failed or was skipped. `message` is a sentence for people; read `code` in code.
+    class MessageError < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
+    end
+
+    class MessageList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "Message"]
+    end
+
+    # What the message costs, in `currency`. `carrier` is the carrier's or WhatsApp's part, passed through at cost;
+    # `fee` is Didit's fee with your plan's discount. Both are `null` when one flat amount prices the message (email,
+    # or a contract or negotiated rate). `final` is `false` while the amount is an estimate, before the carrier's
+    # delivery report gives the real price.
+    class MessagePrice < Didit::Model
+      field :amount, "amount", :string
+      field :currency, "currency", :string
+      field :carrier, "carrier", :string
+      field :fee, "fee", :string
+      field :final, "final", :boolean
+    end
+
+    class MessagePrices < Didit::Model
+      field :country, "country", :string
+      field :currency, "currency", :string
+      field :channels, "channels", [:array, "MessageChannelPrice"]
+    end
+
+    # Your application's settings for the Messages API.
+    class MessagesSettings < Didit::Model
+      field :retention_days, "retention_days", :integer
     end
 
     # One stored monitoring event as returned by the list and subject-timeline endpoints. Restricted evidence

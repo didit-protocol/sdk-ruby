@@ -43,7 +43,9 @@ RSpec.describe Didit::Resources::DatabaseValidation do
               }
             }
           ],
-          "warnings": []
+          "warnings": [
+      
+          ]
         },
         "vendor_data": "user-1234",
         "metadata": null,

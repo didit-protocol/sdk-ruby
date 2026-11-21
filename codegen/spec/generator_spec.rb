@@ -138,16 +138,21 @@ RSpec.describe DiditCodegen::Generator do
     end
 
     it "renames a method every Ruby object has by appending the singular resource" do
-      paths["/v3/messages/"] = { "post" => operation("Send", naming("messages", "send")) }
+      paths["/v3/messages/"] = {
+        "get" => operation("List", naming("messages", "list")),
+        "post" => operation("Send", naming("messages", "send"))
+      }
       generator = build(dir)
-      expect(generator.methods.map { |m| "#{m.resource}.#{m.name}" }).to include("messages.send_message")
+      names = generator.methods.map { |m| "#{m.resource}.#{m.name}" }
+      expect(names).to include("messages.list", "messages.send_message")
+      expect(names).not_to include("messages.send")
       expect(generator.files.fetch("lib/didit/resources/messages.rb")).to include("def send_message(")
     end
 
-    it "refuses names that would replace built-in methods" do
-      paths["/v3/send/"] = { "post" => operation("x", naming("things", "send")) }
+    it "refuses reserved names the object rule does not cover" do
+      paths["/v3/model/"] = { "get" => operation("x", naming("things", "to_h")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /built-in Ruby method/)
-      paths.delete("/v3/send/")
+      paths.delete("/v3/model/")
       paths["/v3/opts/"] = { "get" => operation("x", naming("with_options", "list")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /Didit::Client#with_options/)
     end

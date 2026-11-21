@@ -282,18 +282,22 @@ RSpec.describe Didit::Resources::Workflows do
         "is_simple_workflow": true,
         "is_editable": true,
         "workflow_url": "https://example.com/callback",
-        "workflow_graph": {},
+        "workflow_graph": {
+        },
         "features": "features-value",
         "total_price": 1.5,
         "min_price": 1.5,
         "max_price": 1.5,
-        "special_add_on_prices": {},
+        "special_add_on_prices": {
+        },
         "max_retry_attempts": 1,
         "retry_window_days": 1,
         "session_expiration_time": 1,
-        "questionnaire": {},
+        "questionnaire": {
+        },
         "kyb_role_settings": [
-          {}
+          {
+          }
         ],
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z",
@@ -303,9 +307,11 @@ RSpec.describe Didit::Resources::Workflows do
           "qes": true
         },
         "is_bank_verification_enabled": true,
-        "bank_verification_config": {},
+        "bank_verification_config": {
+        },
         "is_geolocation_enabled": true,
-        "geolocation_config": {}
+        "geolocation_config": {
+        }
       }
     JSON
     result = client.workflows.update(

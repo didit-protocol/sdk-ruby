@@ -86,7 +86,9 @@ RSpec.describe Didit::Resources::DocumentAi do
           ],
           "name_match_score": 100.0,
           "name_on_document": "Sophia Martinez",
-          "warnings": []
+          "warnings": [
+      
+          ]
         },
         "vendor_data": "user-123",
         "metadata": {

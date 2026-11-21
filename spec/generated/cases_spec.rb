@@ -14,7 +14,8 @@ RSpec.describe Didit::Resources::Cases do
           "client_reference": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "action": "action-value",
           "status": "APPLIED",
-          "result": {},
+          "result": {
+          },
           "error": "error-value",
           "actor_email": "user@example.com",
           "attempts": 1,
@@ -114,7 +115,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -235,7 +237,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -244,7 +247,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -332,7 +336,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -453,7 +458,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -462,7 +468,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -633,7 +640,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -754,7 +762,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -763,7 +772,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -890,7 +900,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -1011,7 +1022,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1020,7 +1032,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1200,7 +1213,8 @@ RSpec.describe Didit::Resources::Cases do
             "client_reference": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "action": "action-value",
             "status": "APPLIED",
-            "result": {},
+            "result": {
+            },
             "error": "error-value",
             "actor_email": "user@example.com",
             "attempts": 1,
@@ -1246,7 +1260,8 @@ RSpec.describe Didit::Resources::Cases do
               "datasets": [
                 "example"
               ],
-              "features": {},
+              "features": {
+              },
               "rca_name": "rca_name-value",
               "last_seen": "2026-01-02T03:04:05Z",
               "risk_view": {
@@ -1326,7 +1341,8 @@ RSpec.describe Didit::Resources::Cases do
               "adverse_media_matches": [
                 "example"
               ],
-              "additional_information": {}
+              "additional_information": {
+              }
             }
           ],
           "score": 1.5,
@@ -1344,7 +1360,8 @@ RSpec.describe Didit::Resources::Cases do
             {
               "feature": "ID_VERIFICATION",
               "risk": "risk-value",
-              "additional_data": {},
+              "additional_data": {
+              },
               "log_type": "log_type-value",
               "short_description": "short_description-value",
               "long_description": "long_description-value",
@@ -1385,7 +1402,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ]
@@ -1508,7 +1526,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -1629,7 +1648,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1638,7 +1658,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1729,7 +1750,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -1850,7 +1872,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1859,7 +1882,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -1947,7 +1971,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -2068,7 +2093,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2077,7 +2103,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2165,7 +2192,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -2286,7 +2314,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2295,7 +2324,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2388,7 +2418,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -2509,7 +2540,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2518,7 +2550,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2672,7 +2705,8 @@ RSpec.describe Didit::Resources::Cases do
         "client_reference": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "action": "action-value",
         "status": "APPLIED",
-        "result": {},
+        "result": {
+        },
         "error": "error-value",
         "actor_email": "user@example.com",
         "attempts": 1,
@@ -2749,7 +2783,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -2870,7 +2905,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2879,7 +2915,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -2970,7 +3007,8 @@ RSpec.describe Didit::Resources::Cases do
           "name": "name-value",
           "email": "user@example.com"
         },
-        "metadata": {},
+        "metadata": {
+        },
         "blueprint": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "name": "name-value",
@@ -3091,7 +3129,8 @@ RSpec.describe Didit::Resources::Cases do
             "actor_name": "actor_name-value",
             "previous_status": "OPEN",
             "new_status": "OPEN",
-            "metadata": {},
+            "metadata": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -3100,7 +3139,8 @@ RSpec.describe Didit::Resources::Cases do
             "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "linked_entity_type": "session",
             "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-            "linked_entity_summary": {},
+            "linked_entity_summary": {
+            },
             "created_at": "2026-01-02T03:04:05Z"
           }
         ],
@@ -3500,7 +3540,8 @@ RSpec.describe Didit::Resources::Cases do
         "results": [
           {
             "version": 1,
-            "snapshot": {},
+            "snapshot": {
+            },
             "actor_email": "user@example.com",
             "published_at": "2026-01-02T03:04:05Z"
           }
@@ -3597,7 +3638,8 @@ RSpec.describe Didit::Resources::Cases do
         "name": "name-value",
         "description": "description-value",
         "assignment_method": "MANUAL",
-        "assignee_pool": {},
+        "assignee_pool": {
+        },
         "max_active_cases": 1,
         "escalation_enabled": true,
         "escalation_blueprint": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -3660,10 +3702,12 @@ RSpec.describe Didit::Resources::Cases do
         "is_active": true,
         "preset_key": "preset_key-value",
         "creation_sources": [
-          {}
+          {
+          }
         ],
         "receives_escalation_from": [
-          {}
+          {
+          }
         ],
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z",
@@ -3826,7 +3870,8 @@ RSpec.describe Didit::Resources::Cases do
         "draft": {
           "revision": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "base_version": 1,
-          "changes": {},
+          "changes": {
+          },
           "actor_email": "user@example.com",
           "updated_at": "2026-01-02T03:04:05Z"
         }
@@ -3854,7 +3899,8 @@ RSpec.describe Didit::Resources::Cases do
       {
         "revision": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "base_version": 1,
-        "changes": {},
+        "changes": {
+        },
         "actor_email": "user@example.com",
         "updated_at": "2026-01-02T03:04:05Z"
       }
@@ -4080,7 +4126,8 @@ RSpec.describe Didit::Resources::Cases do
         "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "linked_entity_type": "session",
         "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-        "linked_entity_summary": {},
+        "linked_entity_summary": {
+        },
         "created_at": "2026-01-02T03:04:05Z"
       }
     JSON
@@ -4135,7 +4182,8 @@ RSpec.describe Didit::Resources::Cases do
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "linked_entity_type": "session",
           "linked_entity_uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
-          "linked_entity_summary": {},
+          "linked_entity_summary": {
+          },
           "created_at": "2026-01-02T03:04:05Z"
         }
       ]
@@ -4164,10 +4212,13 @@ RSpec.describe Didit::Resources::Cases do
         "comment": "comment-value",
         "actor_email": "user@example.com",
         "actor_name": "actor_name-value",
-        "mentioned_emails": {},
+        "mentioned_emails": {
+        },
         "is_internal": true,
-        "attachments": {},
-        "tags": {},
+        "attachments": {
+        },
+        "tags": {
+        },
         "created_at": "2026-01-02T03:04:05Z",
         "reply_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -4272,10 +4323,13 @@ RSpec.describe Didit::Resources::Cases do
             "comment": "comment-value",
             "actor_email": "user@example.com",
             "actor_name": "actor_name-value",
-            "mentioned_emails": {},
+            "mentioned_emails": {
+            },
             "is_internal": true,
-            "attachments": {},
-            "tags": {},
+            "attachments": {
+            },
+            "tags": {
+            },
             "created_at": "2026-01-02T03:04:05Z",
             "reply_to": {
               "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -4345,10 +4399,13 @@ RSpec.describe Didit::Resources::Cases do
         "comment": "comment-value",
         "actor_email": "user@example.com",
         "actor_name": "actor_name-value",
-        "mentioned_emails": {},
+        "mentioned_emails": {
+        },
         "is_internal": true,
-        "attachments": {},
-        "tags": {},
+        "attachments": {
+        },
+        "tags": {
+        },
         "created_at": "2026-01-02T03:04:05Z",
         "reply_to": {
           "uuid": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
@@ -4403,8 +4460,10 @@ RSpec.describe Didit::Resources::Cases do
         "fiu_ref_number": "fiu_ref_number-value",
         "currency_code_local": "currency_code_local-value",
         "submission_date": "2026-01-02T03:04:05Z",
-        "reporting_person": {},
-        "location": {},
+        "reporting_person": {
+        },
+        "location": {
+        },
         "reason": "reason-value",
         "action": "action-value",
         "activity": "activity-value",
@@ -4486,8 +4545,10 @@ RSpec.describe Didit::Resources::Cases do
             "fiu_ref_number": "fiu_ref_number-value",
             "currency_code_local": "currency_code_local-value",
             "submission_date": "2026-01-02T03:04:05Z",
-            "reporting_person": {},
-            "location": {},
+            "reporting_person": {
+            },
+            "location": {
+            },
             "reason": "reason-value",
             "action": "action-value",
             "activity": "activity-value",
@@ -4555,7 +4616,8 @@ RSpec.describe Didit::Resources::Cases do
         "delivered_at": "2026-01-02T03:04:05Z",
         "cancelled_at": "2026-01-02T03:04:05Z",
         "responded_at": "2026-01-02T03:04:05Z",
-        "response": {},
+        "response": {
+        },
         "has_attachment": true,
         "created_at": "2026-01-02T03:04:05Z"
       }
@@ -4593,7 +4655,8 @@ RSpec.describe Didit::Resources::Cases do
         "delivered_at": "2026-01-02T03:04:05Z",
         "cancelled_at": "2026-01-02T03:04:05Z",
         "responded_at": "2026-01-02T03:04:05Z",
-        "response": {},
+        "response": {
+        },
         "has_attachment": true,
         "created_at": "2026-01-02T03:04:05Z"
       }
@@ -4646,7 +4709,8 @@ RSpec.describe Didit::Resources::Cases do
             "delivered_at": "2026-01-02T03:04:05Z",
             "cancelled_at": "2026-01-02T03:04:05Z",
             "responded_at": "2026-01-02T03:04:05Z",
-            "response": {},
+            "response": {
+            },
             "has_attachment": true,
             "created_at": "2026-01-02T03:04:05Z"
           }
@@ -4951,7 +5015,8 @@ RSpec.describe Didit::Resources::Cases do
         "results": [
           {
             "version": 1,
-            "snapshot": {},
+            "snapshot": {
+            },
             "actor_email": "user@example.com",
             "published_at": "2026-01-02T03:04:05Z"
           }
@@ -5035,7 +5100,8 @@ RSpec.describe Didit::Resources::Cases do
           {
             "field": "source",
             "operator": "equals",
-            "value": {}
+            "value": {
+            }
           }
         ],
         "required_skills": [
@@ -5125,7 +5191,8 @@ RSpec.describe Didit::Resources::Cases do
         "draft": {
           "revision": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "base_version": 1,
-          "changes": {},
+          "changes": {
+          },
           "actor_email": "user@example.com",
           "updated_at": "2026-01-02T03:04:05Z"
         }
@@ -5153,7 +5220,8 @@ RSpec.describe Didit::Resources::Cases do
       {
         "revision": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "base_version": 1,
-        "changes": {},
+        "changes": {
+        },
         "actor_email": "user@example.com",
         "updated_at": "2026-01-02T03:04:05Z"
       }
