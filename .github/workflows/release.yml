@@ -76,7 +76,7 @@ jobs:
           ref: ${{ needs.release-please.outputs.tag_name }}
           persist-credentials: false
       - name: Set up Ruby 3.4
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564 # v1.341.0
         with:
           ruby-version: "3.4"
           # No dependency cache in the release build.
@@ -160,7 +160,7 @@ jobs:
           gh release upload "$TAG" "pkg/didit-sdk-${VERSION}.gem" "pkg/didit-sdk-${VERSION}.gem.sha256" \
             --repo "$GITHUB_REPOSITORY" --clobber
       - name: Set up Ruby 3.4 for gem push
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564 # v1.341.0
         with:
           ruby-version: "3.4"
           bundler: none
