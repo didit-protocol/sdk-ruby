@@ -33,7 +33,8 @@ RSpec.describe Didit::Resources::Ip do
           "proxy_type": null,
           "claimed_country": "ESP",
           "country_mismatch": false,
-          "threat": {}
+          "threat": {
+          }
         },
         "vendor_data": "lead-123",
         "metadata": null,

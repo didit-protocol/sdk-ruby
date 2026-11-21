@@ -14,7 +14,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
         "jurisdiction": "jurisdiction-value",
         "report_type": "SAR",
         "report_type_display": "report_type_display-value",
-        "field_config": {},
+        "field_config": {
+        },
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z"
       }
@@ -86,7 +87,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
             "jurisdiction": "jurisdiction-value",
             "report_type": "SAR",
             "report_type_display": "report_type_display-value",
-            "field_config": {},
+            "field_config": {
+            },
             "created_at": "2026-01-02T03:04:05Z",
             "updated_at": "2026-01-02T03:04:05Z"
           }
@@ -117,7 +119,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
         "jurisdiction": "jurisdiction-value",
         "report_type": "SAR",
         "report_type_display": "report_type_display-value",
-        "field_config": {},
+        "field_config": {
+        },
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z"
       }
@@ -147,7 +150,8 @@ RSpec.describe Didit::Resources::ReportTemplates do
         "jurisdiction": "jurisdiction-value",
         "report_type": "SAR",
         "report_type_display": "report_type_display-value",
-        "field_config": {},
+        "field_config": {
+        },
         "created_at": "2026-01-02T03:04:05Z",
         "updated_at": "2026-01-02T03:04:05Z"
       }
