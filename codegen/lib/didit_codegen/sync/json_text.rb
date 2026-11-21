@@ -30,7 +30,8 @@ module DiditCodegen
         JSON.generate(normalize(naming))
       end
 
-      # "sessions.imports.create" for a server operation's naming, else nil.
+      # The Ruby method name ("sessions.imports.create", "messages.send_message") for a server
+      # operation's naming, else nil.
       def ident(naming)
         return nil unless naming.is_a?(Hash) && naming["server"] == true
         return nil unless naming["resource"].is_a?(String) && naming["method"].is_a?(String)

@@ -284,6 +284,25 @@ RSpec.describe DiditCodegen::Generator do
       expect(rbs).to include("{ (String chunk) -> void } -> nil")
     end
 
+    it "keeps the shared fields as keywords when oneOf only narrows which are required" do
+      paths["/v3/messages/"] = {
+        "post" => operation("Send", naming("messages", "send"), "requestBody" => { "content" => {
+          "application/json" => { "schema" => {
+            "type" => "object", "required" => ["to"],
+            "description" => "Send exactly one of `body` or `template_id`.",
+            "oneOf" => [{ "required" => ["body"] }, { "required" => ["template_id"] }],
+            "properties" => { "to" => { "type" => "string" }, "body" => { "type" => "string" },
+                              "template_id" => { "type" => "string" } }
+          } }
+        } }, "responses" => { "201" => { "description" => "ok" } })
+      }
+      files = build(dir).files
+      expect(files.fetch("lib/didit/resources/messages.rb"))
+        .to match(/def send_message\(\s*to:,\s*body: OMIT,\s*template_id: OMIT,/)
+      expect(files.fetch("sig/didit/resources/messages.rbs"))
+        .to include("def send_message: (to: String, ?body: String, ?template_id: String, ")
+    end
+
     it "keeps deprecated operations with a warning" do
       deprecated = { "description" => "x", "methods" => { "things.old" => {
         "reason" => "removed", "operation_key" => "GET /v3/old/", "x-didit-sdk" => naming("things", "old"),
