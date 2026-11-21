@@ -343,12 +343,7 @@ module DiditCodegen
       %w[oneOf anyOf].each do |key|
         next unless schema.key?(key)
 
-        # A choice of required fields on a shared object describes one keyword API.
-        # Only fields required in every alternative are mandatory for every call.
-        properties = schema["properties"]
-        members = schema[key].map { |member| document.resolve(member) }
-        if properties && !members.empty? && members.all? { |m| m.keys == ["required"] && (m["required"] - properties.keys).empty? }
-          required = Array(schema["required"]) | members.map { |m| m["required"] }.reduce(:&)
+        if (required = shared_required_fields(document, schema, schema[key]))
           return record(document, schema.merge("required" => required), hint, group)
         end
 
@@ -364,6 +359,21 @@ module DiditCodegen
       return enum(schema, hint, group) if schema.key?("enum")
 
       basic_request(document, schema, hint, group)
+    end
+
+    # If the alternatives only require subsets of the parent's properties, those properties
+    # supply the keyword types. A field required by every alternative is also mandatory.
+    def shared_required_fields(document, schema, members)
+      properties = schema["properties"]
+      return unless properties && !members.empty?
+
+      alternatives = members.map do |member|
+        branch = document.resolve(member)
+        return unless branch.keys == ["required"] && branch["required"].all? { |name| properties.key?(name) }
+
+        branch["required"]
+      end
+      Array(schema["required"]) | alternatives.reduce(:&)
     end
 
     def basic_request(document, schema, hint, group)
