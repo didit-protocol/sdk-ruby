@@ -75,12 +75,8 @@ RSpec.describe Didit::Resources::IdVerification do
             "document_number_hash": "3",
             "final_hash": "3",
             "personal_number": "20446581H",
-            "warnings": [
-      
-            ],
-            "errors": [
-      
-            ],
+            "warnings": [],
+            "errors": [],
             "mrz_type": "TD1",
             "mrz_string": "IDESPCBX164224320446581H<<<<<<\n8001139M3203318ESP<<<<<<<<<<<3\nFORES<SENA<<JULIO<FRANCISCO<<<",
             "mrz_key": "CBX164224380011393203318"
@@ -162,12 +158,8 @@ RSpec.describe Didit::Resources::IdVerification do
             "is_verified": true,
             "category": "Residential"
           },
-          "warnings": [
-      
-          ],
-          "barcodes": [
-      
-          ]
+          "warnings": [],
+          "barcodes": []
         },
         "vendor_data": "user-123",
         "metadata": {

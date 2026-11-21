@@ -72,8 +72,7 @@ RSpec.describe Didit::Resources::Investigator do
             "run_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "result": "accepted",
             "reason": "not_found",
-            "detail": {
-            },
+            "detail": {},
             "action": "action-value",
             "final_status": "final_status-value"
           }
@@ -126,15 +125,12 @@ RSpec.describe Didit::Resources::Investigator do
         "count": 1,
         "next": "next-value",
         "previous": "previous-value",
-        "counts": {
-        },
+        "counts": {},
         "actors": [
-          {
-          }
+          {}
         ],
         "results": [
-          {
-          }
+          {}
         ]
       }
     JSON
@@ -187,24 +183,21 @@ RSpec.describe Didit::Resources::Investigator do
         "count": 1,
         "next": "next-value",
         "previous": "previous-value",
-        "counts": {
-        },
+        "counts": {},
         "results": [
           {
             "run_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "kind": "session",
             "queue": "kyc",
             "stage": "none",
-            "subject": {
-            },
+            "subject": {},
             "recommendation": "approve",
             "recommendation_detail": "recommendation_detail-value",
             "confidence": "high",
             "summary": "summary-value",
             "sources_count": 1,
             "ready_to_accept": true,
-            "guardrails": {
-            },
+            "guardrails": {},
             "waiting_since": "2026-01-02T03:04:05Z",
             "due_at": "2026-01-02T03:04:05Z",
             "prepared_at": "2026-01-02T03:04:05Z",
@@ -374,16 +367,14 @@ RSpec.describe Didit::Resources::Investigator do
         "kind": "session",
         "queue": "kyc",
         "stage": "none",
-        "subject": {
-        },
+        "subject": {},
         "recommendation": "approve",
         "recommendation_detail": "recommendation_detail-value",
         "confidence": "high",
         "summary": "summary-value",
         "sources_count": 1,
         "ready_to_accept": true,
-        "guardrails": {
-        },
+        "guardrails": {},
         "waiting_since": "2026-01-02T03:04:05Z",
         "due_at": "2026-01-02T03:04:05Z",
         "prepared_at": "2026-01-02T03:04:05Z",
@@ -395,10 +386,8 @@ RSpec.describe Didit::Resources::Investigator do
         "duration_ms": 1,
         "agent_version": "agent_version-value",
         "prepared_before_opened": true,
-        "report": {
-        },
-        "trail": {
-        },
+        "report": {},
+        "trail": {},
         "decision": {
           "outcome": "accepted",
           "action": "approve",
@@ -430,8 +419,7 @@ RSpec.describe Didit::Resources::Investigator do
             }
           ]
         },
-        "autonomy": {
-        }
+        "autonomy": {}
       }
     JSON
     result = client.investigator.retrieve_run(

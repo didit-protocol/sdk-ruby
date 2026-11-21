@@ -68,21 +68,14 @@ RSpec.describe Didit::Resources::Transactions do
             "entity_type": "individual",
             "vendor_data": "user-12345",
             "full_name": "Maria Garcia",
-            "address": {
-            },
-            "institution_details": {
-            },
-            "device_context": {
-            }
+            "address": {},
+            "institution_details": {},
+            "device_context": {}
           },
-          "counterparty": {
-          }
+          "counterparty": {}
         },
-        "props": {
-        },
-        "tags": [
-      
-        ],
+        "props": {},
+        "tags": [],
         "parties": [
           {
             "uuid": "b1111111-2222-4333-8444-555555555555",
@@ -95,21 +88,14 @@ RSpec.describe Didit::Resources::Transactions do
             "last_name": null,
             "country_code": null,
             "dob": null,
-            "address": {
-            },
-            "institution_info": {
-            },
-            "device": {
-            },
+            "address": {},
+            "institution_info": {},
+            "device": {},
             "external_party_snapshot": null
           }
         ],
-        "payment_methods": [
-      
-        ],
-        "documents": [
-      
-        ],
+        "payment_methods": [],
+        "documents": [],
         "activities": [
           {
             "uuid": "d4e5f6a7-8901-4bcd-9ef0-123456789abc",
@@ -118,20 +104,13 @@ RSpec.describe Didit::Resources::Transactions do
             "status": "APPROVED",
             "title": "withdrawal",
             "description": "Transaction recorded.",
-            "metadata": {
-            },
+            "metadata": {},
             "occurred_at": "2026-05-17T08:42:11Z"
           }
         ],
-        "alerts": [
-      
-        ],
-        "rule_runs": [
-      
-        ],
-        "provider_results": [
-      
-        ],
+        "alerts": [],
+        "rule_runs": [],
+        "provider_results": [],
         "travel_rule": null,
         "network_snapshot": null,
         "remediation": null,
@@ -319,17 +298,13 @@ RSpec.describe Didit::Resources::Transactions do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {
-              },
-              "member_status": {
-              },
-              "signal_coverage": {
-              },
+              "member_counts": {},
+              "member_status": {},
+              "signal_coverage": {},
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {
-            },
+            "subject": {},
             "signal_types": [
               "ip_address"
             ],
@@ -378,17 +353,13 @@ RSpec.describe Didit::Resources::Transactions do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {
-              },
-              "member_status": {
-              },
-              "signal_coverage": {
-              },
+              "member_counts": {},
+              "member_status": {},
+              "signal_coverage": {},
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {
-            },
+            "subject": {},
             "signal_types": [
               "ip_address"
             ],
@@ -445,9 +416,7 @@ RSpec.describe Didit::Resources::Transactions do
             "severity": "LOW",
             "decision_reason_code": null,
             "decision_reason_label": null,
-            "tags": [
-      
-            ],
+            "tags": [],
             "subject_name": "Maria Garcia",
             "subject_vendor_data": "user-12345",
             "subject_type": "user",
@@ -517,22 +486,16 @@ RSpec.describe Didit::Resources::Transactions do
             "entity_type": "individual",
             "vendor_data": "user-12345",
             "full_name": "Maria Garcia",
-            "address": {
-            },
-            "institution_details": {
-            },
-            "device_context": {
-            }
+            "address": {},
+            "institution_details": {},
+            "device_context": {}
           },
-          "counterparty": {
-          }
+          "counterparty": {}
         },
         "props": {
           "order_id": "ord-9988"
         },
-        "tags": [
-      
-        ],
+        "tags": [],
         "parties": [
           {
             "uuid": "b1111111-2222-4333-8444-555555555555",
@@ -545,24 +508,15 @@ RSpec.describe Didit::Resources::Transactions do
             "last_name": null,
             "country_code": null,
             "dob": null,
-            "address": {
-            },
-            "institution_info": {
-            },
-            "device": {
-            },
+            "address": {},
+            "institution_info": {},
+            "device": {},
             "external_party_snapshot": null
           }
         ],
-        "payment_methods": [
-      
-        ],
-        "documents": [
-      
-        ],
-        "activities": [
-      
-        ],
+        "payment_methods": [],
+        "documents": [],
+        "activities": [],
         "alerts": [
           {
             "uuid": "a7b8c9d0-1234-4abc-9def-567890abcdef",
@@ -571,18 +525,13 @@ RSpec.describe Didit::Resources::Transactions do
             "severity": "HIGH",
             "status": "OPEN",
             "source": "RULE",
-            "metadata": {
-            },
+            "metadata": {},
             "created_at": "2026-05-17T08:42:12Z",
             "due_at": null
           }
         ],
-        "rule_runs": [
-      
-        ],
-        "provider_results": [
-      
-        ],
+        "rule_runs": [],
+        "provider_results": [],
         "travel_rule": null,
         "network_snapshot": null,
         "remediation": null,
@@ -723,9 +672,7 @@ RSpec.describe Didit::Resources::Transactions do
         "affected_entities": 4,
         "period_days": 90,
         "truncated": false,
-        "overlapping_rules": [
-      
-        ],
+        "overlapping_rules": [],
         "overlapping_rules_truncated": false
       }
     JSON
@@ -870,8 +817,7 @@ RSpec.describe Didit::Resources::Transactions do
           {
             "field": "field-value",
             "operator": "eq",
-            "value": {
-            },
+            "value": {},
             "value_type": "list",
             "score": 1.5,
             "group_index": 1,
@@ -886,8 +832,7 @@ RSpec.describe Didit::Resources::Transactions do
             "operator": "eq",
             "value": 1.5,
             "window": "window-value",
-            "filters": {
-            }
+            "filters": {}
           }
         ],
         "actions": [
@@ -896,8 +841,7 @@ RSpec.describe Didit::Resources::Transactions do
             "value": 1
           }
         ],
-        "metadata": {
-        },
+        "metadata": {},
         "severity": "UNKNOWN",
         "source": "PRESET",
         "library_key": "library_key-value",
@@ -1158,8 +1102,7 @@ RSpec.describe Didit::Resources::Transactions do
                 "value": "example"
               }
             ],
-            "metadata": {
-            },
+            "metadata": {},
             "severity": "UNKNOWN",
             "source": "PRESET",
             "library_key": "library_key-value",
@@ -1246,8 +1189,7 @@ RSpec.describe Didit::Resources::Transactions do
                 "value": "example"
               }
             ],
-            "metadata": {
-            },
+            "metadata": {},
             "bundle": "bundle-value",
             "tags": [
               "tags-value"
@@ -1301,8 +1243,7 @@ RSpec.describe Didit::Resources::Transactions do
           {
             "field": "field-value",
             "operator": "eq",
-            "value": {
-            },
+            "value": {},
             "value_type": "list",
             "score": 1.5,
             "group_index": 1,
@@ -1317,8 +1258,7 @@ RSpec.describe Didit::Resources::Transactions do
             "operator": "eq",
             "value": 1.5,
             "window": "window-value",
-            "filters": {
-            }
+            "filters": {}
           }
         ],
         "actions": [
@@ -1327,8 +1267,7 @@ RSpec.describe Didit::Resources::Transactions do
             "value": 1
           }
         ],
-        "metadata": {
-        },
+        "metadata": {},
         "severity": "UNKNOWN",
         "source": "PRESET",
         "library_key": "library_key-value",
@@ -1413,8 +1352,7 @@ RSpec.describe Didit::Resources::Transactions do
           {
             "field": "field-value",
             "operator": "eq",
-            "value": {
-            },
+            "value": {},
             "value_type": "list",
             "score": 1.5,
             "group_index": 1,
@@ -1429,8 +1367,7 @@ RSpec.describe Didit::Resources::Transactions do
             "operator": "eq",
             "value": 1.5,
             "window": "window-value",
-            "filters": {
-            }
+            "filters": {}
           }
         ],
         "actions": [
@@ -1439,8 +1376,7 @@ RSpec.describe Didit::Resources::Transactions do
             "value": 1
           }
         ],
-        "metadata": {
-        },
+        "metadata": {},
         "severity": "UNKNOWN",
         "source": "PRESET",
         "library_key": "library_key-value",
@@ -1528,10 +1464,8 @@ RSpec.describe Didit::Resources::Transactions do
           },
           "dd_assessed_at": "2026-01-02T03:04:05Z"
         },
-        "originator_data": {
-        },
-        "beneficiary_data": {
-        },
+        "originator_data": {},
+        "beneficiary_data": {},
         "name_match": {
           "score": 1,
           "matched": true,
@@ -1636,8 +1570,7 @@ RSpec.describe Didit::Resources::Transactions do
             ],
             "beneficiary_output_index": 1
           },
-          "lightning": {
-          },
+          "lightning": {},
           "warnings": [
             "declared_originator_not_an_input"
           ],
@@ -1695,8 +1628,7 @@ RSpec.describe Didit::Resources::Transactions do
             "content_type": "content_type-value",
             "screenshot_url": "screenshot_url-value",
             "attempts": 1,
-            "failure_reason": {
-            },
+            "failure_reason": {},
             "method_chosen_at": "2026-01-02T03:04:05Z",
             "decided_at": "2026-01-02T03:04:05Z",
             "decided_by": "decided_by-value",
@@ -1966,10 +1898,8 @@ RSpec.describe Didit::Resources::Transactions do
             },
             "dd_assessed_at": "2026-01-02T03:04:05Z"
           },
-          "originator_data": {
-          },
-          "beneficiary_data": {
-          },
+          "originator_data": {},
+          "beneficiary_data": {},
           "name_match": {
             "score": 1,
             "matched": true,
@@ -2064,8 +1994,7 @@ RSpec.describe Didit::Resources::Transactions do
               ],
               "beneficiary_output_index": 1
             },
-            "lightning": {
-            },
+            "lightning": {},
             "warnings": [
               "declared_originator_not_an_input"
             ],
@@ -2123,8 +2052,7 @@ RSpec.describe Didit::Resources::Transactions do
               "content_type": "content_type-value",
               "screenshot_url": "screenshot_url-value",
               "attempts": 1,
-              "failure_reason": {
-              },
+              "failure_reason": {},
               "method_chosen_at": "2026-01-02T03:04:05Z",
               "decided_at": "2026-01-02T03:04:05Z",
               "decided_by": "decided_by-value",
@@ -2215,10 +2143,8 @@ RSpec.describe Didit::Resources::Transactions do
           },
           "dd_assessed_at": "2026-01-02T03:04:05Z"
         },
-        "originator_data": {
-        },
-        "beneficiary_data": {
-        },
+        "originator_data": {},
+        "beneficiary_data": {},
         "name_match": {
           "score": 1,
           "matched": true,
@@ -2323,8 +2249,7 @@ RSpec.describe Didit::Resources::Transactions do
             ],
             "beneficiary_output_index": 1
           },
-          "lightning": {
-          },
+          "lightning": {},
           "warnings": [
             "declared_originator_not_an_input"
           ],
@@ -2382,8 +2307,7 @@ RSpec.describe Didit::Resources::Transactions do
             "content_type": "content_type-value",
             "screenshot_url": "screenshot_url-value",
             "attempts": 1,
-            "failure_reason": {
-            },
+            "failure_reason": {},
             "method_chosen_at": "2026-01-02T03:04:05Z",
             "decided_at": "2026-01-02T03:04:05Z",
             "decided_by": "decided_by-value",

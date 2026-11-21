@@ -19,8 +19,7 @@ RSpec.describe Didit::Resources::Reports do
             "report_type_display": "report_type_display-value",
             "status": "PENDING",
             "status_display": "status_display-value",
-            "parameters": {
-            },
+            "parameters": {},
             "requested_by_user_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "requested_by_email": "requested_by_email-value",
             "requested_by_name": "requested_by_name-value",
@@ -83,8 +82,7 @@ RSpec.describe Didit::Resources::Reports do
         "report_type_display": "Verifications",
         "status": "READY",
         "status_display": "Ready",
-        "parameters": {
-        },
+        "parameters": {},
         "requested_by_user_id": null,
         "requested_by_email": null,
         "requested_by_name": null,
@@ -138,8 +136,7 @@ RSpec.describe Didit::Resources::Reports do
         "report_type_display": "Verifications",
         "status": "READY",
         "status_display": "Ready",
-        "parameters": {
-        },
+        "parameters": {},
         "requested_by_user_id": null,
         "requested_by_email": null,
         "requested_by_name": null,

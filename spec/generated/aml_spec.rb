@@ -54,9 +54,7 @@ RSpec.describe Didit::Resources::Aml do
           "status": "Approved",
           "total_hits": 0,
           "entity_type": "person",
-          "hits": [
-      
-          ],
+          "hits": [],
           "score": 0,
           "screened_data": {
             "full_name": "Maximilian Mustermann-Doe",
@@ -64,9 +62,7 @@ RSpec.describe Didit::Resources::Aml do
             "nationality": "DE",
             "document_number": null
           },
-          "warnings": [
-      
-          ]
+          "warnings": []
         },
         "vendor_data": "user-1234",
         "metadata": {

@@ -203,8 +203,7 @@ RSpec.describe Didit::Resources::TravelRule do
             "answered_at": null,
             "valid_until": null,
             "current": false,
-            "answers": {
-            }
+            "answers": {}
           },
           {
             "id": "8b7a6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d",
@@ -530,10 +529,8 @@ RSpec.describe Didit::Resources::TravelRule do
             },
             "dd_assessed_at": "2026-01-02T03:04:05Z"
           },
-          "originator_data": {
-          },
-          "beneficiary_data": {
-          },
+          "originator_data": {},
+          "beneficiary_data": {},
           "name_match": {
             "score": 1,
             "matched": true,
@@ -628,8 +625,7 @@ RSpec.describe Didit::Resources::TravelRule do
               ],
               "beneficiary_output_index": 1
             },
-            "lightning": {
-            },
+            "lightning": {},
             "warnings": [
               "declared_originator_not_an_input"
             ],
@@ -687,8 +683,7 @@ RSpec.describe Didit::Resources::TravelRule do
               "content_type": "content_type-value",
               "screenshot_url": "screenshot_url-value",
               "attempts": 1,
-              "failure_reason": {
-              },
+              "failure_reason": {},
               "method_chosen_at": "2026-01-02T03:04:05Z",
               "decided_at": "2026-01-02T03:04:05Z",
               "decided_by": "decided_by-value",
@@ -782,9 +777,7 @@ RSpec.describe Didit::Resources::TravelRule do
         ],
         "non_responsive_policy": "",
         "travel_address": "",
-        "disabled_networks": [
-      
-        ],
+        "disabled_networks": [],
         "networks": {
           "gtr": {
             "rail": "GTR",
@@ -904,9 +897,7 @@ RSpec.describe Didit::Resources::TravelRule do
           }
         ],
         "umbrella": null,
-        "entities": [
-      
-        ],
+        "entities": [],
         "contacts": [
           {
             "id": "6c1f9b8e-2d4a-4f7e-8b3c-5a9d0e1f2a3b",
@@ -972,8 +963,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "total": 0,
           "computed_at": "2026-10-12T09:30:00Z"
         },
-        "essential_checks": {
-        },
+        "essential_checks": {},
         "reachable_rails": [
           "GTR",
           "EMAIL"
@@ -1238,8 +1228,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "answered_at": null,
         "valid_until": null,
         "current": false,
-        "answers": {
-        }
+        "answers": {}
       }
     JSON
     result = client.travel_rule.send_vasp_questionnaire(
@@ -1883,19 +1872,14 @@ RSpec.describe Didit::Resources::TravelRule do
         "platform_networks_enabled": false,
         "questionnaire": {
           "status": "draft",
-          "answers": {
-          },
+          "answers": {},
           "submitted_at": null,
           "reviewed_at": null,
           "review_note": "",
-          "history": [
-      
-          ],
+          "history": [],
           "updated_at": null
         },
-        "participants": [
-      
-        ],
+        "participants": [],
         "networks": {
           "gtr": {
             "rail": "GTR",
@@ -2349,24 +2333,21 @@ RSpec.describe Didit::Resources::TravelRule do
             "row": 1,
             "status": "existing",
             "entry_id": "11111111-2222-3333-4444-555555555555",
-            "errors": {
-            },
+            "errors": {},
             "duplicate_of_row": null
           },
           {
             "row": 2,
             "status": "created",
             "entry_id": "22222222-3333-4444-5555-666666666666",
-            "errors": {
-            },
+            "errors": {},
             "duplicate_of_row": null
           },
           {
             "row": 3,
             "status": "created",
             "entry_id": "33333333-4444-5555-6666-777777777777",
-            "errors": {
-            },
+            "errors": {},
             "duplicate_of_row": null
           }
         ]
@@ -2450,14 +2431,12 @@ RSpec.describe Didit::Resources::TravelRule do
           "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "method": "MESSAGE_SIGNING",
           "status": "PENDING",
-          "failure_reason": {
-          },
+          "failure_reason": {},
           "latest_attempt": {
             "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "method": "MESSAGE_SIGNING",
             "status": "PENDING",
-            "failure_reason": {
-            }
+            "failure_reason": {}
           },
           "network_eligible": true,
           "reuse_status": "NOT_LINKED"
@@ -2538,8 +2517,7 @@ RSpec.describe Didit::Resources::TravelRule do
               "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
               "method": "MESSAGE_SIGNING",
               "status": "PENDING",
-              "failure_reason": {
-              },
+              "failure_reason": {},
               "latest_attempt": {
                 "proof_id": "example",
                 "method": "example",
@@ -2662,14 +2640,12 @@ RSpec.describe Didit::Resources::TravelRule do
           "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
           "method": "MESSAGE_SIGNING",
           "status": "PENDING",
-          "failure_reason": {
-          },
+          "failure_reason": {},
           "latest_attempt": {
             "proof_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
             "method": "MESSAGE_SIGNING",
             "status": "PENDING",
-            "failure_reason": {
-            }
+            "failure_reason": {}
           },
           "network_eligible": true,
           "reuse_status": "NOT_LINKED"
@@ -2715,8 +2691,7 @@ RSpec.describe Didit::Resources::TravelRule do
         "content_type": "content_type-value",
         "screenshot_url": "screenshot_url-value",
         "attempts": 1,
-        "failure_reason": {
-        },
+        "failure_reason": {},
         "method_chosen_at": "2026-01-02T03:04:05Z",
         "decided_at": "2026-01-02T03:04:05Z",
         "decided_by": "decided_by-value",
@@ -2772,8 +2747,7 @@ RSpec.describe Didit::Resources::TravelRule do
             "content_type": "content_type-value",
             "screenshot_url": "screenshot_url-value",
             "attempts": 1,
-            "failure_reason": {
-            },
+            "failure_reason": {},
             "method_chosen_at": "2026-01-02T03:04:05Z",
             "decided_at": "2026-01-02T03:04:05Z",
             "decided_by": "decided_by-value",
@@ -2820,8 +2794,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "licence": "licence-value",
           "rejection_reason": ""
         },
-        "prefill": {
-        },
+        "prefill": {},
         "domain": {
           "domain": "domain-value",
           "status": "unverified",
@@ -2833,8 +2806,7 @@ RSpec.describe Didit::Resources::TravelRule do
         },
         "billing_enabled": true,
         "billing_enabled_at": "2026-01-02T03:04:05Z",
-        "didit_network": {
-        },
+        "didit_network": {},
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
@@ -3043,8 +3015,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "licence": "licence-value",
           "rejection_reason": ""
         },
-        "prefill": {
-        },
+        "prefill": {},
         "domain": {
           "domain": "domain-value",
           "status": "unverified",
@@ -3056,8 +3027,7 @@ RSpec.describe Didit::Resources::TravelRule do
         },
         "billing_enabled": true,
         "billing_enabled_at": "2026-01-02T03:04:05Z",
-        "didit_network": {
-        },
+        "didit_network": {},
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
@@ -3266,8 +3236,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "licence": "licence-value",
           "rejection_reason": ""
         },
-        "prefill": {
-        },
+        "prefill": {},
         "domain": {
           "domain": "domain-value",
           "status": "unverified",
@@ -3279,8 +3248,7 @@ RSpec.describe Didit::Resources::TravelRule do
         },
         "billing_enabled": true,
         "billing_enabled_at": "2026-01-02T03:04:05Z",
-        "didit_network": {
-        },
+        "didit_network": {},
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
@@ -3489,8 +3457,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "licence": "licence-value",
           "rejection_reason": ""
         },
-        "prefill": {
-        },
+        "prefill": {},
         "domain": {
           "domain": "domain-value",
           "status": "unverified",
@@ -3502,8 +3469,7 @@ RSpec.describe Didit::Resources::TravelRule do
         },
         "billing_enabled": true,
         "billing_enabled_at": "2026-01-02T03:04:05Z",
-        "didit_network": {
-        },
+        "didit_network": {},
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
@@ -3735,8 +3701,7 @@ RSpec.describe Didit::Resources::TravelRule do
           "licence": "licence-value",
           "rejection_reason": ""
         },
-        "prefill": {
-        },
+        "prefill": {},
         "domain": {
           "domain": "domain-value",
           "status": "unverified",
@@ -3748,8 +3713,7 @@ RSpec.describe Didit::Resources::TravelRule do
         },
         "billing_enabled": true,
         "billing_enabled_at": "2026-01-02T03:04:05Z",
-        "didit_network": {
-        },
+        "didit_network": {},
         "settings": {
           "is_enabled": true,
           "jurisdiction": "jurisdiction-value",
