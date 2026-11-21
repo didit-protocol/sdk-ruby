@@ -26,10 +26,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
         "fiu_ref_number": "fiu_ref_number-value",
         "currency_code_local": "currency_code_local-value",
         "submission_date": "2026-01-02T03:04:05Z",
-        "reporting_person": {
-        },
-        "location": {
-        },
+        "reporting_person": {},
+        "location": {},
         "reason": "reason-value",
         "action": "action-value",
         "activity": "activity-value",
@@ -129,10 +127,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
         "fiu_ref_number": "fiu_ref_number-value",
         "currency_code_local": "currency_code_local-value",
         "submission_date": "2026-01-02T03:04:05Z",
-        "reporting_person": {
-        },
-        "location": {
-        },
+        "reporting_person": {},
+        "location": {},
         "reason": "reason-value",
         "action": "action-value",
         "activity": "activity-value",
@@ -211,10 +207,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
             "fiu_ref_number": "fiu_ref_number-value",
             "currency_code_local": "currency_code_local-value",
             "submission_date": "2026-01-02T03:04:05Z",
-            "reporting_person": {
-            },
-            "location": {
-            },
+            "reporting_person": {},
+            "location": {},
             "reason": "reason-value",
             "action": "action-value",
             "activity": "activity-value",
@@ -287,10 +281,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
         "fiu_ref_number": "fiu_ref_number-value",
         "currency_code_local": "currency_code_local-value",
         "submission_date": "2026-01-02T03:04:05Z",
-        "reporting_person": {
-        },
-        "location": {
-        },
+        "reporting_person": {},
+        "location": {},
         "reason": "reason-value",
         "action": "action-value",
         "activity": "activity-value",
@@ -386,10 +378,8 @@ RSpec.describe Didit::Resources::RegulatoryReports do
         "fiu_ref_number": "fiu_ref_number-value",
         "currency_code_local": "currency_code_local-value",
         "submission_date": "2026-01-02T03:04:05Z",
-        "reporting_person": {
-        },
-        "location": {
-        },
+        "reporting_person": {},
+        "location": {},
         "reason": "reason-value",
         "action": "action-value",
         "activity": "activity-value",

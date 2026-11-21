@@ -53,9 +53,7 @@ RSpec.describe Didit::Resources::Questionnaires do
             }
           }
         },
-        "sections": [
-      
-        ],
+        "sections": [],
         "questionnaire_group_id": "11111111-2222-3333-4444-555555555555",
         "version": 1,
         "status": "published",
@@ -234,9 +232,7 @@ RSpec.describe Didit::Resources::Questionnaires do
               "MULTIPLE_CHOICE",
               "FILE_UPLOAD"
             ],
-            "workflow_names": [
-      
-            ],
+            "workflow_names": [],
             "questionnaire_group_id": "11111111-2222-3333-4444-555555555555",
             "version": 1,
             "status": "published",
@@ -311,10 +307,8 @@ RSpec.describe Didit::Resources::Questionnaires do
         },
         "sections": [
           {
-            "title": {
-            },
-            "description": {
-            },
+            "title": {},
+            "description": {},
             "items": [
               {
                 "uuid": "11111111-2222-3333-4444-666666666666",
@@ -364,11 +358,9 @@ RSpec.describe Didit::Resources::Questionnaires do
         "default_language": "default_language-value",
         "is_active": true,
         "is_simple_questionnaire": true,
-        "graph": {
-        },
+        "graph": {},
         "sections": [
-          {
-          }
+          {}
         ],
         "questionnaire_group_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "version": 1,

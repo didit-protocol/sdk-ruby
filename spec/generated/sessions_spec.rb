@@ -974,8 +974,7 @@ RSpec.describe Didit::Resources::Sessions do
             "component": "DocumentCapture",
             "feature_step": "OCR",
             "step": "DOCUMENT_CAPTURE_FRONT",
-            "details": {
-            },
+            "details": {},
             "ip_address": "203.0.113.24",
             "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1",
             "device_info": {
@@ -1205,17 +1204,13 @@ RSpec.describe Didit::Resources::Sessions do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {
-              },
-              "member_status": {
-              },
-              "signal_coverage": {
-              },
+              "member_counts": {},
+              "member_status": {},
+              "signal_coverage": {},
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {
-            },
+            "subject": {},
             "signal_types": [
               "ip_address"
             ],
@@ -1356,8 +1351,7 @@ RSpec.describe Didit::Resources::Sessions do
         "phone_number": null,
         "date_of_birth": "1980-05-04",
         "position": "Director",
-        "custom_fields": {
-        },
+        "custom_fields": {},
         "is_active": true,
         "is_skipped": false,
         "requires_verification": true,
@@ -1486,9 +1480,7 @@ RSpec.describe Didit::Resources::Sessions do
             "marital_status": "Single",
             "nationality": "ESP",
             "extra_fields": {
-              "dl_categories": [
-      
-              ],
+              "dl_categories": [],
               "blood_group": null
             },
             "mrz": {
@@ -1508,12 +1500,8 @@ RSpec.describe Didit::Resources::Sessions do
               "document_number_hash": "4",
               "final_hash": "1",
               "personal_number": "99999999R",
-              "warnings": [
-      
-              ],
-              "errors": [
-      
-              ],
+              "warnings": [],
+              "errors": [],
               "mrz_type": "TD1",
               "mrz_string": "IDESPCAA000000499999999R<<<<<<\n8001014F3106028ESP<<<<<<<<<<<1\nESPANOLA<ESPANOLA<<CARMEN<<<<<",
               "mrz_key": "CAA000000480010143106028"
@@ -1768,14 +1756,10 @@ RSpec.describe Didit::Resources::Sessions do
               ],
               "registry_portrait": "https://<media-host>/registry_portrait.jpg",
               "face_match_score": 96.4,
-              "source_errors": [
-      
-              ]
+              "source_errors": []
             },
             "wallet_verification": null,
-            "warnings": [
-      
-            ]
+            "warnings": []
           },
           {
             "node_id": "feature_ocr_3",
@@ -1808,9 +1792,7 @@ RSpec.describe Didit::Resources::Sessions do
               "portrait": null,
               "face_match_score": null
             },
-            "warnings": [
-      
-            ]
+            "warnings": []
           }
         ],
         "nfc_verifications": [
@@ -1990,9 +1972,7 @@ RSpec.describe Didit::Resources::Sessions do
                 "fee": 0
               }
             ],
-            "warnings": [
-      
-            ],
+            "warnings": [],
             "matches": [
               {
                 "session_id": null,
@@ -2144,8 +2124,7 @@ RSpec.describe Didit::Resources::Sessions do
             "name_match_score_id_verification": 38.5,
             "expected_details_address": null,
             "expected_details_formatted_address": null,
-            "expected_details_parsed_address": {
-            },
+            "expected_details_parsed_address": {},
             "extra_fields": {
               "bank_account_number": "1234567890",
               "bank_iban": null,
@@ -2155,9 +2134,7 @@ RSpec.describe Didit::Resources::Sessions do
               "bank_branch_name": null,
               "bank_branch_address": null,
               "document_phone_number": "+5491112345678",
-              "additional_names": [
-      
-              ]
+              "additional_names": []
             },
             "extra_files": [
               "https://<media-host>/extra_poa.pdf"
@@ -2224,9 +2201,7 @@ RSpec.describe Didit::Resources::Sessions do
                 "parsed_payload": "0099881100042"
               }
             ],
-            "warnings": [
-      
-            ]
+            "warnings": []
           }
         ],
         "document_ai_documents": [
@@ -2303,9 +2278,7 @@ RSpec.describe Didit::Resources::Sessions do
                 "created_at": "2026-06-01T12:34:56Z"
               }
             ],
-            "warnings": [
-      
-            ]
+            "warnings": []
           }
         ],
         "questionnaire_responses": [
@@ -2624,15 +2597,13 @@ RSpec.describe Didit::Resources::Sessions do
                     "score": 0,
                     "weightage": 20,
                     "risk_level": "Low",
-                    "risk_scores": {
-                    }
+                    "risk_scores": {}
                   },
                   "countries": {
                     "score": 0,
                     "weightage": 30,
                     "risk_level": "Low",
-                    "risk_scores": {
-                    }
+                    "risk_scores": {}
                   },
                   "categories": {
                     "score": 100,
@@ -2642,8 +2613,7 @@ RSpec.describe Didit::Resources::Sessions do
                       "PEP": 100
                     }
                   },
-                  "custom_list": {
-                  }
+                  "custom_list": {}
                 },
                 "first_seen": "2025-01-18T00:00:00",
                 "properties": {
@@ -2735,9 +2705,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "matched_name": "Javier Ejemplo Modelo",
                     "pep_position": "",
                     "date_of_birth": "1974",
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "place_of_birth": "Madrid"
                   }
                 ],
@@ -2746,26 +2714,14 @@ RSpec.describe Didit::Resources::Sessions do
                     "name": [
                       "Antonio Ejemplo"
                     ],
-                    "active": [
-      
-                    ],
-                    "status": [
-      
-                    ],
-                    "details": [
-      
-                    ],
-                    "relation": [
-      
-                    ]
+                    "active": [],
+                    "status": [],
+                    "details": [],
+                    "relation": []
                   }
                 ],
-                "warning_matches": [
-      
-                ],
-                "sanction_matches": [
-      
-                ],
+                "warning_matches": [],
+                "sanction_matches": [],
                 "adverse_media_details": {
                   "sentiment": "Moderately Negative",
                   "entity_type": "person",
@@ -2802,9 +2758,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "fraud",
                       "prevaricación",
@@ -2823,9 +2777,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "fraud",
                       "prevaricación",
@@ -2844,9 +2796,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "prevaricación",
                       "tráfico de influencias",
@@ -2868,9 +2818,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "prevaricación",
                       "tráfico de influencias",
@@ -2892,9 +2840,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "fraud",
                       "irregularities",
@@ -2912,9 +2858,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "prevaricación",
                       "tráfico de influencias"
@@ -2930,9 +2874,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "prevaricación",
                       "tráfico de influencias",
@@ -2949,9 +2891,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "prevaricación",
                       "tráfico de influencias",
@@ -2969,9 +2909,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "favoritism",
                       "corruption",
@@ -2988,9 +2926,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "thumbnail": "https://news.example.org/articles/sample",
                     "source_url": "https://news.example.org/articles/sample",
                     "author_name": null,
-                    "other_sources": [
-      
-                    ],
+                    "other_sources": [],
                     "adverse_keywords": [
                       "favoritism",
                       "corruption",
@@ -3000,8 +2936,7 @@ RSpec.describe Didit::Resources::Sessions do
                     "publication_date": "2025-06-06T08:08:15"
                   }
                 ],
-                "additional_information": {
-                }
+                "additional_information": {}
               }
             ],
             "score": 80,
@@ -3075,9 +3010,7 @@ RSpec.describe Didit::Resources::Sessions do
               "distance_from_ip": 12.3,
               "distance_from_id_document": 18.7
             },
-            "warnings": [
-      
-            ],
+            "warnings": [],
             "matches": [
               {
                 "session_id": "99999999-8888-7777-6666-555555555555",
@@ -3184,9 +3117,7 @@ RSpec.describe Didit::Resources::Sessions do
             ],
             "match_type": "full_match",
             "status": "Approved",
-            "warnings": [
-      
-            ]
+            "warnings": []
           }
         ],
         "reviews": [
@@ -3222,9 +3153,7 @@ RSpec.describe Didit::Resources::Sessions do
           "detected_city": "Barcelona",
           "declared_state": null,
           "document_state": null,
-          "jurisdictions": [
-      
-          ],
+          "jurisdictions": [],
           "retention_months": null,
           "reason": null,
           "decline_reason": null,
@@ -3369,9 +3298,7 @@ RSpec.describe Didit::Resources::Sessions do
         "advanced": true,
         "already_submitted": false,
         "kyb_key_people_status": "In Progress",
-        "parties": [
-      
-        ]
+        "parties": []
       }
     JSON
     result = client.sessions.submit_kyb_parties(
@@ -3684,12 +3611,8 @@ RSpec.describe Didit::Resources::Sessions do
         "legal_entity_identifier": null,
         "location_of_registration": null,
         "financial_summary": null,
-        "officers": [
-      
-        ],
-        "beneficial_owners": [
-      
-        ],
+        "officers": [],
+        "beneficial_owners": [],
         "addresses": null,
         "industries": null,
         "accounts": null,
@@ -4030,8 +3953,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4039,8 +3961,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -4484,8 +4405,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4493,8 +4413,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -4616,8 +4535,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4625,8 +4543,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -4706,8 +4623,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4715,8 +4631,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -4850,8 +4765,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4859,8 +4773,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -4957,8 +4870,7 @@ RSpec.describe Didit::Resources::Sessions do
         "state": "ready",
         "source": "file",
         "provider": "provider-value",
-        "provider_options": {
-        },
+        "provider_options": {},
         "credential_hint": "credential_hint-value",
         "credentials_expires_at": "2026-01-02T03:04:05Z",
         "resumes_at": "2026-01-02T03:04:05Z",
@@ -4966,8 +4878,7 @@ RSpec.describe Didit::Resources::Sessions do
           "key": "value"
         },
         "is_dry_run": true,
-        "dry_run_summary": {
-        },
+        "dry_run_summary": {},
         "face_templates_enabled": true,
         "lawful_basis_confirmed_at": "2026-01-02T03:04:05Z",
         "not_finished_count": 1,
@@ -5105,9 +5016,7 @@ RSpec.describe Didit::Resources::Sessions do
             "new_status": "Approved",
             "previous_status": "In Review",
             "comment": "Document re-checked manually; address matches.",
-            "mentioned_emails": [
-      
-            ],
+            "mentioned_emails": [],
             "previous_value": {
               "status": "In Review"
             },
@@ -5129,14 +5038,10 @@ RSpec.describe Didit::Resources::Sessions do
             "new_status": null,
             "previous_status": null,
             "comment": "Note without status.",
-            "mentioned_emails": [
-      
-            ],
+            "mentioned_emails": [],
             "previous_value": null,
             "new_value": null,
-            "changed_fields": [
-      
-            ],
+            "changed_fields": [],
             "metadata": null,
             "created_at": "2026-06-12T00:18:44.504157Z"
           },
@@ -5149,14 +5054,10 @@ RSpec.describe Didit::Resources::Sessions do
             "new_status": "In Review",
             "previous_status": null,
             "comment": "Flagging for manual document re-check.",
-            "mentioned_emails": [
-      
-            ],
+            "mentioned_emails": [],
             "previous_value": null,
             "new_value": null,
-            "changed_fields": [
-      
-            ],
+            "changed_fields": [],
             "metadata": null,
             "created_at": "2026-06-12T00:18:44.466537Z"
           }

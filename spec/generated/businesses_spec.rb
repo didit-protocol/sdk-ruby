@@ -54,20 +54,14 @@ RSpec.describe Didit::Resources::Businesses do
         "approved_count": 0,
         "declined_count": 0,
         "in_review_count": 0,
-        "features": {
-        },
-        "features_list": [
-      
-        ],
+        "features": {},
+        "features_list": [],
         "last_session_at": null,
         "last_activity_at": "2026-03-15T10:30:00Z",
         "first_session_at": null,
-        "tags": [
-      
-        ],
+        "tags": [],
         "created_at": "2026-03-15T10:30:00Z",
-        "metadata": {
-        },
+        "metadata": {},
         "updated_at": "2026-03-15T10:30:00Z"
       }
     JSON
@@ -194,17 +188,13 @@ RSpec.describe Didit::Resources::Businesses do
               "signal_types": [
                 "example"
               ],
-              "member_counts": {
-              },
-              "member_status": {
-              },
-              "signal_coverage": {
-              },
+              "member_counts": {},
+              "member_status": {},
+              "signal_coverage": {},
               "first_activity_at": "2026-01-02T03:04:05Z",
               "last_activity_at": "2026-01-02T03:04:05Z"
             },
-            "subject": {
-            },
+            "subject": {},
             "signal_types": [
               "ip_address"
             ],
