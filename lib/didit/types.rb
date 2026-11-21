@@ -829,6 +829,7 @@ module Didit
     autoload :MessageStatus, "didit/types/components"
     autoload :MessagesListParamsChannel, "didit/types/messages"
     autoload :MessagesListParamsStatus, "didit/types/messages"
+    autoload :MessagesSendParamsChannels, "didit/types/messages"
     autoload :MessagesSettings, "didit/types/components"
     autoload :MonitoringEvent, "didit/types/components"
     autoload :MonitoringEventCreateRequestEventCategory, "didit/types/components"

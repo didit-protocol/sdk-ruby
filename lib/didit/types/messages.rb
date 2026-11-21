@@ -25,5 +25,14 @@ module Didit
 
       VALUES = [SCHEDULED, QUEUED, SENDING, SENT, DELIVERED, READ, FAILED, CANCELLED].freeze
     end
+
+    # Known values of an open enum: the API may send others.
+    module MessagesSendParamsChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
   end
 end

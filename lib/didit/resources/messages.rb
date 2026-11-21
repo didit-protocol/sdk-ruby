@@ -203,15 +203,63 @@ module Didit
       #
       # +POST /v3/messages/+
       #
-      # @param body [Object]
+      # @param to [String] Recipient: an E.164 phone number (`+447700900123`), or an email address for email.
+      # @param to_email [String] The email address for the `email` channel when `to` is a phone number.
+      # @param channels [Array<String>] Channels to try, in order. The next one is used when a channel cannot take the
+      #   message (switched off, opted out, no approved WhatsApp template...) or the message fails on it. Default
+      #   `["sms"]` for a phone number, `["email"]` for an email address.
+      # @param body [String] Free text, sent as written, for SMS and email. On WhatsApp free text goes out only inside
+      #   a 24-hour reply window (the person wrote to you first); outside it WhatsApp delivers only an approved
+      #   template, so use `template_id`, or a free-text WhatsApp attempt falls back to the next channel. Limits: SMS
+      #   1,000, WhatsApp 4,096, email 10,000 characters.
+      # @param template_id [String] One of your message templates; each channel uses the template's text for that
+      #   channel.
+      # @param variables [Hash{String => String}] Values for the template's `{{variables}}`. Every variable of the
+      #   text used needs one.
+      # @param locale [String] BCP-47 language of the template text. Default: the recipient country's language, then
+      #   English.
+      # @param subject [String] Subject of a free-text email.
+      # @param schedule_at [Time, String] When to send it, up to 90 days ahead. Default: now.
+      # @param expires_at [Time, String] Validity: never sent after it. After the send time, at most 72 hours after
+      #   it.
+      # @param correlation_id [String] Your reference, returned in every response and webhook, filterable in the list.
+      # @param options [Hash]
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::Message]
-      def send_message(body:, idempotency_key: OMIT, request_options: nil)
+      def send_message(
+        to:,
+        to_email: OMIT,
+        channels: OMIT,
+        body: OMIT,
+        template_id: OMIT,
+        variables: OMIT,
+        locale: OMIT,
+        subject: OMIT,
+        schedule_at: OMIT,
+        expires_at: OMIT,
+        correlation_id: OMIT,
+        options: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
         @client.request(
           :post,
           "/v3/messages/",
-          body: body,
+          body: {
+            "to" => to,
+            "to_email" => to_email,
+            "channels" => channels,
+            "body" => body,
+            "template_id" => template_id,
+            "variables" => variables,
+            "locale" => locale,
+            "subject" => subject,
+            "schedule_at" => schedule_at,
+            "expires_at" => expires_at,
+            "correlation_id" => correlation_id,
+            "options" => options
+          },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::Message,
           request_options: request_options

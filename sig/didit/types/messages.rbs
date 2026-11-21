@@ -23,6 +23,18 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessagesSendParamsChannels
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    type messages_send_params = { to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options }
+
+    type messages_send_params_options = { ?append_opt_out_line: bool }
+
     type messages_update_settings_params = { retention_days: Integer }
   end
 end

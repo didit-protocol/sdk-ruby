@@ -382,14 +382,12 @@ RSpec.describe Didit::Resources::Messages do
       }
     JSON
     result = client.messages.send_message(
-      body: {
-        to: "+447700900123",
-        channels: [
-          "sms"
-        ],
-        body: "Your order 1042 ships today.",
-        correlation_id: "order-1042"
-      },
+      to: "+447700900123",
+      channels: [
+        "sms"
+      ],
+      body: "Your order 1042 ships today.",
+      correlation_id: "order-1042",
       idempotency_key: "idem-key-1"
     )
     request = expect_api_request(

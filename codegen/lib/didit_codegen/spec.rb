@@ -182,11 +182,11 @@ module DiditCodegen
     # operations removed upstream and the old names of renamed ones. Each entry holds
     # its own dereferenced copy of the operation.
     def deprecated_operations(deprecated)
-      live = server_operations.to_h { |op| ["#{op.sdk.resource}.#{op.sdk.method}", op.key] }
+      live = server_operations.to_h { |op| [Naming.qualified_method(op.sdk.resource, op.sdk.method), op.key] }
       deprecated.sort.map do |name, entry|
         where = "openapi/deprecated-operations.json #{name}"
         sdk = SdkNaming.parse(where, entry["x-didit-sdk"])
-        if "#{sdk.resource}.#{sdk.method}" != name
+        if Naming.qualified_method(sdk.resource, sdk.method) != name
           raise Error,
                 "#{where}: the entry name must equal its resource.method."
         end
