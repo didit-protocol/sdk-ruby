@@ -367,12 +367,12 @@ module DiditCodegen
       properties = schema["properties"]
       return unless properties && !members.empty?
 
-      alternatives = members.map do |member|
-        branch = document.resolve(member)
-        return unless branch.keys == ["required"] && branch["required"].all? { |name| properties.key?(name) }
+      branches = members.map { |member| document.resolve(member) }
+      return unless branches.all? { |branch| branch.keys == ["required"] }
 
-        branch["required"]
-      end
+      alternatives = branches.map { |branch| branch.fetch("required") }
+      return unless alternatives.all? { |names| (names - properties.keys).empty? }
+
       Array(schema["required"]) | alternatives.reduce(:&)
     end
 
