@@ -287,14 +287,14 @@ RSpec.describe DiditCodegen::Generator do
     it "keeps the shared fields as keywords when oneOf only narrows which are required" do
       paths["/v3/messages/"] = {
         "post" => operation("Send", naming("messages", "send"), "requestBody" => { "content" => {
-          "application/json" => { "schema" => {
-            "type" => "object", "required" => ["to"],
-            "description" => "Send exactly one of `body` or `template_id`.",
-            "oneOf" => [{ "required" => ["body"] }, { "required" => ["template_id"] }],
-            "properties" => { "to" => { "type" => "string" }, "body" => { "type" => "string" },
-                              "template_id" => { "type" => "string" } }
-          } }
-        } }, "responses" => { "201" => { "description" => "ok" } })
+                              "application/json" => { "schema" => {
+                                "type" => "object", "required" => ["to"],
+                                "description" => "Send exactly one of `body` or `template_id`.",
+                                "oneOf" => [{ "required" => ["body"] }, { "required" => ["template_id"] }],
+                                "properties" => { "to" => { "type" => "string" }, "body" => { "type" => "string" },
+                                                  "template_id" => { "type" => "string" } }
+                              } }
+                            } }, "responses" => { "201" => { "description" => "ok" } })
       }
       files = build(dir).files
       expect(files.fetch("lib/didit/resources/messages.rb"))
