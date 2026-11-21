@@ -157,6 +157,13 @@ RSpec.describe DiditCodegen::Generator do
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /both map to messages.send_message/)
     end
 
+    it "uses the singular of businesses and nested wallet addresses for reserved methods" do
+      paths["/businesses/"] = { "post" => operation("Send", naming("businesses", "send")) }
+      paths["/wallets/"] = { "post" => operation("Send", naming("travel_rule.wallet_addresses", "send")) }
+      names = build(dir).methods.map { |m| "#{m.resource}.#{m.name}" }
+      expect(names).to include("businesses.send_business", "travel_rule.wallet_addresses.send_wallet_address")
+    end
+
     it "refuses reserved names the object rule does not cover" do
       paths["/v3/model/"] = { "get" => operation("x", naming("things", "to_h")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /built-in Ruby method/)
