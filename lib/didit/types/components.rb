@@ -2821,6 +2821,23 @@ module Didit
     end
 
     # Known values of an open enum: the API may send others.
+    module PublicPriceBookCurrency
+      USD = "USD"
+
+      VALUES = [USD].freeze
+    end
+
+    # The plan.
+    module PublicPriceBookPlanKey
+      FREE = "free"
+      GROWTH = "growth"
+      SCALE = "scale"
+      ENTERPRISE = "enterprise"
+
+      VALUES = [FREE, GROWTH, SCALE, ENTERPRISE].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
     module QuestionnaireDetailStatus
       DRAFT = "draft"
       PUBLISHED = "published"
@@ -10433,6 +10450,38 @@ module Didit
       field :reason, "reason", :string
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
+    end
+
+    class PublicPriceBook < Didit::Model
+      field :currency, "currency", :string
+      field :plans, "plans", [:array, "PublicPriceBookPlan"]
+      field :white_label_usd, "white_label_usd", :string
+      field :messages_fee_usd, "messages_fee_usd", :string
+      field :message_fee_usd_by_channel, "message_fee_usd_by_channel", "PublicPriceBookMessageFees"
+      field :lines, "lines", [:array, "PublicPriceBookLine"]
+    end
+
+    class PublicPriceBookLine < Didit::Model
+      field :key, "key", :string
+      field :product, "product", :string
+      field :feature, "feature", :string
+      field :unit, "unit", :string
+      field :list_price_usd, "list_price_usd", :string
+    end
+
+    # Didit's fee on each carrier-priced Messages channel, excluding the carrier's or WhatsApp's price, which is
+    # passed on at cost. Null where the fee is not published.
+    class PublicPriceBookMessageFees < Didit::Model
+      field :sms, "sms", :string
+      field :whatsapp, "whatsapp", :string
+    end
+
+    class PublicPriceBookPlan < Didit::Model
+      field :key, "key", :string
+      field :price_usd_month, "price_usd_month", :string
+      field :price_usd_year, "price_usd_year", :string
+      field :discount_percent, "discount_percent", :integer
+      field :transactions_included_per_month, "transactions_included_per_month", :integer
     end
 
     # Full questionnaire detail returned from GET, POST (create) and PATCH (update) endpoints.

@@ -67,4 +67,70 @@ RSpec.describe Didit::Resources::Pricing do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
+
+  it "pricing.price_book sends GET /v3/organization/price-book/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "currency": "USD",
+        "plans": [
+          {
+            "key": "free",
+            "price_usd_month": "0.00",
+            "price_usd_year": null,
+            "discount_percent": 0,
+            "transactions_included_per_month": 1000
+          },
+          {
+            "key": "growth",
+            "price_usd_month": "99.00",
+            "price_usd_year": "1128.00",
+            "discount_percent": 4,
+            "transactions_included_per_month": 10000
+          },
+          {
+            "key": "scale",
+            "price_usd_month": "299.00",
+            "price_usd_year": "3408.00",
+            "discount_percent": 10,
+            "transactions_included_per_month": 100000
+          },
+          {
+            "key": "enterprise",
+            "price_usd_month": null,
+            "price_usd_year": null,
+            "discount_percent": null,
+            "transactions_included_per_month": null
+          }
+        ],
+        "white_label_usd": "0.10",
+        "messages_fee_usd": "0.02",
+        "message_fee_usd_by_channel": {
+          "sms": "0.02",
+          "whatsapp": "0.004"
+        },
+        "lines": [
+          {
+            "key": "message_email",
+            "product": "identity",
+            "feature": "email",
+            "unit": "message",
+            "list_price_usd": "0.02"
+          }
+        ]
+      }
+    JSON
+    result = client.pricing.price_book
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/price-book/",
+      query: [],
+      auth: :none,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PublicPriceBook)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
 end
