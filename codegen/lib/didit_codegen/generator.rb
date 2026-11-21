@@ -135,11 +135,28 @@ module DiditCodegen
         raise Error, "The top-level resource #{segment.inspect} would replace Didit::Client##{segment}; rename it " \
                      "in openapi/overlay.json."
       end
+      check_unique_names
+      resources = @methods.map(&:resource).uniq
+      @methods.each do |meth|
+        child = "#{meth.resource}.#{meth.name}"
+        next unless resources.any? { |resource| resource == child || resource.start_with?("#{child}.") }
+
+        raise Error, "#{meth.op.key}: method #{meth.name.inspect} clashes with the nested resource #{child.inspect}."
+      end
       @methods.each do |meth|
         next unless RESOURCE_RESERVED.include?(meth.name)
 
         raise Error, "#{meth.op.key}: the method name #{meth.name.inspect} would replace a built-in Ruby method; " \
                      "rename it in openapi/overlay.json."
+      end
+    end
+
+    def check_unique_names
+      @methods.group_by { |meth| "#{meth.resource}.#{meth.name}" }.each do |name, methods|
+        next if methods.one?
+
+        raise Error, "#{methods[1].op.key} and #{methods[0].op.key} both map to #{name}; give one of them another " \
+                     "method name in openapi/overlay.json."
       end
     end
 

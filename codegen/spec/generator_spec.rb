@@ -149,6 +149,14 @@ RSpec.describe DiditCodegen::Generator do
       expect(generator.files.fetch("lib/didit/resources/messages.rb")).to include("def send_message(")
     end
 
+    it "fails when the object rule would collide with another method" do
+      paths["/v3/messages/"] = {
+        "get" => operation("List", naming("messages", "send_message")),
+        "post" => operation("Send", naming("messages", "send"))
+      }
+      expect { build(dir) }.to raise_error(DiditCodegen::Error, /both map to messages.send_message/)
+    end
+
     it "refuses reserved names the object rule does not cover" do
       paths["/v3/model/"] = { "get" => operation("x", naming("things", "to_h")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /built-in Ruby method/)
