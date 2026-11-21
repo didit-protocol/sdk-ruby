@@ -1,0 +1,44 @@
+- main [ref=f2e2]:
+  - heading "Operations" [level=2] [ref=f2e3]
+  - heading "Added (8)" [level=3] [ref=f2e4]
+  - list [ref=f2e5]:
+    - listitem [ref=f2e6]:
+      - paragraph [ref=f2e7]:
+        - code [ref=f2e8]: "DELETE /v3/messages/{message_id}/"
+        - text: ":"
+        - code [ref=f2e9]: messages.delete
+    - listitem [ref=f2e10]:
+      - paragraph [ref=f2e11]:
+        - code [ref=f2e12]: GET /v3/messages/
+        - text: ":"
+        - code [ref=f2e13]: messages.list
+    - listitem [ref=f2e14]:
+      - paragraph [ref=f2e15]:
+        - code [ref=f2e16]: GET /v3/messages/prices/
+        - text: ":"
+        - code [ref=f2e17]: messages.list_prices
+    - listitem [ref=f2e18]:
+      - paragraph [ref=f2e19]:
+        - code [ref=f2e20]: GET /v3/messages/settings/
+        - text: ":"
+        - code [ref=f2e21]: messages.retrieve_settings
+    - listitem [ref=f2e22]:
+      - paragraph [ref=f2e23]:
+        - code [ref=f2e24]: "GET /v3/messages/{message_id}/"
+        - text: ":"
+        - code [ref=f2e25]: messages.retrieve
+    - listitem [ref=f2e26]:
+      - paragraph [ref=f2e27]:
+        - code [ref=f2e28]: PATCH /v3/messages/settings/
+        - text: ":"
+        - code [ref=f2e29]: messages.update_settings
+    - listitem [ref=f2e30]:
+      - paragraph [ref=f2e31]:
+        - code [ref=f2e32]: POST /v3/messages/
+        - text: ":"
+        - code [ref=f2e33]: messages.send
+    - listitem [ref=f2e34]:
+      - paragraph [ref=f2e35]:
+        - code [ref=f2e36]: "POST /v3/messages/{message_id}/cancel/"
+        - text: ":"
+        - code [ref=f2e37]: messages.cancel
