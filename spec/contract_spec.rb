@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require "json"
+require_relative "../codegen/lib/didit_codegen/naming"
 
-# What openapi/ promises, read directly from the documents (not through the generator).
+# What openapi/ promises, read directly from the documents (not through the generator), with the generator's
+# Ruby-only method renaming applied.
 module Contract
   ROOT = File.expand_path("..", __dir__)
   HTTP_METHODS = %w[get put post delete patch head options].freeze
@@ -56,7 +58,8 @@ module Contract
   end
 
   def entry(naming, path, params)
-    { name: "#{naming["resource"]}.#{naming["method"]}", naming: naming, path: path, params: params }
+    method = DiditCodegen::Naming.operation_method(naming["resource"], naming["method"])
+    { name: "#{naming["resource"]}.#{method}", naming: naming, path: path, params: params }
   end
 
   def server
