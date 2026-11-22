@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Bank data errors" do
+RSpec.describe Didit::Resources::Bank do
   include ApiHelpers
 
   let(:client) { generated_test_client }
