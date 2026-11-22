@@ -1,0 +1,34 @@
+module Didit
+  class Page[unchecked out Item]
+    include Enumerable[Item]
+
+    @client: Didit::Client
+    @prepared: Didit::Internal::Request::Prepared
+    @item: Didit::type_spec
+    @data: Hash[String, untyped]
+    @seen: Array[untyped]
+
+    attr_reader results: Array[Item]
+
+    def initialize: (client: Didit::Client, prepared: Didit::Internal::Request::Prepared, item: Didit::type_spec,
+                     data: untyped, ?seen: Array[untyped]?) -> void
+    def total_count: () -> Integer?
+    def next_url: () -> String?
+    def previous_url: () -> String?
+    def each: () { (Item item) -> void } -> self
+            | () -> Enumerator[Item, self]
+    def next_page?: () -> bool
+    def next_page: () -> Page[Item]?
+    def auto_paging_each: () { (Item item) -> void } -> nil
+                        | () -> Enumerator[Item, nil]
+    def []: (String | Symbol key) -> untyped
+    def to_h: () -> Hash[Symbol, untyped]
+    def inspect: () -> String
+    def self.normalize: (URI::Generic uri) -> Array[untyped]
+
+    private
+
+    def link: (untyped value) -> String?
+    def resolve: (String url) -> URI::Generic
+  end
+end
