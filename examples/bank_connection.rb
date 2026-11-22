@@ -22,7 +22,15 @@ link = didit.bank.create_link(
 )
 puts "Bank Link #{link.id}: open #{link.url}"
 
-# Wait for the person. The bank.connection.created webhook is the production path.
+# In production, the person finishing sends `bank.connection.created` to your webhook endpoint:
+#   event = Didit::Webhooks.verify(request.raw_post, request.headers, ENV.fetch("DIDIT_WEBHOOK_SECRET"))
+#   case event
+#   in Didit::Webhooks::BankConnectionCreatedEvent(connection_id:) then connection_id
+#   in Didit::Webhooks::BankLinkFailedEvent(error_code:) then error_code
+#   else nil
+#   end
+#
+# This script waits instead, so it runs without a webhook receiver.
 loop do
   link = didit.bank.get_link(link.id)
   break if FINAL_LINK_STATUSES.include?(link.status)
