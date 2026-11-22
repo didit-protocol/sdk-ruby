@@ -334,6 +334,536 @@ module Didit
       VALUES = [MATCH, CLOSE_MATCH, NO_MATCH, CANNOT_VERIFY].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module BankAccountHolderRole
+      HOLDER = "holder"
+      JOINT_HOLDER = "joint_holder"
+      REPRESENTATIVE = "representative"
+      UNKNOWN = "unknown"
+
+      VALUES = [HOLDER, JOINT_HOLDER, REPRESENTATIVE, UNKNOWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankAccountScopesGranted
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # `access_removed`: the person removed the account from the consent. It is no longer synced.
+    module BankAccountStatus
+      OPEN = "open"
+      CLOSED = "closed"
+      ACCESS_REMOVED = "access_removed"
+
+      VALUES = [OPEN, CLOSED, ACCESS_REMOVED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankAccountSyncStatus
+      PENDING = "pending"
+      OK = "ok"
+      FAILED = "failed"
+
+      VALUES = [PENDING, OK, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankAccountType
+      CURRENT = "current"
+      SAVINGS = "savings"
+      CARD = "card"
+      LOAN = "loan"
+      INVESTMENT = "investment"
+      OTHER = "other"
+
+      VALUES = [CURRENT, SAVINGS, CARD, LOAN, INVESTMENT, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankAccountUsage
+      PERSONAL = "personal"
+      BUSINESS = "business"
+      UNKNOWN = "unknown"
+
+      VALUES = [PERSONAL, BUSINESS, UNKNOWN].freeze
+    end
+
+    # `booked`, `available` or `expected`. `other` is a balance the bank types in a way Didit does not map: it is
+    # served, never dropped, and `iso_type` carries the bank's raw code.
+    module BankBalanceType
+      BOOKED = "booked"
+      AVAILABLE = "available"
+      EXPECTED = "expected"
+      OTHER = "other"
+
+      VALUES = [BOOKED, AVAILABLE, EXPECTED, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionAccess
+      ONE_TIME = "one_time"
+      ONGOING = "ongoing"
+
+      VALUES = [ONE_TIME, ONGOING].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionAccountSummaryStatus
+      OPEN = "open"
+      CLOSED = "closed"
+      ACCESS_REMOVED = "access_removed"
+
+      VALUES = [OPEN, CLOSED, ACCESS_REMOVED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionAccountSummaryType
+      CURRENT = "current"
+      SAVINGS = "savings"
+      CARD = "card"
+      LOAN = "loan"
+      INVESTMENT = "investment"
+      OTHER = "other"
+
+      VALUES = [CURRENT, SAVINGS, CARD, LOAN, INVESTMENT, OTHER].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionAccountSummaryUsage
+      PERSONAL = "personal"
+      BUSINESS = "business"
+      UNKNOWN = "unknown"
+
+      VALUES = [PERSONAL, BUSINESS, UNKNOWN].freeze
+    end
+
+    # Billing unit, `connection_month` for ongoing access, `one_time` otherwise.
+    module BankConnectionBillingUnit
+      CONNECTION_MONTH = "connection_month"
+      ONE_TIME = "one_time"
+
+      VALUES = [CONNECTION_MONTH, ONE_TIME].freeze
+    end
+
+    # Who ended access, set from evidence. `unknown` when neither the bank nor the sync says.
+    module BankConnectionConsentEndedBy
+      END_USER = "end_user"
+      BANK = "bank"
+      CUSTOMER = "customer"
+      UNKNOWN = "unknown"
+
+      VALUES = [END_USER, BANK, CUSTOMER, UNKNOWN].freeze
+    end
+
+    # How a renewal works: `reconfirm` is the person confirming on Didit's screen with no bank sign-in, where the bank
+    # and the country's rules allow it. `bank_auth` is a bank sign-in.
+    module BankConnectionConsentRenewalAction
+      RECONFIRM = "reconfirm"
+      BANK_AUTH = "bank_auth"
+
+      VALUES = [RECONFIRM, BANK_AUTH].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionConsentScopesGranted
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionConsentScopesRequested
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # `revocation_pending` until the bank confirms the consent is terminated, then `revoked`. `revocation_failed` is
+    # retried automatically. Bank fetches stop the moment a revocation is requested.
+    module BankConnectionConsentStatus
+      GRANTED = "granted"
+      EXPIRED = "expired"
+      REVOCATION_PENDING = "revocation_pending"
+      REVOKED = "revoked"
+      REVOCATION_FAILED = "revocation_failed"
+
+      VALUES = [GRANTED, EXPIRED, REVOCATION_PENDING, REVOKED, REVOCATION_FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionData
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionEnvironment
+      LIVE = "live"
+      SANDBOX = "sandbox"
+
+      VALUES = [LIVE, SANDBOX].freeze
+    end
+
+    # `pending` while deletion runs, `erased` when no stored copy and no access at the bank remain, `failed` when it
+    # could not be confirmed within 24 hours. A failed deletion keeps the connection's data closed, is retried, and
+    # Didit is alerted.
+    module BankConnectionErasureStatus
+      PENDING = "pending"
+      ERASED = "erased"
+      FAILED = "failed"
+
+      VALUES = [PENDING, ERASED, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionOwnershipCompare
+      NONE = "none"
+      PERSON = "person"
+      BUSINESS = "business"
+
+      VALUES = [NONE, PERSON, BUSINESS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionOwnershipMatch
+      ANY_HOLDER = "any_holder"
+      ALL_HOLDERS = "all_holders"
+
+      VALUES = [ANY_HOLDER, ALL_HOLDERS].freeze
+    end
+
+    # Verdict. `unknown` whenever missing holder evidence could change it, and when the bank shares no holder.
+    module BankConnectionOwnershipResult
+      MATCH = "match"
+      CLOSE_MATCH = "close_match"
+      NO_MATCH = "no_match"
+      UNKNOWN = "unknown"
+
+      VALUES = [MATCH, CLOSE_MATCH, NO_MATCH, UNKNOWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankConnectionSegment
+      PERSONAL = "personal"
+      BUSINESS = "business"
+
+      VALUES = [PERSONAL, BUSINESS].freeze
+    end
+
+    # `pending`: first sync running. `active`: consent valid. `renewal_required`: the consent ended or the bank wants
+    # the person to sign in again, data readable as last synced and nothing charged. `paused`: balance too low for the
+    # month. `revoked`: access stopped by the person, the bank or you. `deleted`: only `id`, `status`,
+    # `status_reason`, `created_at` and `erasure` remain. `failed`: the first sync never succeeded.
+    module BankConnectionStatus
+      PENDING = "pending"
+      ACTIVE = "active"
+      RENEWAL_REQUIRED = "renewal_required"
+      PAUSED = "paused"
+      REVOKED = "revoked"
+      DELETED = "deleted"
+      FAILED = "failed"
+
+      VALUES = [PENDING, ACTIVE, RENEWAL_REQUIRED, PAUSED, REVOKED, DELETED, FAILED].freeze
+    end
+
+    # Why the connection is in this status. `paused_by_customer` is reserved. On a `deleted` connection:
+    # `deleted_by_customer`, `consent_lapsed`, `retention_elapsed`, `application_deleted` or
+    # `restored_after_deletion`.
+    module BankConnectionStatusReason
+      COLLECTION_COMPLETE = "collection_complete"
+      CONSENT_EXPIRED = "consent_expired"
+      CONSENT_LAPSED = "consent_lapsed"
+      BANK_REQUIRES_SIGN_IN = "bank_requires_sign_in"
+      REVOKED_BY_END_USER = "revoked_by_end_user"
+      REVOKED_BY_BANK = "revoked_by_bank"
+      REVOKED_BY_CUSTOMER = "revoked_by_customer"
+      INSUFFICIENT_BALANCE = "insufficient_balance"
+      PAUSED_BY_CUSTOMER = "paused_by_customer"
+      FIRST_SYNC_FAILED = "first_sync_failed"
+      DELETED_BY_CUSTOMER = "deleted_by_customer"
+      RETENTION_ELAPSED = "retention_elapsed"
+      APPLICATION_DELETED = "application_deleted"
+      RESTORED_AFTER_DELETION = "restored_after_deletion"
+
+      VALUES = [COLLECTION_COMPLETE, CONSENT_EXPIRED, CONSENT_LAPSED, BANK_REQUIRES_SIGN_IN, REVOKED_BY_END_USER, REVOKED_BY_BANK, REVOKED_BY_CUSTOMER, INSUFFICIENT_BALANCE, PAUSED_BY_CUSTOMER, FIRST_SYNC_FAILED, DELETED_BY_CUSTOMER, RETENTION_ELAPSED, APPLICATION_DELETED, RESTORED_AFTER_DELETION].freeze
+    end
+
+    # Result of the first sync. The connection becomes `active` on `succeeded` or `partial`, and `failed` when no
+    # account succeeded.
+    module BankConnectionSyncInitialStatus
+      PENDING = "pending"
+      SUCCEEDED = "succeeded"
+      PARTIAL = "partial"
+      FAILED = "failed"
+
+      VALUES = [PENDING, SUCCEEDED, PARTIAL, FAILED].freeze
+    end
+
+    # `failing` after 24 hours of failed attempts, which are retried with backoff. A bank that asks the person to sign
+    # in again makes the connection `renewal_required` instead.
+    module BankConnectionSyncStatus
+      PENDING = "pending"
+      OK = "ok"
+      FAILING = "failing"
+
+      VALUES = [PENDING, OK, FAILING].freeze
+    end
+
+    # `partial`: the bank delivered less than asked. `empty`: the bank confirmed the whole window and it has no
+    # transactions. `unavailable`: the bank gave no history. `unknown`: not known yet.
+    module BankHistoryCoverageStatus
+      COMPLETE = "complete"
+      PARTIAL = "partial"
+      EMPTY = "empty"
+      UNAVAILABLE = "unavailable"
+      UNKNOWN = "unknown"
+
+      VALUES = [COMPLETE, PARTIAL, EMPTY, UNAVAILABLE, UNKNOWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankInstitutionAccess
+      ONE_TIME = "one_time"
+      ONGOING = "ongoing"
+
+      VALUES = [ONE_TIME, ONGOING].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankInstitutionBalanceTypes
+      BOOKED = "booked"
+      AVAILABLE = "available"
+      EXPECTED = "expected"
+
+      VALUES = [BOOKED, AVAILABLE, EXPECTED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankInstitutionHealth
+      OPERATIONAL = "operational"
+      DEGRADED = "degraded"
+      DOWN = "down"
+
+      VALUES = [OPERATIONAL, DEGRADED, DOWN].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankInstitutionSegments
+      PERSONAL = "personal"
+      BUSINESS = "business"
+
+      VALUES = [PERSONAL, BUSINESS].freeze
+    end
+
+    # How the person signs in at the bank.
+    module BankInstitutionSignIn
+      REDIRECT = "redirect"
+      APP_APPROVAL = "app_approval"
+      CREDENTIALS = "credentials"
+
+      VALUES = [REDIRECT, APP_APPROVAL, CREDENTIALS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankLinkAccess
+      ONE_TIME = "one_time"
+      ONGOING = "ongoing"
+
+      VALUES = [ONE_TIME, ONGOING].freeze
+    end
+
+    # Why the link failed. A failed link is not an HTTP error: the link reads with `status: failed` and this object. A
+    # renew link whose connection changed meanwhile reads `renewal_not_needed` or `renewal_window_expired`.
+    module BankLinkErrorCode
+      DUPLICATE_CONFLICT = "duplicate_conflict"
+      RENEWAL_LOGIN_MISMATCH = "renewal_login_mismatch"
+      REDUCED_GRANT = "reduced_grant"
+      CORPORATE_APPROVAL_NOT_SUPPORTED = "corporate_approval_not_supported"
+      ONGOING_ACCESS_NOT_AVAILABLE = "ongoing_access_not_available"
+      BANK_UNAVAILABLE = "bank_unavailable"
+      BANK_CANCELLED = "bank_cancelled"
+      CONSENT_DECLINED = "consent_declined"
+      READ_LIMIT = "read_limit"
+      RENEWAL_NOT_NEEDED = "renewal_not_needed"
+      RENEWAL_WINDOW_EXPIRED = "renewal_window_expired"
+      FIRST_SYNC_FAILED = "first_sync_failed"
+
+      VALUES = [DUPLICATE_CONFLICT, RENEWAL_LOGIN_MISMATCH, REDUCED_GRANT, CORPORATE_APPROVAL_NOT_SUPPORTED, ONGOING_ACCESS_NOT_AVAILABLE, BANK_UNAVAILABLE, BANK_CANCELLED, CONSENT_DECLINED, READ_LIMIT, RENEWAL_NOT_NEEDED, RENEWAL_WINDOW_EXPIRED, FIRST_SYNC_FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankLinkMode
+      CONNECT = "connect"
+      RENEW = "renew"
+
+      VALUES = [CONNECT, RENEW].freeze
+    end
+
+    # What the holder of the account is compared with. `none` (default) gives no verdict and needs no reference.
+    # `person` needs `reference_identity` or `session_id`. `business` needs `business` or `business_session_id`. Send
+    # exactly one reference of the kind you compare with, and none with `none`.
+    module BankLinkOwnershipRequestCompare
+      NONE = "none"
+      PERSON = "person"
+      BUSINESS = "business"
+
+      VALUES = [NONE, PERSON, BUSINESS].freeze
+    end
+
+    # Whether one legal holder or every legal holder must match. Representatives never count.
+    module BankLinkOwnershipRequestMatch
+      ANY_HOLDER = "any_holder"
+      ALL_HOLDERS = "all_holders"
+
+      VALUES = [ANY_HOLDER, ALL_HOLDERS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankLinkQuoteScopes
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # State of the link. `completed`, `cancelled`, `expired` and `failed` are final.
+    module BankLinkStatus
+      CREATED = "created"
+      OPENED = "opened"
+      CONNECTING = "connecting"
+      COMPLETED = "completed"
+      CANCELLED = "cancelled"
+      EXPIRED = "expired"
+      FAILED = "failed"
+
+      VALUES = [CREATED, OPENED, CONNECTING, COMPLETED, CANCELLED, EXPIRED, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankRefreshAcceptedStatus
+      QUEUED = "queued"
+      RUNNING = "running"
+
+      VALUES = [QUEUED, RUNNING].freeze
+    end
+
+    # `pending_booked`: the bank booked it, and the booked transaction is in `added`. `pending_expired`: a pending
+    # transaction the bank stopped reporting. `bank_removed`: the bank removed it. `access_removed`: the account left
+    # the consent.
+    module BankRemovedTransactionReason
+      PENDING_BOOKED = "pending_booked"
+      PENDING_EXPIRED = "pending_expired"
+      BANK_REMOVED = "bank_removed"
+      ACCESS_REMOVED = "access_removed"
+
+      VALUES = [PENDING_BOOKED, PENDING_EXPIRED, BANK_REMOVED, ACCESS_REMOVED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankSyncBudgetResource
+      ALL = "all"
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ALL, ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # What the bank counts the budget against.
+    module BankSyncBudgetScope
+      CONNECTION = "connection"
+      ACCOUNT = "account"
+
+      VALUES = [CONNECTION, ACCOUNT].freeze
+    end
+
+    # How the sync ended.
+    module BankSyncCompletedOutcome
+      SUCCEEDED = "succeeded"
+      PARTIAL = "partial"
+      FAILED = "failed"
+
+      VALUES = [SUCCEEDED, PARTIAL, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankSyncRunResultOutcome
+      SUCCEEDED = "succeeded"
+      FAILED = "failed"
+      SKIPPED = "skipped"
+
+      VALUES = [SUCCEEDED, FAILED, SKIPPED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankSyncRunResultResource
+      ACCOUNTS = "accounts"
+      BALANCES = "balances"
+      TRANSACTIONS = "transactions"
+
+      VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankSyncRunStatus
+      QUEUED = "queued"
+      RUNNING = "running"
+      SUCCEEDED = "succeeded"
+      PARTIAL = "partial"
+      FAILED = "failed"
+
+      VALUES = [QUEUED, RUNNING, SUCCEEDED, PARTIAL, FAILED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module BankSyncRunTrigger
+      INITIAL = "initial"
+      SCHEDULED = "scheduled"
+      REQUESTED = "requested"
+
+      VALUES = [INITIAL, SCHEDULED, REQUESTED].freeze
+    end
+
+    # Repeats the sign of `amount`.
+    module BankTransactionDirection
+      CREDIT = "credit"
+      DEBIT = "debit"
+
+      VALUES = [CREDIT, DEBIT].freeze
+    end
+
+    # How `id` was matched. `bank_reference` and `route_id` are stable. `derived` is matched by content: it is stable
+    # while the bank keeps reporting the entry unchanged, and a correction by the bank can then appear as one
+    # `removed` and one `added`.
+    module BankTransactionIdentityQuality
+      BANK_REFERENCE = "bank_reference"
+      ROUTE_ID = "route_id"
+      DERIVED = "derived"
+
+      VALUES = [BANK_REFERENCE, ROUTE_ID, DERIVED].freeze
+    end
+
+    # A pending transaction has its own id. When the bank books it, the booked transaction carries `pending_id` where
+    # the bank links them, and the pending one appears in `removed` with `reason: pending_booked`.
+    module BankTransactionStatus
+      BOOKED = "booked"
+      PENDING = "pending"
+
+      VALUES = [BOOKED, PENDING].freeze
+    end
+
     # Currency of every price in the response.
     module BankVerificationPricingCurrency
       USD = "USD"
@@ -6966,8 +7496,24 @@ module Didit
       INVESTIGATOR_SLA_BREACHED = "investigator.sla.breached"
       INVESTIGATOR_QA_FAILED = "investigator.qa.failed"
       INVESTIGATOR_EXTERNAL_REPORT_READY = "investigator.external.report.ready"
+      BANK_LINK_COMPLETED = "bank.link.completed"
+      BANK_LINK_CANCELLED = "bank.link.cancelled"
+      BANK_LINK_EXPIRED = "bank.link.expired"
+      BANK_LINK_FAILED = "bank.link.failed"
+      BANK_CONNECTION_CREATED = "bank.connection.created"
+      BANK_CONNECTION_UPDATED = "bank.connection.updated"
+      BANK_CONNECTION_CONSENT_EXPIRING = "bank.connection.consent_expiring"
+      BANK_CONNECTION_RENEWAL_REQUIRED = "bank.connection.renewal_required"
+      BANK_CONNECTION_RENEWED = "bank.connection.renewed"
+      BANK_CONNECTION_REVOKED = "bank.connection.revoked"
+      BANK_CONNECTION_DELETED = "bank.connection.deleted"
+      BANK_CONNECTION_HISTORY_COMPLETE = "bank.connection.history_complete"
+      BANK_DATA_UPDATED = "bank.data.updated"
+      BANK_SYNC_COMPLETED = "bank.sync.completed"
+      BANK_SYNC_FAILED = "bank.sync.failed"
+      BANK_SYNC_RECOVERED = "bank.sync.recovered"
 
-      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY].freeze
+      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, BANK_LINK_COMPLETED, BANK_LINK_CANCELLED, BANK_LINK_EXPIRED, BANK_LINK_FAILED, BANK_CONNECTION_CREATED, BANK_CONNECTION_UPDATED, BANK_CONNECTION_CONSENT_EXPIRING, BANK_CONNECTION_RENEWAL_REQUIRED, BANK_CONNECTION_RENEWED, BANK_CONNECTION_REVOKED, BANK_CONNECTION_DELETED, BANK_CONNECTION_HISTORY_COMPLETE, BANK_DATA_UPDATED, BANK_SYNC_COMPLETED, BANK_SYNC_FAILED, BANK_SYNC_RECOVERED].freeze
     end
 
     # Draft versions are editable; published versions are immutable and used for new sessions.
@@ -7739,6 +8285,26 @@ module Didit
       field :status, "status", [:map, :integer]
     end
 
+    # One account inside a connection.
+    class BankAccount < Didit::Model
+      field :id, "id", :string
+      field :connection_id, "connection_id", :string
+      field :name, "name", :string
+      field :product, "product", :string
+      field :type, "type", :string
+      field :usage, "usage", :string
+      field :currency, "currency", :string
+      field :holder_name, "holder_name", :string
+      field :holders, "holders", [:array, "BankAccountHolder"]
+      field :identifiers, "identifiers", "BankAccountIdentifiers"
+      field :account_ref, "account_ref", :string
+      field :account_ref_previous, "account_ref_previous", :string
+      field :status, "status", :string
+      field :scopes_granted, "scopes_granted", [:array, :string]
+      field :sync, "sync", "BankAccountSync"
+      field :history_coverage, "history_coverage", "BankHistoryCoverage"
+    end
+
     # Account check: the person types their account number and Didit checks it with the bank. Priced per country.
     class BankAccountCheckPricing < Didit::Model
       field :available, "available", :boolean
@@ -7755,12 +8321,300 @@ module Didit
       field :created_at, "created_at", :datetime
     end
 
+    class BankAccountHolder < Didit::Model
+      field :name, "name", :string
+      field :role, "role", :string
+    end
+
+    # Full identifiers, returned to server-side callers with the bank data permission.
+    class BankAccountIdentifiers < Didit::Model
+      field :iban, "iban", :string
+      field :bic, "bic", :string
+      field :account_number, "account_number", :string
+      field :sort_code, "sort_code", :string
+      field :other, "other", [:array, "BankAccountIdentifiersOther"]
+    end
+
+    class BankAccountIdentifiersOther < Didit::Model
+      field :scheme, "scheme", :string
+      field :value, "value", :string
+    end
+
+    class BankAccountList < Didit::Model
+      field :items, "items", [:array, "BankAccount"]
+      field :next_cursor, "next_cursor", :string
+    end
+
+    class BankAccountSync < Didit::Model
+      field :last_synced_at, "last_synced_at", :datetime
+      field :status, "status", :string
+      field :history_requested_from, "history_requested_from", :date
+      field :history_available_from, "history_available_from", :date
+      field :pending_supported, "pending_supported", :boolean
+    end
+
+    class BankBalance < Didit::Model
+      field :type, "type", :string
+      field :iso_type, "iso_type", :string
+      field :amount, "amount", :string
+      field :currency, "currency", :string
+      field :reference_date, "reference_date", :date
+      field :last_change_at, "last_change_at", :datetime
+      field :credit_limit_included, "credit_limit_included", :boolean
+    end
+
+    # Typed balances of an account.
+    class BankBalances < Didit::Model
+      field :account_id, "account_id", :string
+      field :balances, "balances", [:array, "BankBalance"]
+      field :last_synced_at, "last_synced_at", :datetime
+    end
+
+    # The person's permission for your application to read one bank. A renewal keeps the connection id and every
+    # account id. A deleted connection answers only `id`, `status`, `status_reason`, `created_at` and `erasure`: every
+    # other field is absent, and no bank, person or account data remains in it.
+    class BankConnection < Didit::Model
+      field :id, "id", :string
+      field :environment, "environment", :string
+      field :access, "access", :string
+      field :status, "status", :string
+      field :status_reason, "status_reason", :string
+      field :institution, "institution", "BankInstitutionSummary"
+      field :segment, "segment", :string
+      field :data, "data", [:array, :string]
+      field :consent, "consent", "BankConnectionConsent"
+      field :sync, "sync", "BankConnectionSync"
+      field :accounts, "accounts", [:array, "BankConnectionAccountSummary"]
+      field :ownership, "ownership", "BankConnectionOwnership"
+      field :end_user, "end_user", "BankConnectionEndUser"
+      field :manage_url, "manage_url", :string
+      field :billing, "billing", "BankConnectionBilling"
+      field :possible_duplicate_of, "possible_duplicate_of", :string
+      field :erasure, "erasure", "BankConnectionErasure"
+      field :vendor_data, "vendor_data", :string
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # Short form of an account inside a connection.
+    class BankConnectionAccountSummary < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :type, "type", :string
+      field :usage, "usage", :string
+      field :currency, "currency", :string
+      field :iban_last4, "iban_last4", :string
+      field :status, "status", :string
+    end
+
+    # What this connection costs. Sandbox is never charged.
+    class BankConnectionBilling < Didit::Model
+      field :unit, "unit", :string
+      field :price_usd, "price_usd", :string
+      field :billed_through, "billed_through", :date
+    end
+
+    # The person's consent for this connection.
+    class BankConnectionConsent < Didit::Model
+      field :status, "status", :string
+      field :version, "version", :integer
+      field :granted_at, "granted_at", :datetime
+      field :expires_at, "expires_at", :datetime
+      field :days_granted, "days_granted", :integer
+      field :renewed_count, "renewed_count", :integer
+      field :scopes_requested, "scopes_requested", [:array, :string]
+      field :scopes_granted, "scopes_granted", [:array, :string]
+      field :accounts_granted, "accounts_granted", [:array, :string]
+      field :renewal_action, "renewal_action", :string
+      field :renew_by, "renew_by", :datetime
+      field :reconfirm_by, "reconfirm_by", :datetime
+      field :renewable_until, "renewable_until", :datetime
+      field :retain_until, "retain_until", :datetime
+      field :ended_at, "ended_at", :datetime
+      field :ended_by, "ended_by", :string
+    end
+
+    # Accepted deletion. The connection's bank data is being deleted and its data operations answer `409
+    # connection_not_active`; reading the connection returns a minimal record with this `erasure` status.
+    class BankConnectionDeletion < Didit::Model
+      field :id, "id", :string
+      field :erasure, "erasure", "BankConnectionErasure"
+    end
+
+    class BankConnectionEndUser < Didit::Model
+      field :reference, "reference", :string
+    end
+
+    # Progress of a deletion you asked for.
+    class BankConnectionErasure < Didit::Model
+      field :status, "status", :string
+      field :requested_at, "requested_at", :datetime
+      field :erased_at, "erased_at", :datetime
+    end
+
+    # A page of connections.
+    class BankConnectionList < Didit::Model
+      field :items, "items", [:array, "BankConnection"]
+      field :next_cursor, "next_cursor", :string
+    end
+
+    # The optional comparison of the account holder with a person or company.
+    class BankConnectionOwnership < Didit::Model
+      field :compare, "compare", :string
+      field :match, "match", :string
+      field :check_id, "check_id", :string
+      field :result, "result", :string
+    end
+
+    # Synchronisation state of a connection.
+    class BankConnectionSync < Didit::Model
+      field :status, "status", :string
+      field :initial_status, "initial_status", :string
+      field :initial_complete, "initial_complete", :boolean
+      field :history_complete, "history_complete", :boolean
+      field :last_synced_at, "last_synced_at", :datetime
+      field :next_sync_at, "next_sync_at", :datetime
+      field :budgets, "budgets", [:array, "BankSyncBudget"]
+      field :last_error, "last_error", "BankSyncError"
+      field :frequency_per_day, "frequency_per_day", :integer
+      field :live_syncs_left_today, "live_syncs_left_today", :integer
+    end
+
+    # Bank data coverage per country. Ongoing access is counted only where a bank is switched on for it.
+    class BankCoverage < Didit::Model
+      field :items, "items", [:array, "BankCoverageCountry"]
+    end
+
+    class BankCoverageCountry < Didit::Model
+      field :country, "country", :string
+      field :name, "name", :string
+      field :sign_in_available, "sign_in_available", :boolean
+      field :account_check_available, "account_check_available", :boolean
+      field :ongoing_access, "ongoing_access", :boolean
+      field :institutions, "institutions", :integer
+      field :ongoing_institutions, "ongoing_institutions", :integer
+      field :consent_days_max, "consent_days_max", :integer
+      field :history_days_max, "history_days_max", :integer
+      field :business_accounts, "business_accounts", :boolean
+    end
+
+    class BankDateRange < Didit::Model
+      field :from, "from", :date
+      field :to, "to", :date
+    end
+
+    # What the bank delivered of the history you asked for.
+    class BankHistoryCoverage < Didit::Model
+      field :requested_from, "requested_from", :date
+      field :oldest_booking_date, "oldest_booking_date", :date
+      field :covered_ranges, "covered_ranges", [:array, "BankDateRange"]
+      field :missing_ranges, "missing_ranges", [:array, "BankDateRange"]
+      field :status, "status", :string
+      field :extended_auth_used, "extended_auth_used", :boolean
+    end
+
+    # A bank and what it supports. Values come from observed capability data, refreshed daily; a value never observed
+    # is `null`, not a guess.
+    class BankInstitution < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :country, "country", :string
+      field :logo_url, "logo_url", :string
+      field :timezone, "timezone", :string
+      field :segments, "segments", [:array, :string]
+      field :access, "access", [:array, :string]
+      field :ongoing_access, "ongoing_access", :boolean
+      field :consent_days_max, "consent_days_max", :integer
+      field :history_days_max, "history_days_max", :integer
+      field :pending_transactions, "pending_transactions", :boolean
+      field :pending_linkage, "pending_linkage", :boolean
+      field :balance_types, "balance_types", [:array, :string]
+      field :transaction_fields, "transaction_fields", [:array, :string]
+      field :sign_in, "sign_in", :string
+      field :requires_end_user_email, "requires_end_user_email", :boolean
+      field :corporate_accounts, "corporate_accounts", :boolean
+      field :bank_account_selection, "bank_account_selection", :boolean
+      field :separate_history_consent, "separate_history_consent", :boolean
+      field :reconfirmation, "reconfirmation", :boolean
+      field :sync_frequency_hours, "sync_frequency_hours", :integer
+      field :health, "health", :string
+    end
+
+    class BankInstitutionList < Didit::Model
+      field :items, "items", [:array, "BankInstitution"]
+      field :next_cursor, "next_cursor", :string
+    end
+
+    # The bank a connection or link is for.
+    class BankInstitutionSummary < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :country, "country", :string
+      field :logo_url, "logo_url", :string
+    end
+
+    # One run of Bank Link for one person: connect a bank, or renew a connection. Confirm a link yourself with
+    # `get_link`: never trust an id sent by the browser.
+    class BankLink < Didit::Model
+      field :id, "id", :string
+      field :mode, "mode", :string
+      field :access, "access", :string
+      field :status, "status", :string
+      field :url, "url", :string
+      field :client_token, "client_token", :string
+      field :expires_at, "expires_at", :datetime
+      field :connection_id, "connection_id", :string
+      field :check_id, "check_id", :string
+      field :reused, "reused", :boolean
+      field :error, "error", "BankLinkError"
+      field :quote, "quote", "BankLinkQuote"
+      field :vendor_data, "vendor_data", :string
+    end
+
+    # The reason a link ended `failed`. Nothing was published or charged.
+    class BankLinkError < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
+      field :conflicts_with, "conflicts_with", [:array, :string]
+    end
+
+    # The price of a link, pinned when it is created. The price charged is the quote's. Reads never bill.
+    class BankLinkQuote < Didit::Model
+      field :id, "id", :string
+      field :lines, "lines", [:array, "BankLinkQuoteLine"]
+      field :fallback_lines, "fallback_lines", [:array, "BankLinkQuoteLine"]
+      field :total_usd, "total_usd", :string
+      field :valid_until, "valid_until", :datetime
+      field :scopes, "scopes", [:array, :string]
+    end
+
+    # One priced line of a quote.
+    class BankLinkQuoteLine < Didit::Model
+      field :meter, "meter", :string
+      field :unit, "unit", :string
+      field :price_usd, "price_usd", :string
+    end
+
+    # A refresh was accepted. A second call while a sync runs returns the same `sync_id`.
+    class BankRefreshAccepted < Didit::Model
+      field :sync_id, "sync_id", :string
+      field :status, "status", :string
+      field :next_refresh_at, "next_refresh_at", :datetime
+    end
+
+    class BankRemovedTransaction < Didit::Model
+      field :id, "id", :string
+      field :reason, "reason", :string
+    end
+
     # Bank sign-in: the person signs in to their bank. Priced by market, the same for every bank in it.
     class BankSignInPricing < Didit::Model
       field :available, "available", :boolean
       field :market, "market", :string
       field :price_usd, "price_usd", :string
       field :add_ons, "add_ons", "BankSignInPricingAddOns"
+      field :ongoing, "ongoing", "BankSignInPricingOngoing"
+      field :one_time_data, "one_time_data", "BankSignInPricingOneTimeData"
     end
 
     # Add-ons priced in this country, each a decimal string with 4 decimals in USD, added to the bank sign-in price.
@@ -7770,11 +8624,151 @@ module Didit
       field :transactions, "transactions", :string
     end
 
+    class BankSignInPricingOneTimeData < Didit::Model
+      field :balances_usd, "balances_usd", :string
+      field :transactions_usd, "transactions_usd", :string
+    end
+
+    # Ongoing access to bank data (Bank Link `access: ongoing`). Present only where Bank data is switched on.
+    class BankSignInPricingOngoing < Didit::Model
+      field :available, "available", :boolean
+      field :price_usd_per_month, "price_usd_per_month", :string
+    end
+
     # How the bank statement upload is priced.
     class BankStatementUploadPricing < Didit::Model
       field :price_usd, "price_usd", :string
       field :included_after_charged_bank_attempt, "included_after_charged_bank_attempt", :boolean
       field :standalone_available, "standalone_available", :boolean
+    end
+
+    # One bucket of the bank's limit on fetches without the person present.
+    class BankSyncBudget < Didit::Model
+      field :scope, "scope", :string
+      field :resource, "resource", :string
+      field :account_id, "account_id", :string
+      field :limit, "limit", :integer
+      field :remaining, "remaining", :integer
+      field :resets_at, "resets_at", :datetime
+    end
+
+    # Why a sync failed.
+    class BankSyncError < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
+      field :at, "at", :datetime
+    end
+
+    # One synchronisation of a connection. Only initial, scheduled and requested syncs are listed.
+    class BankSyncRun < Didit::Model
+      field :id, "id", :string
+      field :connection_id, "connection_id", :string
+      field :trigger, "trigger", :string
+      field :status, "status", :string
+      field :started_at, "started_at", :datetime
+      field :finished_at, "finished_at", :datetime
+      field :results, "results", [:array, "BankSyncRunResult"]
+      field :error, "error", "BankSyncRunError"
+    end
+
+    # A finished sync returned by a refresh with `wait`: the sync run with its `outcome`, the per-account counts in
+    # `results` and `balances_changed`.
+    class BankSyncCompleted < BankSyncRun
+      field :outcome, "outcome", :string
+      field :balances_changed, "balances_changed", :boolean
+    end
+
+    # Why the run failed as a whole. `null` when it did not. Errors of single accounts and resources are in `results`.
+    class BankSyncRunError < Didit::Model
+      field :code, "code", :string
+      field :message, "message", :string
+      field :at, "at", :datetime
+    end
+
+    class BankSyncRunList < Didit::Model
+      field :items, "items", [:array, "BankSyncRun"]
+      field :next_cursor, "next_cursor", :string
+    end
+
+    class BankSyncRunResult < Didit::Model
+      field :account_id, "account_id", :string
+      field :resource, "resource", :string
+      field :outcome, "outcome", :string
+      field :added, "added", :integer
+      field :modified, "modified", :integer
+      field :removed, "removed", :integer
+      field :error, "error", "BankSyncError"
+    end
+
+    # One movement of an account. Any field the bank does not send is `null`; the institution capabilities list which
+    # fields a bank is known to send.
+    class BankTransaction < Didit::Model
+      field :id, "id", :string
+      field :account_id, "account_id", :string
+      field :status, "status", :string
+      field :pending_id, "pending_id", :string
+      field :reverses_id, "reverses_id", :string
+      field :booking_date, "booking_date", :date
+      field :value_date, "value_date", :date
+      field :transaction_date, "transaction_date", :date
+      field :effective_date, "effective_date", :date
+      field :amount, "amount", :string
+      field :currency, "currency", :string
+      field :direction, "direction", :string
+      field :description, "description", :string
+      field :counterparty, "counterparty", "BankTransactionCounterparty"
+      field :remittance, "remittance", "BankTransactionRemittance"
+      field :bank_transaction_code, "bank_transaction_code", :string
+      field :bank_reference, "bank_reference", :string
+      field :identity_quality, "identity_quality", :string
+      field :end_to_end_id, "end_to_end_id", :string
+      field :mandate_id, "mandate_id", :string
+      field :creditor_id, "creditor_id", :string
+      field :merchant_category_code, "merchant_category_code", :string
+      field :exchange, "exchange", "BankTransactionExchange"
+      field :balance_after, "balance_after", :string
+      field :category, "category", :string
+      field :first_seen_at, "first_seen_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # Changes of a connection's transactions since a cursor. An empty cursor returns every current transaction as
+    # `added`. All pages of one read reflect the same snapshot; changes that arrive meanwhile come in the next read.
+    class BankTransactionChanges < Didit::Model
+      field :added, "added", [:array, "BankTransaction"]
+      field :modified, "modified", [:array, "BankTransaction"]
+      field :removed, "removed", [:array, "BankRemovedTransaction"]
+      field :has_more, "has_more", :boolean
+      field :next_page_token, "next_page_token", :string
+      field :next_cursor, "next_cursor", :string
+      field :reset, "reset", :boolean
+    end
+
+    class BankTransactionCounterparty < Didit::Model
+      field :name, "name", :string
+      field :iban, "iban", :string
+      field :bic, "bic", :string
+    end
+
+    # Currency exchange details where the bank gives them.
+    class BankTransactionExchange < Didit::Model
+      field :source_amount, "source_amount", :string
+      field :source_currency, "source_currency", :string
+      field :rate, "rate", :string
+    end
+
+    # A page of a date-range read. The first page pins which transactions are included and each is served in its
+    # current state; a transaction removed while you page drops out of later pages and is reported by the change feed.
+    class BankTransactionPage < Didit::Model
+      field :items, "items", [:array, "BankTransaction"]
+      field :next_page_token, "next_page_token", :string
+      field :has_more, "has_more", :boolean
+    end
+
+    class BankTransactionRemittance < Didit::Model
+      field :unstructured, "unstructured", [:array, :string]
+      field :structured, "structured", :string
+      field :reference, "reference", :string
     end
 
     # Public Bank Verification list prices: the statement upload, the own provider key fee and each country's methods.

@@ -4,6 +4,25 @@ module Didit
   module Resources
     class Bank < Didit::Resource
       def account_check: (country: String, account: Didit::Types::bank_account_check_params_account, holder: (Didit::Types::bank_account_check_person_holder | Didit::Types::bank_account_check_business_holder), ?vendor_data: String?, ?consent: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankAccountCheckResponse
+      def cancel_link: (String id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
+      def create_link: (?mode: String, ?connection_id: String, ?access: String, ?country: String, ?institution_id: String, ?segment: String, ?data: Array[String], ?history_days: Integer, ?history_from: Date | String, ?extended_history: String, ?consent_days: Integer, ?ownership: Didit::Types::bank_link_ownership_request, ?end_user: Didit::Types::bank_link_end_user, ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?vendor_data: String, ?expires_in: Integer, ?duplicates: String, ?allow_one_time_fallback: bool, ?accept_reduced_grant: bool, ?sandbox: Didit::Types::bank_create_link_params_sandbox, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
+      def delete_connection: (String id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankConnectionDeletion
+      def get_account: (String account_id, ?request_options: Didit::request_options?) -> Didit::Types::BankAccount
+      def get_balances: (String account_id, ?request_options: Didit::request_options?) -> Didit::Types::BankBalances
+      def get_connection: (String id, ?request_options: Didit::request_options?) -> Didit::Types::BankConnection
+      def get_coverage: (?request_options: Didit::request_options?) -> Didit::Types::BankCoverage
+      def get_institution: (String id, ?request_options: Didit::request_options?) -> Didit::Types::BankInstitution
+      def get_link: (String id, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
+      def get_sync_run: (String id, String sync_id, ?request_options: Didit::request_options?) -> Didit::Types::BankSyncRun
+      def list_accounts: (String id, ?limit: Integer, ?cursor: String, ?request_options: Didit::request_options?) -> Didit::Types::BankAccountList
+      def list_connections: (?status: String, ?access: String, ?institution_id: String, ?country: String, ?vendor_data: String, ?end_user_reference: String, ?consent_expires_before: Time | String, ?created_after: Time | String, ?limit: Integer, ?cursor: String, ?request_options: Didit::request_options?) -> Didit::Types::BankConnectionList
+      def list_institutions: (?country: String, ?segment: String, ?access: String, ?q: String, ?limit: Integer, ?cursor: String, ?request_options: Didit::request_options?) -> Didit::Types::BankInstitutionList
+      def list_sync_runs: (String id, ?limit: Integer, ?cursor: String, ?request_options: Didit::request_options?) -> Didit::Types::BankSyncRunList
+      def list_transactions: (String account_id, ?date_from: Date | String, ?date_to: Date | String, ?status: String, ?limit: Integer, ?page_token: String, ?request_options: Didit::request_options?) -> Didit::Types::BankTransactionPage
+      def refresh_connection: (String id, ?wait: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> (Didit::Types::BankSyncCompleted | Didit::Types::BankRefreshAccepted)
+      def renew_connection: (String id, ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
+      def revoke_connection: (String id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankConnection
+      def sync_transactions: (String id, ?cursor: String, ?limit: Integer, ?page_token: String, ?request_options: Didit::request_options?) -> Didit::Types::BankTransactionChanges
     end
   end
 end

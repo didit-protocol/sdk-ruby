@@ -27,6 +27,14 @@ RSpec.describe Didit::Resources::Pricing do
                 "add_ons": {
                   "balance": "0.3500",
                   "transactions": "1.3000"
+                },
+                "ongoing": {
+                  "available": true,
+                  "price_usd_per_month": "0.9000"
+                },
+                "one_time_data": {
+                  "balances_usd": "0.3500",
+                  "transactions_usd": "1.3000"
                 }
               },
               "account_lookup": {
@@ -42,7 +50,12 @@ RSpec.describe Didit::Resources::Pricing do
                 "available": false,
                 "market": null,
                 "price_usd": null,
-                "add_ons": {}
+                "add_ons": {},
+                "ongoing": {
+                  "available": false,
+                  "price_usd_per_month": null
+                },
+                "one_time_data": null
               },
               "account_lookup": {
                 "available": false,
