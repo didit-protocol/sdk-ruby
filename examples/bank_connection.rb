@@ -11,6 +11,8 @@
 
 require "didit"
 
+FINAL_LINK_STATUSES = %w[completed cancelled expired failed].freeze
+
 didit = Didit::Client.new
 
 link = didit.bank.create_link(
@@ -23,7 +25,7 @@ puts "Bank Link #{link.id}: open #{link.url}"
 # Wait for the person. The bank.connection.created webhook is the production path.
 loop do
   link = didit.bank.get_link(link.id)
-  break if %w[completed cancelled expired failed].include?(link.status)
+  break if FINAL_LINK_STATUSES.include?(link.status)
 
   sleep 2
 end
