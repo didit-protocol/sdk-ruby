@@ -235,6 +235,16 @@ module Didit
       def error_code
         data&.error_code
       end
+
+      # Pattern matching reads the link fields too, although they live under +data+.
+      def deconstruct_keys(keys)
+        out = super
+        { link_id: link_id, status: status, connection_id: connection_id,
+          check_id: check_id, error_code: error_code }.each do |name, value|
+          out[name] = value if keys.nil? || keys.include?(name)
+        end
+        out
+      end
     end
 
     # +bank.link.completed+: the person finished Bank Link.

@@ -296,9 +296,26 @@ Any change to a public API endpoint, parameter, request or response field, enum 
 The spec sync (3.1) then opens a pull request in every SDK repository; whoever changed the backend makes sure those pull requests merge, adding hand-written core changes (webhooks, Authentication) where the change needs them.
 The rule lives in `CLAUDE.md` and `AGENTS.md` of the backends, of mintlify-docs, of every SDK repository, and of the Didit workspace.
 
-### 16.3 Webhook events
+## 16. Bank data and Bank Link
 
-The typed `bank.*` events are part of the union in section 9.4. Their fields sit next to the envelope fields and are ids, statuses and counts only: `connection_id`, `link_id`, `check_id`, `status`, `status_reason`, `initial_status`, `revocation_status`, `reason`, `ended_by`, `ended_at`, `retain_until`, `erasure_status`, `erased_at`, `consent_version`, `consent_expires_at`, `days_left`, `renew_by`, `renewable_until`, `accounts` (each account with `account_id`, `added`, `modified` and `removed`), `trigger`, `outcome`, `changed`, `balances_changed`, `error_code`, `failing_since` and `sync_id`. The envelope is the same as every other event.
+The `bank` resource exposes the Bank verification API: Bank Link, connections, accounts, balances, transactions, sync runs, institutions and coverage. It is generated from `openapi/verification.json` like every other resource; the hand-written `bank.*` webhook events are in section 9.4.
+
+### 16.1 Operations
+
+`client.bank` has `account_check` and the Bank data operations: `create_link`, `get_link`, `cancel_link`, `list_connections`, `get_connection`, `delete_connection`, `refresh_connection`, `list_sync_runs`, `get_sync_run`, `renew_connection`, `revoke_connection`, `list_accounts`, `get_account`, `get_balances`, `list_transactions`, `sync_transactions`, `list_institutions`, `get_institution` and `get_coverage`. The document is the contract: an operation the document does not have is not generated (the sandbox simulate and manage-link operations are not public yet).
+
+- `delete_connection` stops access at the bank and deletes the stored accounts, balances and transactions; it cannot be undone. `revoke_connection` stops access; stored data stays readable until the retention window ends.
+- Identifiers and tokens are opaque strings: never validate their format in the SDK.
+- A deleted connection answers only `id`, `status`, `status_reason`, `created_at` and an `erasure` block.
+- Bank data needs the `bank-data` permission on the API key and is not part of full access: a key without it answers `403` with `code: bank_data_access_denied`.
+- In production the product is on for sandbox applications first; a live application's Bank data calls answer `404`.
+
+### 16.2 Pagination, amounts and retries
+
+Bank lists are cursor-paginated and are the exception to section 8: `list_connections`, `list_accounts`, `list_sync_runs` and `list_institutions` take `limit` and `cursor` and return `{items, next_cursor}`; pass `next_cursor` as `cursor` to read the next page. `list_transactions` takes `limit` and `page_token` and returns `{items, next_page_token}`; `sync_transactions` takes `cursor`, `limit` and `page_token` and returns changes with `has_more`, `next_cursor` and `next_page_token`. There is no auto-pagination for these lists: the cursor is opaque and the response is not the page envelope of section 8.
+Amounts are decimal strings exactly as the API sends them, never floats. Every write takes an `Idempotency-Key` through the per-request option (section 6); a retry sends the same key.
+A live sync beyond the bank's daily limit answers `429` with `code: refresh_limit_reached` and `Retry-After`; the error exposes the header like every other rate limit (section 7).
+
 ### 16.3 Webhook events
 
 The typed `bank.*` events are part of the union in section 9.4. The four `bank.link.*` events carry `link_id`, `status`, `connection_id`, `check_id` and `error_code` under `data`. Connection, data and sync events carry their fields next to the envelope fields: `connection_id`, `link_id`, `status`, `status_reason`, `initial_status`, `revocation_status`, `reason`, `ended_by`, `ended_at`, `retain_until`, `erasure_status`, `erased_at`, `consent_version`, `consent_expires_at`, `days_left`, `renew_by`, `renewable_until`, `accounts` (each account with `account_id`, `added`, `modified` and `removed`), `trigger`, `outcome`, `changed`, `balances_changed`, `error_code`, `failing_since` and `sync_id`. The envelope is the same as every other event.

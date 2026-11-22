@@ -118,6 +118,7 @@ module WebhookSpecs
                                        check_id: nil, error_code: "consent_declined")
       expect(event["data"]).to include("error_code" => "consent_declined")
       expect(event["link_id"]).to be_nil
+      expect(event in Didit::Webhooks::BankLinkFailedEvent(error_code: "consent_declined")).to be(true)
     end
 
     it "has a class for every webhook type of DESIGN.md section 9.4" do
