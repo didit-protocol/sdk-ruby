@@ -122,7 +122,16 @@ module Didit
     class UnknownEvent < Event
     end
 
+    class BankLinkEventData < Didit::Model
+      def link_id: () -> String?
+      def status: () -> String?
+      def connection_id: () -> String?
+      def check_id: () -> String?
+      def error_code: () -> String?
+    end
+
     class BankLinkEvent < Event
+      def data: () -> BankLinkEventData?
       def link_id: () -> String?
       def status: () -> String?
       def connection_id: () -> String?

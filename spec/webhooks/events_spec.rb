@@ -71,7 +71,12 @@ module WebhookSpecs
       "bank.sync.recovered" => [Didit::Webhooks::BankSyncRecoveredEvent, { connection_id: "c-1", sync_id: "s-1" }]
     }.each do |type, (klass, fields)|
       it "reads #{type} as #{klass.name.split("::").last}" do
-        event = parse(webhook_type: type, **fields)
+        # The four bank.link.* events carry their fields under data; all the others are flat.
+        event = if type.start_with?("bank.link.")
+                  parse(webhook_type: type, data: fields)
+                else
+                  parse(webhook_type: type, **fields)
+                end
         expect(event).to be_an_instance_of(klass)
         expect(event).to be_a(Didit::Webhooks::Event).and(be_a(Didit::Model))
         expect(event).to have_attributes(webhook_type: type, **fields)
@@ -88,11 +93,37 @@ module WebhookSpecs
         bank.connection.deleted bank.connection.history_complete
         bank.data.updated bank.sync.completed bank.sync.failed bank.sync.recovered
       ].each do |type|
-        body, headers = delivery(payload(webhook_type: type, connection_id: "c-1", link_id: "l-1"))
+        extra = if type.start_with?("bank.link.")
+                  { data: { link_id: "l-1", status: type.split(".").last, connection_id: "c-1",
+                            check_id: nil, error_code: nil } }
+                else
+                  { connection_id: "c-1" }
+                end
+        body, headers = delivery(payload(webhook_type: type, **extra))
         event = Didit::Webhooks.verify(body, headers, SECRET, now: NOW)
         expect(event).to be_an_instance_of(Didit::Webhooks::EVENT_CLASSES.fetch(type))
         expect(event.verified_by).to eq("X-Signature")
       end
+    end
+
+    it "reads the link fields from data, as the backend sends them" do
+      body = payload(
+        webhook_type: "bank.link.failed",
+        data: { link_id: "l-1", status: "failed", connection_id: nil, check_id: nil,
+                error_code: "consent_declined" }
+      )
+      event = Didit::Webhooks.parse_event(JSON.parse(JSON.generate(body))) # a real body has string keys
+      expect(event).to be_an_instance_of(Didit::Webhooks::BankLinkFailedEvent)
+      expect(event.data).to be_an_instance_of(Didit::Webhooks::BankLinkEventData)
+      expect(event).to have_attributes(link_id: "l-1", status: "failed", connection_id: nil,
+                                       check_id: nil, error_code: "consent_declined")
+      expect(event["data"]).to include("error_code" => "consent_declined")
+      expect(event["link_id"]).to be_nil
+      matched = case event
+                in Didit::Webhooks::BankLinkFailedEvent(error_code: "consent_declined") then true
+                else false
+                end
+      expect(matched).to be(true)
     end
 
     it "has a class for every webhook type of DESIGN.md section 9.4" do
