@@ -11,9 +11,9 @@ RSpec.describe Didit::Resources::Pricing do
       {
         "currency": "USD",
         "statement_upload": {
-          "price_usd": "0.0000",
+          "price_usd": "0.2000",
           "included_after_charged_bank_attempt": true,
-          "standalone_available": false
+          "standalone_available": true
         },
         "own_provider_fee_usd": "0.0200",
         "countries": {
