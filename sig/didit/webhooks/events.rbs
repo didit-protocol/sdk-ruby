@@ -121,5 +121,129 @@ module Didit
 
     class UnknownEvent < Event
     end
+
+    class BankLinkEvent < Event
+      def link_id: () -> String?
+      def status: () -> String?
+      def connection_id: () -> String?
+      def check_id: () -> String?
+      def error_code: () -> String?
+    end
+
+    class BankLinkCompletedEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkCancelledEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkExpiredEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkFailedEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankConnectionEvent < Event
+      def connection_id: () -> String?
+    end
+
+    class BankConnectionCreatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def initial_status: () -> String?
+    end
+
+    class BankConnectionUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def revocation_status: () -> String?
+    end
+
+    class BankConnectionConsentExpiringEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def days_left: () -> Integer?
+      def consent_expires_at: () -> Time?
+      def renew_by: () -> Time?
+    end
+
+    class BankConnectionRenewalRequiredEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def reason: () -> String?
+      def renew_by: () -> Time?
+      def renewable_until: () -> Time?
+    end
+
+    class BankConnectionRenewedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def consent_version: () -> Integer?
+      def link_id: () -> String?
+      def consent_expires_at: () -> Time?
+    end
+
+    class BankConnectionRevokedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def ended_by: () -> String?
+      def status_reason: () -> String?
+      def ended_at: () -> Time?
+      def retain_until: () -> Time?
+    end
+
+    class BankConnectionDeletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def erasure_status: () -> String?
+      def reason: () -> String?
+      def erased_at: () -> Time?
+    end
+
+    class BankConnectionHistoryCompleteEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+    end
+
+    class BankDataUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def trigger: () -> String?
+      def accounts: () -> untyped
+      def balances_changed: () -> bool?
+    end
+
+    class BankSyncCompletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def trigger: () -> String?
+      def outcome: () -> String?
+      def changed: () -> bool?
+    end
+
+    class BankSyncFailedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def error_code: () -> String?
+      def failing_since: () -> Time?
+    end
+
+    class BankSyncRecoveredEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+    end
   end
 end
