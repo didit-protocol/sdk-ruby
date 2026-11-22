@@ -1,0 +1,249 @@
+module Didit
+  module Webhooks
+    EVENT_CLASSES: Hash[String, singleton(Event)]
+
+    class Event < Didit::Model
+      @verified_by: String?
+
+      def self.build: (Hash[untyped, untyped] payload, ?String? verified_by) -> Event
+
+      attr_reader verified_by: String?
+
+      def initialize: (?Hash[String | Symbol, untyped] data, ?verified_by: String?) -> void
+      def event_id: () -> String?
+      def webhook_type: () -> String?
+      def timestamp: () -> Integer?
+      def created_at: () -> Integer?
+      def application_id: () -> String?
+      def environment: () -> String?
+      def body_authenticated?: () -> bool
+    end
+
+    class SessionEvent < Event
+      def session_id: () -> String?
+      def business_session_id: () -> String?
+      def session_kind: () -> String?
+      def status: () -> String?
+      def workflow_id: () -> String?
+      def workflow_version: () -> untyped
+      def vendor_data: () -> String?
+      def metadata: () -> untyped
+      def decision: () -> Didit::Types::SessionDecision?
+      def resubmit_info: () -> untyped
+    end
+
+    class StatusUpdatedEvent < SessionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class DataUpdatedEvent < SessionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class UserEvent < Event
+      def vendor_user_id: () -> String?
+      def vendor_data: () -> String?
+      def status: () -> String?
+    end
+
+    class UserStatusUpdatedEvent < UserEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class UserDataUpdatedEvent < UserEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BusinessEvent < Event
+      def vendor_business_id: () -> String?
+      def vendor_data: () -> String?
+      def status: () -> String?
+    end
+
+    class BusinessStatusUpdatedEvent < BusinessEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BusinessDataUpdatedEvent < BusinessEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TransactionEvent < Event
+      def transaction_id: () -> String?
+      def txn_id: () -> String?
+      def status: () -> String?
+      def score: () -> Float?
+      def severity: () -> String?
+      def amount: () -> untyped
+      def currency: () -> String?
+      def direction: () -> String?
+      def action_required: () -> bool?
+    end
+
+    class TransactionCreatedEvent < TransactionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TransactionStatusUpdatedEvent < TransactionEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class TravelRuleStatusUpdatedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def transaction_id: () -> String?
+      def txn_id: () -> String?
+      def travel_rule_status: () -> String?
+      def rail: () -> String?
+      def direction: () -> String?
+    end
+
+    class ActivityCreatedEvent < Event
+      WEBHOOK_TYPE: String
+    end
+
+    class WorkflowComplianceChangedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def workflow_id: () -> String?
+    end
+
+    class KybRegistrySearchResolvedEvent < Event
+      WEBHOOK_TYPE: String
+
+      def request_id: () -> String?
+      def vendor_data: () -> String?
+      def metadata: () -> untyped
+      def search_status: () -> String?
+      def search_resolved: () -> bool?
+      def kyb_registry: () -> untyped
+    end
+
+    class UnknownEvent < Event
+    end
+
+    class BankLinkEvent < Event
+      def link_id: () -> String?
+      def status: () -> String?
+      def connection_id: () -> String?
+      def check_id: () -> String?
+      def error_code: () -> String?
+    end
+
+    class BankLinkCompletedEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkCancelledEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkExpiredEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankLinkFailedEvent < BankLinkEvent
+      WEBHOOK_TYPE: String
+    end
+
+    class BankConnectionEvent < Event
+      def connection_id: () -> String?
+    end
+
+    class BankConnectionCreatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def initial_status: () -> String?
+    end
+
+    class BankConnectionUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def revocation_status: () -> String?
+    end
+
+    class BankConnectionConsentExpiringEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def days_left: () -> Integer?
+      def consent_expires_at: () -> Time?
+      def renew_by: () -> Time?
+    end
+
+    class BankConnectionRenewalRequiredEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def reason: () -> String?
+      def renew_by: () -> Time?
+      def renewable_until: () -> Time?
+    end
+
+    class BankConnectionRenewedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def consent_version: () -> Integer?
+      def link_id: () -> String?
+      def consent_expires_at: () -> Time?
+    end
+
+    class BankConnectionRevokedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def ended_by: () -> String?
+      def status_reason: () -> String?
+      def ended_at: () -> Time?
+      def retain_until: () -> Time?
+    end
+
+    class BankConnectionDeletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+      def erasure_status: () -> String?
+      def reason: () -> String?
+      def erased_at: () -> Time?
+    end
+
+    class BankConnectionHistoryCompleteEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def status: () -> String?
+    end
+
+    class BankDataUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def trigger: () -> String?
+      def accounts: () -> untyped
+      def balances_changed: () -> bool?
+    end
+
+    class BankSyncCompletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def trigger: () -> String?
+      def outcome: () -> String?
+      def changed: () -> bool?
+    end
+
+    class BankSyncFailedEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+      def error_code: () -> String?
+      def failing_since: () -> Time?
+    end
+
+    class BankSyncRecoveredEvent < BankConnectionEvent
+      WEBHOOK_TYPE: String
+
+      def sync_id: () -> String?
+    end
+  end
+end
