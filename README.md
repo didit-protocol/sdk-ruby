@@ -3,7 +3,7 @@
 The official [Didit](https://didit.me) Ruby library.
 Identity verification (KYC), business verification (KYB), AML screening, biometrics, transaction monitoring, Travel Rule and customer authentication, from your backend.
 
-- Every Didit server API: sessions, standalone checks, KYB, users and businesses, workflows, webhooks, cases, transactions, wallet screening, Travel Rule and account management.
+- Every Didit server API: sessions, standalone checks, KYB, users and businesses, workflows, webhooks, cases, bank data, transactions, wallet screening, Travel Rule and account management.
 - Typed results with RBS signatures (checked with Steep), generated from the [OpenAPI contract](openapi/).
 - Webhook verification and Didit Authentication (OpenID Connect) token verification built in.
 - Standard library `net/http` with persistent connections, retries and timeouts. The only dependency is `jwt`, and only the Authentication module loads it.
@@ -51,7 +51,7 @@ else nil
 end
 ```
 
-[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Authentication, and webhook receivers for Rails, Sinatra and Rack.
+[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Bank data, Authentication, and webhook receivers for Rails, Sinatra and Rack.
 
 ## Configuration
 
@@ -185,10 +185,40 @@ event = Didit::Webhooks.verify(raw_body, headers, [new_secret, old_secret]) # du
 - `verify_parsed(payload, headers, secret)` is for frameworks that only give you the parsed JSON; it can check `X-Signature-V2` only.
 - The deprecated `X-Signature-Simple` counts only with `allow_simple: true`; then `event.body_authenticated?` is false and you should re-fetch the record from the API.
 - Failures raise `Didit::WebhookVerificationError` with `reason`: `:missing_signature`, `:invalid_signature`, `:missing_timestamp`, `:timestamp_mismatch`, `:timestamp_out_of_tolerance` or `:invalid_payload`.
-- Events are typed: `StatusUpdatedEvent`, `DataUpdatedEvent`, `UserStatusUpdatedEvent`, `UserDataUpdatedEvent`, `BusinessStatusUpdatedEvent`, `BusinessDataUpdatedEvent`, `ActivityCreatedEvent`, `TransactionCreatedEvent`, `TransactionStatusUpdatedEvent`, `TravelRuleStatusUpdatedEvent`, `WorkflowComplianceChangedEvent`, `KybRegistrySearchResolvedEvent`, and `UnknownEvent` for anything else. Session events carry the typed `decision`.
+- Events are typed: `StatusUpdatedEvent`, `DataUpdatedEvent`, `UserStatusUpdatedEvent`, `UserDataUpdatedEvent`, `BusinessStatusUpdatedEvent`, `BusinessDataUpdatedEvent`, `ActivityCreatedEvent`, `TransactionCreatedEvent`, `TransactionStatusUpdatedEvent`, `TravelRuleStatusUpdatedEvent`, `WorkflowComplianceChangedEvent`, `KybRegistrySearchResolvedEvent`, the `Bank*Event` classes for every `bank.*` type, and `UnknownEvent` for anything else. Session events carry the typed `decision`.
 - `kyb.registry_search.resolved` callbacks arrive unsigned, so `verify` rejects them (with `:missing_signature`, or a timestamp reason when their timestamp fails the checks that come first). `Didit::Webhooks.parse_event(JSON.parse(body))` reads one without verifying it; treat it as untrusted and re-fetch the data from the API.
 
 See [`examples/webhooks/`](examples/webhooks/) for Rails, Sinatra and Rack receivers. In a Rails controller that inherits from `ActionController::Base`, skip CSRF protection for the webhook action.
+
+## Bank data
+
+`didit.bank` runs account checks and reads bank data after the person connects a bank once.
+
+```ruby
+link = didit.bank.create_link(redirect_url: "https://acme.test/bank/return", access: "ongoing",
+                              vendor_data: "customer-42")
+puts "Open #{link.url}"                # hosted Bank Link; link.client_token for a modal or inline flow
+
+connection = didit.bank.get_connection(connection_id)  # the id from bank.connection.created
+accounts = didit.bank.list_accounts(connection.id, limit: 50)
+accounts.items.first.name
+accounts.next_cursor                   # pass it back as cursor: to read the next page
+account_id = accounts.items.first.id
+
+balances = didit.bank.get_balances(account_id)  # amounts are decimal strings, never floats
+
+transactions = didit.bank.list_transactions(account_id, limit: 50)
+transactions.items.first.amount
+transactions.next_page_token           # with has_more, fetch the next range
+```
+
+- `create_link` returns the hosted `url`, a `client_token` for Bank Link in a modal or inline, `expires_at` and `quote`. A completed link creates a connection (`bank.connection.created`) or a `bank.link.failed` event with its `error_code`.
+- Cursor lists (`list_accounts`, `list_connections`) return `items` and `next_cursor`; `list_transactions` returns `items`, `next_page_token` and `has_more`. `sync_transactions` reads the change feed from a `cursor`.
+- Bank data needs the `bank-data` permission on the API key: without it the API answers `403` with code `bank_data_access_denied`. A live sync past the bank's daily limit answers `429` with code `refresh_limit_reached` and `Retry-After`.
+- `delete_connection` stops access at the bank and deletes the stored accounts, balances and transactions; it cannot be undone. `revoke_connection` stops access; stored data stays readable until the retention window ends.
+- In production Bank data is on for sandbox applications first; a live application's calls answer `404` until it is enabled.
+
+[`examples/bank_connection.rb`](examples/bank_connection.rb) runs the same steps.
 
 ## Transactions and Travel Rule
 
