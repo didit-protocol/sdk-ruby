@@ -233,7 +233,6 @@ module Didit
     # Fields shared by the Bank connection events; ids and statuses only.
     class BankConnectionEvent < Event
       field :connection_id, "connection_id", :string
-      field :status, "status", :string
     end
 
     # +bank.connection.created+: the first sync of a connection finished.
@@ -249,6 +248,7 @@ module Didit
     class BankConnectionUpdatedEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.updated"
 
+      field :status, "status", :string
       field :revocation_status, "revocation_status", :string
     end
 
@@ -266,6 +266,7 @@ module Didit
     class BankConnectionRenewalRequiredEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.renewal_required"
 
+      field :status, "status", :string
       # +"consent_expired"+ or +"bank_requires_sign_in"+.
       field :reason, "reason", :string
       field :renew_by, "renew_by", :datetime
@@ -277,6 +278,7 @@ module Didit
     class BankConnectionRenewedEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.renewed"
 
+      field :status, "status", :string
       field :consent_version, "consent_version", :integer
       # The renew link that completed, when there is one.
       field :link_id, "link_id", :string
@@ -287,6 +289,7 @@ module Didit
     class BankConnectionRevokedEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.revoked"
 
+      field :status, "status", :string
       # +"end_user"+, +"bank"+, +"customer"+ or +"unknown"+.
       field :ended_by, "ended_by", :string
       field :status_reason, "status_reason", :string
@@ -299,6 +302,7 @@ module Didit
     class BankConnectionDeletedEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.deleted"
 
+      field :status, "status", :string
       field :erasure_status, "erasure_status", :string
       field :reason, "reason", :string
       field :erased_at, "erased_at", :datetime
@@ -307,6 +311,8 @@ module Didit
     # +bank.connection.history_complete+: the history backfill of a connection ended.
     class BankConnectionHistoryCompleteEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.history_complete"
+
+      field :status, "status", :string
     end
 
     # +bank.data.updated+: a sync stored new or changed bank data.

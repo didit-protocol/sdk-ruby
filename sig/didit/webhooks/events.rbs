@@ -148,7 +148,6 @@ module Didit
 
     class BankConnectionEvent < Event
       def connection_id: () -> String?
-      def status: () -> String?
     end
 
     class BankConnectionCreatedEvent < BankConnectionEvent
@@ -160,6 +159,7 @@ module Didit
     class BankConnectionUpdatedEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
 
+      def status: () -> String?
       def revocation_status: () -> String?
     end
 
@@ -174,6 +174,7 @@ module Didit
     class BankConnectionRenewalRequiredEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
 
+      def status: () -> String?
       def reason: () -> String?
       def renew_by: () -> Time?
       def renewable_until: () -> Time?
@@ -182,6 +183,7 @@ module Didit
     class BankConnectionRenewedEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
 
+      def status: () -> String?
       def consent_version: () -> Integer?
       def link_id: () -> String?
       def consent_expires_at: () -> Time?
@@ -190,6 +192,7 @@ module Didit
     class BankConnectionRevokedEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
 
+      def status: () -> String?
       def ended_by: () -> String?
       def status_reason: () -> String?
       def ended_at: () -> Time?
@@ -199,6 +202,7 @@ module Didit
     class BankConnectionDeletedEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
 
+      def status: () -> String?
       def erasure_status: () -> String?
       def reason: () -> String?
       def erased_at: () -> Time?
@@ -206,6 +210,8 @@ module Didit
 
     class BankConnectionHistoryCompleteEvent < BankConnectionEvent
       WEBHOOK_TYPE: String
+
+      def status: () -> String?
     end
 
     class BankDataUpdatedEvent < BankConnectionEvent
