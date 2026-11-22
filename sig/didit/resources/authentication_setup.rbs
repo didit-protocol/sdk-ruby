@@ -7,7 +7,7 @@ module Didit
       def get_branding: (String organization_id, String application_id, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::SetupBranding
       def get_configuration: (String organization_id, String application_id, ?request_options: Didit::request_options?) -> Didit::Types::SetupConfiguration
       def get_domain: (String organization_id, String application_id, ?request_options: Didit::request_options?) -> Didit::Types::SetupDomain
-      def get_email: (String organization_id, String application_id, String key, ?request_options: Didit::request_options?) -> Didit::Types::SetupEmail
+      def get_email: (String organization_id, String application_id, String key, ?organization: String, ?role: String, ?agent: String, ?request_options: Didit::request_options?) -> Didit::Types::SetupEmail
       def get_emails: (String organization_id, String application_id, ?language: String, ?request_options: Didit::request_options?) -> Didit::Types::SetupEmails
       def get_native_apps: (String organization_id, String application_id, ?request_options: Didit::request_options?) -> Didit::Types::SetupNativeApps
       def get_onboarding: (String organization_id, String application_id, ?request_options: Didit::request_options?) -> Didit::Types::SetupOnboarding

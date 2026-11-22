@@ -148,6 +148,7 @@ module Didit
     autoload :AsyncReportListCounts, "didit/types/components"
     autoload :AsyncReportReportType, "didit/types/components"
     autoload :AsyncReportStatus, "didit/types/components"
+    autoload :AuthenticationSetupGetEmailParamsRole, "didit/types/authentication_setup"
     autoload :AuthenticationSetupSetMethodParamsCredentialSource, "didit/types/authentication_setup"
     autoload :AuthenticationSetupUpdateConfigurationParamsSignupPolicy, "didit/types/authentication_setup"
     autoload :AuthenticationSetupUpdateOnboardingParamsSignInUi, "didit/types/authentication_setup"

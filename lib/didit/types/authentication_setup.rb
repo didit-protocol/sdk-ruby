@@ -3,6 +3,15 @@
 
 module Didit
   module Types
+    # Known values of an open enum: the API may send others.
+    module AuthenticationSetupGetEmailParamsRole
+      MEMBER = "member"
+      BILLING = "billing"
+      ADMIN = "admin"
+
+      VALUES = [MEMBER, BILLING, ADMIN].freeze
+    end
+
     # `didit_test` uses Didit's own sandbox app, and is refused on a live application with `sandbox_only`. Omitted:
     # `own` when you send `credentials`, the stored source otherwise, and `didit_test` for a sandbox application's
     # social method that was never configured.

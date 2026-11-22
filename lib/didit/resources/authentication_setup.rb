@@ -109,9 +109,10 @@ module Didit
       # Preview a sign-in email
       #
       # Returns one email as it renders, with sample codes and links. An invitation preview uses a sample organization
-      # for a grant or named key. A console session can see a customer organization's name. The address of a console
-      # member is left out for a grant or a key, which have no mailbox. An email Authentication does not send answers
-      # `{"error": "email_not_sent_by_authentication"}`.
+      # for a grant or named key, or the `organization` and `role` you pass. `agentoff` is the email a person receives
+      # when your team ends an agent's access with a notification; `agent` names the agent. A console session can see
+      # a customer organization's name. The address of a console member is left out for a grant or a key, which have
+      # no mailbox. An email Authentication does not send answers `{"error": "email_not_sent_by_authentication"}`.
       #
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/emails/{key}/+
       #
@@ -119,13 +120,33 @@ module Didit
       # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
       #   application only.
       # @param key [String] The email: `code`, `magic`, `reset`, `device`, `invite`, `org`, `agent` or `agentoff`.
+      # @param organization [String] For `org` only: the organization the invitation is for, so the preview shows it
+      #   as it will be sent. At most 200 characters, the longest organization name an application holds. Without it, a
+      #   sample organization (a console session sees the application's first customer organization).
+      # @param role [String] For `org` only: the role the invitation grants.
+      # @param agent [String] For `agentoff` only: the name of the agent whose access ends. At most 200 characters,
+      #   the longest agent name an application registers. Without it, the agent of the application's latest agent
+      #   client in a console session, or a sample name.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupEmail]
-      def get_email(organization_id, application_id, key, request_options: nil)
+      def get_email(
+        organization_id,
+        application_id,
+        key,
+        organization: OMIT,
+        role: OMIT,
+        agent: OMIT,
+        request_options: nil
+      )
         @client.request(
           :get,
           "/organizations/{organization_id}/applications/{application_id}/authentication/emails/{key}/",
           path_params: { "organization_id" => organization_id, "application_id" => application_id, "key" => key },
+          query: {
+            "organization" => organization,
+            "role" => role,
+            "agent" => agent
+          },
           api: :account,
           response: Types::SetupEmail,
           request_options: request_options
