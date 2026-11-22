@@ -80,7 +80,22 @@ module WebhookSpecs
       end
     end
 
-    it "has a class for every webhook type of DESIGN.md section 9.4" do
+    it "verifies and types every bank.* delivery" do
+  %w[
+    bank.link.completed bank.link.cancelled bank.link.expired bank.link.failed
+    bank.connection.created bank.connection.updated bank.connection.consent_expiring
+    bank.connection.renewal_required bank.connection.renewed bank.connection.revoked
+    bank.connection.deleted bank.connection.history_complete
+    bank.data.updated bank.sync.completed bank.sync.failed bank.sync.recovered
+  ].each do |type|
+    body, headers = delivery(payload(webhook_type: type, connection_id: "c-1", link_id: "l-1"))
+    event = Didit::Webhooks.verify(body, headers, SECRET, now: NOW)
+    expect(event).to be_an_instance_of(Didit::Webhooks::EVENT_CLASSES.fetch(type))
+    expect(event.verified_by).to eq("X-Signature")
+  end
+end
+
+it "has a class for every webhook type of DESIGN.md section 9.4" do
       expect(Didit::Webhooks::EVENT_CLASSES.keys).to contain_exactly(
         "status.updated", "data.updated", "user.status.updated", "user.data.updated", "business.status.updated",
         "business.data.updated", "activity.created", "transaction.created", "transaction.status.updated",
