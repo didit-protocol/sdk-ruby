@@ -516,7 +516,10 @@ module Didit
       DELETED_BY_CUSTOMER: String
       RETENTION_ELAPSED: String
       APPLICATION_DELETED: String
+<<<<<<< HEAD
       RESTORED_AFTER_DELETION: String
+=======
+>>>>>>> origin/main
 
       VALUES: Array[String]
     end
@@ -2413,6 +2416,106 @@ module Didit
 
     module KYBRegistrySourceSourceType
       OFFICIAL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageAttemptChannel
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageAttemptEncoding
+      GSM_7: String
+      UCS_2: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageAttemptStatus
+      SCHEDULED: String
+      QUEUED: String
+      SENDING: String
+      SENT: String
+      DELIVERED: String
+      READ: String
+      FAILED: String
+      CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageChannel
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageChannelPriceChannel
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageChannelPriceUnit
+      SEGMENT: String
+      MESSAGE: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageChannels
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageEncoding
+      GSM_7: String
+      UCS_2: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageErrorCode
+      INVALID_RECIPIENT: String
+      UNREACHABLE: String
+      REJECTED: String
+      OPTED_OUT: String
+      EXPIRED: String
+      TEMPLATE_REQUIRED: String
+      CHANNEL_UNAVAILABLE: String
+      INSUFFICIENT_CREDITS: String
+      RATE_LIMITED: String
+      DELIVERY_UNCONFIRMED: String
+      CANCELLED: String
+      TEMPLATE_CHANNEL_MISSING: String
+      TEMPLATE_VARIABLE_MISSING: String
+      EMPTY_BODY: String
+      BODY_TOO_LONG: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageStatus
+      SCHEDULED: String
+      QUEUED: String
+      SENDING: String
+      SENT: String
+      DELIVERED: String
+      READ: String
+      FAILED: String
+      CANCELLED: String
 
       VALUES: Array[String]
     end
@@ -6296,6 +6399,10 @@ module Didit
       BANK_SYNC_COMPLETED: String
       BANK_SYNC_FAILED: String
       BANK_SYNC_RECOVERED: String
+<<<<<<< HEAD
+=======
+      MESSAGE_STATUS_UPDATED: String
+>>>>>>> origin/main
 
       VALUES: Array[String]
     end
@@ -7340,6 +7447,10 @@ module Didit
     class BankSignInPricingOneTimeData < Didit::Model
       def balances_usd: () -> String?
       def transactions_usd: () -> String?
+<<<<<<< HEAD
+=======
+      def bundle_included: () -> bool?
+>>>>>>> origin/main
     end
 
     class BankSignInPricingOngoing < Didit::Model
@@ -9258,6 +9369,87 @@ module Didit
     class KYBRegistryUboResolutionUnresolved < Didit::Model
       def reason: () -> String
       def section: () -> String?
+    end
+
+    class Message < Didit::Model
+      def id: () -> String
+      def status: () -> String
+      def to: () -> String?
+      def channel: () -> String
+      def channels: () -> Array[String]
+      def body: () -> String?
+      def subject: () -> String?
+      def template_id: () -> String?
+      def locale: () -> String?
+      def correlation_id: () -> String?
+      def segments: () -> Integer
+      def encoding: () -> String?
+      def price: () -> Didit::Types::MessagePrice?
+      def error: () -> Didit::Types::MessageError?
+      def schedule_at: () -> Time?
+      def expires_at: () -> Time?
+      def created_at: () -> Time
+      def sent_at: () -> Time?
+      def delivered_at: () -> Time?
+      def read_at: () -> Time?
+      def failed_at: () -> Time?
+      def attempts: () -> Array[Didit::Types::MessageAttempt]
+      def is_sandbox: () -> bool
+    end
+
+    class MessageAttempt < Didit::Model
+      def id: () -> String
+      def channel: () -> String
+      def to: () -> String?
+      def status: () -> String
+      def error: () -> Didit::Types::MessageError?
+      def price: () -> Didit::Types::MessagePrice?
+      def segments: () -> Integer
+      def encoding: () -> String?
+      def created_at: () -> Time
+      def sent_at: () -> Time?
+      def delivered_at: () -> Time?
+      def read_at: () -> Time?
+      def failed_at: () -> Time?
+    end
+
+    class MessageChannelPrice < Didit::Model
+      def channel: () -> String
+      def unit: () -> String
+      def category: () -> String?
+      def carrier: () -> String?
+      def fee: () -> String?
+      def price: () -> String?
+    end
+
+    class MessageError < Didit::Model
+      def code: () -> String
+      def message: () -> String
+    end
+
+    class MessageList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::Message]
+    end
+
+    class MessagePrice < Didit::Model
+      def amount: () -> String
+      def currency: () -> String
+      def carrier: () -> String?
+      def fee: () -> String?
+      def final: () -> bool
+    end
+
+    class MessagePrices < Didit::Model
+      def country: () -> String
+      def currency: () -> String
+      def channels: () -> Array[Didit::Types::MessageChannelPrice]
+    end
+
+    class MessagesSettings < Didit::Model
+      def retention_days: () -> Integer
     end
 
     class MonitoringEvent < Didit::Model

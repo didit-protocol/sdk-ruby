@@ -712,8 +712,8 @@ module Didit
       # @param ownership_validation_mode [String] See the response field of the same name.
       # @param simplified_validation_threshold [String] Decimal string, 0 or more.
       # @param data_sharing_fields [Hash] Merged per entity type: an entity type you leave out keeps its current
-      #   choice. A choice that cannot meet the originator obligations of your `jurisdiction` regime (EU TFR or FATF
-      #   Recommendation 16), an empty list included, is refused with `400`.
+      #   choice. A choice that cannot meet the originator obligations of your `jurisdiction` regime (EU TFR, FINTRAC
+      #   for `canada`, FinCEN for `us`, or FATF Recommendation 16), an empty list included, is refused with `400`.
       # @param matching_rules [Hash] Merged per entity type, and per field inside it. A field that entity type does
       #   not compare (for example `date_of_birth` for `company`) is refused with `400`.
       # @param inbound_auto_accept [Boolean]

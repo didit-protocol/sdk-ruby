@@ -31,6 +31,7 @@ module Didit
     autoload :Ip, "didit/resources/ip"
     autoload :Kyb, "didit/resources/kyb"
     autoload :Lists, "didit/resources/lists"
+    autoload :Messages, "didit/resources/messages"
     autoload :MonitoringEvents, "didit/resources/monitoring_events"
     autoload :Networks, "didit/resources/networks"
     autoload :PassiveLiveness, "didit/resources/passive_liveness"
@@ -185,6 +186,11 @@ module Didit
       # @return [Didit::Resources::Lists]
       def lists
         @lists ||= Resources::Lists.new(self)
+      end
+
+      # @return [Didit::Resources::Messages]
+      def messages
+        @messages ||= Resources::Messages.new(self)
       end
 
       # @return [Didit::Resources::MonitoringEvents]
