@@ -14,7 +14,8 @@ module DiditCodegen
       ].freeze
 
       # +overlay+ is the live operations map (entries are deleted from it); +original_overlay+
-      # is a copy as it was before the sync. +entries+ maps "resource.method" to an entry.
+      # is a copy as it was before the sync. +entries+ maps a Ruby method name ("resource.method",
+      # with the reserved-name suffix) to an entry.
       attr_reader :overlay, :original_overlay, :entries
 
       def initialize(openapi_dir)
