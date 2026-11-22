@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Didit
-  VERSION = "2.30.0" # x-release-please-version
+  VERSION = "2.31.0" # x-release-please-version
 end
