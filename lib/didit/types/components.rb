@@ -515,15 +515,9 @@ module Didit
       VALUES = [LIVE, SANDBOX].freeze
     end
 
-<<<<<<< HEAD
-    # `pending` while deletion runs, `erased` when no stored copy and no access at the bank remain, `failed` when it
-    # could not be confirmed within 24 hours. A failed deletion keeps the connection's data closed, is retried, and
-    # Didit is alerted.
-=======
     # The confirmation of the deletion. `pending`: the deletion is being confirmed, including the end of access at the
     # bank. `erased`: confirmed, with `erased_at`. `failed`: the confirmation has not arrived yet and is repeated
     # automatically; nothing is needed from you. The data is deleted and not readable in any of the three.
->>>>>>> origin/main
     module BankConnectionErasureStatus
       PENDING = "pending"
       ERASED = "erased"
@@ -584,12 +578,7 @@ module Didit
     end
 
     # Why the connection is in this status. `paused_by_customer` is reserved. On a `deleted` connection:
-<<<<<<< HEAD
-    # `deleted_by_customer`, `consent_lapsed`, `retention_elapsed`, `application_deleted` or
-    # `restored_after_deletion`.
-=======
     # `deleted_by_customer`, `consent_lapsed`, `retention_elapsed` or `application_deleted`.
->>>>>>> origin/main
     module BankConnectionStatusReason
       COLLECTION_COMPLETE = "collection_complete"
       CONSENT_EXPIRED = "consent_expired"
@@ -604,14 +593,8 @@ module Didit
       DELETED_BY_CUSTOMER = "deleted_by_customer"
       RETENTION_ELAPSED = "retention_elapsed"
       APPLICATION_DELETED = "application_deleted"
-<<<<<<< HEAD
-      RESTORED_AFTER_DELETION = "restored_after_deletion"
-
-      VALUES = [COLLECTION_COMPLETE, CONSENT_EXPIRED, CONSENT_LAPSED, BANK_REQUIRES_SIGN_IN, REVOKED_BY_END_USER, REVOKED_BY_BANK, REVOKED_BY_CUSTOMER, INSUFFICIENT_BALANCE, PAUSED_BY_CUSTOMER, FIRST_SYNC_FAILED, DELETED_BY_CUSTOMER, RETENTION_ELAPSED, APPLICATION_DELETED, RESTORED_AFTER_DELETION].freeze
-=======
 
       VALUES = [COLLECTION_COMPLETE, CONSENT_EXPIRED, CONSENT_LAPSED, BANK_REQUIRES_SIGN_IN, REVOKED_BY_END_USER, REVOKED_BY_BANK, REVOKED_BY_CUSTOMER, INSUFFICIENT_BALANCE, PAUSED_BY_CUSTOMER, FIRST_SYNC_FAILED, DELETED_BY_CUSTOMER, RETENTION_ELAPSED, APPLICATION_DELETED].freeze
->>>>>>> origin/main
     end
 
     # Result of the first sync. The connection becomes `active` on `succeeded` or `partial`, and `failed` when no
@@ -7648,14 +7631,9 @@ module Didit
       BANK_SYNC_COMPLETED = "bank.sync.completed"
       BANK_SYNC_FAILED = "bank.sync.failed"
       BANK_SYNC_RECOVERED = "bank.sync.recovered"
-<<<<<<< HEAD
-
-      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, BANK_LINK_COMPLETED, BANK_LINK_CANCELLED, BANK_LINK_EXPIRED, BANK_LINK_FAILED, BANK_CONNECTION_CREATED, BANK_CONNECTION_UPDATED, BANK_CONNECTION_CONSENT_EXPIRING, BANK_CONNECTION_RENEWAL_REQUIRED, BANK_CONNECTION_RENEWED, BANK_CONNECTION_REVOKED, BANK_CONNECTION_DELETED, BANK_CONNECTION_HISTORY_COMPLETE, BANK_DATA_UPDATED, BANK_SYNC_COMPLETED, BANK_SYNC_FAILED, BANK_SYNC_RECOVERED].freeze
-=======
       MESSAGE_STATUS_UPDATED = "message.status.updated"
 
       VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, BANK_LINK_COMPLETED, BANK_LINK_CANCELLED, BANK_LINK_EXPIRED, BANK_LINK_FAILED, BANK_CONNECTION_CREATED, BANK_CONNECTION_UPDATED, BANK_CONNECTION_CONSENT_EXPIRING, BANK_CONNECTION_RENEWAL_REQUIRED, BANK_CONNECTION_RENEWED, BANK_CONNECTION_REVOKED, BANK_CONNECTION_DELETED, BANK_CONNECTION_HISTORY_COMPLETE, BANK_DATA_UPDATED, BANK_SYNC_COMPLETED, BANK_SYNC_FAILED, BANK_SYNC_RECOVERED, MESSAGE_STATUS_UPDATED].freeze
->>>>>>> origin/main
     end
 
     # Draft versions are editable; published versions are immutable and used for new sessions.
@@ -8576,13 +8554,8 @@ module Didit
       field :ended_by, "ended_by", :string
     end
 
-<<<<<<< HEAD
-    # Accepted deletion. The connection's bank data is being deleted and its data operations answer `409
-    # connection_not_active`; reading the connection returns a minimal record with this `erasure` status.
-=======
     # The record of a deletion. The connection's bank data is deleted and its data operations answer `409
     # connection_not_active`; reading the connection returns a minimal record with this `erasure` record.
->>>>>>> origin/main
     class BankConnectionDeletion < Didit::Model
       field :id, "id", :string
       field :erasure, "erasure", "BankConnectionErasure"
@@ -8592,12 +8565,8 @@ module Didit
       field :reference, "reference", :string
     end
 
-<<<<<<< HEAD
-    # Progress of a deletion you asked for.
-=======
     # The record of a deletion you asked for. The deletion itself is immediate: the connection's data is deleted and
     # unreadable when the call returns. `status` is the confirmation of it.
->>>>>>> origin/main
     class BankConnectionErasure < Didit::Model
       field :status, "status", :string
       field :requested_at, "requested_at", :datetime
@@ -8779,10 +8748,7 @@ module Didit
     class BankSignInPricingOneTimeData < Didit::Model
       field :balances_usd, "balances_usd", :string
       field :transactions_usd, "transactions_usd", :string
-<<<<<<< HEAD
-=======
       field :bundle_included, "bundle_included", :boolean
->>>>>>> origin/main
     end
 
     # Ongoing access to bank data (Bank Link `access: ongoing`). Present only where Bank data is switched on.

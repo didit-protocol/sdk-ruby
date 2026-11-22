@@ -516,10 +516,6 @@ module Didit
       DELETED_BY_CUSTOMER: String
       RETENTION_ELAPSED: String
       APPLICATION_DELETED: String
-<<<<<<< HEAD
-      RESTORED_AFTER_DELETION: String
-=======
->>>>>>> origin/main
 
       VALUES: Array[String]
     end
@@ -6399,10 +6395,7 @@ module Didit
       BANK_SYNC_COMPLETED: String
       BANK_SYNC_FAILED: String
       BANK_SYNC_RECOVERED: String
-<<<<<<< HEAD
-=======
       MESSAGE_STATUS_UPDATED: String
->>>>>>> origin/main
 
       VALUES: Array[String]
     end
@@ -7447,10 +7440,7 @@ module Didit
     class BankSignInPricingOneTimeData < Didit::Model
       def balances_usd: () -> String?
       def transactions_usd: () -> String?
-<<<<<<< HEAD
-=======
       def bundle_included: () -> bool?
->>>>>>> origin/main
     end
 
     class BankSignInPricingOngoing < Didit::Model

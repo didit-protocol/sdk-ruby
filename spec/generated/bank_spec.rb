@@ -216,15 +216,9 @@ RSpec.describe Didit::Resources::Bank do
       {
         "id": "5e1d2a70-3b94-4c1f-8a6e-d2f07b9c1e35",
         "erasure": {
-<<<<<<< HEAD
-          "status": "pending",
-          "requested_at": "2026-11-21T15:10:00Z",
-          "erased_at": null
-=======
           "status": "erased",
           "requested_at": "2026-11-21T15:10:00Z",
           "erased_at": "2026-11-21T15:10:00Z"
->>>>>>> origin/main
         }
       }
     JSON

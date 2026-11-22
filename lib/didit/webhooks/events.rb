@@ -197,8 +197,9 @@ module Didit
       field :kyb_registry, "kyb_registry", :any
     end
 
-    # Fields of the Bank Link events; ids and statuses only, fetch the link from the API to read it.
-    class BankLinkEvent < Event
+    # The link fields of the four +bank.link.*+ events. The backend nests them under +data+,
+    # unlike the connection, data and sync events, whose fields sit next to the envelope.
+    class BankLinkEventData < Didit::Model
       field :link_id, "link_id", :string
       # +"completed"+, +"cancelled"+, +"expired"+ or +"failed"+.
       field :status, "status", :string
@@ -208,6 +209,32 @@ module Didit
       field :check_id, "check_id", :string
       # With +bank.link.failed+, for example +"consent_declined"+.
       field :error_code, "error_code", :string
+    end
+
+    # Fields of the Bank Link events; ids and statuses only, fetch the link from the API to read it.
+    # The payload keeps them under +data+: read {#data}, or the readers, which look there.
+    class BankLinkEvent < Event
+      field :data, "data", BankLinkEventData
+
+      def link_id
+        data&.link_id
+      end
+
+      def status
+        data&.status
+      end
+
+      def connection_id
+        data&.connection_id
+      end
+
+      def check_id
+        data&.check_id
+      end
+
+      def error_code
+        data&.error_code
+      end
     end
 
     # +bank.link.completed+: the person finished Bank Link.
