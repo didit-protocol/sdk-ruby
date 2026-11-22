@@ -197,7 +197,7 @@ See [`examples/webhooks/`](examples/webhooks/) for Rails, Sinatra and Rack recei
 ```ruby
 link = didit.bank.create_link(redirect_url: "https://acme.test/bank/return", access: "ongoing",
                               vendor_data: "customer-42")
-open link.url                          # hosted Bank Link; link.client_token for a modal or inline flow
+puts "Open #{link.url}"                # hosted Bank Link; link.client_token for a modal or inline flow
 
 connection = didit.bank.get_connection(connection_id)  # the id from bank.connection.created
 accounts = didit.bank.list_accounts(connection.id, limit: 50)
