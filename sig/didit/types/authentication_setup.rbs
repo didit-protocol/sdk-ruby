@@ -2,6 +2,14 @@
 
 module Didit
   module Types
+    module AuthenticationSetupGetEmailParamsRole
+      MEMBER: String
+      BILLING: String
+      ADMIN: String
+
+      VALUES: Array[String]
+    end
+
     module AuthenticationSetupSetMethodParamsCredentialSource
       OWN: String
       DIDIT_TEST: String
