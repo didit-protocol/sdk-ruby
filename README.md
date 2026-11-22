@@ -51,7 +51,7 @@ else nil
 end
 ```
 
-[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Authentication, and webhook receivers for Rails, Sinatra and Rack.
+[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Bank data, Authentication, and webhook receivers for Rails, Sinatra and Rack.
 
 ## Configuration
 
@@ -197,7 +197,7 @@ See [`examples/webhooks/`](examples/webhooks/) for Rails, Sinatra and Rack recei
 ```ruby
 link = didit.bank.create_link(redirect_url: "https://acme.test/bank/return", access: "ongoing",
                               vendor_data: "customer-42")
-open link.url                          # hosted Bank Link; link.client_token for a modal or inline flow
+puts "Open #{link.url}"                # hosted Bank Link; link.client_token for a modal or inline flow
 
 connection = didit.bank.get_connection(connection_id)  # the id from bank.connection.created
 accounts = didit.bank.list_accounts(connection.id, limit: 50)

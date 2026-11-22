@@ -284,7 +284,7 @@ Ruby: `net/http` from the standard library, `jwt` only for Authentication.
 ## 14. Documentation and positioning
 
 - README: one-line pitch ("The official Didit <language> library"), install, a quickstart (create a session, read the decision, verify a webhook), configuration, errors, pagination, webhooks, Authentication, links to docs.didit.me, supported runtimes, and versioning policy.
-- `examples/`: runnable examples for the main flows (KYC session, standalone ID verification, AML screening, transaction screening, Travel Rule, Authentication token verification) bank data (create a link, wait for the connection, read accounts) and webhook receivers for the popular frameworks.
+- `examples/`: runnable examples for the main flows (KYC session, standalone ID verification, AML screening, transaction screening, Travel Rule, Authentication token verification), bank data (create a link, wait for the connection, read accounts) and webhook receivers for the popular frameworks.
 - Package metadata with description, keywords (identity verification, KYC, KYB, AML, liveness, transaction monitoring, Travel Rule, Didit), homepage `https://didit.me`, docs `https://docs.didit.me`, repository and license.
 - docs.didit.me gets a Server SDKs section and per-operation code samples in every language (OpenAPI `x-codeSamples`), published together with the first release.
 - License MIT (`Copyright (c) 2026 Didit`), like the client SDKs. `SECURITY.md` points to GitHub private vulnerability reporting and support@didit.me.
