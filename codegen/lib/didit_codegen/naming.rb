@@ -12,6 +12,18 @@ module DiditCodegen
       until when while yield
     ].freeze
 
+    # Public methods every Ruby 3.1 object has, the supported floor. The list is fixed so generated
+    # names do not vary by the Ruby version that runs the generator. An operation with one of these
+    # names gets the resource singular appended instead; see #operation_method.
+    OBJECT_RESERVED = %w[
+      ! != !~ <=> == === =~ __id__ __send__ class clone define_singleton_method display dup enum_for eql? equal?
+      extend freeze frozen? hash inspect instance_eval instance_exec instance_of? instance_variable_defined?
+      instance_variable_get instance_variable_set instance_variables is_a? itself kind_of? method methods nil?
+      object_id private_methods protected_methods public_method public_methods public_send remove_instance_variable
+      respond_to? send singleton_class singleton_method singleton_methods taint tainted? tap then to_enum to_s trust
+      untaint untrust untrusted? yield_self
+    ].freeze
+
     module_function
 
     def words(text)
@@ -64,6 +76,29 @@ module DiditCodegen
 
     def keyword?(name)
       KEYWORDS.include?(name)
+    end
+
+    # +messages+ -> +message+; +categories+ -> +category+.
+    def singular(text)
+      word = text.to_s
+      return word unless word.end_with?("s")
+      return word if word.end_with?("ss", "us", "is")
+      return "#{word[0..-4]}y" if word.end_with?("ies") && word.length > 3
+      return word.delete_suffix("es") if word.end_with?("sses")
+
+      word[0..-2]
+    end
+
+    # The Ruby method name of an operation: a name every Ruby object already has keeps its meaning
+    # and gets the singular resource appended (+messages.send+ becomes +messages.send_message+).
+    def operation_method(resource, method)
+      return method unless OBJECT_RESERVED.include?(method)
+
+      "#{method}_#{singular(resource.split(".").last)}"
+    end
+
+    def qualified_method(resource, method)
+      "#{resource}.#{operation_method(resource, method)}"
     end
   end
 end

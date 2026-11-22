@@ -246,13 +246,29 @@ RSpec.describe Didit::Resources::AuthenticationSetup do
     result = client.authentication_setup.get_email(
       "a1b2c3d4-5678-90ab-cdef-111111111111",
       "7b0a6c2e-3f41-4c9a-8d55-1e2f3a4b5c6d",
-      "code"
+      "code",
+      organization: "Northwind Traders",
+      role: "member",
+      agent: "Nova"
     )
     request = expect_api_request(
       calls,
       method: :get,
       url: "https://apx.didit.me/auth/v2/organizations/a1b2c3d4-5678-90ab-cdef-111111111111/applications/7b0a6c2e-3f41-4c9a-8d55-1e2f3a4b5c6d/authentication/emails/code/",
-      query: [],
+      query: [
+        [
+          "organization",
+          "Northwind Traders"
+        ],
+        [
+          "role",
+          "member"
+        ],
+        [
+          "agent",
+          "Nova"
+        ]
+      ],
       auth: :api_key,
       accept: "application/json"
     )

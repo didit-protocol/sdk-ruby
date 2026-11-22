@@ -108,15 +108,15 @@ module Didit
       # Create a bank link
       #
       # Creates a Bank Link: one run of the flow in which a person connects a bank, or renews a connection. Send the
-      # person to `url`, or pass `client_token` to the web or native SDK. A completed link yields a connection.
+      # person to `url`. The `client_token` is for Didit's embedded Bank Link, which is not released yet: open the
+      # `url` today. A completed link yields a connection.
       #
       # The smallest request is `{}` plus what you want. Defaults: `mode` connect, `access` one_time, `data` accounts
       # only, `history_days` 90, `ownership.compare` none, `segment` any, `duplicates` reuse,
       # `allow_one_time_fallback` false, and for ongoing access a consent as long as the bank allows.
       #
       # The response carries the quote: the price is pinned to the link and charged as quoted. The API key never
-      # reaches a browser or an app: only `client_token` and `url` do. They are redeemed once between them, and
-      # whichever arrives first wins.
+      # reaches a browser or an app: only the `url` does.
       #
       # Confirm the outcome yourself with `get_link` or the `bank.link.completed` webhook; never trust a link id sent
       # by the browser. History: send `history_from` or `history_days`, not both. Where the bank allows, ongoing
@@ -156,12 +156,11 @@ module Didit
       # @param ownership [Hash] Optional comparison of the account holder with a person or a company.
       # @param end_user [Hash] The person or company that connects the account.
       # @param redirect_url [String] Where the browser goes at the end, with `link_id`, `status` and a signed `state`
-      #   (for display only: the webhook and `get_link` are authoritative). Must exactly match a redirect URL registered
-      #   for your application (scheme, host, port, path and query: no prefix, no trailing-slash or case tolerance),
-      #   otherwise the call answers `400 redirect_url_not_registered`. In sandbox only, a plain `http` addres...
-      # @param allowed_origins [Array<String>] HTTPS origins allowed to embed this link, up to 50. Must be among your
-      #   application's allowed domains, which are the default; an origin outside them answers `403
-      #   link_origin_not_allowed`.
+      #   (for display only: the webhook and `get_link` are authoritative). In a sandbox application a plain `http`
+      #   address of `localhost`, `127.0.0.1` or `[::1]` (any port and path, no credentials, no fragment) needs no
+      #   registration. Any other address answers `400 redirect_url_not_registered`: registering other addresses is n...
+      # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
+      #   which is not released yet. HTTPS origins, up to 50.
       # @param language [String] Optional language code such as `es` or `pt-BR`. Otherwise the browser language.
       # @param vendor_data [String] Your own reference, returned on the link and the connection.
       # @param expires_in [Integer] Lifetime of the link in seconds, 300 to 86400. Default 3600.
@@ -174,8 +173,8 @@ module Didit
       # @param accept_reduced_grant [Boolean] When the bank or the person grants less than you asked for, complete the
       #   link and charge only the granted scopes. Otherwise the link ends `failed` with `reduced_grant` and nothing is
       #   charged.
-      # @param sandbox [Hash] Sandbox applications only: shapes what the Didit Test Bank does in this link, so a test
-      #   can reach each outcome. Ignored in a live application.
+      # @param sandbox [Hash] Sandbox applications only: picks the Didit Test Bank customer. Ignored in a live
+      #   application.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BankLink]
@@ -240,19 +239,20 @@ module Didit
 
       # Delete a bank connection
       #
-      # Deletes the connection's bank data and stops access at the bank. The connection's accounts, balances,
-      # transactions, sync history, consent records and ownership results are deleted. Deletion is irreversible.
+      # Deletes the connection's bank data and stops access at the bank. Deletion is immediate and irreversible: when
+      # the call returns, the connection's accounts, balances, transactions, sync history, consent records and
+      # ownership results are deleted, and its data operations (refresh, sync runs, accounts, balances, transactions
+      # and the change feed) answer `409 connection_not_active`.
       #
-      # It starts at once: the response is `202` with `erasure.status` `pending`, and from that moment the
-      # connection's data operations (refresh, sync runs, accounts, balances, transactions and the change feed) answer
-      # `409 connection_not_active`. The connection then reads with `erasure.status` `erased`, or `failed` if deletion
-      # could not be confirmed within 24 hours; a failed deletion is retried until it completes. A deleted connection
-      # reads as a minimal record: its id, `status: deleted`, the reason, its dates and its `erasure` status, and it
-      # holds no accounts, balances, transactions, consent or sync data.
+      # A deleted connection reads as a minimal record: its id, `status: deleted`, the reason, its dates and its
+      # `erasure` record (`requested_at`, `erased_at` and `status`, the confirmation of the deletion: `pending` while
+      # it is being confirmed, including the end of access at the bank, `erased` once confirmed, `failed` if the
+      # confirmation has not arrived yet and is repeated automatically, with nothing needed from you). It holds no
+      # accounts, balances, transactions, consent or sync data. `bank.connection.deleted` confirms the deletion.
       #
       # Not affected: your other connections, the charges already made (they are not refunded), and any data you
-      # already downloaded, which is your own copy. Repeating the call returns the current state. To stop access
-      # without deleting, use `revoke_connection`.
+      # already downloaded, which is your own copy. Repeating the call is safe. To stop access without deleting, use
+      # `revoke_connection`.
       #
       # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
       # something. A key with full access does not include it: grant it explicitly when you create the key, or the
@@ -283,9 +283,8 @@ module Didit
       #
       # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
       # does not include it: grant it explicitly when you create the key, or the call answers `403
-      # bank_data_access_denied`. Reading accounts, balances and transactions in a live application also needs the
-      # application setting "Bank data in the API"; a sandbox application reads its Test Bank data with the key alone.
-      # A request without an API key (client credentials) is refused on raw data with the same `403`.
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/+
       #
@@ -308,9 +307,8 @@ module Didit
       #
       # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
       # does not include it: grant it explicitly when you create the key, or the call answers `403
-      # bank_data_access_denied`. Reading accounts, balances and transactions in a live application also needs the
-      # application setting "Bank data in the API"; a sandbox application reads its Test Bank data with the key alone.
-      # A request without an API key (client credentials) is refused on raw data with the same `403`.
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/balances/+
       #
@@ -459,9 +457,8 @@ module Didit
       #
       # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
       # does not include it: grant it explicitly when you create the key, or the call answers `403
-      # bank_data_access_denied`. Reading accounts, balances and transactions in a live application also needs the
-      # application setting "Bank data in the API"; a sandbox application reads its Test Bank data with the key alone.
-      # A request without an API key (client credentials) is refused on raw data with the same `403`.
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/connections/{id}/accounts/+
       #
@@ -644,9 +641,8 @@ module Didit
       #
       # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
       # does not include it: grant it explicitly when you create the key, or the call answers `403
-      # bank_data_access_denied`. Reading accounts, balances and transactions in a live application also needs the
-      # application setting "Bank data in the API"; a sandbox application reads its Test Bank data with the key alone.
-      # A request without an API key (client credentials) is refused on raw data with the same `403`.
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/transactions/+
       #
@@ -736,14 +732,14 @@ module Didit
 
       # Renew a bank connection
       #
-      # Creates a renew link for this connection, a shortcut for `create_link` with `mode: renew`. The person confirms
-      # what continues to be shared and signs in at the bank, or reconfirms on Didit's screen where the bank and
-      # country allow it (`consent.renewal_action`). The connection id and every account id stay the same, and history
-      # continues without duplicates.
+      # Creates a renew link for this connection, a shortcut for `create_link` with `mode: renew`. The connection id
+      # and every account id stay the same.
+      #
+      # Opening the returned link on the hosted page is not available yet: the page that lets the person renew is
+      # still to be built.
       #
       # Until the consent has 30 days left or fewer it answers `409 renewal_not_needed`; after
-      # `consent.renewable_until` it answers `409 renewal_window_expired` and the person connects again. If the person
-      # renews with another bank login, the link ends `failed` with `renewal_login_mismatch` and nothing changes.
+      # `consent.renewable_until` it answers `409 renewal_window_expired` and the person connects again.
       #
       # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
       # something. A key with full access does not include it: grant it explicitly when you create the key, or the
@@ -752,11 +748,11 @@ module Didit
       # +POST /v3/bank/connections/{id}/renew/+
       #
       # @param id [String] The connection id.
-      # @param redirect_url [String] Where the browser goes at the end. Must exactly match a registered redirect URL
-      #   (scheme, host, port, path and query), otherwise `400 redirect_url_not_registered`. In sandbox only, a plain
-      #   `http` localhost address needs no registration.
-      # @param allowed_origins [Array<String>] HTTPS origins allowed to embed this link, up to 50, among your
-      #   application's allowed domains.
+      # @param redirect_url [String] Where the browser goes at the end. In a sandbox application a plain `http`
+      #   address of `localhost`, `127.0.0.1` or `[::1]` needs no registration. Any other address answers `400
+      #   redirect_url_not_registered`: registering other addresses is not available yet.
+      # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
+      #   which is not released yet. HTTPS origins, up to 50.
       # @param language [String]
       # @param expires_in [Integer] Lifetime in seconds, 300 to 86400.
       # @param idempotency_key [String] sent as the Idempotency-Key header
@@ -842,9 +838,8 @@ module Didit
       #
       # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
       # does not include it: grant it explicitly when you create the key, or the call answers `403
-      # bank_data_access_denied`. Reading accounts, balances and transactions in a live application also needs the
-      # application setting "Bank data in the API"; a sandbox application reads its Test Bank data with the key alone.
-      # A request without an API key (client credentials) is refused on raw data with the same `403`.
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/connections/{id}/transactions/sync/+
       #
