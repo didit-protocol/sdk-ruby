@@ -292,6 +292,461 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BankAccountHolderRole
+      HOLDER: String
+      JOINT_HOLDER: String
+      REPRESENTATIVE: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankAccountScopesGranted
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankAccountStatus
+      OPEN: String
+      CLOSED: String
+      ACCESS_REMOVED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankAccountSyncStatus
+      PENDING: String
+      OK: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankAccountType
+      CURRENT: String
+      SAVINGS: String
+      CARD: String
+      LOAN: String
+      INVESTMENT: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module BankAccountUsage
+      PERSONAL: String
+      BUSINESS: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankBalanceType
+      BOOKED: String
+      AVAILABLE: String
+      EXPECTED: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionAccess
+      ONE_TIME: String
+      ONGOING: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionAccountSummaryStatus
+      OPEN: String
+      CLOSED: String
+      ACCESS_REMOVED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionAccountSummaryType
+      CURRENT: String
+      SAVINGS: String
+      CARD: String
+      LOAN: String
+      INVESTMENT: String
+      OTHER: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionAccountSummaryUsage
+      PERSONAL: String
+      BUSINESS: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionBillingUnit
+      CONNECTION_MONTH: String
+      ONE_TIME: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionConsentEndedBy
+      END_USER: String
+      BANK: String
+      CUSTOMER: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionConsentRenewalAction
+      RECONFIRM: String
+      BANK_AUTH: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionConsentScopesGranted
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionConsentScopesRequested
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionConsentStatus
+      GRANTED: String
+      EXPIRED: String
+      REVOCATION_PENDING: String
+      REVOKED: String
+      REVOCATION_FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionData
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionEnvironment
+      LIVE: String
+      SANDBOX: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionErasureStatus
+      PENDING: String
+      ERASED: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionOwnershipCompare
+      NONE: String
+      PERSON: String
+      BUSINESS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionOwnershipMatch
+      ANY_HOLDER: String
+      ALL_HOLDERS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionOwnershipResult
+      MATCH: String
+      CLOSE_MATCH: String
+      NO_MATCH: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionSegment
+      PERSONAL: String
+      BUSINESS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionStatus
+      PENDING: String
+      ACTIVE: String
+      RENEWAL_REQUIRED: String
+      PAUSED: String
+      REVOKED: String
+      DELETED: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionStatusReason
+      COLLECTION_COMPLETE: String
+      CONSENT_EXPIRED: String
+      CONSENT_LAPSED: String
+      BANK_REQUIRES_SIGN_IN: String
+      REVOKED_BY_END_USER: String
+      REVOKED_BY_BANK: String
+      REVOKED_BY_CUSTOMER: String
+      INSUFFICIENT_BALANCE: String
+      PAUSED_BY_CUSTOMER: String
+      FIRST_SYNC_FAILED: String
+      DELETED_BY_CUSTOMER: String
+      RETENTION_ELAPSED: String
+      APPLICATION_DELETED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionSyncInitialStatus
+      PENDING: String
+      SUCCEEDED: String
+      PARTIAL: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankConnectionSyncStatus
+      PENDING: String
+      OK: String
+      FAILING: String
+
+      VALUES: Array[String]
+    end
+
+    module BankHistoryCoverageStatus
+      COMPLETE: String
+      PARTIAL: String
+      EMPTY: String
+      UNAVAILABLE: String
+      UNKNOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankInstitutionAccess
+      ONE_TIME: String
+      ONGOING: String
+
+      VALUES: Array[String]
+    end
+
+    module BankInstitutionBalanceTypes
+      BOOKED: String
+      AVAILABLE: String
+      EXPECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankInstitutionHealth
+      OPERATIONAL: String
+      DEGRADED: String
+      DOWN: String
+
+      VALUES: Array[String]
+    end
+
+    module BankInstitutionSegments
+      PERSONAL: String
+      BUSINESS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankInstitutionSignIn
+      REDIRECT: String
+      APP_APPROVAL: String
+      CREDENTIALS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkAccess
+      ONE_TIME: String
+      ONGOING: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkErrorCode
+      DUPLICATE_CONFLICT: String
+      RENEWAL_LOGIN_MISMATCH: String
+      REDUCED_GRANT: String
+      CORPORATE_APPROVAL_NOT_SUPPORTED: String
+      ONGOING_ACCESS_NOT_AVAILABLE: String
+      BANK_UNAVAILABLE: String
+      BANK_CANCELLED: String
+      CONSENT_DECLINED: String
+      READ_LIMIT: String
+      RENEWAL_NOT_NEEDED: String
+      RENEWAL_WINDOW_EXPIRED: String
+      FIRST_SYNC_FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkMode
+      CONNECT: String
+      RENEW: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkOwnershipRequestCompare
+      NONE: String
+      PERSON: String
+      BUSINESS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkOwnershipRequestMatch
+      ANY_HOLDER: String
+      ALL_HOLDERS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkQuoteScopes
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankLinkStatus
+      CREATED: String
+      OPENED: String
+      CONNECTING: String
+      COMPLETED: String
+      CANCELLED: String
+      EXPIRED: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankRefreshAcceptedStatus
+      QUEUED: String
+      RUNNING: String
+
+      VALUES: Array[String]
+    end
+
+    module BankRemovedTransactionReason
+      PENDING_BOOKED: String
+      PENDING_EXPIRED: String
+      BANK_REMOVED: String
+      ACCESS_REMOVED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncBudgetResource
+      ALL: String
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncBudgetScope
+      CONNECTION: String
+      ACCOUNT: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncCompletedOutcome
+      SUCCEEDED: String
+      PARTIAL: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncRunResultOutcome
+      SUCCEEDED: String
+      FAILED: String
+      SKIPPED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncRunResultResource
+      ACCOUNTS: String
+      BALANCES: String
+      TRANSACTIONS: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncRunStatus
+      QUEUED: String
+      RUNNING: String
+      SUCCEEDED: String
+      PARTIAL: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSyncRunTrigger
+      INITIAL: String
+      SCHEDULED: String
+      REQUESTED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankTransactionDirection
+      CREDIT: String
+      DEBIT: String
+
+      VALUES: Array[String]
+    end
+
+    module BankTransactionIdentityQuality
+      BANK_REFERENCE: String
+      ROUTE_ID: String
+      DERIVED: String
+
+      VALUES: Array[String]
+    end
+
+    module BankTransactionStatus
+      BOOKED: String
+      PENDING: String
+
+      VALUES: Array[String]
+    end
+
     module BankVerificationPricingCurrency
       USD: String
 
@@ -5924,6 +6379,22 @@ module Didit
       INVESTIGATOR_SLA_BREACHED: String
       INVESTIGATOR_QA_FAILED: String
       INVESTIGATOR_EXTERNAL_REPORT_READY: String
+      BANK_LINK_COMPLETED: String
+      BANK_LINK_CANCELLED: String
+      BANK_LINK_EXPIRED: String
+      BANK_LINK_FAILED: String
+      BANK_CONNECTION_CREATED: String
+      BANK_CONNECTION_UPDATED: String
+      BANK_CONNECTION_CONSENT_EXPIRING: String
+      BANK_CONNECTION_RENEWAL_REQUIRED: String
+      BANK_CONNECTION_RENEWED: String
+      BANK_CONNECTION_REVOKED: String
+      BANK_CONNECTION_DELETED: String
+      BANK_CONNECTION_HISTORY_COMPLETE: String
+      BANK_DATA_UPDATED: String
+      BANK_SYNC_COMPLETED: String
+      BANK_SYNC_FAILED: String
+      BANK_SYNC_RECOVERED: String
       MESSAGE_STATUS_UPDATED: String
 
       VALUES: Array[String]
@@ -6657,6 +7128,25 @@ module Didit
       def status: () -> Hash[String, Integer]
     end
 
+    class BankAccount < Didit::Model
+      def id: () -> String
+      def connection_id: () -> String
+      def name: () -> String?
+      def product: () -> String?
+      def `type`: () -> String
+      def usage: () -> String
+      def currency: () -> String
+      def holder_name: () -> String?
+      def holders: () -> Array[Didit::Types::BankAccountHolder]
+      def identifiers: () -> Didit::Types::BankAccountIdentifiers
+      def account_ref: () -> String?
+      def account_ref_previous: () -> String?
+      def status: () -> String
+      def scopes_granted: () -> Array[String]
+      def sync: () -> Didit::Types::BankAccountSync
+      def history_coverage: () -> Didit::Types::BankHistoryCoverage
+    end
+
     class BankAccountCheckPricing < Didit::Model
       def available: () -> bool
       def price_usd: () -> String?
@@ -6672,11 +7162,274 @@ module Didit
       def created_at: () -> Time
     end
 
+    class BankAccountHolder < Didit::Model
+      def name: () -> String
+      def role: () -> String
+    end
+
+    class BankAccountIdentifiers < Didit::Model
+      def iban: () -> String?
+      def bic: () -> String?
+      def account_number: () -> String?
+      def sort_code: () -> String?
+      def other: () -> Array[Didit::Types::BankAccountIdentifiersOther]
+    end
+
+    class BankAccountIdentifiersOther < Didit::Model
+      def scheme: () -> String
+      def value: () -> String
+    end
+
+    class BankAccountList < Didit::Model
+      def items: () -> Array[Didit::Types::BankAccount]
+      def next_cursor: () -> String?
+    end
+
+    class BankAccountSync < Didit::Model
+      def last_synced_at: () -> Time?
+      def status: () -> String
+      def history_requested_from: () -> Date?
+      def history_available_from: () -> Date?
+      def pending_supported: () -> bool
+    end
+
+    class BankBalance < Didit::Model
+      def `type`: () -> String
+      def iso_type: () -> String?
+      def amount: () -> String
+      def currency: () -> String
+      def reference_date: () -> Date?
+      def last_change_at: () -> Time?
+      def credit_limit_included: () -> bool?
+    end
+
+    class BankBalances < Didit::Model
+      def account_id: () -> String
+      def balances: () -> Array[Didit::Types::BankBalance]
+      def last_synced_at: () -> Time?
+    end
+
+    class BankConnection < Didit::Model
+      def id: () -> String
+      def environment: () -> String?
+      def access: () -> String?
+      def status: () -> String
+      def status_reason: () -> String?
+      def institution: () -> Didit::Types::BankInstitutionSummary?
+      def segment: () -> String?
+      def data: () -> Array[String]?
+      def consent: () -> Didit::Types::BankConnectionConsent?
+      def sync: () -> Didit::Types::BankConnectionSync?
+      def accounts: () -> Array[Didit::Types::BankConnectionAccountSummary]?
+      def ownership: () -> Didit::Types::BankConnectionOwnership?
+      def end_user: () -> Didit::Types::BankConnectionEndUser?
+      def manage_url: () -> String?
+      def billing: () -> Didit::Types::BankConnectionBilling?
+      def possible_duplicate_of: () -> String?
+      def erasure: () -> Didit::Types::BankConnectionErasure?
+      def vendor_data: () -> String?
+      def created_at: () -> Time
+      def updated_at: () -> Time?
+    end
+
+    class BankConnectionAccountSummary < Didit::Model
+      def id: () -> String
+      def name: () -> String?
+      def `type`: () -> String
+      def usage: () -> String
+      def currency: () -> String
+      def iban_last4: () -> String?
+      def status: () -> String
+    end
+
+    class BankConnectionBilling < Didit::Model
+      def unit: () -> String
+      def price_usd: () -> String?
+      def billed_through: () -> Date?
+    end
+
+    class BankConnectionConsent < Didit::Model
+      def status: () -> String
+      def version: () -> Integer
+      def granted_at: () -> Time?
+      def expires_at: () -> Time?
+      def days_granted: () -> Integer?
+      def renewed_count: () -> Integer
+      def scopes_requested: () -> Array[String]
+      def scopes_granted: () -> Array[String]
+      def accounts_granted: () -> Array[String]
+      def renewal_action: () -> String?
+      def renew_by: () -> Time?
+      def reconfirm_by: () -> Time?
+      def renewable_until: () -> Time?
+      def retain_until: () -> Time?
+      def ended_at: () -> Time?
+      def ended_by: () -> String?
+    end
+
+    class BankConnectionDeletion < Didit::Model
+      def id: () -> String
+      def erasure: () -> Didit::Types::BankConnectionErasure
+    end
+
+    class BankConnectionEndUser < Didit::Model
+      def reference: () -> String?
+    end
+
+    class BankConnectionErasure < Didit::Model
+      def status: () -> String
+      def requested_at: () -> Time
+      def erased_at: () -> Time?
+    end
+
+    class BankConnectionList < Didit::Model
+      def items: () -> Array[Didit::Types::BankConnection]
+      def next_cursor: () -> String?
+    end
+
+    class BankConnectionOwnership < Didit::Model
+      def compare: () -> String
+      def match: () -> String?
+      def check_id: () -> String?
+      def result: () -> String?
+    end
+
+    class BankConnectionSync < Didit::Model
+      def status: () -> String
+      def initial_status: () -> String
+      def initial_complete: () -> bool
+      def history_complete: () -> bool
+      def last_synced_at: () -> Time?
+      def next_sync_at: () -> Time?
+      def budgets: () -> Array[Didit::Types::BankSyncBudget]
+      def last_error: () -> Didit::Types::BankSyncError?
+      def frequency_per_day: () -> Integer
+      def live_syncs_left_today: () -> Integer?
+    end
+
+    class BankCoverage < Didit::Model
+      def items: () -> Array[Didit::Types::BankCoverageCountry]
+    end
+
+    class BankCoverageCountry < Didit::Model
+      def country: () -> String
+      def name: () -> String
+      def sign_in_available: () -> bool
+      def account_check_available: () -> bool
+      def ongoing_access: () -> bool
+      def institutions: () -> Integer
+      def ongoing_institutions: () -> Integer
+      def consent_days_max: () -> Integer?
+      def history_days_max: () -> Integer?
+      def business_accounts: () -> bool
+    end
+
+    class BankDateRange < Didit::Model
+      def from: () -> Date
+      def to: () -> Date
+    end
+
+    class BankHistoryCoverage < Didit::Model
+      def requested_from: () -> Date?
+      def oldest_booking_date: () -> Date?
+      def covered_ranges: () -> Array[Didit::Types::BankDateRange]
+      def missing_ranges: () -> Array[Didit::Types::BankDateRange]
+      def status: () -> String
+      def extended_auth_used: () -> bool
+    end
+
+    class BankInstitution < Didit::Model
+      def id: () -> String
+      def name: () -> String
+      def country: () -> String
+      def logo_url: () -> String?
+      def timezone: () -> String?
+      def segments: () -> Array[String]
+      def access: () -> Array[String]
+      def ongoing_access: () -> bool
+      def consent_days_max: () -> Integer?
+      def history_days_max: () -> Integer?
+      def pending_transactions: () -> bool?
+      def pending_linkage: () -> bool?
+      def balance_types: () -> Array[String]
+      def transaction_fields: () -> Array[String]
+      def sign_in: () -> String?
+      def requires_end_user_email: () -> bool?
+      def corporate_accounts: () -> bool?
+      def bank_account_selection: () -> bool?
+      def separate_history_consent: () -> bool?
+      def reconfirmation: () -> bool?
+      def sync_frequency_hours: () -> Integer?
+      def health: () -> String
+    end
+
+    class BankInstitutionList < Didit::Model
+      def items: () -> Array[Didit::Types::BankInstitution]
+      def next_cursor: () -> String?
+    end
+
+    class BankInstitutionSummary < Didit::Model
+      def id: () -> String
+      def name: () -> String
+      def country: () -> String
+      def logo_url: () -> String?
+    end
+
+    class BankLink < Didit::Model
+      def id: () -> String
+      def mode: () -> String
+      def access: () -> String
+      def status: () -> String
+      def url: () -> String?
+      def client_token: () -> String?
+      def expires_at: () -> Time
+      def connection_id: () -> String?
+      def check_id: () -> String?
+      def reused: () -> bool
+      def error: () -> Didit::Types::BankLinkError?
+      def quote: () -> Didit::Types::BankLinkQuote
+      def vendor_data: () -> String?
+    end
+
+    class BankLinkError < Didit::Model
+      def code: () -> String
+      def message: () -> String
+      def conflicts_with: () -> Array[String]?
+    end
+
+    class BankLinkQuote < Didit::Model
+      def id: () -> String
+      def lines: () -> Array[Didit::Types::BankLinkQuoteLine]
+      def fallback_lines: () -> Array[Didit::Types::BankLinkQuoteLine]?
+      def total_usd: () -> String
+      def valid_until: () -> Time
+      def scopes: () -> Array[String]
+    end
+
+    class BankLinkQuoteLine < Didit::Model
+      def meter: () -> String
+      def unit: () -> String
+      def price_usd: () -> String
+    end
+
+    class BankRefreshAccepted < Didit::Model
+      def sync_id: () -> String
+      def status: () -> String
+      def next_refresh_at: () -> Time?
+    end
+
+    class BankRemovedTransaction < Didit::Model
+      def id: () -> String
+      def reason: () -> String
+    end
+
     class BankSignInPricing < Didit::Model
       def available: () -> bool
       def market: () -> String?
       def price_usd: () -> String?
       def add_ons: () -> Didit::Types::BankSignInPricingAddOns
+      def ongoing: () -> Didit::Types::BankSignInPricingOngoing?
+      def one_time_data: () -> Didit::Types::BankSignInPricingOneTimeData?
     end
 
     class BankSignInPricingAddOns < Didit::Model
@@ -6684,10 +7437,137 @@ module Didit
       def transactions: () -> String?
     end
 
+    class BankSignInPricingOneTimeData < Didit::Model
+      def balances_usd: () -> String?
+      def transactions_usd: () -> String?
+      def bundle_included: () -> bool?
+    end
+
+    class BankSignInPricingOngoing < Didit::Model
+      def available: () -> bool
+      def price_usd_per_month: () -> String?
+    end
+
     class BankStatementUploadPricing < Didit::Model
       def price_usd: () -> String
       def included_after_charged_bank_attempt: () -> bool
       def standalone_available: () -> bool
+    end
+
+    class BankSyncBudget < Didit::Model
+      def scope: () -> String
+      def resource: () -> String
+      def account_id: () -> String?
+      def limit: () -> Integer
+      def remaining: () -> Integer
+      def resets_at: () -> Time
+    end
+
+    class BankSyncCompleted < Didit::Types::BankSyncRun
+      def outcome: () -> String
+      def balances_changed: () -> bool
+    end
+
+    class BankSyncError < Didit::Model
+      def code: () -> String
+      def message: () -> String
+      def at: () -> Time?
+    end
+
+    class BankSyncRun < Didit::Model
+      def id: () -> String
+      def connection_id: () -> String
+      def trigger: () -> String
+      def status: () -> String
+      def started_at: () -> Time?
+      def finished_at: () -> Time?
+      def results: () -> Array[Didit::Types::BankSyncRunResult]
+      def error: () -> Didit::Types::BankSyncRunError?
+    end
+
+    class BankSyncRunError < Didit::Model
+      def code: () -> String
+      def message: () -> String
+      def at: () -> Time
+    end
+
+    class BankSyncRunList < Didit::Model
+      def items: () -> Array[Didit::Types::BankSyncRun]
+      def next_cursor: () -> String?
+    end
+
+    class BankSyncRunResult < Didit::Model
+      def account_id: () -> String?
+      def resource: () -> String
+      def outcome: () -> String
+      def added: () -> Integer
+      def modified: () -> Integer
+      def removed: () -> Integer
+      def error: () -> Didit::Types::BankSyncError?
+    end
+
+    class BankTransaction < Didit::Model
+      def id: () -> String
+      def account_id: () -> String
+      def status: () -> String
+      def pending_id: () -> String?
+      def reverses_id: () -> String?
+      def booking_date: () -> Date?
+      def value_date: () -> Date?
+      def transaction_date: () -> Date?
+      def effective_date: () -> Date
+      def amount: () -> String
+      def currency: () -> String
+      def direction: () -> String
+      def description: () -> String?
+      def counterparty: () -> Didit::Types::BankTransactionCounterparty
+      def remittance: () -> Didit::Types::BankTransactionRemittance
+      def bank_transaction_code: () -> String?
+      def bank_reference: () -> String?
+      def identity_quality: () -> String
+      def end_to_end_id: () -> String?
+      def mandate_id: () -> String?
+      def creditor_id: () -> String?
+      def merchant_category_code: () -> String?
+      def exchange: () -> Didit::Types::BankTransactionExchange?
+      def balance_after: () -> String?
+      def category: () -> String?
+      def first_seen_at: () -> Time
+      def updated_at: () -> Time
+    end
+
+    class BankTransactionChanges < Didit::Model
+      def added: () -> Array[Didit::Types::BankTransaction]
+      def modified: () -> Array[Didit::Types::BankTransaction]
+      def removed: () -> Array[Didit::Types::BankRemovedTransaction]
+      def has_more: () -> bool
+      def next_page_token: () -> String?
+      def next_cursor: () -> String?
+      def reset: () -> bool
+    end
+
+    class BankTransactionCounterparty < Didit::Model
+      def name: () -> String?
+      def iban: () -> String?
+      def bic: () -> String?
+    end
+
+    class BankTransactionExchange < Didit::Model
+      def source_amount: () -> String?
+      def source_currency: () -> String?
+      def rate: () -> String?
+    end
+
+    class BankTransactionPage < Didit::Model
+      def items: () -> Array[Didit::Types::BankTransaction]
+      def next_page_token: () -> String?
+      def has_more: () -> bool
+    end
+
+    class BankTransactionRemittance < Didit::Model
+      def unstructured: () -> Array[String]
+      def structured: () -> String?
+      def reference: () -> String?
     end
 
     class BankVerificationPricing < Didit::Model
@@ -13185,6 +14065,14 @@ module Didit
     type bank_account_check_business_holder = { business_name: String }
 
     type bank_account_check_person_holder = { full_name: String }
+
+    type bank_link_end_user = { ?reference: String, ?email: String }
+
+    type bank_link_ownership_request = { ?compare: String, ?match: String, ?reference_identity: Didit::Types::bank_link_ownership_request_reference_identity, ?session_id: String, ?business: Didit::Types::bank_link_ownership_request_business, ?business_session_id: String }
+
+    type bank_link_ownership_request_business = { legal_name: String, ?registration_id: String }
+
+    type bank_link_ownership_request_reference_identity = { ?full_name: String, ?date_of_birth: Date | String, ?address: String, ?phone: String, ?email: String }
 
     type case_blueprint_stage = { ?key: String, label: String, ?sla_hours: Integer?, ?worked_by: String? }
 

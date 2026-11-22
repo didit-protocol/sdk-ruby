@@ -81,6 +81,787 @@ module Didit
           request_options: request_options
         )
       end
+
+      # Cancel a bank link
+      #
+      # Cancels a link that is not completed yet; its url and token stop working. Cancelling a link that is already
+      # cancelled, expired, failed or completed answers `200` and returns it unchanged, so it is safe to repeat. A
+      # completed link keeps its connection.
+      #
+      # +POST /v3/bank/links/{id}/cancel/+
+      #
+      # @param id [String] The link id.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankLink]
+      def cancel_link(id, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/bank/links/{id}/cancel/",
+          path_params: { "id" => id },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankLink,
+          request_options: request_options
+        )
+      end
+
+      # Create a bank link
+      #
+      # Creates a Bank Link: one run of the flow in which a person connects a bank, or renews a connection. Send the
+      # person to `url`. The `client_token` is for Didit's embedded Bank Link, which is not released yet: open the
+      # `url` today. A completed link yields a connection.
+      #
+      # The smallest request is `{}` plus what you want. Defaults: `mode` connect, `access` one_time, `data` accounts
+      # only, `history_days` 90, `ownership.compare` none, `segment` any, `duplicates` reuse,
+      # `allow_one_time_fallback` false, and for ongoing access a consent as long as the bank allows.
+      #
+      # The response carries the quote: the price is pinned to the link and charged as quoted. The API key never
+      # reaches a browser or an app: only the `url` does.
+      #
+      # Confirm the outcome yourself with `get_link` or the `bank.link.completed` webhook; never trust a link id sent
+      # by the browser. History: send `history_from` or `history_days`, not both. Where the bank allows, ongoing
+      # access keeps working until the consent ends; the real date is on each connection.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`.
+      #
+      # +POST /v3/bank/links/+
+      #
+      # @param mode [String] `connect` (default) creates a new connection. `renew` needs `connection_id` and reuses
+      #   that connection's settings.
+      # @param connection_id [String] The connection to renew. Only with `mode: renew`.
+      # @param access [String] `one_time` (default) reads the data once. `ongoing` keeps access open until the consent
+      #   ends or someone stops it. With `institution_id` set, a bank that cannot keep access open answers `400
+      #   ongoing_access_not_available` before any screen. Without it, the bank picker lists only banks that can.
+      # @param country [String] Optional. Without it the person picks among the countries your application enabled. It
+      #   has to be a country Bank Link serves; any other, `ZZZ` included, answers `400 invalid_request` with `field:
+      #   country`. An empty request body stays valid.
+      # @param institution_id [String] Optional bank to preselect, from `list_institutions`. Skips the picker.
+      # @param segment [String] Filters the picker and tells the bank which login to open where the bank separates
+      #   them. Default `any`.
+      # @param data [Array<String>] What to read. `accounts` is always included: name, type, currency, identifiers and
+      #   the holder name where the bank shares it. Default `["accounts"]`.
+      # @param history_days [Integer] Days of transaction history to request, 1 to 365, default 90. The bank may
+      #   deliver less: each account reports what it delivered in `history_coverage`. Cannot be sent with
+      #   `history_from`.
+      # @param history_from [Date, String] Start date of the history to request, instead of `history_days`. Cannot be
+      #   sent with `history_days`: both together answer `400 history_window_ambiguous`. A date older than 365 days, or
+      #   in the future, answers `400 window_not_available`.
+      # @param extended_history [String] `allow_extra_auth` lets a bank that asks for one more confirmation release
+      #   older history.
+      # @param consent_days [Integer] Ongoing only. How many days to ask the bank to keep access open, 1 or more.
+      #   Default: the longest the bank allows. The connection reports the date the bank actually granted in
+      #   `consent.expires_at`. With `access: one_time` it answers `400 invalid_request` with `field: consent_days`.
+      # @param ownership [Hash] Optional comparison of the account holder with a person or a company.
+      # @param end_user [Hash] The person or company that connects the account.
+      # @param redirect_url [String] Where the browser goes at the end, with `link_id`, `status` and a signed `state`
+      #   (for display only: the webhook and `get_link` are authoritative). In a sandbox application a plain `http`
+      #   address of `localhost`, `127.0.0.1` or `[::1]` (any port and path, no credentials, no fragment) needs no
+      #   registration. Any other address answers `400 redirect_url_not_registered`: registering other addresses is n...
+      # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
+      #   which is not released yet. HTTPS origins, up to 50.
+      # @param language [String] Optional language code such as `es` or `pt-BR`. Otherwise the browser language.
+      # @param vendor_data [String] Your own reference, returned on the link and the connection.
+      # @param expires_in [Integer] Lifetime of the link in seconds, 300 to 86400. Default 3600.
+      # @param duplicates [String] `reuse` (default) completes a link that resolves to accounts you already share as a
+      #   renewal of that connection. `allow` creates an independent second connection.
+      # @param allow_one_time_fallback [Boolean] With `ongoing`, lets the person continue with a one-time read at a
+      #   bank that cannot keep access open, after confirming the reduced access on its own screen. The quote shows what
+      #   that costs. Only with `access: ongoing`: with one-time access it answers `400 invalid_request` with `field:
+      #   allow_one_time_fallback`.
+      # @param accept_reduced_grant [Boolean] When the bank or the person grants less than you asked for, complete the
+      #   link and charge only the granted scopes. Otherwise the link ends `failed` with `reduced_grant` and nothing is
+      #   charged.
+      # @param sandbox [Hash] Sandbox applications only: picks the Didit Test Bank customer. Ignored in a live
+      #   application.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankLink]
+      def create_link(
+        mode: OMIT,
+        connection_id: OMIT,
+        access: OMIT,
+        country: OMIT,
+        institution_id: OMIT,
+        segment: OMIT,
+        data: OMIT,
+        history_days: OMIT,
+        history_from: OMIT,
+        extended_history: OMIT,
+        consent_days: OMIT,
+        ownership: OMIT,
+        end_user: OMIT,
+        redirect_url: OMIT,
+        allowed_origins: OMIT,
+        language: OMIT,
+        vendor_data: OMIT,
+        expires_in: OMIT,
+        duplicates: OMIT,
+        allow_one_time_fallback: OMIT,
+        accept_reduced_grant: OMIT,
+        sandbox: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/bank/links/",
+          body: {
+            "mode" => mode,
+            "connection_id" => connection_id,
+            "access" => access,
+            "country" => country,
+            "institution_id" => institution_id,
+            "segment" => segment,
+            "data" => data,
+            "history_days" => history_days,
+            "history_from" => history_from,
+            "extended_history" => extended_history,
+            "consent_days" => consent_days,
+            "ownership" => ownership,
+            "end_user" => end_user,
+            "redirect_url" => redirect_url,
+            "allowed_origins" => allowed_origins,
+            "language" => language,
+            "vendor_data" => vendor_data,
+            "expires_in" => expires_in,
+            "duplicates" => duplicates,
+            "allow_one_time_fallback" => allow_one_time_fallback,
+            "accept_reduced_grant" => accept_reduced_grant,
+            "sandbox" => sandbox
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankLink,
+          request_options: request_options
+        )
+      end
+
+      # Delete a bank connection
+      #
+      # Deletes the connection's bank data and stops access at the bank. The connection's accounts, balances,
+      # transactions, sync history, consent records and ownership results are deleted. Deletion is irreversible.
+      #
+      # It starts at once: the response is `202` with `erasure.status` `pending`, and from that moment the
+      # connection's data operations (refresh, sync runs, accounts, balances, transactions and the change feed) answer
+      # `409 connection_not_active`. The connection then reads with `erasure.status` `erased`, or `failed` if deletion
+      # could not be confirmed within 24 hours; a failed deletion is retried until it completes. A deleted connection
+      # reads as a minimal record: its id, `status: deleted`, the reason, its dates and its `erasure` status, and it
+      # holds no accounts, balances, transactions, consent or sync data.
+      #
+      # Not affected: your other connections, the charges already made (they are not refunded), and any data you
+      # already downloaded, which is your own copy. Repeating the call returns the current state. To stop access
+      # without deleting, use `revoke_connection`.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`.
+      #
+      # +DELETE /v3/bank/connections/{id}/+
+      #
+      # @param id [String] The connection id.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankConnectionDeletion]
+      def delete_connection(id, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :delete,
+          "/v3/bank/connections/{id}/",
+          path_params: { "id" => id },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankConnectionDeletion,
+          request_options: request_options
+        )
+      end
+
+      # Get an account
+      #
+      # Returns one account with full identifiers, holders, sync state and `history_coverage`, which says what the
+      # bank delivered of the history you asked for. `sync.last_synced_at` is when the data was fetched from the bank,
+      # not when you read it.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
+      #
+      # +GET /v3/bank/accounts/{account_id}/+
+      #
+      # @param account_id [String] The account id.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankAccount]
+      def get_account(account_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/accounts/{account_id}/",
+          path_params: { "account_id" => account_id },
+          response: Types::BankAccount,
+          request_options: request_options
+        )
+      end
+
+      # Get account balances
+      #
+      # Returns the typed balances of an account with their reference dates. Balances are replaced at each sync.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
+      #
+      # +GET /v3/bank/accounts/{account_id}/balances/+
+      #
+      # @param account_id [String] The account id.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankBalances]
+      def get_balances(account_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/accounts/{account_id}/balances/",
+          path_params: { "account_id" => account_id },
+          response: Types::BankBalances,
+          request_options: request_options
+        )
+      end
+
+      # Get a bank connection
+      #
+      # Returns the connection with its consent, sync state and a summary of each account. Read the data itself with
+      # the accounts, balances and transactions operations. A connection that was deleted reads as a minimal record:
+      # its id, `status: deleted`, the reason, its dates and its `erasure` status, and no accounts, balances,
+      # transactions, consent or sync data.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/connections/{id}/+
+      #
+      # @param id [String] The connection id.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankConnection]
+      def get_connection(id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/connections/{id}/",
+          path_params: { "id" => id },
+          response: Types::BankConnection,
+          request_options: request_options
+        )
+      end
+
+      # Get bank data coverage
+      #
+      # Returns one entry per country: whether bank sign-in and the account check are available, and whether ongoing
+      # access is available, with how many banks offer it, the longest consent and deepest history any of them allows,
+      # and whether business accounts are supported. Ongoing access is counted only where a bank is switched on for
+      # it. Use it to decide which countries to offer; use `list_institutions` for a single bank.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/coverage/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankCoverage]
+      def get_coverage(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/coverage/",
+          response: Types::BankCoverage,
+          request_options: request_options
+        )
+      end
+
+      # Get an institution
+      #
+      # Returns one bank with its capabilities. The id is Didit's slug, as listed by `list_institutions`.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/institutions/{id}/+
+      #
+      # @param id [String] The institution id, for example `es-banco-norte`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankInstitution]
+      def get_institution(id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/institutions/{id}/",
+          path_params: { "id" => id },
+          response: Types::BankInstitution,
+          request_options: request_options
+        )
+      end
+
+      # Get a bank link
+      #
+      # Returns the status of a link and, once it is `completed`, its `connection_id` and `check_id`. This is the
+      # authoritative answer: call it from your server after the browser reports success, or on the
+      # `bank.link.completed` webhook.
+      #
+      # A link that fails is not an HTTP error: it reads `200` with `status: failed` and an `error` object, for
+      # example `duplicate_conflict` with `conflicts_with`. `url` and `client_token` are returned only when the link
+      # is created.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/links/{id}/+
+      #
+      # @param id [String] The link id.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankLink]
+      def get_link(id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/links/{id}/",
+          path_params: { "id" => id },
+          response: Types::BankLink,
+          request_options: request_options
+        )
+      end
+
+      # Get a sync run
+      #
+      # Returns one sync run with its results per account and resource.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/connections/{id}/sync-runs/{sync_id}/+
+      #
+      # @param id [String] The connection id.
+      # @param sync_id [String] The sync run id.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankSyncRun]
+      def get_sync_run(id, sync_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/connections/{id}/sync-runs/{sync_id}/",
+          path_params: { "id" => id, "sync_id" => sync_id },
+          response: Types::BankSyncRun,
+          request_options: request_options
+        )
+      end
+
+      # List accounts of a connection
+      #
+      # Lists every account of the connection, oldest first, with full identifiers and holders. A read never bills.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
+      #
+      # +GET /v3/bank/connections/{id}/accounts/+
+      #
+      # @param id [String] The connection id.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param cursor [String] Opaque cursor from the previous page's `next_cursor`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankAccountList]
+      def list_accounts(id, limit: OMIT, cursor: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/connections/{id}/accounts/",
+          path_params: { "id" => id },
+          query: {
+            "limit" => limit,
+            "cursor" => cursor
+          },
+          response: Types::BankAccountList,
+          request_options: request_options
+        )
+      end
+
+      # List bank connections
+      #
+      # Lists the connections of your application, newest first, with cursor pagination. All filters apply inside your
+      # application and environment.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # In this list `sync.budgets` shows only the budgets that exist already; `GET /v3/bank/connections/{id}/` opens
+      # today's budgets.
+      #
+      # +GET /v3/bank/connections/+
+      #
+      # @param status [String] Only connections in this status.
+      # @param access [String] Only this access mode.
+      # @param institution_id [String] Only this bank.
+      # @param country [String] Only banks in this country.
+      # @param vendor_data [String] Only connections with this `vendor_data`.
+      # @param end_user_reference [String] Only connections with this `end_user.reference`.
+      # @param consent_expires_before [Time, String] Only connections whose consent ends before this time, for example
+      #   to send renew links.
+      # @param created_after [Time, String] Only connections created after this time.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param cursor [String] Opaque cursor from the previous page's `next_cursor`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankConnectionList]
+      def list_connections(
+        status: OMIT,
+        access: OMIT,
+        institution_id: OMIT,
+        country: OMIT,
+        vendor_data: OMIT,
+        end_user_reference: OMIT,
+        consent_expires_before: OMIT,
+        created_after: OMIT,
+        limit: OMIT,
+        cursor: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :get,
+          "/v3/bank/connections/",
+          query: {
+            "status" => status,
+            "access" => access,
+            "institution_id" => institution_id,
+            "country" => country,
+            "vendor_data" => vendor_data,
+            "end_user_reference" => end_user_reference,
+            "consent_expires_before" => consent_expires_before,
+            "created_after" => created_after,
+            "limit" => limit,
+            "cursor" => cursor
+          },
+          response: Types::BankConnectionList,
+          request_options: request_options
+        )
+      end
+
+      # List institutions
+      #
+      # Lists the banks per country with their capabilities: segments, access modes, the longest consent and deepest
+      # history the bank offers, whether it reports pending transactions, which transaction fields it is known to
+      # send, and how the person signs in. Values come from observed data, refreshed daily; a value never observed is
+      # `null`. The same data feeds the bank picker, so use it to know what to expect before you create a link.
+      # `access` lists `ongoing` only where ongoing access is available.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # The list is sorted by name, then id.
+      #
+      # In a sandbox application the list holds the Didit Test Bank, one per country Bank Link serves, and no live
+      # bank.
+      #
+      # +GET /v3/bank/institutions/+
+      #
+      # @param country [String] Only banks in this country, an ISO 3166-1 alpha-3 code. A country Bank Link does not
+      #   serve answers `400 invalid_request` with `field: country`.
+      # @param segment [String] Only banks that serve this segment.
+      # @param access [String] Only banks that offer this access mode.
+      # @param q [String] Search by name or id, case-insensitive.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param cursor [String] Opaque cursor from the previous page's `next_cursor`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankInstitutionList]
+      def list_institutions(
+        country: OMIT,
+        segment: OMIT,
+        access: OMIT,
+        q: OMIT,
+        limit: OMIT,
+        cursor: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :get,
+          "/v3/bank/institutions/",
+          query: {
+            "country" => country,
+            "segment" => segment,
+            "access" => access,
+            "q" => q,
+            "limit" => limit,
+            "cursor" => cursor
+          },
+          response: Types::BankInstitutionList,
+          request_options: request_options
+        )
+      end
+
+      # List sync runs
+      #
+      # Lists what each sync of a connection did, newest first, per account and resource.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`.
+      #
+      # +GET /v3/bank/connections/{id}/sync-runs/+
+      #
+      # @param id [String] The connection id.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param cursor [String] Opaque cursor from the previous page's `next_cursor`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankSyncRunList]
+      def list_sync_runs(id, limit: OMIT, cursor: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/connections/{id}/sync-runs/",
+          path_params: { "id" => id },
+          query: {
+            "limit" => limit,
+            "cursor" => cursor
+          },
+          response: Types::BankSyncRunList,
+          request_options: request_options
+        )
+      end
+
+      # List account transactions
+      #
+      # Date-range read of an account's transactions, sorted by `effective_date` descending, then `id` descending, in
+      # pages of up to 500. `date_from` and `date_to` are calendar dates, inclusive, in the bank's own time zone with
+      # nothing converted. They apply to `effective_date`: for a booked transaction its booking date, else its value
+      # date, else the date it was first seen; for a pending one its transaction date, else the date it was first
+      # seen. By default `date_from` is the start of the stored history and `date_to` has no upper bound, and booked
+      # and pending are both returned.
+      #
+      # The first page pins which transactions are included and each is served in its current state: a transaction
+      # removed while you page drops out of later pages and is reported by the change feed (`sync_transactions`).
+      # `page_token` continues one read and lives one hour; an expired token answers `410 page_expired`, so restart
+      # the read from its original query. To keep a copy up to date, use the change feed instead of re-reading ranges.
+      #
+      # Response headers: `X-Bank-Last-Synced-At` and `Cache-Control: no-store`.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
+      #
+      # +GET /v3/bank/accounts/{account_id}/transactions/+
+      #
+      # @param account_id [String] The account id.
+      # @param date_from [Date, String] First effective date to include, inclusive.
+      # @param date_to [Date, String] Last effective date to include, inclusive. No upper bound when you leave it out.
+      # @param status [String] Only booked or only pending transactions. Default both.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param page_token [String] The `next_page_token` of the previous page.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankTransactionPage]
+      def list_transactions(
+        account_id,
+        date_from: OMIT,
+        date_to: OMIT,
+        status: OMIT,
+        limit: OMIT,
+        page_token: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :get,
+          "/v3/bank/accounts/{account_id}/transactions/",
+          path_params: { "account_id" => account_id },
+          query: {
+            "date_from" => date_from,
+            "date_to" => date_to,
+            "status" => status,
+            "limit" => limit,
+            "page_token" => page_token
+          },
+          response: Types::BankTransactionPage,
+          request_options: request_options
+        )
+      end
+
+      # Refresh a bank connection
+      #
+      # Syncs now: reads the bank for new data at any moment. Answers `202` with the `sync_id`; if a sync is already
+      # running you get that same `sync_id`, not a second job. With `"wait": true` in the body, or the header `Prefer:
+      # wait=<seconds>` (up to 25), the call holds for up to 25 seconds and answers `200` with the finished sync
+      # (`outcome`, the per-account counts and `balances_changed`), so one request returns fresh data. If the bank has
+      # not answered in that time it answers `202`: read the sync with `get_sync_run` using the `sync_id`, or
+      # subscribe to `bank.sync.completed`. `bank.data.updated` follows only when the sync stores changes.
+      #
+      # Live syncs are included in the monthly price of the connection, like the automatic syncs: nothing extra is
+      # charged. The only limit is the bank's. Banks limit reads without the person present, for example to four a day
+      # (the Didit Test Bank in sandbox does the same). The automatic syncs of the day (`sync.frequency_per_day`) are
+      # set aside first and the rest are yours, so `sync.budgets` shows what is left and `sync.live_syncs_left_today`
+      # how many live syncs remain today. The automatic schedule never uses the last two reads of a day, so two live
+      # syncs always remain. When the budget is used up the call answers `429 refresh_limit_reached` with
+      # `Retry-After` (the seconds until the budget resets, 1 to 86400) and a `sync` object with
+      # `live_syncs_left_today` and `budgets`. The limit is a ceiling set by the bank, not a promise of a number of
+      # syncs.
+      #
+      # When a sync stores changes, `bank.data.updated` tells you; then read the change feed.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`.
+      #
+      # Refreshing a deleted connection answers `409 connection_not_active`.
+      #
+      # +POST /v3/bank/connections/{id}/refresh/+
+      #
+      # @param id [String] The connection id.
+      # @param wait [Boolean] `true` holds the call for up to 25 seconds and answers `200` with the finished sync, so
+      #   one request returns fresh data. If the bank has not answered in that time the call answers `202`: read the
+      #   sync with `get_sync_run` using the `sync_id`, or subscribe to `bank.sync.completed`. `bank.data.updated`
+      #   follows only when the sync stores changes. The header `Prefer: wait=<seconds>` (up to 25) does the...
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankSyncCompleted, Didit::Types::BankRefreshAccepted]
+      def refresh_connection(id, wait: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/bank/connections/{id}/refresh/",
+          path_params: { "id" => id },
+          body: {
+            "wait" => wait
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: { 200 => Types::BankSyncCompleted, 202 => Types::BankRefreshAccepted },
+          request_options: request_options
+        )
+      end
+
+      # Renew a bank connection
+      #
+      # Creates a renew link for this connection, a shortcut for `create_link` with `mode: renew`. The connection id
+      # and every account id stay the same.
+      #
+      # Opening the returned link on the hosted page is not available yet: the page that lets the person renew is
+      # still to be built.
+      #
+      # Until the consent has 30 days left or fewer it answers `409 renewal_not_needed`; after
+      # `consent.renewable_until` it answers `409 renewal_window_expired` and the person connects again.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`.
+      #
+      # +POST /v3/bank/connections/{id}/renew/+
+      #
+      # @param id [String] The connection id.
+      # @param redirect_url [String] Where the browser goes at the end. In a sandbox application a plain `http`
+      #   address of `localhost`, `127.0.0.1` or `[::1]` needs no registration. Any other address answers `400
+      #   redirect_url_not_registered`: registering other addresses is not available yet.
+      # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
+      #   which is not released yet. HTTPS origins, up to 50.
+      # @param language [String]
+      # @param expires_in [Integer] Lifetime in seconds, 300 to 86400.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankLink]
+      def renew_connection(
+        id,
+        redirect_url: OMIT,
+        allowed_origins: OMIT,
+        language: OMIT,
+        expires_in: OMIT,
+        idempotency_key: OMIT,
+        request_options: nil
+      )
+        @client.request(
+          :post,
+          "/v3/bank/connections/{id}/renew/",
+          path_params: { "id" => id },
+          body: {
+            "redirect_url" => redirect_url,
+            "allowed_origins" => allowed_origins,
+            "language" => language,
+            "expires_in" => expires_in
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankLink,
+          request_options: request_options
+        )
+      end
+
+      # Revoke a bank connection
+      #
+      # Stops access to the bank. Bank fetches stop the moment you ask, even while the bank's confirmation is pending:
+      # the consent reads `revocation_pending`, then `revoked` once the bank confirms access is terminated, or
+      # `revocation_failed` while the call is retried automatically. `consent.ended_by` is `customer`.
+      #
+      # Revoking does not delete anything: stored accounts, balances and transactions stay readable until
+      # `consent.retain_until`, the retention setting of your application, and nothing is charged. To delete them now,
+      # call `delete_connection`. Repeating the call returns the current state.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`.
+      #
+      # Revoking a connection that was deleted answers `200` with the deleted connection, so repeating the call is
+      # safe.
+      #
+      # +POST /v3/bank/connections/{id}/revoke/+
+      #
+      # @param id [String] The connection id.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankConnection]
+      def revoke_connection(id, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/bank/connections/{id}/revoke/",
+          path_params: { "id" => id },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankConnection,
+          request_options: request_options
+        )
+      end
+
+      # Sync transactions (change feed)
+      #
+      # Returns what changed in a connection's transactions since a `cursor`: `added`, `modified` and `removed` (with
+      # a `reason`), across all its accounts. An empty cursor returns every current transaction as `added` and sets
+      # `reset: true`: replace your copy with it instead of adding to it.
+      #
+      # The first read is a true snapshot. A first read (no cursor, or the read after `reset`) returns every
+      # transaction the connection had when the read started, each exactly once as `added`, in its current state, even
+      # if a sync runs while you page. Changes made while you were paging arrive in the next read from `next_cursor`:
+      # a transaction you already received comes again as `modified`, and a new one as `added`. Apply `modified` as an
+      # upsert by `id`, and ignore a `removed` id you do not have. All pages of one read reflect the same point in
+      # time. Keep paging with `page_token` while `has_more` is `true`, and store `next_cursor` only after a response
+      # with `has_more: false`. If paging fails midway, restart from the cursor you had stored.
+      #
+      # The change log is replayable for 90 days. An older cursor answers `410 cursor_expired` with `bootstrap: true`:
+      # start again from an empty cursor. Stored history is never aged out while the connection exists. A booked
+      # pending transaction appears in `added` and the pending one in `removed` with `reason: pending_booked`. Webhook
+      # `bank.data.updated` tells you when to call.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): read for this operation. A key with full access
+      # does not include it: grant it explicitly when you create the key, or the call answers `403
+      # bank_data_access_denied`. A sandbox application reads its Test Bank data with the key alone. A request without
+      # an API key (client credentials) is refused on raw data with the same `403`.
+      #
+      # +GET /v3/bank/connections/{id}/transactions/sync/+
+      #
+      # @param id [String] The connection id.
+      # @param cursor [String] The `next_cursor` you stored. Empty or omitted starts from the beginning.
+      # @param limit [Integer] Page size, 1 to 500. Default 100.
+      # @param page_token [String] Continues the same read while `has_more` is `true`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankTransactionChanges]
+      def sync_transactions(id, cursor: OMIT, limit: OMIT, page_token: OMIT, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/bank/connections/{id}/transactions/sync/",
+          path_params: { "id" => id },
+          query: {
+            "cursor" => cursor,
+            "limit" => limit,
+            "page_token" => page_token
+          },
+          response: Types::BankTransactionChanges,
+          request_options: request_options
+        )
+      end
     end
   end
 end
