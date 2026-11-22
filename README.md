@@ -199,10 +199,11 @@ link = didit.bank.create_link(redirect_url: "https://acme.test/bank/return", acc
                               vendor_data: "customer-42")
 open link.url                          # hosted Bank Link; link.client_token for a modal or inline flow
 
-connection = didit.bank.get_connection(connection_id)
-accounts = didit.bank.list_accounts(connection_id, limit: 50)
+connection = didit.bank.get_connection(connection_id)  # the id from bank.connection.created
+accounts = didit.bank.list_accounts(connection.id, limit: 50)
 accounts.items.first.name
 accounts.next_cursor                   # pass it back as cursor: to read the next page
+account_id = accounts.items.first.id
 
 balances = didit.bank.get_balances(account_id)  # amounts are decimal strings, never floats
 
