@@ -239,19 +239,20 @@ module Didit
 
       # Delete a bank connection
       #
-      # Deletes the connection's bank data and stops access at the bank. The connection's accounts, balances,
-      # transactions, sync history, consent records and ownership results are deleted. Deletion is irreversible.
+      # Deletes the connection's bank data and stops access at the bank. Deletion is immediate and irreversible: when
+      # the call returns, the connection's accounts, balances, transactions, sync history, consent records and
+      # ownership results are deleted, and its data operations (refresh, sync runs, accounts, balances, transactions
+      # and the change feed) answer `409 connection_not_active`.
       #
-      # It starts at once: the response is `202` with `erasure.status` `pending`, and from that moment the
-      # connection's data operations (refresh, sync runs, accounts, balances, transactions and the change feed) answer
-      # `409 connection_not_active`. The connection then reads with `erasure.status` `erased`, or `failed` if deletion
-      # could not be confirmed within 24 hours; a failed deletion is retried until it completes. A deleted connection
-      # reads as a minimal record: its id, `status: deleted`, the reason, its dates and its `erasure` status, and it
-      # holds no accounts, balances, transactions, consent or sync data.
+      # A deleted connection reads as a minimal record: its id, `status: deleted`, the reason, its dates and its
+      # `erasure` record (`requested_at`, `erased_at` and `status`, the confirmation of the deletion: `pending` while
+      # it is being confirmed, including the end of access at the bank, `erased` once confirmed, `failed` if the
+      # confirmation has not arrived yet and is repeated automatically, with nothing needed from you). It holds no
+      # accounts, balances, transactions, consent or sync data. `bank.connection.deleted` confirms the deletion.
       #
       # Not affected: your other connections, the charges already made (they are not refunded), and any data you
-      # already downloaded, which is your own copy. Repeating the call returns the current state. To stop access
-      # without deleting, use `revoke_connection`.
+      # already downloaded, which is your own copy. Repeating the call is safe. To stop access without deleting, use
+      # `revoke_connection`.
       #
       # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
       # something. A key with full access does not include it: grant it explicitly when you create the key, or the

@@ -515,9 +515,9 @@ module Didit
       VALUES = [LIVE, SANDBOX].freeze
     end
 
-    # `pending` while deletion runs, `erased` when no stored copy and no access at the bank remain, `failed` when it
-    # could not be confirmed within 24 hours. A failed deletion keeps the connection's data closed, is retried, and
-    # Didit is alerted.
+    # The confirmation of the deletion. `pending`: the deletion is being confirmed, including the end of access at the
+    # bank. `erased`: confirmed, with `erased_at`. `failed`: the confirmation has not arrived yet and is repeated
+    # automatically; nothing is needed from you. The data is deleted and not readable in any of the three.
     module BankConnectionErasureStatus
       PENDING = "pending"
       ERASED = "erased"
@@ -8554,8 +8554,8 @@ module Didit
       field :ended_by, "ended_by", :string
     end
 
-    # Accepted deletion. The connection's bank data is being deleted and its data operations answer `409
-    # connection_not_active`; reading the connection returns a minimal record with this `erasure` status.
+    # The record of a deletion. The connection's bank data is deleted and its data operations answer `409
+    # connection_not_active`; reading the connection returns a minimal record with this `erasure` record.
     class BankConnectionDeletion < Didit::Model
       field :id, "id", :string
       field :erasure, "erasure", "BankConnectionErasure"
@@ -8565,7 +8565,8 @@ module Didit
       field :reference, "reference", :string
     end
 
-    # Progress of a deletion you asked for.
+    # The record of a deletion you asked for. The deletion itself is immediate: the connection's data is deleted and
+    # unreadable when the call returns. `status` is the confirmation of it.
     class BankConnectionErasure < Didit::Model
       field :status, "status", :string
       field :requested_at, "requested_at", :datetime
