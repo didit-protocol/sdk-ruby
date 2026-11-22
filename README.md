@@ -51,7 +51,7 @@ else nil
 end
 ```
 
-[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Authentication, and webhook receivers for Rails, Sinatra and Rack.
+[`examples/quickstart.rb`](examples/quickstart.rb) runs the same steps. [`examples/`](examples/) also has standalone ID verification, AML screening, transaction screening, Travel Rule, Bank data, Authentication, and webhook receivers for Rails, Sinatra and Rack.
 
 ## Configuration
 
