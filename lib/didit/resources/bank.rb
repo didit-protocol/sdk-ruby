@@ -166,7 +166,10 @@ module Didit
       #   registration. Any other address answers `400 redirect_url_not_registered`: registering other addresses is n...
       # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
       #   which is not released yet. HTTPS origins, up to 50.
-      # @param language [String] Optional language code such as `es` or `pt-BR`. Otherwise the browser language.
+      # @param language [String] Optional. One of the [supported languages](/integration/supported-languages), the
+      #   same codes the `language` of the session API takes, for example `es`, `pt`, `pt-BR` or `zh-CN` (`pt-PT` is not
+      #   one of them). The match is exact and case-sensitive (`ES` and `pt-PT` are refused). A code outside that list
+      #   answers `400 invalid_request` with `field: language`. Otherwise the browser language.
       # @param vendor_data [String] Your own reference, returned on the link and the connection.
       # @param expires_in [Integer] Lifetime of the link in seconds, 300 to 86400. Default 3600.
       # @param duplicates [String] `reuse` (default) completes a link that resolves to accounts you already share as a
@@ -773,7 +776,10 @@ module Didit
       #   redirect_url_not_registered`: registering other addresses is not available yet.
       # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
       #   which is not released yet. HTTPS origins, up to 50.
-      # @param language [String]
+      # @param language [String] Optional. One of the [supported languages](/integration/supported-languages), the
+      #   same codes the `language` of the session API takes, for example `es`, `pt`, `pt-BR` or `zh-CN` (`pt-PT` is not
+      #   one of them). The match is exact and case-sensitive (`ES` and `pt-PT` are refused). A code outside that list
+      #   answers `400 invalid_request` with `field: language`.
       # @param expires_in [Integer] Lifetime in seconds, 300 to 86400.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -835,6 +841,130 @@ module Didit
           path_params: { "id" => id },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BankConnection,
+          request_options: request_options
+        )
+      end
+
+      # Simulate a bank connection event (sandbox)
+      #
+      # Moves a sandbox connection through time without waiting: new transactions, a pending row that posts, a consent
+      # that is about to end or has ended, a revocation, a failing sync, a duplicate webhook or a used-up refresh
+      # allowance. It uses the real sync engine and the real webhooks, so `bank.*` deliveries, the change feed and
+      # `sync` behave as they do for a real bank. Answers the connection as `get_connection` would.
+      #
+      # `action` is required and is one of:
+      #
+      # - `new_transactions`: the bank adds `count` booked transactions (1 to 500, default 3). A sync follows.
+      # - `pending_posted`: one day passes at the bank: pending rows leave the change feed as `removed` and their
+      #   booked rows arrive as `added`. It needs a test customer with pending transactions (`pending`); with
+      #   `personal_basic` nothing changes. A sync follows.
+      # - `booking_correction`: the next sync returns booked rows again with a corrected booking, so they arrive as
+      #   `modified`. A sync follows.
+      # - `midnight_booking`: a row is booked across midnight, to test day boundaries. A sync follows.
+      # - `consent_expiring`: the consent now ends in `days` days and the expiry notice is sent
+      #   (`bank.connection.consent_expiring`). `days` accepts only the notification thresholds, 14, 7 or 1 (default
+      #   7); any other value answers `400 invalid_request` with `field` `days`.
+      # - `consent_expired`: the consent has ended now and the connection becomes `renewal_required`.
+      # - `revoked_by_user` and `revoked_by_bank`: the bank tells Didit the consent ended, as if the person or the
+      #   bank had revoked it. The connection reads `revoked` with `status_reason` `revoked_by_end_user` or
+      #   `revoked_by_bank`, and `consent.ended_by` is `end_user` or `bank`.
+      # - `sync_failed`: the bank fails every read until `sync_recovered`; the connection has been failing for 24
+      #   hours, so `bank.sync.failed` is sent. A sync follows.
+      # - `sync_recovered`: the bank answers again. A sync follows.
+      # - `webhook_twice`: the last `bank.*` webhook of this connection is delivered again with the same `event_id`
+      #   and a fresh signature, to test your deduplication. It answers `400 invalid_request` if the connection has no
+      #   delivery yet.
+      # - `budget_used`: today's refresh allowance is used up on the bank's own day, so the next `refresh_connection`
+      #   answers `429 refresh_limit_reached` with `Retry-After`, and `sync.live_syncs_left_today` and the
+      #   `sync.budgets` `remaining` read 0.
+      # - `budget_reset`: today's refresh allowance is restored: `sync.live_syncs_left_today` and the `remaining` of
+      #   `sync.budgets` read what they read on a new connection.
+      #
+      # `days` is only accepted with `consent_expiring` and `count` only with `new_transactions`: sent with another
+      # action, each answers `400 invalid_request` with `field` naming it.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`. Sandbox only: a live application, or a link or connection that
+      # belongs to the live environment, answers `404 not_found`, exactly as an unknown route does.
+      #
+      # +POST /v3/bank/connections/{id}/simulate/+
+      #
+      # @param id [String] The connection id.
+      # @param action [String] What happens. The operation description explains each value.
+      # @param days [Integer] Only for `consent_expiring`: days until the consent ends. Only the notification
+      #   thresholds are accepted: 14, 7 or 1. Any other value, or `days` with another action, answers `400
+      #   invalid_request` with `field` `days`.
+      # @param count [Integer] Only for `new_transactions`: how many booked transactions the bank adds. With another
+      #   action it answers `400 invalid_request` with `field` `count`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankConnection]
+      def simulate_connection(id, action:, days: OMIT, count: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/bank/connections/{id}/simulate/",
+          path_params: { "id" => id },
+          body: {
+            "action" => action,
+            "days" => days,
+            "count" => count
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankConnection,
+          request_options: request_options
+        )
+      end
+
+      # Simulate a bank link (sandbox)
+      #
+      # Finishes a link of your sandbox application in one call, as if the person had gone through the Didit Test
+      # Bank: you choose the Test Bank customer (`persona`) and how the link ends (`outcome`). The link goes through
+      # the same completion code as a real bank sign-in, so the connection, its accounts, the first sync and the
+      # `bank.*` webhooks happen exactly as they would for a real person. Answers the link, so read `status` and
+      # `connection_id`.
+      #
+      # `outcome` is `completed` (the default: the person agrees and the connection is created), `cancelled` (the
+      # person leaves, the link ends `cancelled`), `failed` (the link ends `failed`; `error_code` picks the reason,
+      # `bank_unavailable` by default), `duplicate_conflict` (the person already has a connection with the same bank),
+      # `reduced_grant` (the person shares less than you asked for) or `renewal_login_mismatch` (a renewal with
+      # another bank login; on a connect link it ends as the failure it is). `error_code` is only accepted with
+      # `outcome: failed`.
+      #
+      # A link that allows the one-time fallback and meets a bank that cannot keep access open accepts the reduced
+      # access and finishes in the same call. A link that is no longer open (completed, cancelled, expired or failed)
+      # is returned unchanged, so the call is safe to repeat.
+      #
+      # Needs an API key with the Bank data permission (`bank-data`): write for this operation, which changes
+      # something. A key with full access does not include it: grant it explicitly when you create the key, or the
+      # call answers `403 bank_data_access_denied`. Sandbox only: a live application, or a link or connection that
+      # belongs to the live environment, answers `404 not_found`, exactly as an unknown route does.
+      #
+      # +POST /v3/bank/links/{id}/simulate/+
+      #
+      # @param id [String] The link id.
+      # @param persona [String] The Test Bank customer who signs in: `personal_basic` (one current account),
+      #   `business_multi` (several business accounts), `long_history` (a long transaction history), `pending` (pending
+      #   rows), `sparse_fields` (transactions with fields missing, one automatic sync a day) or `no_ongoing` (a bank
+      #   that cannot keep access open).
+      # @param outcome [String] How the link ends.
+      # @param error_code [String] The failure the link records. Only accepted with `outcome: failed`, where it
+      #   defaults to `bank_unavailable`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankLink]
+      def simulate_link(id, persona: OMIT, outcome: OMIT, error_code: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/bank/links/{id}/simulate/",
+          path_params: { "id" => id },
+          body: {
+            "persona" => persona,
+            "outcome" => outcome,
+            "error_code" => error_code
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::BankLink,
           request_options: request_options
         )
       end

@@ -178,6 +178,8 @@ RSpec.describe Didit::Resources::WalletScreening do
             "description": "7.33293% indirect outgoing exposure to DeFi / Yield Aggregator (Example DeFi 2)"
           }
         ],
+        "fallback_from_provider": null,
+        "fallback_reason": null,
         "raw_response": {
           "...": "provider-specific details"
         },
