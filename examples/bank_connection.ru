@@ -3,7 +3,7 @@
 # Single-user sandbox example. Set DIDIT_API_KEY (bank-data permission) and
 # DIDIT_WEBHOOK_SECRET. Forward HTTPS POSTs for /webhooks/didit to this receiver.
 #   gem install didit-sdk rackup puma
-#   DIDIT_LINK_FILE="$(mktemp -d)/bank-link" rackup examples/bank_connection.ru
+#   DIDIT_LINK_FILE="$(mktemp -d)/bank-link" rackup -E deployment examples/bank_connection.ru
 # Open the URL in the private file as the person connecting the bank. Remove
 # the file after use. Stop the receiver after it reports the account count.
 
@@ -23,7 +23,7 @@ map "/webhooks/didit" do
   receiver = lambda do |env|
     return [405, { "allow" => "POST" }, []] unless env["REQUEST_METHOD"] == "POST"
 
-    body = env.fetch("rack.input").read(65_537)
+    body = env["rack.input"]&.read(65_537)
     return [413, {}, []] if body && body.bytesize > 65_536
 
     event = client.webhooks.verify(body.to_s, env, secret)
@@ -34,15 +34,8 @@ map "/webhooks/didit" do
     return [503, {}, []] unless connection_id # Retry if link completion is still being recorded.
     return [204, {}, []] unless connection_id == event.connection_id
 
-    count = 0
-    cursor = nil
-    loop do
-      page = client.bank.list_accounts(connection_id, cursor: cursor, limit: 50)
-      count += page.items.size
-      cursor = page.next_cursor
-      break unless cursor
-    end
-    puts "Connected accounts: #{count}"
+    accounts = client.bank.list_accounts(connection_id, limit: 50)
+    puts "Accounts on the first page: #{accounts.items.size}"
     [204, {}, []]
   rescue Didit::WebhookVerificationError
     [401, {}, []]

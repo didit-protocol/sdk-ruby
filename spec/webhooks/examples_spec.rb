@@ -2,6 +2,7 @@
 
 require "rack"
 require "stringio"
+require "tmpdir"
 require_relative "webhooks_helper"
 
 module WebhookSpecs
@@ -64,5 +65,63 @@ module WebhookSpecs
         expect(Rack::MockRequest.new(app).get("/webhooks/didit").status).to eq(405)
       end
     end
+  end
+end
+
+RSpec.describe "Bank connection example" do
+  include ApiHelpers
+
+  let(:recordings) { JSON.parse(File.read(File.join(__dir__, "fixtures/bank_deliveries.json"))) }
+  let(:record) do
+    recordings.fetch("deliveries").find { |r| JSON.parse(r.fetch("body"))["webhook_type"] == "bank.connection.created" }
+  end
+  let(:connection_id) { JSON.parse(record.fetch("body")).fetch("connection_id") }
+  let(:client) { generated_test_client }
+  let(:link) { Didit::Types::BankLink.new("id" => "example-link", "url" => "https://example.invalid/link") }
+  let(:request) do
+    app = Rack::Builder.parse_file(File.expand_path("../../examples/bank_connection.ru", __dir__))
+    Rack::MockRequest.new(app)
+  end
+
+  around do |example|
+    Dir.mktmpdir do |dir|
+      ENV["DIDIT_LINK_FILE"] = File.join(dir, "bank-link")
+      example.run
+    end
+  end
+
+  before do
+    ENV["DIDIT_WEBHOOK_SECRET"] = recordings.fetch("secret")
+    allow(Time).to receive(:now).and_return(Time.at(record.fetch("now")))
+    bank = client.bank
+    allow(Didit::Client).to receive(:new).and_return(client)
+    allow(bank).to receive(:create_link).with(access: "ongoing", data: ["accounts"]).and_return(link)
+  end
+
+  def post_delivery(body = record.fetch("body"))
+    headers = record.fetch("headers").transform_keys { |key| "HTTP_#{key.upcase.tr("-", "_")}" }
+    request.post("/webhooks/didit", input: body, **headers)
+  end
+
+  it "delivers the link privately and reports the account count for the verified connection" do
+    completed = Didit::Types::BankLink.new("connection_id" => connection_id)
+    allow(client.bank).to receive(:get_link).with(link.id).and_return(completed)
+    page = Struct.new(:items).new([])
+    allow(client.bank).to receive(:list_accounts).with(connection_id, limit: 50).and_return(page)
+    expect { expect(post_delivery.status).to eq(204) }.to output("Accounts on the first page: 0\n").to_stdout
+    path = ENV.fetch("DIDIT_LINK_FILE")
+    expect(File.read(path).chomp).to eq(link.url)
+    expect(File.stat(path).mode & 0o777).to eq(0o600)
+  end
+
+  it "ignores unrelated connections and rejects tampered or oversized deliveries before reading accounts" do
+    other = Didit::Types::BankLink.new("connection_id" => "another-connection")
+    allow(client.bank).to receive(:get_link).with(link.id).and_return(other)
+    allow(client.bank).to receive(:list_accounts)
+    expect(post_delivery.status).to eq(204)
+    expect(post_delivery(record.fetch("body") + " ").status).to eq(204) # canonical V2 signature still matches
+    expect(post_delivery(record.fetch("body").sub(connection_id, "tampered")).status).to eq(401)
+    expect(post_delivery("x" * 65_537).status).to eq(413)
+    expect(client.bank).not_to have_received(:list_accounts)
   end
 end

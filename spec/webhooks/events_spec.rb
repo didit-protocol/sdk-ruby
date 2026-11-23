@@ -41,19 +41,23 @@ module WebhookSpecs
       end
     end
 
-    recordings = JSON.parse(File.read(File.join(__dir__, "fixtures/bank_deliveries.json")))
-    deliveries = recordings.fetch("deliveries")
+    def self.bank_recordings
+      @bank_recordings ||= JSON.parse(File.read(File.join(__dir__, "fixtures/bank_deliveries.json")))
+    end
+
     it "covers every registered Bank event with a recorded delivery" do
-      types = deliveries.map { |record| JSON.parse(record.fetch("body")).fetch("webhook_type") }
+      types = self.class.bank_recordings.fetch("deliveries").map do |record|
+        JSON.parse(record.fetch("body")).fetch("webhook_type")
+      end
       expect(types).to match_array(Didit::Webhooks::EVENT_CLASSES.keys.grep(/\Abank\./))
     end
 
-    deliveries.each do |record|
-      body = JSON.parse(record.fetch("body"))
-      type = body.fetch("webhook_type")
-      it "authenticates the recorded #{type} and reads its typed fields" do
+    bank_recordings.fetch("deliveries").each do |record|
+      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} and reads its fields" do
+        body = JSON.parse(record.fetch("body"))
+        type = body.fetch("webhook_type")
         event = Didit::Client.new.webhooks.verify(record.fetch("body"), record.fetch("headers"),
-                                                  recordings.fetch("secret"), now: record.fetch("now"))
+                                                  self.class.bank_recordings.fetch("secret"), now: record.fetch("now"))
         klass = Didit::Webhooks.const_get("#{type.split(/[._]/).map(&:capitalize).join}Event", false)
         expect(event).to be_an_instance_of(klass)
         expect(event.verified_by).to eq("X-Signature")
@@ -71,10 +75,11 @@ module WebhookSpecs
 
     it "can match envelope and link fields when link data has an unexpected shape" do
       event = parse(webhook_type: "bank.link.failed", data: [])
-      expect(event).not_to receive(:link_id)
+      allow(event).to receive(:link_id).and_call_original
       expect(event.deconstruct_keys([:event_id])).to eq(event_id: event.event_id)
       expect(event.deconstruct_keys([:status])).to eq(status: nil)
       expect(event[:data]).to eq([])
+      expect(event).not_to have_received(:link_id)
     end
 
     it "has a class for every webhook type of DESIGN.md section 9.4" do
