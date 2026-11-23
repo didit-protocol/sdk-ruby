@@ -3,7 +3,7 @@
 # Single-user sandbox example. Set DIDIT_API_KEY (bank-data permission) and
 # DIDIT_WEBHOOK_SECRET. Forward HTTPS POSTs for /webhooks/didit to this receiver.
 #   gem install didit-sdk rackup puma
-#   DIDIT_LINK_FILE="$(mktemp -d)/bank-link" rackup -E deployment examples/bank_connection.ru
+#   RUBYLIB=lib DIDIT_LINK_FILE="$(mktemp -d)/bank-link" rackup -E deployment examples/bank_connection.ru
 # Open the URL in the private file as the person connecting the bank. Remove
 # the file after use. Stop the receiver after it reports the account count.
 
