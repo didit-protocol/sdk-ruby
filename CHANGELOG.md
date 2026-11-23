@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.32.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.31.0...v2.32.0) (2026-11-23)
+
+
+### Features
+
+* **bank:** Bank data operations and typed bank.* webhook events ([#111](https://github.com/didit-protocol/sdk-ruby/issues/111)) ([a784b44](https://github.com/didit-protocol/sdk-ruby/commit/a784b44b5c55a27033b124122868f2b882f1f42b))
+
 ## [2.31.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.30.0...v2.31.0) (2026-11-22)
 
 
