@@ -398,6 +398,7 @@ module Didit
       END_USER: String
       BANK: String
       CUSTOMER: String
+      SYSTEM: String
       UNKNOWN: String
 
       VALUES: Array[String]

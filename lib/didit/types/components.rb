@@ -449,14 +449,16 @@ module Didit
       VALUES = [CONNECTION_MONTH, ONE_TIME].freeze
     end
 
-    # Who ended access, set from evidence. `unknown` when neither the bank nor the sync says.
+    # Who ended access, set from evidence. `system` when Didit ended it by design: a one-time connection once its read
+    # is complete. `unknown` when neither the bank nor the sync says.
     module BankConnectionConsentEndedBy
       END_USER = "end_user"
       BANK = "bank"
       CUSTOMER = "customer"
+      SYSTEM = "system"
       UNKNOWN = "unknown"
 
-      VALUES = [END_USER, BANK, CUSTOMER, UNKNOWN].freeze
+      VALUES = [END_USER, BANK, CUSTOMER, SYSTEM, UNKNOWN].freeze
     end
 
     # How a renewal works: `reconfirm` is the person confirming on Didit's screen with no bank sign-in, where the bank
