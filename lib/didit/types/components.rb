@@ -8654,7 +8654,7 @@ module Didit
       field :role, "role", :string
     end
 
-    # Full identifiers, returned to server-side callers with the bank data permission.
+    # Full identifiers, returned to server-side callers with access to Bank data.
     class BankAccountIdentifiers < Didit::Model
       field :iban, "iban", :string
       field :bic, "bic", :string
