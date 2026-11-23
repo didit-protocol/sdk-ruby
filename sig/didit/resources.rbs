@@ -30,6 +30,7 @@ module Didit
       def ip: () -> Didit::Resources::Ip
       def kyb: () -> Didit::Resources::Kyb
       def lists: () -> Didit::Resources::Lists
+      def messages: () -> Didit::Resources::Messages
       def monitoring_events: () -> Didit::Resources::MonitoringEvents
       def networks: () -> Didit::Resources::Networks
       def passive_liveness: () -> Didit::Resources::PassiveLiveness

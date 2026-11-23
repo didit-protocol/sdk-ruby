@@ -137,10 +137,37 @@ RSpec.describe DiditCodegen::Generator do
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /scope application needs a path/)
     end
 
-    it "refuses names that would replace built-in methods" do
-      paths["/v3/send/"] = { "post" => operation("x", naming("things", "send")) }
+    it "renames a method every Ruby object has by appending the singular resource" do
+      paths["/v3/messages/"] = {
+        "get" => operation("List", naming("messages", "list")),
+        "post" => operation("Send", naming("messages", "send"))
+      }
+      generator = build(dir)
+      names = generator.methods.map { |m| "#{m.resource}.#{m.name}" }
+      expect(names).to include("messages.list", "messages.send_message")
+      expect(names).not_to include("messages.send")
+      expect(generator.files.fetch("lib/didit/resources/messages.rb")).to include("def send_message(")
+    end
+
+    it "fails when the object rule would collide with another method" do
+      paths["/v3/messages/"] = {
+        "get" => operation("List", naming("messages", "send_message")),
+        "post" => operation("Send", naming("messages", "send"))
+      }
+      expect { build(dir) }.to raise_error(DiditCodegen::Error, /both map to messages.send_message/)
+    end
+
+    it "uses the singular of businesses and nested wallet addresses for reserved methods" do
+      paths["/businesses/"] = { "post" => operation("Send", naming("businesses", "send")) }
+      paths["/wallets/"] = { "post" => operation("Send", naming("travel_rule.wallet_addresses", "send")) }
+      names = build(dir).methods.map { |m| "#{m.resource}.#{m.name}" }
+      expect(names).to include("businesses.send_business", "travel_rule.wallet_addresses.send_wallet_address")
+    end
+
+    it "refuses reserved names the object rule does not cover" do
+      paths["/v3/model/"] = { "get" => operation("x", naming("things", "to_h")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /built-in Ruby method/)
-      paths.delete("/v3/send/")
+      paths.delete("/v3/model/")
       paths["/v3/opts/"] = { "get" => operation("x", naming("with_options", "list")) }
       expect { build(dir) }.to raise_error(DiditCodegen::Error, /Didit::Client#with_options/)
     end
@@ -255,6 +282,25 @@ RSpec.describe DiditCodegen::Generator do
       expect(rbs).to include("def list: (?limit: Integer, ?offset: Integer, ?status_in: String, " \
                              "?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::Address]")
       expect(rbs).to include("{ (String chunk) -> void } -> nil")
+    end
+
+    it "keeps the shared fields as keywords when oneOf only narrows which are required" do
+      paths["/v3/messages/"] = {
+        "post" => operation("Send", naming("messages", "send"), "requestBody" => { "content" => {
+                              "application/json" => { "schema" => {
+                                "type" => "object", "required" => ["to"],
+                                "description" => "Send exactly one of `body` or `template_id`.",
+                                "oneOf" => [{ "required" => ["body"] }, { "required" => ["template_id"] }],
+                                "properties" => { "to" => { "type" => "string" }, "body" => { "type" => "string" },
+                                                  "template_id" => { "type" => "string" } }
+                              } }
+                            } }, "responses" => { "201" => { "description" => "ok" } })
+      }
+      files = build(dir).files
+      expect(files.fetch("lib/didit/resources/messages.rb"))
+        .to match(/def send_message\(\s*to:,\s*body: OMIT,\s*template_id: OMIT,/)
+      expect(files.fetch("sig/didit/resources/messages.rbs"))
+        .to include("def send_message: (to: String, ?body: String, ?template_id: String, ")
     end
 
     it "keeps deprecated operations with a warning" do

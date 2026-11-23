@@ -84,7 +84,8 @@ module DiditCodegen
       kwargs.concat(build_query_args(op, prefix, group, used))
       idempotency = build_idempotency(op, used)
       MethodDef.new(
-        op: op, resource: sdk.resource, name: sdk.method, path_args: path_args,
+        op: op, resource: sdk.resource, name: Naming.operation_method(sdk.resource, sdk.method),
+        path_args: path_args,
         kwargs: kwargs.partition(&:required).flatten, encoding: encoding, file_fields: file_fields,
         idempotency: idempotency, response: build_response(op, prefix, group), body_example: body_example,
         has_body_example: has_body_example, whole_body: whole_body, summary: text(op.op, "summary"),
