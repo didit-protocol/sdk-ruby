@@ -132,6 +132,7 @@ module Didit
 
     class BankLinkEvent < Event
       def data: () -> BankLinkEventData?
+      private def link_data: () -> BankLinkEventData?
       def link_id: () -> String?
       def status: () -> String?
       def connection_id: () -> String?

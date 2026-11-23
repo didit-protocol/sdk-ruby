@@ -29,54 +29,10 @@ module WebhookSpecs
       "transaction.status.updated" => [Didit::Webhooks::TransactionStatusUpdatedEvent, { severity: "LOW" }],
       "travel_rule.status.updated" => [Didit::Webhooks::TravelRuleStatusUpdatedEvent, { rail: "TRP" }],
       "workflow.compliance_changed" => [Didit::Webhooks::WorkflowComplianceChangedEvent, { workflow_id: "w-1" }],
-      "kyb.registry_search.resolved" => [Didit::Webhooks::KybRegistrySearchResolvedEvent, { request_id: "r-1" }],
-      "bank.link.completed" => [Didit::Webhooks::BankLinkCompletedEvent,
-                                { link_id: "l-1", status: "completed", connection_id: "c-1" }],
-      "bank.link.cancelled" => [Didit::Webhooks::BankLinkCancelledEvent,
-                                { link_id: "l-1", status: "cancelled", connection_id: nil }],
-      "bank.link.expired" => [Didit::Webhooks::BankLinkExpiredEvent, { link_id: "l-1", status: "expired" }],
-      "bank.link.failed" => [Didit::Webhooks::BankLinkFailedEvent,
-                             { link_id: "l-1", status: "failed", error_code: "consent_declined" }],
-      "bank.connection.created" => [Didit::Webhooks::BankConnectionCreatedEvent,
-                                    { connection_id: "c-1", initial_status: "succeeded" }],
-      "bank.connection.updated" => [Didit::Webhooks::BankConnectionUpdatedEvent,
-                                    { connection_id: "c-1", status: "pending", revocation_status: "pending" }],
-      "bank.connection.consent_expiring" => [Didit::Webhooks::BankConnectionConsentExpiringEvent,
-                                             { connection_id: "c-1", days_left: 7,
-                                               consent_expires_at: Time.iso8601("2026-12-01T00:00:00Z") }],
-      "bank.connection.renewal_required" => [Didit::Webhooks::BankConnectionRenewalRequiredEvent,
-                                             { connection_id: "c-1", status: "renewal_required",
-                                               reason: "consent_expired" }],
-      "bank.connection.renewed" => [Didit::Webhooks::BankConnectionRenewedEvent,
-                                    { connection_id: "c-1", status: "active", consent_version: 2 }],
-      "bank.connection.revoked" => [Didit::Webhooks::BankConnectionRevokedEvent,
-                                    { connection_id: "c-1", status: "revoked", ended_by: "end_user",
-                                      status_reason: "revoked_by_end_user",
-                                      ended_at: Time.iso8601("2026-11-22T00:00:00Z") }],
-      "bank.connection.deleted" => [Didit::Webhooks::BankConnectionDeletedEvent,
-                                    { connection_id: "c-1", status: "deleted", erasure_status: "erased",
-                                      erased_at: Time.iso8601("2026-11-22T00:00:00Z") }],
-      "bank.connection.history_complete" => [Didit::Webhooks::BankConnectionHistoryCompleteEvent,
-                                             { connection_id: "c-1", status: "complete" }],
-      "bank.data.updated" => [Didit::Webhooks::BankDataUpdatedEvent,
-                              { connection_id: "c-1", sync_id: "s-1", trigger: "scheduled",
-                                accounts: [{ "account_id" => "a-1", "added" => 2, "modified" => 1, "removed" => 0 }],
-                                balances_changed: true }],
-      "bank.sync.completed" => [Didit::Webhooks::BankSyncCompletedEvent,
-                                { connection_id: "c-1", sync_id: "s-1", trigger: "scheduled",
-                                  outcome: "succeeded", changed: true }],
-      "bank.sync.failed" => [Didit::Webhooks::BankSyncFailedEvent,
-                             { connection_id: "c-1", sync_id: "s-1", error_code: "bank_unavailable",
-                               failing_since: Time.iso8601("2026-11-22T00:00:00Z") }],
-      "bank.sync.recovered" => [Didit::Webhooks::BankSyncRecoveredEvent, { connection_id: "c-1", sync_id: "s-1" }]
+      "kyb.registry_search.resolved" => [Didit::Webhooks::KybRegistrySearchResolvedEvent, { request_id: "r-1" }]
     }.each do |type, (klass, fields)|
       it "reads #{type} as #{klass.name.split("::").last}" do
-        # The four bank.link.* events carry their fields under data; all the others are flat.
-        event = if type.start_with?("bank.link.")
-                  parse(webhook_type: type, data: fields)
-                else
-                  parse(webhook_type: type, **fields)
-                end
+        event = parse(webhook_type: type, **fields)
         expect(event).to be_an_instance_of(klass)
         expect(event).to be_a(Didit::Webhooks::Event).and(be_a(Didit::Model))
         expect(event).to have_attributes(webhook_type: type, **fields)
@@ -85,45 +41,45 @@ module WebhookSpecs
       end
     end
 
-    it "verifies and types every bank.* delivery" do
-      %w[
-        bank.link.completed bank.link.cancelled bank.link.expired bank.link.failed
-        bank.connection.created bank.connection.updated bank.connection.consent_expiring
-        bank.connection.renewal_required bank.connection.renewed bank.connection.revoked
-        bank.connection.deleted bank.connection.history_complete
-        bank.data.updated bank.sync.completed bank.sync.failed bank.sync.recovered
-      ].each do |type|
-        extra = if type.start_with?("bank.link.")
-                  { data: { link_id: "l-1", status: type.split(".").last, connection_id: "c-1",
-                            check_id: nil, error_code: nil } }
-                else
-                  { connection_id: "c-1" }
-                end
-        body, headers = delivery(payload(webhook_type: type, **extra))
-        event = Didit::Webhooks.verify(body, headers, SECRET, now: NOW)
-        expect(event).to be_an_instance_of(Didit::Webhooks::EVENT_CLASSES.fetch(type))
+    def self.bank_recordings
+      @bank_recordings ||= JSON.parse(File.read(File.join(__dir__, "fixtures/bank_deliveries.json")))
+    end
+
+    it "covers every registered Bank event with a recorded delivery" do
+      types = self.class.bank_recordings.fetch("deliveries").map do |record|
+        JSON.parse(record.fetch("body")).fetch("webhook_type")
+      end
+      expect(types).to match_array(Didit::Webhooks::EVENT_CLASSES.keys.grep(/\Abank\./))
+    end
+
+    bank_recordings.fetch("deliveries").each do |record|
+      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} and reads its fields" do
+        body = JSON.parse(record.fetch("body"))
+        type = body.fetch("webhook_type")
+        event = Didit::Client.new.webhooks.verify(record.fetch("body"), record.fetch("headers"),
+                                                  self.class.bank_recordings.fetch("secret"), now: record.fetch("now"))
+        klass = Didit::Webhooks.const_get("#{type.split(/[._]/).map(&:capitalize).join}Event", false)
+        expect(event).to be_an_instance_of(klass)
         expect(event.verified_by).to eq("X-Signature")
+        expect(event.webhook_type).to eq(type)
+
+        fields = body.except("data").merge(body.fetch("data", {}))
+        fields.each do |name, value|
+          expected = value.is_a?(String) && value.match?(/\A\d{4}-\d{2}-\d{2}T/) ? Time.iso8601(value) : value
+          expect(event.public_send(name)).to eq(expected)
+          expect(event.deconstruct_keys([name.to_sym])).to eq(name.to_sym => expected)
+        end
+        expect(event.data).to be_a(Didit::Webhooks::BankLinkEventData) if body.key?("data")
       end
     end
 
-    it "reads the link fields from data, as the backend sends them" do
-      body = payload(
-        webhook_type: "bank.link.failed",
-        data: { link_id: "l-1", status: "failed", connection_id: nil, check_id: nil,
-                error_code: "consent_declined" }
-      )
-      event = Didit::Webhooks.parse_event(JSON.parse(JSON.generate(body))) # a real body has string keys
-      expect(event).to be_an_instance_of(Didit::Webhooks::BankLinkFailedEvent)
-      expect(event.data).to be_an_instance_of(Didit::Webhooks::BankLinkEventData)
-      expect(event).to have_attributes(link_id: "l-1", status: "failed", connection_id: nil,
-                                       check_id: nil, error_code: "consent_declined")
-      expect(event["data"]).to include("error_code" => "consent_declined")
-      expect(event["link_id"]).to be_nil
-      matched = case event
-                in Didit::Webhooks::BankLinkFailedEvent(error_code: "consent_declined") then true
-                else false
-                end
-      expect(matched).to be(true)
+    it "can match envelope and link fields when link data has an unexpected shape" do
+      event = parse(webhook_type: "bank.link.failed", data: [])
+      allow(event).to receive(:link_id).and_call_original
+      expect(event.deconstruct_keys([:event_id])).to eq(event_id: event.event_id)
+      expect(event.deconstruct_keys([:status])).to eq(status: nil)
+      expect(event[:data]).to eq([])
+      expect(event).not_to have_received(:link_id)
     end
 
     it "has a class for every webhook type of DESIGN.md section 9.4" do

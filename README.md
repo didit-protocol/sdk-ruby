@@ -195,21 +195,16 @@ See [`examples/webhooks/`](examples/webhooks/) for Rails, Sinatra and Rack recei
 `didit.bank` runs account checks and reads bank data after the person connects a bank once.
 
 ```ruby
-link = didit.bank.create_link(redirect_url: "https://acme.test/bank/return", access: "ongoing",
-                              vendor_data: "customer-42")
-puts "Open #{link.url}"                # hosted Bank Link; link.client_token for a modal or inline flow
+link = didit.bank.create_link(access: "ongoing", data: ["accounts"])
+# Deliver link.url privately to the person connecting their bank.
 
-connection = didit.bank.get_connection(connection_id)  # the id from bank.connection.created
-accounts = didit.bank.list_accounts(connection.id, limit: 50)
-accounts.items.first.name
-accounts.next_cursor                   # pass it back as cursor: to read the next page
-account_id = accounts.items.first.id
-
-balances = didit.bank.get_balances(account_id)  # amounts are decimal strings, never floats
-
-transactions = didit.bank.list_transactions(account_id, limit: 50)
-transactions.items.first.amount
-transactions.next_page_token           # with has_more, fetch the next range
+# In the webhook handler, using the link ID saved for this person:
+event = didit.webhooks.verify(raw_body, headers, ENV.fetch("DIDIT_WEBHOOK_SECRET"))
+if event.is_a?(Didit::Webhooks::BankConnectionCreatedEvent) && event.connection_id &&
+   didit.bank.get_link(link.id).connection_id == event.connection_id
+  accounts = didit.bank.list_accounts(event.connection_id, limit: 50)
+  accounts.items.size # accounts on this page
+end
 ```
 
 - `create_link` returns the hosted `url`, a `client_token` for Bank Link in a modal or inline, `expires_at` and `quote`. A completed link creates a connection (`bank.connection.created`) or a `bank.link.failed` event with its `error_code`.
@@ -218,7 +213,7 @@ transactions.next_page_token           # with has_more, fetch the next range
 - `delete_connection` stops access at the bank and deletes the stored accounts, balances and transactions; it cannot be undone. `revoke_connection` stops access; stored data stays readable until the retention window ends.
 - In production Bank data is on for sandbox applications first; a live application's calls answer `404` until it is enabled.
 
-[`examples/bank_connection.rb`](examples/bank_connection.rb) runs the same steps.
+[`examples/bank_connection.ru`](examples/bank_connection.ru) runs the same steps.
 
 ## Transactions and Travel Rule
 
