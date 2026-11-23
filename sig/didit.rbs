@@ -1,0 +1,20 @@
+module Didit
+  VERSION: String
+
+  OMIT: untyped
+
+  # A file argument of an upload operation.
+  type upload = Didit::FilePart | Pathname | IO | StringIO | String
+
+  # The +request_options:+ argument of every method.
+  type request_options = {
+    ?timeout: Numeric,
+    ?max_retries: Integer,
+    ?extra_headers: Hash[String, String?],
+    ?extra_query: Hash[String | Symbol, untyped],
+    ?extra_body: Hash[String | Symbol, untyped]
+  }
+
+  # A runtime type spec understood by Didit::Model.coerce.
+  type type_spec = Symbol | String | Class | Array[untyped] | Hash[Integer, untyped]
+end
