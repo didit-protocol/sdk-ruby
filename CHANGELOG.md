@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.35.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.34.0...v2.35.0) (2026-11-23)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `(anyOf 1)`: type changed from object to any ([d50a148](https://github.com/didit-protocol/sdk-ruby/commit/d50a1481e1e5772c2ab871209d5d1a7707dbad9c))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([d50a148](https://github.com/didit-protocol/sdk-ruby/commit/d50a1481e1e5772c2ab871209d5d1a7707dbad9c))
+
 ## [2.34.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.33.0...v2.34.0) (2026-11-23)
 
 
