@@ -135,5 +135,65 @@ module Didit
 
       VALUES = [BOOKED, PENDING].freeze
     end
+
+    # What happens. The operation description explains each value.
+    module BankSimulateConnectionParamsAction
+      NEW_TRANSACTIONS = "new_transactions"
+      PENDING_POSTED = "pending_posted"
+      BOOKING_CORRECTION = "booking_correction"
+      CONSENT_EXPIRING = "consent_expiring"
+      CONSENT_EXPIRED = "consent_expired"
+      REVOKED_BY_USER = "revoked_by_user"
+      REVOKED_BY_BANK = "revoked_by_bank"
+      SYNC_FAILED = "sync_failed"
+      SYNC_RECOVERED = "sync_recovered"
+      WEBHOOK_TWICE = "webhook_twice"
+      MIDNIGHT_BOOKING = "midnight_booking"
+      BUDGET_USED = "budget_used"
+      BUDGET_RESET = "budget_reset"
+
+      VALUES = [NEW_TRANSACTIONS, PENDING_POSTED, BOOKING_CORRECTION, CONSENT_EXPIRING, CONSENT_EXPIRED, REVOKED_BY_USER, REVOKED_BY_BANK, SYNC_FAILED, SYNC_RECOVERED, WEBHOOK_TWICE, MIDNIGHT_BOOKING, BUDGET_USED, BUDGET_RESET].freeze
+    end
+
+    # The failure the link records. Only accepted with `outcome: failed`, where it defaults to `bank_unavailable`.
+    module BankSimulateLinkParamsErrorCode
+      DUPLICATE_CONFLICT = "duplicate_conflict"
+      RENEWAL_LOGIN_MISMATCH = "renewal_login_mismatch"
+      REDUCED_GRANT = "reduced_grant"
+      CORPORATE_APPROVAL_NOT_SUPPORTED = "corporate_approval_not_supported"
+      ONGOING_ACCESS_NOT_AVAILABLE = "ongoing_access_not_available"
+      BANK_UNAVAILABLE = "bank_unavailable"
+      BANK_CANCELLED = "bank_cancelled"
+      CONSENT_DECLINED = "consent_declined"
+      READ_LIMIT = "read_limit"
+
+      VALUES = [DUPLICATE_CONFLICT, RENEWAL_LOGIN_MISMATCH, REDUCED_GRANT, CORPORATE_APPROVAL_NOT_SUPPORTED, ONGOING_ACCESS_NOT_AVAILABLE, BANK_UNAVAILABLE, BANK_CANCELLED, CONSENT_DECLINED, READ_LIMIT].freeze
+    end
+
+    # How the link ends.
+    module BankSimulateLinkParamsOutcome
+      COMPLETED = "completed"
+      CANCELLED = "cancelled"
+      FAILED = "failed"
+      DUPLICATE_CONFLICT = "duplicate_conflict"
+      REDUCED_GRANT = "reduced_grant"
+      RENEWAL_LOGIN_MISMATCH = "renewal_login_mismatch"
+
+      VALUES = [COMPLETED, CANCELLED, FAILED, DUPLICATE_CONFLICT, REDUCED_GRANT, RENEWAL_LOGIN_MISMATCH].freeze
+    end
+
+    # The Test Bank customer who signs in: `personal_basic` (one current account), `business_multi` (several business
+    # accounts), `long_history` (a long transaction history), `pending` (pending rows), `sparse_fields` (transactions
+    # with fields missing, one automatic sync a day) or `no_ongoing` (a bank that cannot keep access open).
+    module BankSimulateLinkParamsPersona
+      PERSONAL_BASIC = "personal_basic"
+      BUSINESS_MULTI = "business_multi"
+      LONG_HISTORY = "long_history"
+      PENDING = "pending"
+      SPARSE_FIELDS = "sparse_fields"
+      NO_ONGOING = "no_ongoing"
+
+      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING].freeze
+    end
   end
 end

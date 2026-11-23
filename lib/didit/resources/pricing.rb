@@ -37,6 +37,48 @@ module Didit
         )
       end
 
+      # List the banks of one country (public, unauthenticated)
+      #
+      # Lists the banks Didit covers in one country: id, name, segments, access modes, history days, pending
+      # transactions and whether the bank is operational. Public: no auth header. One cached document per country.
+      #
+      # +GET /v3/organization/bank-verification-coverage/{country}/+
+      #
+      # @param country [String] ISO 3166-1 alpha-3 code, for example `ESP`.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankVerificationCountryCoverage]
+      def bank_verification_country_coverage(country, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/organization/bank-verification-coverage/{country}/",
+          path_params: { "country" => country },
+          auth: :none,
+          response: Types::BankVerificationCountryCoverage,
+          request_options: request_options
+        )
+      end
+
+      # List the countries with bank coverage (public, unauthenticated)
+      #
+      # Lists the countries where Didit covers banks, how many, and what is open today for each product. Public: no
+      # auth header. Cached publicly and revalidated with an `ETag`. What is open is read on every request from the
+      # switches the API uses, so a product that is not open today reads `false` even when its banks are listed. It
+      # carries no prices (see the bank verification pricing feed) and never names a supplier.
+      #
+      # +GET /v3/organization/bank-verification-coverage/+
+      #
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::BankVerificationCoverage]
+      def bank_verification_coverage(request_options: nil)
+        @client.request(
+          :get,
+          "/v3/organization/bank-verification-coverage/",
+          auth: :none,
+          response: Types::BankVerificationCoverage,
+          request_options: request_options
+        )
+      end
+
       # Get the price book (public, unauthenticated)
       #
       # Returns Didit's public list prices: every plan with its monthly and yearly price and its discount, the white

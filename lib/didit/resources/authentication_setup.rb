@@ -14,7 +14,7 @@ module Didit
       # +POST /organizations/{organization_id}/applications/{application_id}/authentication/domain/activate/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupDomain]
@@ -37,7 +37,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/branding/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param language [String] Language of the default texts and the previews: an unsupported code falls back to
       #   `en`.
@@ -67,7 +67,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupConfiguration]
@@ -91,7 +91,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/domain/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupDomain]
@@ -109,15 +109,16 @@ module Didit
       # Preview a sign-in email
       #
       # Returns one email as it renders, with sample codes and links. An invitation preview uses a sample organization
-      # for a grant or named key, or the `organization` and `role` you pass. `agentoff` is the email a person receives
-      # when your team ends an agent's access with a notification; `agent` names the agent. A console session can see
-      # a customer organization's name. The address of a console member is left out for a grant or a key, which have
-      # no mailbox. An email Authentication does not send answers `{"error": "email_not_sent_by_authentication"}`.
+      # for a grant or an API key, or the `organization` and `role` you pass. `agentoff` is the email a person
+      # receives when your team ends an agent's access with a notification; `agent` names the agent. A console session
+      # can see a customer organization's name. The address of a console member is left out for a grant or a key,
+      # which have no mailbox. An email Authentication does not send answers `{"error":
+      # "email_not_sent_by_authentication"}`.
       #
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/emails/{key}/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param key [String] The email: `code`, `magic`, `reset`, `device`, `invite`, `org`, `agent` or `agentoff`.
       # @param organization [String] For `org` only: the organization the invitation is for, so the preview shows it
@@ -162,7 +163,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/emails/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param language [String] Language of the subjects and previews: an unsupported code falls back to `en`.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
@@ -189,7 +190,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/native-apps/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupNativeApps]
@@ -212,7 +213,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/onboarding/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupOnboarding]
@@ -230,12 +231,12 @@ module Didit
       # Get bot protection
       #
       # Returns whether protection is on, each policy's mode and the last 14 days of detections. Console sessions,
-      # grants and named keys receive the same aggregate counters.
+      # grants and API keys receive the same aggregate counters.
       #
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/protection/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupProtection]
@@ -258,7 +259,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/settings/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupSettings]
@@ -281,7 +282,7 @@ module Didit
       # +GET /organizations/{organization_id}/applications/{application_id}/authentication/verified/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupVerified]
@@ -304,7 +305,7 @@ module Didit
       # +DELETE /organizations/{organization_id}/applications/{application_id}/authentication/domain/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupDomain]
@@ -328,7 +329,7 @@ module Didit
       # +PUT /organizations/{organization_id}/applications/{application_id}/authentication/domain/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param domain [String] The domain to serve the hosted pages on. It must be a host under a zone: a CNAME cannot
       #   sit at an apex.
@@ -361,7 +362,7 @@ module Didit
       # +PUT /organizations/{organization_id}/applications/{application_id}/authentication/methods/{name}/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param name [String] The method: `password`, `code`, `magic`, `phone`, `passkey`, `google`, `microsoft`,
       #   `apple`, `github`, `sso` or `wallet`.
@@ -408,7 +409,7 @@ module Didit
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/branding/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param texts [Hash{String => Hash}]
       # @param terms_url [String]
@@ -448,7 +449,7 @@ module Didit
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param redirect_uris [Array<String>]
       # @param allowed_origins [Array<String>]
@@ -510,7 +511,7 @@ module Didit
       # +PUT /organizations/{organization_id}/applications/{application_id}/authentication/native-apps/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param ios_app_ids [Array<String>]
       # @param android_apps [Array<Hash>]
@@ -539,7 +540,7 @@ module Didit
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/onboarding/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param test_skipped [Boolean]
       # @param import_skipped [Boolean]
@@ -578,7 +579,7 @@ module Didit
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/protection/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param enabled [Boolean]
       # @param breached_password_check [Boolean]
@@ -611,13 +612,13 @@ module Didit
 
       # Update the application settings
       #
-      # Changes the settings in the body. `agent_humans_only` needs a person: a named API key answers 403
+      # Changes the settings in the body. `agent_humans_only` needs a person: an API key answers 403
       # `owner_or_admin_required`, and turning it on needs an owner or admin with an enrolled passkey.
       #
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/settings/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param sign_in_ui [String]
       # @param agent_humans_only [Boolean]
@@ -681,7 +682,7 @@ module Didit
       # +PATCH /organizations/{organization_id}/applications/{application_id}/authentication/verified/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param signup_level [String]
       # @param rules [Array<Hash>]
@@ -723,7 +724,7 @@ module Didit
       # +POST /organizations/{organization_id}/applications/{application_id}/authentication/domain/verify/+
       #
       # @param organization_id [String] UUID of the organization that owns the application.
-      # @param application_id [String] UUID of the application: live or sandbox. A named key configures its own
+      # @param application_id [String] UUID of the application: live or sandbox. An API key configures its own
       #   application only.
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::SetupDomain]

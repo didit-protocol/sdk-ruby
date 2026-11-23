@@ -58,6 +58,126 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneCheckCodeResponsePhoneStatus
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      NOT_FINISHED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCheckCodeResponsePhoneWarningsLogType
+      ERROR: String
+      WARNING: String
+      INFORMATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCheckCodeResponseStatus
+      APPROVED: String
+      DECLINED: String
+      FAILED: String
+      EXPIRED_OR_NOT_FOUND: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsCreateParamsType
+      TOTP: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsStatus
+      UNVERIFIED: String
+      VERIFIED: String
+      DISABLED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsType
+      TOTP: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsUpdateParamsStatus
+      DISABLED: String
+      VERIFIED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsCreateParamsFeature
+      SILENT_VERIFICATION: String
+      SIM_SWAP: String
+      NUMBER_VERIFICATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsCreateParamsUseCase
+      SIGNUP: String
+      LOGIN: String
+      PAYMENT: String
+      ACCOUNT_RECOVERY: String
+      FRAUD_CHECK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsFeature
+      SILENT_VERIFICATION: String
+      SIM_SWAP: String
+      NUMBER_VERIFICATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsStatus
+      SUBMITTED: String
+      IN_REVIEW: String
+      APPROVED: String
+      PARTLY_APPROVED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSdkKeysCreateParamsPlatform
+      IOS: String
+      ANDROID: String
+      WEB: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSdkKeysListParamsPlatform
+      IOS: String
+      ANDROID: String
+      WEB: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSendCodeParamsOptionsPreferredChannel
       WHATSAPP: String
       SMS: String
@@ -80,14 +200,104 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneSilentRegistrationsCreateParamsUseCase
+      SIGNUP: String
+      LOGIN: String
+      PAYMENT: String
+      ACCOUNT_RECOVERY: String
+
+      VALUES: Array[String]
+    end
+
+    class PhoneCheckCodeResponse < Didit::Model
+      def request_id: () -> String?
+      def status: () -> String
+      def message: () -> String?
+      def phone: () -> Didit::Types::PhoneCheckCodeResponsePhone?
+      def vendor_data: () -> String?
+      def metadata: () -> Hash[String, untyped]?
+      def created_at: () -> Time?
+      def verification_id: () -> String?
+      def attempts: () -> Integer?
+    end
+
+    class PhoneCheckCodeResponsePhone < Didit::Model
+      def status: () -> String?
+      def phone_number_prefix: () -> String?
+      def phone_number: () -> String?
+      def full_number: () -> String?
+      def country_code: () -> String?
+      def country_name: () -> String?
+      def carrier: () -> Didit::Types::PhoneCheckCodeResponsePhoneCarrier?
+      def is_disposable: () -> bool?
+      def is_virtual: () -> bool?
+      def verification_method: () -> String?
+      def verification_attempts: () -> Integer?
+      def verified_at: () -> Time?
+      def warnings: () -> Array[Didit::Types::PhoneCheckCodeResponsePhoneWarnings]?
+      def lifecycle: () -> Array[Didit::Types::PhoneCheckCodeResponsePhoneLifecycle]?
+      def matches: () -> Array[Didit::Types::PhoneCheckCodeResponsePhoneMatches]?
+      def phone_social: () -> Didit::Types::PhoneSocialFootprint?
+      def phone_intelligence: () -> Didit::Types::PhoneIntelligence?
+    end
+
+    class PhoneCheckCodeResponsePhoneCarrier < Didit::Model
+      def name: () -> String?
+      def `type`: () -> String?
+    end
+
+    class PhoneCheckCodeResponsePhoneLifecycle < Didit::Model
+      def `type`: () -> String?
+      def timestamp: () -> Time?
+      def details: () -> Hash[String, untyped]?
+      def fee: () -> Float?
+    end
+
+    class PhoneCheckCodeResponsePhoneMatches < Didit::Model
+      def session_id: () -> String?
+      def session_number: () -> Integer?
+      def vendor_data: () -> String?
+      def verification_date: () -> String?
+      def phone_number: () -> String?
+      def status: () -> String?
+      def is_blocklisted: () -> bool?
+      def api_service: () -> String?
+      def source: () -> String?
+    end
+
+    class PhoneCheckCodeResponsePhoneWarnings < Didit::Model
+      def feature: () -> String?
+      def risk: () -> String?
+      def additional_data: () -> Hash[String, untyped]?
+      def log_type: () -> String?
+      def short_description: () -> String?
+      def long_description: () -> String?
+    end
+
     type phone_assess_risk_params = { phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool }
 
-    type phone_check_code_params = { phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String }
+    type phone_check_code_params = { ?phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?factor_id: String }
+
+    type phone_factors_create_params = { type: String, user_id: String, ?friendly_name: String, ?metadata: Hash[String | Symbol, String] }
+
+    type phone_factors_update_params = { ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?status: String }
+
+    type phone_network_registrations_create_params = { feature: String, country: String, use_case: String, ?networks: Array[String], company_name: String, website: String, ?purpose: String, ?monthly_volume: Integer }
+
+    type phone_network_registrations_test_numbers_create_params = { phone_number: String }
+
+    type phone_sdk_keys_create_params = { platform: String, app_ids: Array[String], ?name: String }
+
+    type phone_sdk_keys_rotate_params = { ?overlap_hours: Integer }
 
     type phone_send_code_params = { phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])? }
 
     type phone_send_code_params_options = { ?code_size: Integer, ?locale: String, ?preferred_channel: String, ?use_white_label_customization: bool, ?sms_sender_name: String? }
 
     type phone_send_code_params_signals = { ?ip: String, ?device_id: String, ?device_platform: String, ?device_model: String, ?os_version: String, ?app_version: String, ?user_agent: String }
+
+    type phone_silent_eligibility_params = { phone_number: String, ?ip_address: String }
+
+    type phone_silent_registrations_create_params = { country: String, ?networks: Array[String], use_case: String, company_name: String, website: String, ?monthly_volume: Integer, ?flow_screenshots: Array[String] }
   end
 end

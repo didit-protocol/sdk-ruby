@@ -81,6 +81,150 @@ RSpec.describe Didit::Resources::Pricing do
     exercise_readers(result)
   end
 
+  it "pricing.bank_verification_country_coverage sends GET /v3/organization/bank-verification-coverage/{country}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "country": "ESP",
+        "name": "Spain",
+        "updated_at": "2026-11-23T08:00:00Z",
+        "open": {
+          "bank_verification_in_workflows": true,
+          "bank_data_api_one_time": false,
+          "bank_data_api_ongoing": false,
+          "account_check": false
+        },
+        "data_read": [
+          "accounts",
+          "balances",
+          "transactions"
+        ],
+        "balances_note": "Balances are read for every account a bank shares. The balance types a bank states are listed per bank only when Didit has observed them.",
+        "banks": [
+          {
+            "id": "es-bbva",
+            "name": "BBVA",
+            "country": "ESP",
+            "segments": [
+              "personal",
+              "business"
+            ],
+            "access": [
+              "one_time"
+            ],
+            "history_days_max": 60,
+            "pending_transactions": true,
+            "status": "operational"
+          },
+          {
+            "id": "es-caixabank",
+            "name": "CaixaBank",
+            "country": "ESP",
+            "segments": [
+              "personal",
+              "business"
+            ],
+            "access": [
+              "one_time"
+            ],
+            "history_days_max": 60,
+            "pending_transactions": false,
+            "status": "operational"
+          },
+          {
+            "id": "es-santander",
+            "name": "Santander",
+            "country": "ESP",
+            "segments": [
+              "personal",
+              "business"
+            ],
+            "access": [
+              "one_time"
+            ],
+            "history_days_max": 60,
+            "pending_transactions": true,
+            "status": "operational"
+          }
+        ]
+      }
+    JSON
+    result = client.pricing.bank_verification_country_coverage(
+      "country-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/bank-verification-coverage/country-1/",
+      query: [],
+      auth: :none,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::BankVerificationCountryCoverage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "pricing.bank_verification_coverage sends GET /v3/organization/bank-verification-coverage/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "updated_at": "2026-11-23T08:00:00Z",
+        "open": {
+          "bank_verification_in_workflows": {
+            "live": true,
+            "countries": [
+              "ESP"
+            ]
+          },
+          "bank_data_api_one_time": {
+            "live_applications": false,
+            "countries": []
+          },
+          "bank_data_api_ongoing": {
+            "live_applications": false,
+            "countries": []
+          }
+        },
+        "data_read": [
+          "accounts",
+          "balances",
+          "transactions"
+        ],
+        "balances_note": "Balances are read for every account a bank shares. The balance types a bank states are listed per bank only when Didit has observed them.",
+        "countries": {
+          "ESP": {
+            "name": "Spain",
+            "banks": 92,
+            "banks_by_segment": {
+              "personal": 84,
+              "business": 87
+            },
+            "open": {
+              "bank_verification_in_workflows": true,
+              "bank_data_api_one_time": false,
+              "bank_data_api_ongoing": false,
+              "account_check": false
+            },
+            "banks_url": "/v3/organization/bank-verification-coverage/ESP/"
+          }
+        }
+      }
+    JSON
+    result = client.pricing.bank_verification_coverage
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/bank-verification-coverage/",
+      query: [],
+      auth: :none,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::BankVerificationCoverage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "pricing.price_book sends GET /v3/organization/price-book/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {

@@ -79,6 +79,144 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
+    # Final status of the phone verification. Matches the top-level `status` for finalized checks.
+    module PhoneCheckCodeResponsePhoneStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      NOT_FINISHED = "Not Finished"
+      EXPIRED = "Expired"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED, EXPIRED].freeze
+    end
+
+    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded
+    # without affecting the status.
+    module PhoneCheckCodeResponsePhoneWarningsLogType
+      ERROR = "error"
+      WARNING = "warning"
+      INFORMATION = "information"
+
+      VALUES = [ERROR, WARNING, INFORMATION].freeze
+    end
+
+    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt
+    # budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending
+    # verification for this number in the last 5 minutes.
+    module PhoneCheckCodeResponseStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      FAILED = "Failed"
+      EXPIRED_OR_NOT_FOUND = "Expired or Not Found"
+
+      VALUES = [APPROVED, DECLINED, FAILED, EXPIRED_OR_NOT_FOUND].freeze
+    end
+
+    # The factor to enroll: `totp`, for an authenticator app.
+    module PhoneFactorsCreateParamsType
+      TOTP = "totp"
+
+      VALUES = [TOTP].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsStatus
+      UNVERIFIED = "unverified"
+      VERIFIED = "verified"
+      DISABLED = "disabled"
+
+      VALUES = [UNVERIFIED, VERIFIED, DISABLED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsType
+      TOTP = "totp"
+
+      VALUES = [TOTP].freeze
+    end
+
+    # `disabled` stops the factor's checks; `verified` turns a disabled factor back on.
+    module PhoneFactorsUpdateParamsStatus
+      DISABLED = "disabled"
+      VERIFIED = "verified"
+
+      VALUES = [DISABLED, VERIFIED].freeze
+    end
+
+    # The network feature to ask approval for.
+    module PhoneNetworkRegistrationsCreateParamsFeature
+      SILENT_VERIFICATION = "silent_verification"
+      SIM_SWAP = "sim_swap"
+      NUMBER_VERIFICATION = "number_verification"
+
+      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
+    end
+
+    # What you use the feature for.
+    module PhoneNetworkRegistrationsCreateParamsUseCase
+      SIGNUP = "signup"
+      LOGIN = "login"
+      PAYMENT = "payment"
+      ACCOUNT_RECOVERY = "account_recovery"
+      FRAUD_CHECK = "fraud_check"
+
+      VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY, FRAUD_CHECK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsFeature
+      SILENT_VERIFICATION = "silent_verification"
+      SIM_SWAP = "sim_swap"
+      NUMBER_VERIFICATION = "number_verification"
+
+      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsStatus
+      SUBMITTED = "submitted"
+      IN_REVIEW = "in_review"
+      APPROVED = "approved"
+      PARTLY_APPROVED = "partly_approved"
+      REJECTED = "rejected"
+
+      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
+    end
+
+    # The platform the key is for: `ios`, `android` or `web`.
+    module PhoneSdkKeysCreateParamsPlatform
+      IOS = "ios"
+      ANDROID = "android"
+      WEB = "web"
+
+      VALUES = [IOS, ANDROID, WEB].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneSdkKeysListParamsPlatform
+      IOS = "ios"
+      ANDROID = "android"
+      WEB = "web"
+
+      VALUES = [IOS, ANDROID, WEB].freeze
+    end
+
     # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message
     # automatically falls back to SMS - the send still reports `Success`.
     module PhoneSendCodeParamsOptionsPreferredChannel
@@ -102,6 +240,84 @@ module Didit
       WEB = "web"
 
       VALUES = [ANDROID, IOS, IPADOS, TVOS, WEB].freeze
+    end
+
+    # What silent verification is used for.
+    module PhoneSilentRegistrationsCreateParamsUseCase
+      SIGNUP = "signup"
+      LOGIN = "login"
+      PAYMENT = "payment"
+      ACCOUNT_RECOVERY = "account_recovery"
+
+      VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY].freeze
+    end
+
+    class PhoneCheckCodeResponse < Didit::Model
+      field :request_id, "request_id", :string
+      field :status, "status", :string
+      field :message, "message", :string
+      field :phone, "phone", "PhoneCheckCodeResponsePhone"
+      field :vendor_data, "vendor_data", :string
+      field :metadata, "metadata", :any
+      field :created_at, "created_at", :datetime
+      field :verification_id, "verification_id", :string
+      field :attempts, "attempts", :integer
+    end
+
+    # Full phone report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and
+    # absent on `Expired or Not Found`.
+    class PhoneCheckCodeResponsePhone < Didit::Model
+      field :status, "status", :string
+      field :phone_number_prefix, "phone_number_prefix", :string
+      field :phone_number, "phone_number", :string
+      field :full_number, "full_number", :string
+      field :country_code, "country_code", :string
+      field :country_name, "country_name", :string
+      field :carrier, "carrier", "PhoneCheckCodeResponsePhoneCarrier"
+      field :is_disposable, "is_disposable", :boolean
+      field :is_virtual, "is_virtual", :boolean
+      field :verification_method, "verification_method", :string
+      field :verification_attempts, "verification_attempts", :integer
+      field :verified_at, "verified_at", :datetime
+      field :warnings, "warnings", [:array, "PhoneCheckCodeResponsePhoneWarnings"]
+      field :lifecycle, "lifecycle", [:array, "PhoneCheckCodeResponsePhoneLifecycle"]
+      field :matches, "matches", [:array, "PhoneCheckCodeResponsePhoneMatches"]
+      field :phone_social, "phone_social", "PhoneSocialFootprint"
+      field :phone_intelligence, "phone_intelligence", "PhoneIntelligence"
+    end
+
+    # Current network serving the number, from the carrier lookup run at finalization.
+    class PhoneCheckCodeResponsePhoneCarrier < Didit::Model
+      field :name, "name", :string
+      field :type, "type", :string
+    end
+
+    class PhoneCheckCodeResponsePhoneLifecycle < Didit::Model
+      field :type, "type", :string
+      field :timestamp, "timestamp", :datetime
+      field :details, "details", :any
+      field :fee, "fee", :float
+    end
+
+    class PhoneCheckCodeResponsePhoneMatches < Didit::Model
+      field :session_id, "session_id", :string
+      field :session_number, "session_number", :integer
+      field :vendor_data, "vendor_data", :string
+      field :verification_date, "verification_date", :string
+      field :phone_number, "phone_number", :string
+      field :status, "status", :string
+      field :is_blocklisted, "is_blocklisted", :boolean
+      field :api_service, "api_service", :string
+      field :source, "source", :string
+    end
+
+    class PhoneCheckCodeResponsePhoneWarnings < Didit::Model
+      field :feature, "feature", :string
+      field :risk, "risk", :string
+      field :additional_data, "additional_data", :any
+      field :log_type, "log_type", :string
+      field :short_description, "short_description", :string
+      field :long_description, "long_description", :string
     end
   end
 end

@@ -3,9 +3,48 @@
 module Didit
   module Resources
     class Phone < Didit::Resource
+      def factors: () -> Didit::Resources::Phone::Factors
+      def network: () -> Didit::Resources::Phone::Network
+      def sdk_keys: () -> Didit::Resources::Phone::SdkKeys
+      def silent: () -> Didit::Resources::Phone::Silent
       def assess_risk: (phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskResponse
-      def check_code: (phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationCheckResponse
+      def check_code: (code: String, ?phone_number: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?factor_id: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneCheckCodeResponse
       def send_code: (phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationSendResponse
+      class Factors < Didit::Resource
+        def create: (type: String, user_id: String, ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactorEnrollment
+        def delete: (String factor_id, ?request_options: Didit::request_options?) -> nil
+        def list: (user_id: String, ?type: String, ?status: String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneFactor]
+        def retrieve: (String factor_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactor
+        def update: (String factor_id, ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?status: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactor
+      end
+      class Network < Didit::Resource
+        def registrations: () -> Didit::Resources::Phone::Network::Registrations
+        class Registrations < Didit::Resource
+          def test_numbers: () -> Didit::Resources::Phone::Network::Registrations::TestNumbers
+          def create: (feature: String, country: String, use_case: String, company_name: String, website: String, ?networks: Array[String], ?purpose: String, ?monthly_volume: Integer, ?request_options: Didit::request_options?) -> Didit::Types::PhoneNetworkRegistration
+          def list: (?feature: String, ?country: String, ?status: String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneNetworkRegistrationSummary]
+          def retrieve: (String registration_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneNetworkRegistration
+          class TestNumbers < Didit::Resource
+            def create: (String registration_id, phone_number: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneNetworkRegistrationTestNumber
+            def delete: (String registration_id, String phone_number, ?request_options: Didit::request_options?) -> nil
+          end
+        end
+      end
+      class SdkKeys < Didit::Resource
+        def create: (platform: String, app_ids: Array[String], ?name: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSdkKey
+        def list: (?platform: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSdkKeysPage
+        def revoke: (String key_id, ?request_options: Didit::request_options?) -> nil
+        def rotate: (String key_id, ?overlap_hours: Integer, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSdkKeyRotated
+      end
+      class Silent < Didit::Resource
+        def registrations: () -> Didit::Resources::Phone::Silent::Registrations
+        def coverage: (?country: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentCoverage
+        def eligibility: (phone_number: String, ?ip_address: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentEligibility
+        class Registrations < Didit::Resource
+          def create: (country: String, use_case: String, company_name: String, website: String, ?networks: Array[String], ?monthly_volume: Integer, ?flow_screenshots: Array[String], ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentRegistration
+          def retrieve: (String registration_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentRegistration
+        end
+      end
     end
   end
 end

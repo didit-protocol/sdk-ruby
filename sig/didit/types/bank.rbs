@@ -110,6 +110,60 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BankSimulateConnectionParamsAction
+      NEW_TRANSACTIONS: String
+      PENDING_POSTED: String
+      BOOKING_CORRECTION: String
+      CONSENT_EXPIRING: String
+      CONSENT_EXPIRED: String
+      REVOKED_BY_USER: String
+      REVOKED_BY_BANK: String
+      SYNC_FAILED: String
+      SYNC_RECOVERED: String
+      WEBHOOK_TWICE: String
+      MIDNIGHT_BOOKING: String
+      BUDGET_USED: String
+      BUDGET_RESET: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSimulateLinkParamsErrorCode
+      DUPLICATE_CONFLICT: String
+      RENEWAL_LOGIN_MISMATCH: String
+      REDUCED_GRANT: String
+      CORPORATE_APPROVAL_NOT_SUPPORTED: String
+      ONGOING_ACCESS_NOT_AVAILABLE: String
+      BANK_UNAVAILABLE: String
+      BANK_CANCELLED: String
+      CONSENT_DECLINED: String
+      READ_LIMIT: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSimulateLinkParamsOutcome
+      COMPLETED: String
+      CANCELLED: String
+      FAILED: String
+      DUPLICATE_CONFLICT: String
+      REDUCED_GRANT: String
+      RENEWAL_LOGIN_MISMATCH: String
+
+      VALUES: Array[String]
+    end
+
+    module BankSimulateLinkParamsPersona
+      PERSONAL_BASIC: String
+      BUSINESS_MULTI: String
+      LONG_HISTORY: String
+      PENDING: String
+      SPARSE_FIELDS: String
+      NO_ONGOING: String
+
+      VALUES: Array[String]
+    end
+
     type bank_account_check_params = { country: String, account: Didit::Types::bank_account_check_params_account, holder: (Didit::Types::bank_account_check_person_holder | Didit::Types::bank_account_check_business_holder), ?vendor_data: String?, ?consent: bool }
 
     type bank_account_check_params_account = { ?iban: String, ?account_number: String, ?sort_code: String, ?routing_number: String, ?transit_institution: String, ?bsb: String, ?ifsc: String, ?bank_code: String, ?bic: String, ?clabe: String, ?cbu_cvu: String, ?registration_id: String }
@@ -121,5 +175,9 @@ module Didit
     type bank_refresh_connection_params = { ?wait: bool }
 
     type bank_renew_connection_params = { ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer }
+
+    type bank_simulate_connection_params = { action: String, ?days: Integer, ?count: Integer }
+
+    type bank_simulate_link_params = { ?persona: String, ?outcome: String, ?error_code: String }
   end
 end
