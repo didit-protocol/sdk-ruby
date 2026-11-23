@@ -217,33 +217,39 @@ module Didit
       field :data, "data", BankLinkEventData
 
       def link_id
-        data&.link_id
+        link_data&.link_id
       end
 
       def status
-        data&.status
+        link_data&.status
       end
 
       def connection_id
-        data&.connection_id
+        link_data&.connection_id
       end
 
       def check_id
-        data&.check_id
+        link_data&.check_id
       end
 
       def error_code
-        data&.error_code
+        link_data&.error_code
       end
 
       # Pattern matching reads the link fields too, although they live under +data+.
       def deconstruct_keys(keys)
         out = super
-        { link_id: link_id, status: status, connection_id: connection_id,
-          check_id: check_id, error_code: error_code }.each do |name, value|
-          out[name] = value if keys.nil? || keys.include?(name)
-        end
+        names = BankLinkEventData.fields.keys
+        names &= keys if keys
+        names.each { |name| out[name] = public_send(name) }
         out
+      end
+
+      private
+
+      def link_data
+        value = data
+        value if value.is_a?(BankLinkEventData)
       end
     end
 
