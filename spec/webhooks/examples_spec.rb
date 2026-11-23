@@ -111,7 +111,15 @@ module WebhookSpecs
         expect { expect(post_delivery.status).to eq(204) }.to output("Accounts on the first page: 0\n").to_stdout
         path = ENV.fetch("DIDIT_LINK_FILE")
         expect(File.read(path).chomp).to eq(link.url)
-        expect(File.stat(path).mode & 0o777).to eq(0o600)
+        expect(File.stat(path).mode & 0o777).to eq(0o600) unless Gem.win_platform?
+      end
+
+      it "refuses to create a link when the delivery file already exists" do
+        path = ENV.fetch("DIDIT_LINK_FILE")
+        File.write(path, "existing content")
+        expect { request }.to raise_error(Errno::EEXIST)
+        expect(File.read(path)).to eq("existing content")
+        expect(client.bank).not_to have_received(:create_link)
       end
 
       it "ignores unrelated connections and rejects tampered or oversized deliveries before reading accounts" do
