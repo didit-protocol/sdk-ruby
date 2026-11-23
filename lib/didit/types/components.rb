@@ -851,9 +851,9 @@ module Didit
       VALUES = [CREDIT, DEBIT].freeze
     end
 
-    # How `id` was matched. `bank_reference` and `route_id` are stable. `derived` is matched by content: it is stable
-    # while the bank keeps reporting the entry unchanged, and a correction by the bank can then appear as one
-    # `removed` and one `added`.
+    # How `id` was matched within the connection. `bank_reference` and `route_id` are stable. `derived` is matched by
+    # content: it is stable while the bank keeps reporting the entry unchanged, and a correction by the bank can then
+    # appear as one `removed` and one `added`. Across connections only a `bank_reference` is a reliable key.
     module BankTransactionIdentityQuality
       BANK_REFERENCE = "bank_reference"
       ROUTE_ID = "route_id"
@@ -3431,122 +3431,12 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
-    # `unverified` until the first successful check, then `verified`.
-    module PhoneFactorEnrollmentStatus
-      UNVERIFIED = "unverified"
-      VERIFIED = "verified"
-      DISABLED = "disabled"
-
-      VALUES = [UNVERIFIED, VERIFIED, DISABLED].freeze
-    end
-
-    # The factor type.
-    module PhoneFactorEnrollmentType
-      TOTP = "totp"
-
-      VALUES = [TOTP].freeze
-    end
-
-    # `unverified` until the first successful check, `verified` after it, `disabled` while its checks are turned off.
-    module PhoneFactorStatus
-      UNVERIFIED = "unverified"
-      VERIFIED = "verified"
-      DISABLED = "disabled"
-
-      VALUES = [UNVERIFIED, VERIFIED, DISABLED].freeze
-    end
-
-    # The factor.
-    module PhoneFactorType
-      TOTP = "totp"
-
-      VALUES = [TOTP].freeze
-    end
-
     # Whether the signal raised the risk or added trust.
     module PhoneIntelligenceReasonCodesDirection
       RISK = "risk"
       TRUST = "trust"
 
       VALUES = [RISK, TRUST].freeze
-    end
-
-    # Where this network stands: `submitted` - the request reached it; `in_review` - it is reviewing; `approved`;
-    # `rejected`.
-    module PhoneNetworkDecisionStatus
-      SUBMITTED = "submitted"
-      IN_REVIEW = "in_review"
-      APPROVED = "approved"
-      REJECTED = "rejected"
-
-      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, REJECTED].freeze
-    end
-
-    # The network feature.
-    module PhoneNetworkRegistrationFeature
-      SILENT_VERIFICATION = "silent_verification"
-      SIM_SWAP = "sim_swap"
-      NUMBER_VERIFICATION = "number_verification"
-
-      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
-    end
-
-    # `submitted` - sent to the networks; `in_review` - they are reviewing; `approved` - every network approved;
-    # `partly_approved` - some approved and some rejected; `rejected` - none approved.
-    module PhoneNetworkRegistrationStatus
-      SUBMITTED = "submitted"
-      IN_REVIEW = "in_review"
-      APPROVED = "approved"
-      PARTLY_APPROVED = "partly_approved"
-      REJECTED = "rejected"
-
-      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
-    end
-
-    # The network feature.
-    module PhoneNetworkRegistrationSummaryFeature
-      SILENT_VERIFICATION = "silent_verification"
-      SIM_SWAP = "sim_swap"
-      NUMBER_VERIFICATION = "number_verification"
-
-      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
-    end
-
-    # Where the registration stands.
-    module PhoneNetworkRegistrationSummaryStatus
-      SUBMITTED = "submitted"
-      IN_REVIEW = "in_review"
-      APPROVED = "approved"
-      PARTLY_APPROVED = "partly_approved"
-      REJECTED = "rejected"
-
-      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
-    end
-
-    # `on` while the networks review: the feature answers for your verified test numbers, marked `test: true`. `off`
-    # once the registration is approved or rejected.
-    module PhoneNetworkRegistrationTestAccess
-      ON = "on"
-      OFF = "off"
-
-      VALUES = [ON, OFF].freeze
-    end
-
-    # `code_sent` - Didit sent it a code, which makes it a verified test number once checked; `verified` - it answers
-    # the feature under test access.
-    module PhoneNetworkRegistrationTestNumberStatus
-      CODE_SENT = "code_sent"
-      VERIFIED = "verified"
-
-      VALUES = [CODE_SENT, VERIFIED].freeze
-    end
-
-    # `on` - the registration is under review, so the feature answers for its test numbers, with `test: true` in the
-    # answer.
-    module PhoneNetworkRegistrationTestNumberTestAccess
-      ON = "on"
-
-      VALUES = [ON].freeze
     end
 
     # Decision for this phone number. Mirrors the top-level `status`.
@@ -3568,94 +3458,6 @@ module Didit
       VALUES = [APPROVED, IN_REVIEW, DECLINED].freeze
     end
 
-    # The platform it is for.
-    module PhoneSdkKeyPlatform
-      IOS = "ios"
-      ANDROID = "android"
-      WEB = "web"
-
-      VALUES = [IOS, ANDROID, WEB].freeze
-    end
-
-    # The platform it is for.
-    module PhoneSdkKeyRotatedPlatform
-      IOS = "ios"
-      ANDROID = "android"
-      WEB = "web"
-
-      VALUES = [IOS, ANDROID, WEB].freeze
-    end
-
-    # `active` - the new value works; `expiring` - it was rotated again; `revoked` - it stopped working.
-    module PhoneSdkKeyRotatedStatus
-      ACTIVE = "active"
-      EXPIRING = "expiring"
-      REVOKED = "revoked"
-
-      VALUES = [ACTIVE, EXPIRING, REVOKED].freeze
-    end
-
-    # `active` - it works; `expiring` - it was rotated and stops working at `previous_expires_at`; `revoked` - it
-    # stopped working.
-    module PhoneSdkKeyStatus
-      ACTIVE = "active"
-      EXPIRING = "expiring"
-      REVOKED = "revoked"
-
-      VALUES = [ACTIVE, EXPIRING, REVOKED].freeze
-    end
-
-    # The platform it is for.
-    module PhoneSdkKeySummaryPlatform
-      IOS = "ios"
-      ANDROID = "android"
-      WEB = "web"
-
-      VALUES = [IOS, ANDROID, WEB].freeze
-    end
-
-    # An active key works, an expiring key works until its rotation overlap ends, and a revoked key has stopped
-    # working.
-    module PhoneSdkKeySummaryStatus
-      ACTIVE = "active"
-      EXPIRING = "expiring"
-      REVOKED = "revoked"
-
-      VALUES = [ACTIVE, EXPIRING, REVOKED].freeze
-    end
-
-    # `live` - the network answers silent checks for production traffic. `test` - it answers only while it approves
-    # production use, for the verified test numbers of a registration.
-    module PhoneSilentCoverageNetworkApproval
-      LIVE = "live"
-      TEST = "test"
-
-      VALUES = [LIVE, TEST].freeze
-    end
-
-    # When `eligible` is `false`, why: `unsupported_network` - the number's mobile network cannot run the check;
-    # `not_mobile_data` - the device is not on mobile data (send `ip_address` to have this checked);
-    # `country_not_covered` - silent verification does not run in the number's country.
-    module PhoneSilentEligibilityReason
-      UNSUPPORTED_NETWORK = "unsupported_network"
-      NOT_MOBILE_DATA = "not_mobile_data"
-      COUNTRY_NOT_COVERED = "country_not_covered"
-
-      VALUES = [UNSUPPORTED_NETWORK, NOT_MOBILE_DATA, COUNTRY_NOT_COVERED].freeze
-    end
-
-    # `submitted` - sent to the networks; `in_review` - they are reviewing; `approved` - every network approved;
-    # `partly_approved` - some approved and some rejected; `rejected` - none approved.
-    module PhoneSilentRegistrationStatus
-      SUBMITTED = "submitted"
-      IN_REVIEW = "in_review"
-      APPROVED = "approved"
-      PARTLY_APPROVED = "partly_approved"
-      REJECTED = "rejected"
-
-      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
-    end
-
     # Completeness of the WhatsApp profile. Phone only; null for email.
     module PhoneSocialFootprintWhatsappProfileCompleteness
       BASIC = "Basic"
@@ -3664,6 +3466,39 @@ module Didit
       NOT_PRESENT = "Not Present"
 
       VALUES = [BASIC, PARTIAL, COMPLETE, NOT_PRESENT].freeze
+    end
+
+    # Final status of the phone verification. Matches the top-level `status` for finalized checks.
+    module PhoneVerificationCheckResponsePhoneStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      IN_REVIEW = "In Review"
+      NOT_FINISHED = "Not Finished"
+      EXPIRED = "Expired"
+
+      VALUES = [APPROVED, DECLINED, IN_REVIEW, NOT_FINISHED, EXPIRED].freeze
+    end
+
+    # Severity. `error` risks decline the verification, `warning` flags it for review, `information` is recorded
+    # without affecting the status.
+    module PhoneVerificationCheckResponsePhoneWarningsLogType
+      ERROR = "error"
+      WARNING = "warning"
+      INFORMATION = "information"
+
+      VALUES = [ERROR, WARNING, INFORMATION].freeze
+    end
+
+    # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt
+    # budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending
+    # verification for this number in the last 5 minutes.
+    module PhoneVerificationCheckResponseStatus
+      APPROVED = "Approved"
+      DECLINED = "Declined"
+      FAILED = "Failed"
+      EXPIRED_OR_NOT_FOUND = "Expired or Not Found"
+
+      VALUES = [APPROVED, DECLINED, FAILED, EXPIRED_OR_NOT_FOUND].freeze
     end
 
     # `Success` - OTP sent to a new verification. `Retry` - OTP re-sent for the pending verification created by a
@@ -11777,37 +11612,6 @@ module Didit
       field :failed_insufficient_balance, "failed_insufficient_balance", :integer
     end
 
-    class PhoneFactor < Didit::Model
-      field :factor_id, "factor_id", :string
-      field :type, "type", :string
-      field :status, "status", :string
-      field :user_id, "user_id", :string
-      field :friendly_name, "friendly_name", :string
-      field :metadata, "metadata", [:map, :string]
-      field :created_at, "created_at", :datetime
-      field :last_used_at, "last_used_at", :datetime
-    end
-
-    # The enrollment of a TOTP factor: `totp.uri` is what the authenticator app needs.
-    class PhoneFactorEnrollment < Didit::Model
-      field :factor_id, "factor_id", :string
-      field :type, "type", :string
-      field :status, "status", :string
-      field :totp, "totp", "PhoneFactorEnrollmentTotp"
-    end
-
-    # A `totp` factor: what the authenticator app needs.
-    class PhoneFactorEnrollmentTotp < Didit::Model
-      field :uri, "uri", :string
-    end
-
-    class PhoneFactorsPage < Didit::Model
-      field :count, "count", :integer
-      field :next, "next", :string
-      field :previous, "previous", :string
-      field :results, "results", [:array, "PhoneFactor"]
-    end
-
     # Normalized phone-intelligence block. Present only when the intelligence add-on ran for this lookup; when present
     # it is also exposed under the `enrichment` alias with identical values.
     class PhoneIntelligence < Didit::Model
@@ -11841,48 +11645,6 @@ module Didit
       field :is_blocklisted, "is_blocklisted", :boolean
       field :api_service, "api_service", :string
       field :source, "source", :string
-    end
-
-    # One mobile network's decision on a registration.
-    class PhoneNetworkDecision < Didit::Model
-      field :name, "name", :string
-      field :status, "status", :string
-      field :decided_at, "decided_at", :datetime
-      field :reason, "reason", :string
-    end
-
-    class PhoneNetworkRegistration < Didit::Model
-      field :registration_id, "registration_id", :string
-      field :feature, "feature", :string
-      field :country, "country", :string
-      field :use_case, "use_case", :string
-      field :status, "status", :string
-      field :networks, "networks", [:array, "PhoneNetworkDecision"]
-      field :live_at, "live_at", :datetime
-      field :test_access, "test_access", :string
-      field :test_numbers, "test_numbers", [:array, "PhoneNetworkRegistrationTestNumber"]
-    end
-
-    class PhoneNetworkRegistrationSummary < Didit::Model
-      field :registration_id, "registration_id", :string
-      field :feature, "feature", :string
-      field :country, "country", :string
-      field :use_case, "use_case", :string
-      field :status, "status", :string
-    end
-
-    class PhoneNetworkRegistrationTestNumber < Didit::Model
-      field :phone_number, "phone_number", :string
-      field :status, "status", :string
-      field :verification_id, "verification_id", :string
-      field :test_access, "test_access", :string
-    end
-
-    class PhoneNetworkRegistrationsPage < Didit::Model
-      field :count, "count", :integer
-      field :next, "next", :string
-      field :previous, "previous", :string
-      field :results, "results", [:array, "PhoneNetworkRegistrationSummary"]
     end
 
     class PhoneRiskResponse < Didit::Model
@@ -11922,72 +11684,6 @@ module Didit
       field :type, "type", :string
     end
 
-    # A publishable key of a client SDK. It is not a secret: it is bound to the app ids it may run in and cannot make
-    # a server call.
-    class PhoneSdkKey < Didit::Model
-      field :key_id, "key_id", :string
-      field :platform, "platform", :string
-      field :publishable_key, "publishable_key", :string
-      field :app_ids, "app_ids", [:array, :string]
-      field :status, "status", :string
-      field :created_at, "created_at", :datetime
-    end
-
-    class PhoneSdkKeyRotated < Didit::Model
-      field :key_id, "key_id", :string
-      field :platform, "platform", :string
-      field :publishable_key, "publishable_key", :string
-      field :app_ids, "app_ids", [:array, :string]
-      field :status, "status", :string
-      field :created_at, "created_at", :datetime
-      field :previous_expires_at, "previous_expires_at", :datetime
-    end
-
-    # A client SDK key as returned by the list operation.
-    class PhoneSdkKeySummary < Didit::Model
-      field :key_id, "key_id", :string
-      field :platform, "platform", :string
-      field :status, "status", :string
-    end
-
-    # The publishable keys of your client SDKs.
-    class PhoneSdkKeysPage < Didit::Model
-      field :results, "results", [:array, "PhoneSdkKeySummary"]
-    end
-
-    # Where silent verification runs: one entry per country, and per country the mobile networks that can run the
-    # check.
-    class PhoneSilentCoverage < Didit::Model
-      field :countries, "countries", [:array, "PhoneSilentCoverageCountry"]
-    end
-
-    class PhoneSilentCoverageCountry < Didit::Model
-      field :country, "country", :string
-      field :wifi, "wifi", :boolean
-      field :networks, "networks", [:array, "PhoneSilentCoverageNetwork"]
-    end
-
-    class PhoneSilentCoverageNetwork < Didit::Model
-      field :name, "name", :string
-      field :approval, "approval", :string
-    end
-
-    class PhoneSilentEligibility < Didit::Model
-      field :eligible, "eligible", :boolean
-      field :reason, "reason", :string
-      field :network, "network", :string
-      field :country, "country", :string
-      field :wifi_possible, "wifi_possible", :boolean
-    end
-
-    class PhoneSilentRegistration < Didit::Model
-      field :registration_id, "registration_id", :string
-      field :country, "country", :string
-      field :status, "status", :string
-      field :networks, "networks", [:array, "PhoneNetworkDecision"]
-      field :live_at, "live_at", :datetime
-    end
-
     # Social footprint of the phone number: the online platforms it is registered on. Present only when
     # `enable_social` was set and the check completed. Every count may be null when no data was returned for it.
     # `profiles_registered: 0` means the platforms were checked and the phone number was found on none of them - a
@@ -12010,6 +11706,72 @@ module Didit
       field :not_registered_platforms, "not_registered_platforms", [:array, "SocialFootprintPlatform"]
       field :categories, "categories", [:map, "SocialFootprintCategorySummary"]
       field :profiles, "profiles", [:map, "SocialFootprintProfile"]
+    end
+
+    class PhoneVerificationCheckResponse < Didit::Model
+      field :request_id, "request_id", :string
+      field :status, "status", :string
+      field :message, "message", :string
+      field :phone, "phone", "PhoneVerificationCheckResponsePhone"
+      field :vendor_data, "vendor_data", :string
+      field :metadata, "metadata", :any
+      field :created_at, "created_at", :datetime
+    end
+
+    # Full phone report. Present (non-null) only on finalized outcomes (`Approved`/`Declined`); `null` on `Failed` and
+    # absent on `Expired or Not Found`.
+    class PhoneVerificationCheckResponsePhone < Didit::Model
+      field :status, "status", :string
+      field :phone_number_prefix, "phone_number_prefix", :string
+      field :phone_number, "phone_number", :string
+      field :full_number, "full_number", :string
+      field :country_code, "country_code", :string
+      field :country_name, "country_name", :string
+      field :carrier, "carrier", "PhoneVerificationCheckResponsePhoneCarrier"
+      field :is_disposable, "is_disposable", :boolean
+      field :is_virtual, "is_virtual", :boolean
+      field :verification_method, "verification_method", :string
+      field :verification_attempts, "verification_attempts", :integer
+      field :verified_at, "verified_at", :datetime
+      field :warnings, "warnings", [:array, "PhoneVerificationCheckResponsePhoneWarnings"]
+      field :lifecycle, "lifecycle", [:array, "PhoneVerificationCheckResponsePhoneLifecycle"]
+      field :matches, "matches", [:array, "PhoneVerificationCheckResponsePhoneMatches"]
+      field :phone_social, "phone_social", "PhoneSocialFootprint"
+      field :phone_intelligence, "phone_intelligence", "PhoneIntelligence"
+    end
+
+    # Current network serving the number, from the carrier lookup run at finalization.
+    class PhoneVerificationCheckResponsePhoneCarrier < Didit::Model
+      field :name, "name", :string
+      field :type, "type", :string
+    end
+
+    class PhoneVerificationCheckResponsePhoneLifecycle < Didit::Model
+      field :type, "type", :string
+      field :timestamp, "timestamp", :datetime
+      field :details, "details", :any
+      field :fee, "fee", :float
+    end
+
+    class PhoneVerificationCheckResponsePhoneMatches < Didit::Model
+      field :session_id, "session_id", :string
+      field :session_number, "session_number", :integer
+      field :vendor_data, "vendor_data", :string
+      field :verification_date, "verification_date", :string
+      field :phone_number, "phone_number", :string
+      field :status, "status", :string
+      field :is_blocklisted, "is_blocklisted", :boolean
+      field :api_service, "api_service", :string
+      field :source, "source", :string
+    end
+
+    class PhoneVerificationCheckResponsePhoneWarnings < Didit::Model
+      field :feature, "feature", :string
+      field :risk, "risk", :string
+      field :additional_data, "additional_data", :any
+      field :log_type, "log_type", :string
+      field :short_description, "short_description", :string
+      field :long_description, "long_description", :string
     end
 
     class PhoneVerificationSendResponse < Didit::Model

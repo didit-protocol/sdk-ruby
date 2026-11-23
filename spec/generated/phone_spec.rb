@@ -169,7 +169,7 @@ RSpec.describe Didit::Resources::Phone do
       "code" => "123456"
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
-    expect(result).to be_a(Didit::Types::PhoneCheckCodeResponse)
+    expect(result).to be_a(Didit::Types::PhoneVerificationCheckResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -250,7 +250,7 @@ RSpec.describe Didit::Resources::Phone do
         "device" => "iPhone 15"
       }
     })
-    expect(result).to be_a(Didit::Types::PhoneFactorEnrollment)
+    expect(result).to be_a(Didit::Types::PhoneFactorsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -323,7 +323,7 @@ RSpec.describe Didit::Resources::Phone do
     expect_no_body(request)
     expect(result).to be_a(Didit::Page)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
-    expect(result.results).to all(be_a(Didit::Types::PhoneFactor))
+    expect(result.results).to all(be_a(Didit::Types::PhoneFactorsListResponseResults))
     exercise_readers(result.results)
   end
 
@@ -354,7 +354,7 @@ RSpec.describe Didit::Resources::Phone do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::PhoneFactor)
+    expect(result).to be_a(Didit::Types::PhoneFactorsRetrieveResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -397,7 +397,7 @@ RSpec.describe Didit::Resources::Phone do
       },
       "status" => "disabled"
     })
-    expect(result).to be_a(Didit::Types::PhoneFactor)
+    expect(result).to be_a(Didit::Types::PhoneFactorsUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -468,7 +468,7 @@ RSpec.describe Didit::Resources::Phone do
       "purpose" => "Check for a recent SIM change before a password reset",
       "monthly_volume" => 20000
     })
-    expect(result).to be_a(Didit::Types::PhoneNetworkRegistration)
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistrationsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -519,7 +519,7 @@ RSpec.describe Didit::Resources::Phone do
     expect_no_body(request)
     expect(result).to be_a(Didit::Page)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
-    expect(result.results).to all(be_a(Didit::Types::PhoneNetworkRegistrationSummary))
+    expect(result.results).to all(be_a(Didit::Types::PhoneNetworkRegistrationsListResponseResults))
     exercise_readers(result.results)
   end
 
@@ -567,7 +567,7 @@ RSpec.describe Didit::Resources::Phone do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::PhoneNetworkRegistration)
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistrationsRetrieveResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -596,7 +596,7 @@ RSpec.describe Didit::Resources::Phone do
     expect_json_body(request, {
       "phone_number" => "+34600000012"
     })
-    expect(result).to be_a(Didit::Types::PhoneNetworkRegistrationTestNumber)
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistrationsTestNumbersCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -624,7 +624,7 @@ RSpec.describe Didit::Resources::Phone do
       {
         "key_id": "sk_01JCL2B6",
         "platform": "ios",
-        "publishable_key": "pk_live_ios_7Hq2",
+        "publishable_key": "redacted-publishable-key",
         "app_ids": [
           "com.demoapp.ios"
         ],
@@ -654,7 +654,7 @@ RSpec.describe Didit::Resources::Phone do
       ],
       "name" => "iOS app"
     })
-    expect(result).to be_a(Didit::Types::PhoneSdkKey)
+    expect(result).to be_a(Didit::Types::PhoneSdkKeysCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -688,7 +688,7 @@ RSpec.describe Didit::Resources::Phone do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::PhoneSdkKeysPage)
+    expect(result).to be_a(Didit::Types::PhoneSdkKeysListResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -715,7 +715,7 @@ RSpec.describe Didit::Resources::Phone do
       {
         "key_id": "sk_01JCL2B6",
         "platform": "ios",
-        "publishable_key": "pk_live_ios_9Zt4",
+        "publishable_key": "redacted-publishable-key",
         "app_ids": [
           "com.demoapp.ios"
         ],
@@ -739,7 +739,7 @@ RSpec.describe Didit::Resources::Phone do
     expect_json_body(request, {
       "overlap_hours" => 72
     })
-    expect(result).to be_a(Didit::Types::PhoneSdkKeyRotated)
+    expect(result).to be_a(Didit::Types::PhoneSdkKeysRotateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -778,7 +778,7 @@ RSpec.describe Didit::Resources::Phone do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::PhoneSilentCoverage)
+    expect(result).to be_a(Didit::Types::PhoneSilentCoverageResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -809,7 +809,7 @@ RSpec.describe Didit::Resources::Phone do
       "phone_number" => "+34600000012",
       "ip_address" => "83.44.10.12"
     })
-    expect(result).to be_a(Didit::Types::PhoneSilentEligibility)
+    expect(result).to be_a(Didit::Types::PhoneSilentEligibilityResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -859,7 +859,7 @@ RSpec.describe Didit::Resources::Phone do
       "website" => "https://app.example.com",
       "monthly_volume" => 40000
     })
-    expect(result).to be_a(Didit::Types::PhoneSilentRegistration)
+    expect(result).to be_a(Didit::Types::PhoneSilentRegistrationsCreateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -899,7 +899,7 @@ RSpec.describe Didit::Resources::Phone do
       accept: "application/json"
     )
     expect_no_body(request)
-    expect(result).to be_a(Didit::Types::PhoneSilentRegistration)
+    expect(result).to be_a(Didit::Types::PhoneSilentRegistrationsRetrieveResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
