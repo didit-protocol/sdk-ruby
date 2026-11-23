@@ -45,6 +45,7 @@ module Didit
       PENDING: String
       SPARSE_FIELDS: String
       NO_ONGOING: String
+      REQUIRES_EMAIL: String
 
       VALUES: Array[String]
     end
