@@ -3,9 +3,11 @@
 
 module Didit
   module Types
-    # `one_time` (default) reads the data once. `ongoing` keeps access open until the consent ends or someone stops
-    # it. With `institution_id` set, a bank that cannot keep access open answers `400 ongoing_access_not_available`
-    # before any screen. Without it, the bank picker lists only banks that can.
+    # `one_time` (default) reads the data once: when the read completes the connection ends itself and reads `status:
+    # revoked` with `status_reason: collection_complete`, and its data stays readable until `consent.retain_until`.
+    # `ongoing` keeps access open until the consent ends or someone stops it. With `institution_id` set, a bank that
+    # cannot keep access open answers `400 ongoing_access_not_available` before any screen. Without it, the bank
+    # picker lists only banks that can.
     module BankCreateLinkParamsAccess
       ONE_TIME = "one_time"
       ONGOING = "ongoing"

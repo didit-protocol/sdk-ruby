@@ -131,11 +131,13 @@ module Didit
       # @param mode [String] `connect` (default) creates a new connection. `renew` needs `connection_id` and reuses
       #   that connection's settings.
       # @param connection_id [String] The connection to renew. Only with `mode: renew`.
-      # @param access [String] `one_time` (default) reads the data once. `ongoing` keeps access open until the consent
-      #   ends or someone stops it. With `institution_id` set, a bank that cannot keep access open answers `400
-      #   ongoing_access_not_available` before any screen. Without it, the bank picker lists only banks that can.
+      # @param access [String] `one_time` (default) reads the data once: when the read completes the connection ends
+      #   itself and reads `status: revoked` with `status_reason: collection_complete`, and its data stays readable
+      #   until `consent.retain_until`. `ongoing` keeps access open until the consent ends or someone stops it. With
+      #   `institution_id` set, a bank that cannot keep access open answers `400 ongoing_access_not_available`...
       # @param country [String] Optional. Without it the person picks among the countries your application enabled. It
-      #   has to be a country Bank Link serves; any other, `ZZZ` included, answers `400 invalid_request` with `field:
+      #   has to be a country Bank Link serves; a malformed value answers `400 invalid_request`, and a country the
+      #   product does not serve, or where no bank is offered, answers `400 country_not_available`, both with `field:
       #   country`. An empty request body stays valid.
       # @param institution_id [String] Optional bank to preselect, from `list_institutions`. Skips the picker.
       # @param segment [String] Filters the picker and tells the bank which login to open where the bank separates
@@ -704,7 +706,9 @@ module Didit
       # something. A key with full access does not include it: grant it explicitly when you create the key, or the
       # call answers `403 bank_data_access_denied`.
       #
-      # Refreshing a deleted connection answers `409 connection_not_active`.
+      # Refreshing a deleted connection answers `409 connection_not_active`. A one-time connection is read once and
+      # its access then ends, so refreshing it answers `409 one_time_connection`: create a new link to read the bank
+      # again.
       #
       # +POST /v3/bank/connections/{id}/refresh/+
       #
@@ -739,6 +743,9 @@ module Didit
       # person signs in at their bank once and returns to your `redirect_url`, and `bank.connection.renewed` confirms
       # it. Afterwards the connection's `consent` shows a new `version`, `renewed_count`, `expires_at` and `renew_by`,
       # with `renewal_action` `bank_auth`.
+      #
+      # A one-time connection has no consent to renew: it answers `409 one_time_connection`, and a new link reads the
+      # bank again.
       #
       # Until the consent has 30 days left or fewer it answers `409 renewal_not_needed`; after
       # `consent.renewable_until` it answers `409 renewal_window_expired` and the person connects again.
@@ -789,7 +796,9 @@ module Didit
       #
       # Stops access to the bank. Bank fetches stop the moment you ask, even while the bank's confirmation is pending:
       # the consent reads `revocation_pending`, then `revoked` once the bank confirms access is terminated, or
-      # `revocation_failed` while the call is retried automatically. `consent.ended_by` is `customer`.
+      # `revocation_failed` while the call is retried automatically. `consent.ended_by` is `customer`. Until the bank
+      # confirms, `status` keeps its value and `status_reason` is `null`; once `status` is `revoked`, `status_reason`
+      # is `revoked_by_customer`.
       #
       # Revoking does not delete anything: stored accounts, balances and transactions stay readable until
       # `consent.retain_until`, the retention setting of your application, and nothing is charged. To delete them now,
