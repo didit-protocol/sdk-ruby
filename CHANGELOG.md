@@ -1,5 +1,41 @@
 # Changelog
 
+## [2.36.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.35.0...v2.36.0) (2026-11-23)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `code`: now required ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `factor_id`: removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `phone_number`: now required ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body: type changed from any to object ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body: type changed: 1 anyOf variant(s) removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): response `status`: no longer always present ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): response: type changed: 1 oneOf variant(s) removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.create` (`POST /v3/phone/factors/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.delete` (`DELETE /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.list` (`GET /v3/phone/factors/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.retrieve` (`GET /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.update` (`PATCH /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.create` (`POST /v3/phone/network/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.list` (`GET /v3/phone/network/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.retrieve` (`GET /v3/phone/network/registrations/{registration_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.test_numbers.create` (`POST /v3/phone/network/registrations/{registration_id}/test-numbers/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.test_numbers.delete` (`DELETE /v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.create` (`POST /v3/phone/sdk-keys/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.list` (`GET /v3/phone/sdk-keys/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.revoke` (`DELETE /v3/phone/sdk-keys/{key_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.rotate` (`POST /v3/phone/sdk-keys/{key_id}/rotate/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.coverage` (`GET /v3/phone/silent/coverage/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.eligibility` (`POST /v3/phone/silent/eligibility/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.registrations.create` (`POST /v3/phone/silent/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.registrations.retrieve` (`GET /v3/phone/silent/registrations/{registration_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+
 ## [2.35.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.34.0...v2.35.0) (2026-11-23)
 
 
