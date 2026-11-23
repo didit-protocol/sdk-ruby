@@ -54,7 +54,9 @@ module Didit
     # held by a company), `long_history` (one account with 400 days and 1,400 movements; a read returns the last 365
     # days, so set `history_days` to 365), `pending` (includes pending transactions), `sparse_fields` (no value date,
     # no counterparty IBAN, no bank reference) or `no_ongoing` (a bank that only allows one-time access: use
-    # `allow_one_time_fallback`).
+    # `allow_one_time_fallback`). `requires_email`: the Test Bank behaves as a bank that needs the person's email, so
+    # the link asks for an email address and a code before the bank. In sandbox no email is sent and the code is
+    # always `123456`; ignored for live applications.
     module BankCreateLinkParamsSandboxPersona
       PERSONAL_BASIC = "personal_basic"
       BUSINESS_MULTI = "business_multi"
@@ -62,8 +64,9 @@ module Didit
       PENDING = "pending"
       SPARSE_FIELDS = "sparse_fields"
       NO_ONGOING = "no_ongoing"
+      REQUIRES_EMAIL = "requires_email"
 
-      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING].freeze
+      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING, REQUIRES_EMAIL].freeze
     end
 
     # Known values of an open enum: the API may send others.
