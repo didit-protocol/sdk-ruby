@@ -2863,102 +2863,9 @@ module Didit
       VALUES: Array[String]
     end
 
-    module PhoneFactorEnrollmentStatus
-      UNVERIFIED: String
-      VERIFIED: String
-      DISABLED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneFactorEnrollmentType
-      TOTP: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneFactorStatus
-      UNVERIFIED: String
-      VERIFIED: String
-      DISABLED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneFactorType
-      TOTP: String
-
-      VALUES: Array[String]
-    end
-
     module PhoneIntelligenceReasonCodesDirection
       RISK: String
       TRUST: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkDecisionStatus
-      SUBMITTED: String
-      IN_REVIEW: String
-      APPROVED: String
-      REJECTED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationFeature
-      SILENT_VERIFICATION: String
-      SIM_SWAP: String
-      NUMBER_VERIFICATION: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationStatus
-      SUBMITTED: String
-      IN_REVIEW: String
-      APPROVED: String
-      PARTLY_APPROVED: String
-      REJECTED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationSummaryFeature
-      SILENT_VERIFICATION: String
-      SIM_SWAP: String
-      NUMBER_VERIFICATION: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationSummaryStatus
-      SUBMITTED: String
-      IN_REVIEW: String
-      APPROVED: String
-      PARTLY_APPROVED: String
-      REJECTED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationTestAccess
-      ON: String
-      OFF: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationTestNumberStatus
-      CODE_SENT: String
-      VERIFIED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneNetworkRegistrationTestNumberTestAccess
-      ON: String
 
       VALUES: Array[String]
     end
@@ -2979,84 +2886,38 @@ module Didit
       VALUES: Array[String]
     end
 
-    module PhoneSdkKeyPlatform
-      IOS: String
-      ANDROID: String
-      WEB: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSdkKeyRotatedPlatform
-      IOS: String
-      ANDROID: String
-      WEB: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSdkKeyRotatedStatus
-      ACTIVE: String
-      EXPIRING: String
-      REVOKED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSdkKeyStatus
-      ACTIVE: String
-      EXPIRING: String
-      REVOKED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSdkKeySummaryPlatform
-      IOS: String
-      ANDROID: String
-      WEB: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSdkKeySummaryStatus
-      ACTIVE: String
-      EXPIRING: String
-      REVOKED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSilentCoverageNetworkApproval
-      LIVE: String
-      TEST: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSilentEligibilityReason
-      UNSUPPORTED_NETWORK: String
-      NOT_MOBILE_DATA: String
-      COUNTRY_NOT_COVERED: String
-
-      VALUES: Array[String]
-    end
-
-    module PhoneSilentRegistrationStatus
-      SUBMITTED: String
-      IN_REVIEW: String
-      APPROVED: String
-      PARTLY_APPROVED: String
-      REJECTED: String
-
-      VALUES: Array[String]
-    end
-
     module PhoneSocialFootprintWhatsappProfileCompleteness
       BASIC: String
       PARTIAL: String
       COMPLETE: String
       NOT_PRESENT: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationCheckResponsePhoneStatus
+      APPROVED: String
+      DECLINED: String
+      IN_REVIEW: String
+      NOT_FINISHED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationCheckResponsePhoneWarningsLogType
+      ERROR: String
+      WARNING: String
+      INFORMATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationCheckResponseStatus
+      APPROVED: String
+      DECLINED: String
+      FAILED: String
+      EXPIRED_OR_NOT_FOUND: String
 
       VALUES: Array[String]
     end
@@ -10246,35 +10107,6 @@ module Didit
       def failed_insufficient_balance: () -> Integer?
     end
 
-    class PhoneFactor < Didit::Model
-      def factor_id: () -> String
-      def `type`: () -> String
-      def status: () -> String
-      def user_id: () -> String?
-      def friendly_name: () -> String?
-      def metadata: () -> Hash[String, String]?
-      def created_at: () -> Time?
-      def last_used_at: () -> Time?
-    end
-
-    class PhoneFactorEnrollment < Didit::Model
-      def factor_id: () -> String
-      def `type`: () -> String
-      def status: () -> String
-      def totp: () -> Didit::Types::PhoneFactorEnrollmentTotp
-    end
-
-    class PhoneFactorEnrollmentTotp < Didit::Model
-      def uri: () -> String
-    end
-
-    class PhoneFactorsPage < Didit::Model
-      def count: () -> Integer
-      def `next`: () -> String?
-      def previous: () -> String?
-      def results: () -> Array[Didit::Types::PhoneFactor]
-    end
-
     class PhoneIntelligence < Didit::Model
       def score: () -> Float?
       def phone_type_risk: () -> String?
@@ -10305,47 +10137,6 @@ module Didit
       def is_blocklisted: () -> bool?
       def api_service: () -> String?
       def source: () -> String?
-    end
-
-    class PhoneNetworkDecision < Didit::Model
-      def name: () -> String
-      def status: () -> String
-      def decided_at: () -> Time?
-      def reason: () -> String?
-    end
-
-    class PhoneNetworkRegistration < Didit::Model
-      def registration_id: () -> String
-      def feature: () -> String
-      def country: () -> String
-      def use_case: () -> String?
-      def status: () -> String
-      def networks: () -> Array[Didit::Types::PhoneNetworkDecision]?
-      def live_at: () -> Time?
-      def test_access: () -> String?
-      def test_numbers: () -> Array[Didit::Types::PhoneNetworkRegistrationTestNumber]?
-    end
-
-    class PhoneNetworkRegistrationSummary < Didit::Model
-      def registration_id: () -> String
-      def feature: () -> String
-      def country: () -> String
-      def use_case: () -> String?
-      def status: () -> String
-    end
-
-    class PhoneNetworkRegistrationTestNumber < Didit::Model
-      def phone_number: () -> String
-      def status: () -> String
-      def verification_id: () -> String?
-      def test_access: () -> String?
-    end
-
-    class PhoneNetworkRegistrationsPage < Didit::Model
-      def count: () -> Integer
-      def `next`: () -> String?
-      def previous: () -> String?
-      def results: () -> Array[Didit::Types::PhoneNetworkRegistrationSummary]
     end
 
     class PhoneRiskResponse < Didit::Model
@@ -10383,66 +10174,6 @@ module Didit
       def `type`: () -> String?
     end
 
-    class PhoneSdkKey < Didit::Model
-      def key_id: () -> String
-      def platform: () -> String
-      def publishable_key: () -> String?
-      def app_ids: () -> Array[String]?
-      def status: () -> String
-      def created_at: () -> Time?
-    end
-
-    class PhoneSdkKeyRotated < Didit::Model
-      def key_id: () -> String
-      def platform: () -> String
-      def publishable_key: () -> String
-      def app_ids: () -> Array[String]?
-      def status: () -> String?
-      def created_at: () -> Time?
-      def previous_expires_at: () -> Time
-    end
-
-    class PhoneSdkKeySummary < Didit::Model
-      def key_id: () -> String
-      def platform: () -> String
-      def status: () -> String
-    end
-
-    class PhoneSdkKeysPage < Didit::Model
-      def results: () -> Array[Didit::Types::PhoneSdkKeySummary]
-    end
-
-    class PhoneSilentCoverage < Didit::Model
-      def countries: () -> Array[Didit::Types::PhoneSilentCoverageCountry]
-    end
-
-    class PhoneSilentCoverageCountry < Didit::Model
-      def country: () -> String
-      def wifi: () -> bool?
-      def networks: () -> Array[Didit::Types::PhoneSilentCoverageNetwork]
-    end
-
-    class PhoneSilentCoverageNetwork < Didit::Model
-      def name: () -> String
-      def approval: () -> String
-    end
-
-    class PhoneSilentEligibility < Didit::Model
-      def eligible: () -> bool
-      def reason: () -> String?
-      def network: () -> String?
-      def country: () -> String?
-      def wifi_possible: () -> bool?
-    end
-
-    class PhoneSilentRegistration < Didit::Model
-      def registration_id: () -> String
-      def country: () -> String
-      def status: () -> String
-      def networks: () -> Array[Didit::Types::PhoneNetworkDecision]?
-      def live_at: () -> Time?
-    end
-
     class PhoneSocialFootprint < Didit::Model
       def profiles_registered: () -> Integer?
       def profiles_checked: () -> Integer?
@@ -10461,6 +10192,69 @@ module Didit
       def not_registered_platforms: () -> Array[Didit::Types::SocialFootprintPlatform]?
       def categories: () -> Hash[String, Didit::Types::SocialFootprintCategorySummary]?
       def profiles: () -> Hash[String, Didit::Types::SocialFootprintProfile]?
+    end
+
+    class PhoneVerificationCheckResponse < Didit::Model
+      def request_id: () -> String?
+      def status: () -> String?
+      def message: () -> String?
+      def phone: () -> Didit::Types::PhoneVerificationCheckResponsePhone?
+      def vendor_data: () -> String?
+      def metadata: () -> Hash[String, untyped]?
+      def created_at: () -> Time?
+    end
+
+    class PhoneVerificationCheckResponsePhone < Didit::Model
+      def status: () -> String?
+      def phone_number_prefix: () -> String?
+      def phone_number: () -> String?
+      def full_number: () -> String?
+      def country_code: () -> String?
+      def country_name: () -> String?
+      def carrier: () -> Didit::Types::PhoneVerificationCheckResponsePhoneCarrier?
+      def is_disposable: () -> bool?
+      def is_virtual: () -> bool?
+      def verification_method: () -> String?
+      def verification_attempts: () -> Integer?
+      def verified_at: () -> Time?
+      def warnings: () -> Array[Didit::Types::PhoneVerificationCheckResponsePhoneWarnings]?
+      def lifecycle: () -> Array[Didit::Types::PhoneVerificationCheckResponsePhoneLifecycle]?
+      def matches: () -> Array[Didit::Types::PhoneVerificationCheckResponsePhoneMatches]?
+      def phone_social: () -> Didit::Types::PhoneSocialFootprint?
+      def phone_intelligence: () -> Didit::Types::PhoneIntelligence?
+    end
+
+    class PhoneVerificationCheckResponsePhoneCarrier < Didit::Model
+      def name: () -> String?
+      def `type`: () -> String?
+    end
+
+    class PhoneVerificationCheckResponsePhoneLifecycle < Didit::Model
+      def `type`: () -> String?
+      def timestamp: () -> Time?
+      def details: () -> Hash[String, untyped]?
+      def fee: () -> Float?
+    end
+
+    class PhoneVerificationCheckResponsePhoneMatches < Didit::Model
+      def session_id: () -> String?
+      def session_number: () -> Integer?
+      def vendor_data: () -> String?
+      def verification_date: () -> String?
+      def phone_number: () -> String?
+      def status: () -> String?
+      def is_blocklisted: () -> bool?
+      def api_service: () -> String?
+      def source: () -> String?
+    end
+
+    class PhoneVerificationCheckResponsePhoneWarnings < Didit::Model
+      def feature: () -> String?
+      def risk: () -> String?
+      def additional_data: () -> Hash[String, untyped]?
+      def log_type: () -> String?
+      def short_description: () -> String?
+      def long_description: () -> String?
     end
 
     class PhoneVerificationSendResponse < Didit::Model

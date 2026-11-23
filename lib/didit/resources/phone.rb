@@ -156,12 +156,12 @@ module Didit
       #
       # +POST /v3/phone/check/+
       #
-      # @param code [String] The OTP the end user received. Must be 4-8 numeric digits - anything else returns `400`
-      #   without consuming an attempt. A well-formed but wrong code returns `200` with `status: "Failed"` and consumes
-      #   one of the 3 attempts.
       # @param phone_number [String] The same phone number used in the matching [`POST
       #   /v3/phone/send/`](/standalone-apis/phone-send) call, in E.164 format. This is what links the check to the
       #   send.
+      # @param code [String] The OTP the end user received. Must be 4-8 numeric digits - anything else returns `400`
+      #   without consuming an attempt. A well-formed but wrong code returns `200` with `status: "Failed"` and consumes
+      #   one of the 3 attempts.
       # @param duplicated_phone_number_action [String] What to do when the same number was already used by a different
       #   user (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`;
       #   `NO_ACTION` records the risk in `phone.warnings` and fills `phone.matches`.
@@ -193,16 +193,12 @@ module Didit
       # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number
       #   registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint;
       #   REVIEW is available on the workflow configuration key of the same name.
-      # @param factor_id [String] A TOTP factor being checked instead of a phone code, as returned when it was
-      #   enrolled; send the 4-8 digit `code` its authenticator app shows. The answer is `{verification_id, status,
-      #   attempts}` with `status` `verified` or `failed`; a factor that is `disabled` answers `400 factor_disabled`, an
-      #   unknown one `404 not_found`.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-      # @return [Didit::Types::PhoneCheckCodeResponse]
+      # @return [Didit::Types::PhoneVerificationCheckResponse]
       def check_code(
+        phone_number:,
         code:,
-        phone_number: OMIT,
         duplicated_phone_number_action: OMIT,
         disposable_number_action: OMIT,
         voip_number_action: OMIT,
@@ -213,7 +209,6 @@ module Didit
         low_phone_trust_action: OMIT,
         enable_social: OMIT,
         phone_no_social_presence_action: OMIT,
-        factor_id: OMIT,
         idempotency_key: OMIT,
         request_options: nil
       )
@@ -221,8 +216,8 @@ module Didit
           :post,
           "/v3/phone/check/",
           body: {
-            "code" => code,
             "phone_number" => phone_number,
+            "code" => code,
             "duplicated_phone_number_action" => duplicated_phone_number_action,
             "disposable_number_action" => disposable_number_action,
             "voip_number_action" => voip_number_action,
@@ -232,11 +227,10 @@ module Didit
             "recent_port_action" => recent_port_action,
             "low_phone_trust_action" => low_phone_trust_action,
             "enable_social" => enable_social,
-            "phone_no_social_presence_action" => phone_no_social_presence_action,
-            "factor_id" => factor_id
+            "phone_no_social_presence_action" => phone_no_social_presence_action
           },
           headers: { "Idempotency-Key" => idempotency_key },
-          response: Types::PhoneCheckCodeResponse,
+          response: Types::PhoneVerificationCheckResponse,
           request_options: request_options
         )
       end
@@ -359,8 +353,10 @@ module Didit
         # @param friendly_name [String] Shown in the authenticator app and in the factor list.
         # @param metadata [Hash{String => String}] Up to 10 keys and values of your own, returned with the factor.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneFactorEnrollment]
+        # @return [Didit::Types::PhoneFactorsCreateResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def create(type:, user_id:, friendly_name: OMIT, metadata: OMIT, request_options: nil)
+          @client.deprecated("phone.factors.create", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :post,
             "/v3/phone/factors/",
@@ -370,7 +366,7 @@ module Didit
               "friendly_name" => friendly_name,
               "metadata" => metadata
             },
-            response: Types::PhoneFactorEnrollment,
+            response: Types::PhoneFactorsCreateResponse,
             request_options: request_options
           )
         end
@@ -392,7 +388,9 @@ module Didit
         # @param factor_id [String] The factor to delete.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def delete(factor_id, request_options: nil)
+          @client.deprecated("phone.factors.delete", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :delete,
             "/v3/phone/factors/{factor_id}/",
@@ -427,8 +425,10 @@ module Didit
         # @param format [String] `json` (default) for a page, or `csv` to export every row that matches the filters as
         #   CSV.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Page<Didit::Types::PhoneFactor>]
+        # @return [Didit::Page<Didit::Types::PhoneFactorsListResponseResults>]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def list(user_id:, type: OMIT, status: OMIT, limit: OMIT, offset: OMIT, format: OMIT, request_options: nil)
+          @client.deprecated("phone.factors.list", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :get,
             "/v3/phone/factors/",
@@ -440,7 +440,7 @@ module Didit
               "offset" => offset,
               "format" => format
             },
-            page: Types::PhoneFactor,
+            page: Types::PhoneFactorsListResponseResults,
             request_options: request_options
           )
         end
@@ -458,13 +458,15 @@ module Didit
         #
         # @param factor_id [String] The factor.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneFactor]
+        # @return [Didit::Types::PhoneFactorsRetrieveResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def retrieve(factor_id, request_options: nil)
+          @client.deprecated("phone.factors.retrieve", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :get,
             "/v3/phone/factors/{factor_id}/",
             path_params: { "factor_id" => factor_id },
-            response: Types::PhoneFactor,
+            response: Types::PhoneFactorsRetrieveResponse,
             request_options: request_options
           )
         end
@@ -491,8 +493,10 @@ module Didit
         # @param metadata [Hash{String => String}] Replaces your keys and values with these, up to 10.
         # @param status [String] `disabled` stops the factor's checks; `verified` turns a disabled factor back on.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneFactor]
+        # @return [Didit::Types::PhoneFactorsUpdateResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def update(factor_id, friendly_name: OMIT, metadata: OMIT, status: OMIT, request_options: nil)
+          @client.deprecated("phone.factors.update", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :patch,
             "/v3/phone/factors/{factor_id}/",
@@ -502,7 +506,7 @@ module Didit
               "metadata" => metadata,
               "status" => status
             },
-            response: Types::PhoneFactor,
+            response: Types::PhoneFactorsUpdateResponse,
             request_options: request_options
           )
         end
@@ -555,7 +559,8 @@ module Didit
           # @param purpose [String] Why the flow needs the feature, shown to the networks.
           # @param monthly_volume [Integer] Expected requests a month.
           # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-          # @return [Didit::Types::PhoneNetworkRegistration]
+          # @return [Didit::Types::PhoneNetworkRegistrationsCreateResponse]
+          # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
           def create(
             feature:,
             country:,
@@ -567,6 +572,7 @@ module Didit
             monthly_volume: OMIT,
             request_options: nil
           )
+            @client.deprecated("phone.network.registrations.create", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
             @client.request(
               :post,
               "/v3/phone/network/registrations/",
@@ -580,7 +586,7 @@ module Didit
                 "purpose" => purpose,
                 "monthly_volume" => monthly_volume
               },
-              response: Types::PhoneNetworkRegistration,
+              response: Types::PhoneNetworkRegistrationsCreateResponse,
               request_options: request_options
             )
           end
@@ -608,7 +614,8 @@ module Didit
           # @param format [String] `json` (default) for a page, or `csv` to export every row that matches the filters
           #   as CSV.
           # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-          # @return [Didit::Page<Didit::Types::PhoneNetworkRegistrationSummary>]
+          # @return [Didit::Page<Didit::Types::PhoneNetworkRegistrationsListResponseResults>]
+          # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
           def list(
             feature: OMIT,
             country: OMIT,
@@ -618,6 +625,7 @@ module Didit
             format: OMIT,
             request_options: nil
           )
+            @client.deprecated("phone.network.registrations.list", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
             @client.request(
               :get,
               "/v3/phone/network/registrations/",
@@ -629,7 +637,7 @@ module Didit
                 "offset" => offset,
                 "format" => format
               },
-              page: Types::PhoneNetworkRegistrationSummary,
+              page: Types::PhoneNetworkRegistrationsListResponseResults,
               request_options: request_options
             )
           end
@@ -649,13 +657,15 @@ module Didit
           #
           # @param registration_id [String] The network feature registration.
           # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-          # @return [Didit::Types::PhoneNetworkRegistration]
+          # @return [Didit::Types::PhoneNetworkRegistrationsRetrieveResponse]
+          # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
           def retrieve(registration_id, request_options: nil)
+            @client.deprecated("phone.network.registrations.retrieve", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
             @client.request(
               :get,
               "/v3/phone/network/registrations/{registration_id}/",
               path_params: { "registration_id" => registration_id },
-              response: Types::PhoneNetworkRegistration,
+              response: Types::PhoneNetworkRegistrationsRetrieveResponse,
               request_options: request_options
             )
           end
@@ -683,8 +693,10 @@ module Didit
             # @param registration_id [String] The network feature registration.
             # @param phone_number [String] A number you hold, in E.164. Didit sends it a code to confirm it.
             # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-            # @return [Didit::Types::PhoneNetworkRegistrationTestNumber]
+            # @return [Didit::Types::PhoneNetworkRegistrationsTestNumbersCreateResponse]
+            # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
             def create(registration_id, phone_number:, request_options: nil)
+              @client.deprecated("phone.network.registrations.test_numbers.create", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
               @client.request(
                 :post,
                 "/v3/phone/network/registrations/{registration_id}/test-numbers/",
@@ -692,7 +704,7 @@ module Didit
                 body: {
                   "phone_number" => phone_number
                 },
-                response: Types::PhoneNetworkRegistrationTestNumber,
+                response: Types::PhoneNetworkRegistrationsTestNumbersCreateResponse,
                 request_options: request_options
               )
             end
@@ -714,7 +726,9 @@ module Didit
             # @param phone_number [String] The test number, in E.164 and URL-encoded.
             # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
             # @return [nil]
+            # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
             def delete(registration_id, phone_number, request_options: nil)
+              @client.deprecated("phone.network.registrations.test_numbers.delete", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
               @client.request(
                 :delete,
                 "/v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/",
@@ -751,8 +765,10 @@ module Didit
         # @param app_ids [Array<String>] The bundle ids, package names or `https` origins the key works for.
         # @param name [String] Shown in API keys.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneSdkKey]
+        # @return [Didit::Types::PhoneSdkKeysCreateResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def create(platform:, app_ids:, name: OMIT, request_options: nil)
+          @client.deprecated("phone.sdk_keys.create", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :post,
             "/v3/phone/sdk-keys/",
@@ -761,7 +777,7 @@ module Didit
               "app_ids" => app_ids,
               "name" => name
             },
-            response: Types::PhoneSdkKey,
+            response: Types::PhoneSdkKeysCreateResponse,
             request_options: request_options
           )
         end
@@ -782,15 +798,17 @@ module Didit
         #
         # @param platform [String] Only keys for this platform.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneSdkKeysPage]
+        # @return [Didit::Types::PhoneSdkKeysListResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def list(platform: OMIT, request_options: nil)
+          @client.deprecated("phone.sdk_keys.list", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :get,
             "/v3/phone/sdk-keys/",
             query: {
               "platform" => platform
             },
-            response: Types::PhoneSdkKeysPage,
+            response: Types::PhoneSdkKeysListResponse,
             request_options: request_options
           )
         end
@@ -812,7 +830,9 @@ module Didit
         # @param key_id [String] The publishable key to revoke.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
         # @return [nil]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def revoke(key_id, request_options: nil)
+          @client.deprecated("phone.sdk_keys.revoke", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :delete,
             "/v3/phone/sdk-keys/{key_id}/",
@@ -843,8 +863,10 @@ module Didit
         # @param overlap_hours [Integer] How long the value being replaced keeps working, from 0 to 168 hours, while
         #   the app update ships.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneSdkKeyRotated]
+        # @return [Didit::Types::PhoneSdkKeysRotateResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def rotate(key_id, overlap_hours: OMIT, request_options: nil)
+          @client.deprecated("phone.sdk_keys.rotate", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :post,
             "/v3/phone/sdk-keys/{key_id}/rotate/",
@@ -852,7 +874,7 @@ module Didit
             body: {
               "overlap_hours" => overlap_hours
             },
-            response: Types::PhoneSdkKeyRotated,
+            response: Types::PhoneSdkKeysRotateResponse,
             request_options: request_options
           )
         end
@@ -888,15 +910,17 @@ module Didit
         #
         # @param country [String] Only this ISO 3166-1 alpha-2 country.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneSilentCoverage]
+        # @return [Didit::Types::PhoneSilentCoverageResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def coverage(country: OMIT, request_options: nil)
+          @client.deprecated("phone.silent.coverage", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :get,
             "/v3/phone/silent/coverage/",
             query: {
               "country" => country
             },
-            response: Types::PhoneSilentCoverage,
+            response: Types::PhoneSilentCoverageResponse,
             request_options: request_options
           )
         end
@@ -927,8 +951,10 @@ module Didit
         # @param phone_number [String] The number in international format (E.164), for example `+34600000012`.
         # @param ip_address [String] The phone's public IP, so the answer also confirms the device is on mobile data.
         # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-        # @return [Didit::Types::PhoneSilentEligibility]
+        # @return [Didit::Types::PhoneSilentEligibilityResponse]
+        # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
         def eligibility(phone_number:, ip_address: OMIT, request_options: nil)
+          @client.deprecated("phone.silent.eligibility", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
           @client.request(
             :post,
             "/v3/phone/silent/eligibility/",
@@ -936,7 +962,7 @@ module Didit
               "phone_number" => phone_number,
               "ip_address" => ip_address
             },
-            response: Types::PhoneSilentEligibility,
+            response: Types::PhoneSilentEligibilityResponse,
             request_options: request_options
           )
         end
@@ -971,7 +997,8 @@ module Didit
           # @param monthly_volume [Integer] Expected silent checks a month.
           # @param flow_screenshots [Array<String>] Links to screens of the flow, as the networks ask for them.
           # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-          # @return [Didit::Types::PhoneSilentRegistration]
+          # @return [Didit::Types::PhoneSilentRegistrationsCreateResponse]
+          # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
           def create(
             country:,
             use_case:,
@@ -982,6 +1009,7 @@ module Didit
             flow_screenshots: OMIT,
             request_options: nil
           )
+            @client.deprecated("phone.silent.registrations.create", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
             @client.request(
               :post,
               "/v3/phone/silent/registrations/",
@@ -994,7 +1022,7 @@ module Didit
                 "monthly_volume" => monthly_volume,
                 "flow_screenshots" => flow_screenshots
               },
-              response: Types::PhoneSilentRegistration,
+              response: Types::PhoneSilentRegistrationsCreateResponse,
               request_options: request_options
             )
           end
@@ -1015,13 +1043,15 @@ module Didit
           #
           # @param registration_id [String] The silent verification registration.
           # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
-          # @return [Didit::Types::PhoneSilentRegistration]
+          # @return [Didit::Types::PhoneSilentRegistrationsRetrieveResponse]
+          # @deprecated Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.
           def retrieve(registration_id, request_options: nil)
+            @client.deprecated("phone.silent.registrations.retrieve", "Removed from the API contract on 2026-11-23; this deprecated method is kept through version 2.36.0.")
             @client.request(
               :get,
               "/v3/phone/silent/registrations/{registration_id}/",
               path_params: { "registration_id" => registration_id },
-              response: Types::PhoneSilentRegistration,
+              response: Types::PhoneSilentRegistrationsRetrieveResponse,
               request_options: request_options
             )
           end
