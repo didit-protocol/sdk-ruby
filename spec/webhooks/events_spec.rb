@@ -41,11 +41,57 @@ module WebhookSpecs
       end
     end
 
+    def self.bank_recordings
+      @bank_recordings ||= JSON.parse(File.read(File.join(__dir__, "fixtures/bank_deliveries.json")))
+    end
+
+    it "covers every registered Bank event with a recorded delivery" do
+      types = self.class.bank_recordings.fetch("deliveries").map do |record|
+        JSON.parse(record.fetch("body")).fetch("webhook_type")
+      end
+      expect(types).to match_array(Didit::Webhooks::EVENT_CLASSES.keys.grep(/\Abank\./))
+    end
+
+    bank_recordings.fetch("deliveries").each do |record|
+      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} and reads its fields" do
+        body = JSON.parse(record.fetch("body"))
+        type = body.fetch("webhook_type")
+        event = Didit::Client.new.webhooks.verify(record.fetch("body"), record.fetch("headers"),
+                                                  self.class.bank_recordings.fetch("secret"), now: record.fetch("now"))
+        klass = Didit::Webhooks.const_get("#{type.split(/[._]/).map(&:capitalize).join}Event", false)
+        expect(event).to be_an_instance_of(klass)
+        expect(event.verified_by).to eq("X-Signature")
+        expect(event.webhook_type).to eq(type)
+
+        fields = body.except("data").merge(body.fetch("data", {}))
+        fields.each do |name, value|
+          expected = value.is_a?(String) && value.match?(/\A\d{4}-\d{2}-\d{2}T/) ? Time.iso8601(value) : value
+          expect(event.public_send(name)).to eq(expected)
+          expect(event.deconstruct_keys([name.to_sym])).to eq(name.to_sym => expected)
+        end
+        expect(event.data).to be_a(Didit::Webhooks::BankLinkEventData) if body.key?("data")
+      end
+    end
+
+    it "can match envelope and link fields when link data has an unexpected shape" do
+      event = parse(webhook_type: "bank.link.failed", data: [])
+      allow(event).to receive(:link_id).and_call_original
+      expect(event.deconstruct_keys([:event_id])).to eq(event_id: event.event_id)
+      expect(event.deconstruct_keys([:status])).to eq(status: nil)
+      expect(event[:data]).to eq([])
+      expect(event).not_to have_received(:link_id)
+    end
+
     it "has a class for every webhook type of DESIGN.md section 9.4" do
       expect(Didit::Webhooks::EVENT_CLASSES.keys).to contain_exactly(
         "status.updated", "data.updated", "user.status.updated", "user.data.updated", "business.status.updated",
         "business.data.updated", "activity.created", "transaction.created", "transaction.status.updated",
-        "travel_rule.status.updated", "workflow.compliance_changed", "kyb.registry_search.resolved"
+        "travel_rule.status.updated", "workflow.compliance_changed", "kyb.registry_search.resolved",
+        "bank.link.completed", "bank.link.cancelled", "bank.link.expired", "bank.link.failed",
+        "bank.connection.created", "bank.connection.updated", "bank.connection.consent_expiring",
+        "bank.connection.renewal_required", "bank.connection.renewed", "bank.connection.revoked",
+        "bank.connection.deleted", "bank.connection.history_complete", "bank.data.updated",
+        "bank.sync.completed", "bank.sync.failed", "bank.sync.recovered"
       )
     end
 

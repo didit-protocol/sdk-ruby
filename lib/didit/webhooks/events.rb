@@ -197,6 +197,206 @@ module Didit
       field :kyb_registry, "kyb_registry", :any
     end
 
+    # The link fields of the four +bank.link.*+ events. The backend nests them under +data+,
+    # unlike the connection, data and sync events, whose fields sit next to the envelope.
+    class BankLinkEventData < Didit::Model
+      field :link_id, "link_id", :string
+      # +"completed"+, +"cancelled"+, +"expired"+ or +"failed"+.
+      field :status, "status", :string
+      # The connection the link created or renewed, when there is one.
+      field :connection_id, "connection_id", :string
+      # The ownership result, when one was asked for.
+      field :check_id, "check_id", :string
+      # With +bank.link.failed+, for example +"consent_declined"+.
+      field :error_code, "error_code", :string
+    end
+
+    # Fields of the Bank Link events; ids and statuses only, fetch the link from the API to read it.
+    # The payload keeps them under +data+: read {#data}, or the readers, which look there.
+    class BankLinkEvent < Event
+      field :data, "data", BankLinkEventData
+
+      def link_id
+        link_data&.link_id
+      end
+
+      def status
+        link_data&.status
+      end
+
+      def connection_id
+        link_data&.connection_id
+      end
+
+      def check_id
+        link_data&.check_id
+      end
+
+      def error_code
+        link_data&.error_code
+      end
+
+      # Pattern matching reads the link fields too, although they live under +data+.
+      def deconstruct_keys(keys)
+        out = super
+        names = BankLinkEventData.fields.keys
+        names &= keys if keys
+        names.each { |name| out[name] = public_send(name) }
+        out
+      end
+
+      private
+
+      def link_data
+        value = data
+        value if value.is_a?(BankLinkEventData)
+      end
+    end
+
+    # +bank.link.completed+: the person finished Bank Link.
+    class BankLinkCompletedEvent < BankLinkEvent
+      WEBHOOK_TYPE = "bank.link.completed"
+    end
+
+    # +bank.link.cancelled+: the person cancelled Bank Link.
+    class BankLinkCancelledEvent < BankLinkEvent
+      WEBHOOK_TYPE = "bank.link.cancelled"
+    end
+
+    # +bank.link.expired+: Bank Link expired before the person finished.
+    class BankLinkExpiredEvent < BankLinkEvent
+      WEBHOOK_TYPE = "bank.link.expired"
+    end
+
+    # +bank.link.failed+: Bank Link failed; +error_code+ says why.
+    class BankLinkFailedEvent < BankLinkEvent
+      WEBHOOK_TYPE = "bank.link.failed"
+    end
+
+    # Fields shared by the Bank connection events; ids and statuses only.
+    class BankConnectionEvent < Event
+      field :connection_id, "connection_id", :string
+    end
+
+    # +bank.connection.created+: the first sync of a connection finished.
+    class BankConnectionCreatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.created"
+
+      # +"succeeded"+ or +"partial"+.
+      field :initial_status, "initial_status", :string
+    end
+
+    # +bank.connection.updated+: a connection changed status; +revocation_status+ is +"pending"+
+    # while a revocation waits for the bank.
+    class BankConnectionUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.updated"
+
+      field :status, "status", :string
+      field :revocation_status, "revocation_status", :string
+    end
+
+    # +bank.connection.consent_expiring+: the consent ends in 14, 7 or 1 day.
+    class BankConnectionConsentExpiringEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.consent_expiring"
+
+      field :days_left, "days_left", :integer
+      field :consent_expires_at, "consent_expires_at", :datetime
+      # Renew before this moment for no gap.
+      field :renew_by, "renew_by", :datetime
+    end
+
+    # +bank.connection.renewal_required+: the consent ended or the bank asks the person to sign in.
+    class BankConnectionRenewalRequiredEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.renewal_required"
+
+      field :status, "status", :string
+      # +"consent_expired"+ or +"bank_requires_sign_in"+.
+      field :reason, "reason", :string
+      field :renew_by, "renew_by", :datetime
+      # The last moment the same connection can be revived.
+      field :renewable_until, "renewable_until", :datetime
+    end
+
+    # +bank.connection.renewed+: a renew link completed and the connection is readable again.
+    class BankConnectionRenewedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.renewed"
+
+      field :status, "status", :string
+      field :consent_version, "consent_version", :integer
+      # The renew link that completed, when there is one.
+      field :link_id, "link_id", :string
+      field :consent_expires_at, "consent_expires_at", :datetime
+    end
+
+    # +bank.connection.revoked+: access ended and the bank confirmed it.
+    class BankConnectionRevokedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.revoked"
+
+      field :status, "status", :string
+      # +"end_user"+, +"bank"+, +"customer"+ or +"unknown"+.
+      field :ended_by, "ended_by", :string
+      field :status_reason, "status_reason", :string
+      field :ended_at, "ended_at", :datetime
+      # How long the stored data stays readable.
+      field :retain_until, "retain_until", :datetime
+    end
+
+    # +bank.connection.deleted+: the stored data of a connection was deleted.
+    class BankConnectionDeletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.deleted"
+
+      field :status, "status", :string
+      field :erasure_status, "erasure_status", :string
+      field :reason, "reason", :string
+      field :erased_at, "erased_at", :datetime
+    end
+
+    # +bank.connection.history_complete+: the history backfill of a connection ended.
+    class BankConnectionHistoryCompleteEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.connection.history_complete"
+
+      field :status, "status", :string
+    end
+
+    # +bank.data.updated+: a sync stored new or changed bank data.
+    class BankDataUpdatedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.data.updated"
+
+      field :sync_id, "sync_id", :string
+      # +"initial"+, +"scheduled"+ or +"requested"+.
+      field :trigger, "trigger", :string
+      # One entry per changed account: +account_id+, +added+, +modified+ and +removed+.
+      field :accounts, "accounts", :any
+      field :balances_changed, "balances_changed", :boolean
+    end
+
+    # +bank.sync.completed+: a sync ended.
+    class BankSyncCompletedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.sync.completed"
+
+      field :sync_id, "sync_id", :string
+      field :trigger, "trigger", :string
+      # +"succeeded"+, +"partial"+ or +"failed"+.
+      field :outcome, "outcome", :string
+      field :changed, "changed", :boolean
+    end
+
+    # +bank.sync.failed+: a sync failed; +failing_since+ says when the failures started.
+    class BankSyncFailedEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.sync.failed"
+
+      field :sync_id, "sync_id", :string
+      field :error_code, "error_code", :string
+      field :failing_since, "failing_since", :datetime
+    end
+
+    # +bank.sync.recovered+: a sync succeeded after failures.
+    class BankSyncRecoveredEvent < BankConnectionEvent
+      WEBHOOK_TYPE = "bank.sync.recovered"
+
+      field :sync_id, "sync_id", :string
+    end
+
     # An event type this version of the SDK does not know; the whole payload stays readable
     # with #[] and #to_h.
     class UnknownEvent < Event
@@ -215,7 +415,23 @@ module Didit
       TransactionStatusUpdatedEvent::WEBHOOK_TYPE => TransactionStatusUpdatedEvent,
       TravelRuleStatusUpdatedEvent::WEBHOOK_TYPE => TravelRuleStatusUpdatedEvent,
       WorkflowComplianceChangedEvent::WEBHOOK_TYPE => WorkflowComplianceChangedEvent,
-      KybRegistrySearchResolvedEvent::WEBHOOK_TYPE => KybRegistrySearchResolvedEvent
+      KybRegistrySearchResolvedEvent::WEBHOOK_TYPE => KybRegistrySearchResolvedEvent,
+      BankLinkCompletedEvent::WEBHOOK_TYPE => BankLinkCompletedEvent,
+      BankLinkCancelledEvent::WEBHOOK_TYPE => BankLinkCancelledEvent,
+      BankLinkExpiredEvent::WEBHOOK_TYPE => BankLinkExpiredEvent,
+      BankLinkFailedEvent::WEBHOOK_TYPE => BankLinkFailedEvent,
+      BankConnectionCreatedEvent::WEBHOOK_TYPE => BankConnectionCreatedEvent,
+      BankConnectionUpdatedEvent::WEBHOOK_TYPE => BankConnectionUpdatedEvent,
+      BankConnectionConsentExpiringEvent::WEBHOOK_TYPE => BankConnectionConsentExpiringEvent,
+      BankConnectionRenewalRequiredEvent::WEBHOOK_TYPE => BankConnectionRenewalRequiredEvent,
+      BankConnectionRenewedEvent::WEBHOOK_TYPE => BankConnectionRenewedEvent,
+      BankConnectionRevokedEvent::WEBHOOK_TYPE => BankConnectionRevokedEvent,
+      BankConnectionDeletedEvent::WEBHOOK_TYPE => BankConnectionDeletedEvent,
+      BankConnectionHistoryCompleteEvent::WEBHOOK_TYPE => BankConnectionHistoryCompleteEvent,
+      BankDataUpdatedEvent::WEBHOOK_TYPE => BankDataUpdatedEvent,
+      BankSyncCompletedEvent::WEBHOOK_TYPE => BankSyncCompletedEvent,
+      BankSyncFailedEvent::WEBHOOK_TYPE => BankSyncFailedEvent,
+      BankSyncRecoveredEvent::WEBHOOK_TYPE => BankSyncRecoveredEvent
     }.freeze
   end
 end
