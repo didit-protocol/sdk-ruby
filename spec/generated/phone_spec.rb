@@ -304,6 +304,199 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.factors.create sends POST /v3/phone/factors/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "factor_id": "fa_3f6c1b528d4e4a7b9c105e2a7d9b1c01",
+        "type": "totp",
+        "status": "unverified",
+        "totp": {
+          "uri": "otpauth://totp/Demo%20App:u_481?secret=JBSWY3DP"
+        }
+      }
+    JSON
+    result = client.phone.factors.create(
+      type: "totp",
+      user_id: "u_481",
+      friendly_name: "Demo App",
+      metadata: {
+        device: "iPhone 15"
+      },
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/factors/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "type" => "totp",
+      "user_id" => "u_481",
+      "friendly_name" => "Demo App",
+      "metadata" => {
+        "device" => "iPhone 15"
+      }
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFactorEnrollment)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.factors.delete sends DELETE /v3/phone/factors/{factor_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.factors.delete(
+      "factor-id-1",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/factors/factor-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.factors.list sends GET /v3/phone/factors/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "factor_id": "fa_3f6c1b528d4e4a7b9c105e2a7d9b1c01",
+            "type": "totp",
+            "status": "verified",
+            "user_id": "u_481",
+            "friendly_name": "Demo App",
+            "metadata": {
+              "device": "iPhone 15"
+            },
+            "created_at": "2026-11-02T08:14:00Z",
+            "last_used_at": "2026-11-21T09:58:00Z"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.factors.list(
+      user_id: "u_481",
+      type: "totp",
+      status: "verified"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/factors/",
+      query: [
+        [
+          "user_id",
+          "u_481"
+        ],
+        [
+          "type",
+          "totp"
+        ],
+        [
+          "status",
+          "verified"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneFactor))
+    exercise_readers(result.results)
+  end
+
+  it "phone.factors.retrieve sends GET /v3/phone/factors/{factor_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "factor_id": "fa_3f6c1b528d4e4a7b9c105e2a7d9b1c01",
+        "type": "totp",
+        "status": "verified",
+        "user_id": "u_481",
+        "friendly_name": "Demo App",
+        "metadata": {
+          "device": "iPhone 15"
+        },
+        "created_at": "2026-11-02T08:14:00Z",
+        "last_used_at": "2026-11-21T09:58:00Z"
+      }
+    JSON
+    result = client.phone.factors.retrieve(
+      "factor-id-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/factors/factor-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneFactor)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.factors.update sends PATCH /v3/phone/factors/{factor_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "factor_id": "fa_3f6c1b528d4e4a7b9c105e2a7d9b1c01",
+        "type": "totp",
+        "status": "disabled",
+        "user_id": "u_481",
+        "friendly_name": "Work phone",
+        "metadata": {
+          "device": "iPhone 16"
+        },
+        "created_at": "2026-11-02T08:14:00Z",
+        "last_used_at": "2026-11-21T09:58:00Z"
+      }
+    JSON
+    result = client.phone.factors.update(
+      "factor-id-1",
+      friendly_name: "Work phone",
+      metadata: {
+        device: "iPhone 16"
+      },
+      status: "disabled",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/factors/factor-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "friendly_name" => "Work phone",
+      "metadata" => {
+        "device" => "iPhone 16"
+      },
+      "status" => "disabled"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFactor)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.fraud.evaluate sends POST /v3/phone/fraud/evaluate/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -888,6 +1081,229 @@ RSpec.describe Didit::Resources::Phone do
     expect(result).to be_nil
   end
 
+  it "phone.network.registrations.create sends POST /v3/phone/network/registrations/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "registration_id": "nr_5b1e7a902c434d688f150a9c3e6d7b22",
+        "feature": "sim_swap",
+        "country": "BR",
+        "use_case": "account_recovery",
+        "status": "partly_approved",
+        "networks": [
+          {
+            "name": "Mobile network A",
+            "status": "approved",
+            "decided_at": "2026-11-20T15:02:00Z",
+            "reason": null
+          },
+          {
+            "name": "Mobile network B",
+            "status": "in_review",
+            "decided_at": null,
+            "reason": null
+          }
+        ],
+        "live_at": null,
+        "test_access": "on",
+        "test_numbers": [
+          {
+            "phone_number": "+34600000012",
+            "status": "verified"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.network.registrations.create(
+      feature: "sim_swap",
+      country: "BR",
+      use_case: "account_recovery",
+      networks: [
+        "Mobile network A",
+        "Mobile network B"
+      ],
+      company_name: "Demo Application S.L.",
+      website: "https://app.example.com",
+      purpose: "Check for a recent SIM change before a password reset",
+      monthly_volume: 20000,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/network/registrations/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "feature" => "sim_swap",
+      "country" => "BR",
+      "use_case" => "account_recovery",
+      "networks" => [
+        "Mobile network A",
+        "Mobile network B"
+      ],
+      "company_name" => "Demo Application S.L.",
+      "website" => "https://app.example.com",
+      "purpose" => "Check for a recent SIM change before a password reset",
+      "monthly_volume" => 20000
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.network.registrations.list sends GET /v3/phone/network/registrations/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "registration_id": "nr_5b1e7a902c434d688f150a9c3e6d7b22",
+            "feature": "sim_swap",
+            "country": "BR",
+            "use_case": "account_recovery",
+            "status": "partly_approved"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.network.registrations.list(
+      feature: "sim_swap",
+      country: "ES",
+      status: "partly_approved"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/network/registrations/",
+      query: [
+        [
+          "feature",
+          "sim_swap"
+        ],
+        [
+          "country",
+          "ES"
+        ],
+        [
+          "status",
+          "partly_approved"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneNetworkRegistrationSummary))
+    exercise_readers(result.results)
+  end
+
+  it "phone.network.registrations.retrieve sends GET /v3/phone/network/registrations/{registration_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "registration_id": "nr_5b1e7a902c434d688f150a9c3e6d7b22",
+        "feature": "sim_swap",
+        "country": "BR",
+        "use_case": "account_recovery",
+        "status": "partly_approved",
+        "networks": [
+          {
+            "name": "Mobile network A",
+            "status": "approved",
+            "decided_at": "2026-11-20T15:02:00Z",
+            "reason": null
+          },
+          {
+            "name": "Mobile network B",
+            "status": "in_review",
+            "decided_at": null,
+            "reason": null
+          }
+        ],
+        "live_at": null,
+        "test_access": "on",
+        "test_numbers": [
+          {
+            "phone_number": "+34600000012",
+            "status": "verified"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.network.registrations.retrieve(
+      "registration-id-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/network/registrations/registration-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.network.registrations.test_numbers.create sends POST /v3/phone/network/registrations/{registration_id}/test-numbers/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "phone_number": "+34600000012",
+        "status": "code_sent",
+        "verification_id": "pv_ae4f1a368c7a4d259a493f6b0c2d7e55",
+        "test_access": "on"
+      }
+    JSON
+    result = client.phone.network.registrations.test_numbers.create(
+      "registration-id-1",
+      phone_number: "+34600000012",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/network/registrations/registration-id-1/test-numbers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+34600000012"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneNetworkRegistrationTestNumber)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.network.registrations.test_numbers.delete sends DELETE /v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.network.registrations.test_numbers.delete(
+      "registration-id-1",
+      "phone-number-1",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/network/registrations/registration-id-1/test-numbers/phone-number-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
   it "phone.rate_limits.create sends POST /v3/phone/rate-limits/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -1091,5 +1507,300 @@ RSpec.describe Didit::Resources::Phone do
     expect_no_body(request)
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_nil
+  end
+
+  it "phone.sdk_keys.create sends POST /v3/phone/sdk-keys/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "key_id": "sk_9d3e0f257b694c148f382e5a9b1c6d44",
+        "platform": "ios",
+        "publishable_key": "pk_live_ios_7Hq2",
+        "app_ids": [
+          "com.demoapp.ios"
+        ],
+        "status": "active",
+        "created_at": "2026-11-21T09:00:00Z"
+      }
+    JSON
+    result = client.phone.sdk_keys.create(
+      platform: "ios",
+      app_ids: [
+        "com.demoapp.ios"
+      ],
+      name: "iOS app",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/sdk-keys/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "platform" => "ios",
+      "app_ids" => [
+        "com.demoapp.ios"
+      ],
+      "name" => "iOS app"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSdkKey)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.sdk_keys.list sends GET /v3/phone/sdk-keys/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "results": [
+          {
+            "key_id": "sk_9d3e0f257b694c148f382e5a9b1c6d44",
+            "platform": "ios",
+            "status": "active"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.sdk_keys.list(
+      platform: "ios"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/sdk-keys/",
+      query: [
+        [
+          "platform",
+          "ios"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneSdkKeysPage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.sdk_keys.revoke sends DELETE /v3/phone/sdk-keys/{key_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.sdk_keys.revoke(
+      "key-id-1",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/sdk-keys/key-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.sdk_keys.rotate sends POST /v3/phone/sdk-keys/{key_id}/rotate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "key_id": "sk_9d3e0f257b694c148f382e5a9b1c6d44",
+        "platform": "ios",
+        "publishable_key": "pk_live_ios_9Zt4",
+        "app_ids": [
+          "com.demoapp.ios"
+        ],
+        "status": "active",
+        "created_at": "2026-11-21T09:00:00Z",
+        "previous_expires_at": "2026-11-24T09:00:00Z"
+      }
+    JSON
+    result = client.phone.sdk_keys.rotate(
+      "key-id-1",
+      overlap_hours: 72,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/sdk-keys/key-id-1/rotate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "overlap_hours" => 72
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSdkKeyRotated)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.silent.coverage sends GET /v3/phone/silent/coverage/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "countries": [
+          {
+            "country": "ES",
+            "wifi": true,
+            "networks": [
+              {
+                "name": "Mobile network A",
+                "approval": "live"
+              }
+            ]
+          }
+        ]
+      }
+    JSON
+    result = client.phone.silent.coverage(
+      country: "ES"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/silent/coverage/",
+      query: [
+        [
+          "country",
+          "ES"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneSilentCoverage)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.silent.eligibility sends POST /v3/phone/silent/eligibility/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "eligible": true,
+        "reason": null,
+        "network": "Mobile network A",
+        "country": "ES",
+        "wifi_possible": true
+      }
+    JSON
+    result = client.phone.silent.eligibility(
+      phone_number: "+34600000012",
+      ip_address: "83.44.10.12",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/silent/eligibility/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+34600000012",
+      "ip_address" => "83.44.10.12"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSilentEligibility)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.silent.registrations.create sends POST /v3/phone/silent/registrations/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "registration_id": "sr_7c2d9e146a584b039e271d4f8a0b5c33",
+        "country": "BR",
+        "status": "in_review",
+        "networks": [
+          {
+            "name": "Mobile network A",
+            "status": "approved",
+            "decided_at": "2026-11-20T15:02:00Z",
+            "reason": null
+          },
+          {
+            "name": "Mobile network B",
+            "status": "in_review",
+            "decided_at": null,
+            "reason": null
+          }
+        ],
+        "live_at": null
+      }
+    JSON
+    result = client.phone.silent.registrations.create(
+      country: "BR",
+      use_case: "login",
+      company_name: "Demo Application S.L.",
+      website: "https://app.example.com",
+      monthly_volume: 40000,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/silent/registrations/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "country" => "BR",
+      "use_case" => "login",
+      "company_name" => "Demo Application S.L.",
+      "website" => "https://app.example.com",
+      "monthly_volume" => 40000
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSilentRegistration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.silent.registrations.retrieve sends GET /v3/phone/silent/registrations/{registration_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "registration_id": "sr_7c2d9e146a584b039e271d4f8a0b5c33",
+        "country": "BR",
+        "status": "partly_approved",
+        "networks": [
+          {
+            "name": "Mobile network A",
+            "status": "approved",
+            "decided_at": "2026-11-20T15:02:00Z",
+            "reason": null
+          },
+          {
+            "name": "Mobile network B",
+            "status": "rejected",
+            "decided_at": "2026-11-20T16:40:00Z",
+            "reason": "Use case not covered by the approval"
+          }
+        ],
+        "live_at": "2026-11-21T08:00:00Z"
+      }
+    JSON
+    result = client.phone.silent.registrations.retrieve(
+      "registration-id-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/silent/registrations/registration-id-1/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneSilentRegistration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
   end
 end

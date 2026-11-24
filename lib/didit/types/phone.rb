@@ -94,6 +94,45 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
+    # The factor to enroll: `totp`, an authenticator app. Any other value answers `400 invalid_type`.
+    module PhoneFactorsCreateParamsType
+      TOTP = "totp"
+
+      VALUES = [TOTP].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsStatus
+      UNVERIFIED = "unverified"
+      VERIFIED = "verified"
+      DISABLED = "disabled"
+
+      VALUES = [UNVERIFIED, VERIFIED, DISABLED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFactorsListParamsType
+      TOTP = "totp"
+
+      VALUES = [TOTP].freeze
+    end
+
+    # `disabled` stops the factor's checks; `verified` turns a disabled factor back on.
+    module PhoneFactorsUpdateParamsStatus
+      DISABLED = "disabled"
+      VERIFIED = "verified"
+
+      VALUES = [DISABLED, VERIFIED].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module PhoneFraudEvaluateResponseChallengeChannels
       SILENT = "silent"
@@ -308,6 +347,72 @@ module Didit
       VALUES = [NUMBER, PREFIX, COUNTRY, NETWORK].freeze
     end
 
+    # The network feature to ask approval for.
+    module PhoneNetworkRegistrationsCreateParamsFeature
+      SILENT_VERIFICATION = "silent_verification"
+      SIM_SWAP = "sim_swap"
+      NUMBER_VERIFICATION = "number_verification"
+
+      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
+    end
+
+    # What you use the feature for.
+    module PhoneNetworkRegistrationsCreateParamsUseCase
+      SIGNUP = "signup"
+      LOGIN = "login"
+      PAYMENT = "payment"
+      ACCOUNT_RECOVERY = "account_recovery"
+      FRAUD_CHECK = "fraud_check"
+
+      VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY, FRAUD_CHECK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsFeature
+      SILENT_VERIFICATION = "silent_verification"
+      SIM_SWAP = "sim_swap"
+      NUMBER_VERIFICATION = "number_verification"
+
+      VALUES = [SILENT_VERIFICATION, SIM_SWAP, NUMBER_VERIFICATION].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneNetworkRegistrationsListParamsStatus
+      SUBMITTED = "submitted"
+      IN_REVIEW = "in_review"
+      APPROVED = "approved"
+      PARTLY_APPROVED = "partly_approved"
+      REJECTED = "rejected"
+
+      VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
+    end
+
+    # The platform the key is for: `ios`, `android` or `web`.
+    module PhoneSdkKeysCreateParamsPlatform
+      IOS = "ios"
+      ANDROID = "android"
+      WEB = "web"
+
+      VALUES = [IOS, ANDROID, WEB].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneSdkKeysListParamsPlatform
+      IOS = "ios"
+      ANDROID = "android"
+      WEB = "web"
+
+      VALUES = [IOS, ANDROID, WEB].freeze
+    end
+
     # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message
     # automatically falls back to SMS - the send still reports `Success`.
     module PhoneSendCodeParamsOptionsPreferredChannel
@@ -331,6 +436,16 @@ module Didit
       WEB = "web"
 
       VALUES = [ANDROID, IOS, IPADOS, TVOS, WEB].freeze
+    end
+
+    # What silent verification is used for.
+    module PhoneSilentRegistrationsCreateParamsUseCase
+      SIGNUP = "signup"
+      LOGIN = "login"
+      PAYMENT = "payment"
+      ACCOUNT_RECOVERY = "account_recovery"
+
+      VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY].freeze
     end
 
     class PhoneFraudEvaluateResponse < Didit::Model
