@@ -10921,6 +10921,7 @@ module Didit
     class PhoneVerificationSendResponse < Didit::Model
       def request_id: () -> String?
       def status: () -> String?
+      def channel: () -> String?
       def reason: () -> String?
       def vendor_data: () -> String?
       def metadata: () -> Hash[String, untyped]?

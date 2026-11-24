@@ -268,6 +268,7 @@ RSpec.describe Didit::Resources::Phone do
       {
         "request_id": "e39cb057-92fc-4b59-b84e-02fec29a0f24",
         "status": "Success",
+        "channel": null,
         "reason": null,
         "vendor_data": "user-1234",
         "metadata": null

@@ -12518,6 +12518,7 @@ module Didit
     class PhoneVerificationSendResponse < Didit::Model
       field :request_id, "request_id", :string
       field :status, "status", :string
+      field :channel, "channel", :string
       field :reason, "reason", :string
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
