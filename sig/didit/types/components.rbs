@@ -2506,6 +2506,44 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessageConsentChannelChannel
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      RCS: String
+      VIBER: String
+      VOICE: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageConsentChannelSource
+      STOP_REPLY: String
+      START_REPLY: String
+      BOT_LEFT: String
+      API: String
+      CONSOLE: String
+      REASSIGNED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageConsentChannelStatus
+      OPTED_IN: String
+      OPTED_OUT: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageConversationWebhookEvents
+      MESSAGE_RECEIVED: String
+      MESSAGE_STATUS_UPDATED: String
+      CONTACT_CONSENT_UPDATED: String
+
+      VALUES: Array[String]
+    end
+
     module MessageEncoding
       GSM_7: String
       UCS_2: String
@@ -2543,6 +2581,41 @@ module Didit
       READ: String
       FAILED: String
       CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageTemplateChannels
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageTemplateContentChannel
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageTemplateContentInputChannel
+      SMS: String
+      WHATSAPP: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessageTemplateWhatsAppStatus
+      DRAFT: String
+      PENDING: String
+      APPROVED: String
+      REJECTED: String
+      PAUSED: String
+      DISABLED: String
 
       VALUES: Array[String]
     end
@@ -6737,6 +6810,8 @@ module Didit
       BANK_SYNC_FAILED: String
       BANK_SYNC_RECOVERED: String
       MESSAGE_STATUS_UPDATED: String
+      MESSAGE_RECEIVED: String
+      CONTACT_CONSENT_UPDATED: String
 
       VALUES: Array[String]
     end
@@ -9826,6 +9901,41 @@ module Didit
       def price: () -> String?
     end
 
+    class MessageConsent < Didit::Model
+      def channels: () -> Array[Didit::Types::MessageConsentChannel]
+      def reassigned: () -> bool
+    end
+
+    class MessageConsentChannel < Didit::Model
+      def channel: () -> String
+      def status: () -> String
+      def source: () -> String
+      def updated_at: () -> Time
+    end
+
+    class MessageConsentChannels < Didit::Model
+      def channels: () -> Array[Didit::Types::MessageConsentChannel]
+    end
+
+    class MessageConversation < Didit::Model
+      def conversation_id: () -> String
+      def assignee: () -> String?
+      def unread_count: () -> Integer
+    end
+
+    class MessageConversationList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::MessageConversation]
+    end
+
+    class MessageConversationWebhook < Didit::Model
+      def webhook_id: () -> String
+      def secret: () -> String
+      def events: () -> Array[String]
+    end
+
     class MessageError < Didit::Model
       def code: () -> String
       def message: () -> String
@@ -9850,6 +9960,42 @@ module Didit
       def country: () -> String
       def currency: () -> String
       def channels: () -> Array[Didit::Types::MessageChannelPrice]
+    end
+
+    class MessageTemplate < Didit::Model
+      def id: () -> String
+      def name: () -> String
+      def description: () -> String
+      def channels: () -> Array[String]
+      def languages: () -> Array[String]
+      def variables: () -> Array[String]
+      def variable_examples: () -> Hash[String, String]
+      def whatsapp: () -> Didit::Types::MessageTemplateWhatsApp?
+      def version: () -> Integer
+      def contents: () -> Array[Didit::Types::MessageTemplateContent]
+      def created_at: () -> Time
+      def updated_at: () -> Time
+    end
+
+    class MessageTemplateContent < Didit::Model
+      def channel: () -> String
+      def language: () -> String
+      def subject: () -> String?
+      def body: () -> String
+      def whatsapp: () -> Didit::Types::MessageTemplateWhatsApp?
+      def updated_at: () -> Time
+    end
+
+    class MessageTemplateList < Didit::Model
+      def count: () -> Integer
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::MessageTemplate]
+    end
+
+    class MessageTemplateWhatsApp < Didit::Model
+      def status: () -> String
+      def reason: () -> String
     end
 
     class MessagesSettings < Didit::Model
@@ -14736,6 +14882,8 @@ module Didit
     type fraud_check_module_selection_request = { ?include: Array[String], ?exclude: Array[String] }
 
     type fraud_check_subject_request = { ?selfie: String, identifiers: Array[Didit::Types::fraud_check_identifier_request], ?attributes: Didit::Types::fraud_check_attributes_request }
+
+    type message_template_content_input = { channel: String, language: String, ?subject: String, body: String }
 
     type monitoring_event_create_request = { event_id: String, event_category: String, action_type: String, occurred_at: Time | String, ?time_zone: String?, subject: Didit::Types::monitoring_event_create_request_subject, ?business: Didit::Types::monitoring_event_create_request_business, ?session: Didit::Types::monitoring_event_create_request_session, ?device_context: Didit::Types::monitoring_event_create_request_device_context, ?transaction_context: Didit::Types::monitoring_event_create_request_transaction_context, ?payload: Hash[String | Symbol, untyped], ?custom_values: Hash[String | Symbol, (String | Float | Integer | bool)?] }
 

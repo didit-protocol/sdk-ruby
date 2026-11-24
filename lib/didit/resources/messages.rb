@@ -5,9 +5,24 @@ module Didit
   module Resources
     # The +messages+ resource.
     class Messages < Didit::Resource
+      # @return [Didit::Resources::Messages::Consent]
+      def consent
+        @consent ||= Consent.new(@client)
+      end
+
+      # @return [Didit::Resources::Messages::Conversations]
+      def conversations
+        @conversations ||= Conversations.new(@client)
+      end
+
       # @return [Didit::Resources::Messages::Rules]
       def rules
         @rules ||= Rules.new(@client)
+      end
+
+      # @return [Didit::Resources::Messages::Templates]
+      def templates
+        @templates ||= Templates.new(@client)
       end
 
       # Cancel a scheduled message
@@ -184,7 +199,8 @@ module Didit
       # message fails on it later (rejected, undeliverable, expired). Every attempt is in `attempts`; a skipped
       # channel is a `failed` attempt with its `error` and no price.
       #
-      # **Statuses** reach your webhook destinations subscribed to `message.status.updated`.
+      # **Statuses** reach your webhook destinations subscribed to `message.status.updated`; a reply from the person
+      # reaches `message.received` (WhatsApp and Telegram) and a change of their consent `contact.consent.updated`.
       #
       # **Billing.** SMS: the carrier's price plus Didit's fee, per segment. WhatsApp from Didit's number: WhatsApp's
       # rate for the market plus Didit's fee; from your own connected WhatsApp Business account, WhatsApp bills its
@@ -300,6 +316,239 @@ module Didit
         )
       end
 
+      # The +messages.consent+ resource.
+      class Consent < Didit::Resource
+        # Retrieve a recipient's consent
+        #
+        # The recipient's consent for every channel your application has a record on, with where each record came from
+        # and when it changed. A channel with no record is not listed, and a `to` that is none of the three recipient
+        # types below answers `{"channels": [], "reassigned": false}`.
+        #
+        # `reassigned` is always `false`: this release does not detect that a number changed owner, and no send is
+        # skipped for it.
+        #
+        # `to` is one of three recipient types, and each has its own channels: an E.164 number (`+` and up to 15 ASCII
+        # digits `[0-9]`) is on `sms`, `whatsapp`, `telegram`, `rcs`, `viber` and `voice`; an email address is on
+        # `email` only; a WhatsApp business-scoped user id (a country code, a dot and an id, such as
+        # `US.13491208655302741918`) is on `whatsapp` only. Percent-encode it in the path: a number's `+` becomes
+        # `%2B`.
+        #
+        # A scoped API key needs read access to messages.
+        #
+        # +GET /v3/messages/contacts/{to}/consent/+
+        #
+        # @param to [String] The recipient: an E.164 number (`+` and up to 15 ASCII digits), an email address, or a
+        #   WhatsApp business-scoped user id.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageConsent]
+        def retrieve(to, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/contacts/{to}/consent/",
+            path_params: { "to" => to },
+            response: Types::MessageConsent,
+            request_options: request_options
+          )
+        end
+
+        # Update a recipient's consent
+        #
+        # Record an opt-in or an opt-out for one channel. The record applies from now on: a send to an opted-out
+        # recipient on that channel is refused with `opted_out` and not charged. Each send reads the record of its own
+        # channel only, and a record for a channel Didit does not send on yet is kept for when it does. `source`
+        # records where the choice came from, `api` when left out.
+        #
+        # `to` is one of three recipient types, and each has its own channels: an E.164 number (`+` and up to 15 ASCII
+        # digits `[0-9]`) is on `sms`, `whatsapp`, `telegram`, `rcs`, `viber` and `voice`; an email address is on
+        # `email` only; a WhatsApp business-scoped user id (a country code, a dot and an id, such as
+        # `US.13491208655302741918`) is on `whatsapp` only. Percent-encode it in the path: a number's `+` becomes
+        # `%2B`. `channel` has to fit the recipient.
+        #
+        # A scoped API key needs write access to messages.
+        #
+        # +PATCH /v3/messages/contacts/{to}/consent/+
+        #
+        # @param to [String] The recipient: an E.164 number (`+` and up to 15 ASCII digits), an email address, or a
+        #   WhatsApp business-scoped user id.
+        # @param channel [String] The channel the choice applies to.
+        # @param status [String] `opted_out` refuses sends on this channel; `opted_in` allows them again.
+        # @param source [String] Where the choice came from, returned as you send it; `api` when left out.
+        #   `reassigned` is only a label you can record: Didit does not detect a change of owner.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageConsentChannels]
+        def update(to, channel:, status:, source: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :patch,
+            "/v3/messages/contacts/{to}/consent/",
+            path_params: { "to" => to },
+            body: {
+              "channel" => channel,
+              "status" => status,
+              "source" => source
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessageConsentChannels,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +messages.conversations+ resource.
+      class Conversations < Didit::Resource
+        # @return [Didit::Resources::Messages::Conversations::Webhooks]
+        def webhooks
+          @webhooks ||= Webhooks.new(@client)
+        end
+
+        # List conversations
+        #
+        # Your application's conversations: the member who owns each thread and how many replies arrived since the
+        # conversation was last read. A conversation groups every message exchanged with one person, on every channel.
+        #
+        # `status` filters on `open`, `needs_reply` (the person wrote last and nobody answered) or `closed`;
+        # `assignee` takes a member id, exactly as a conversation's `assignee` shows it, and lists only that member's
+        # conversations.
+        #
+        # A scoped API key needs read access to messages and to sessions, and its workflow and approved-only session
+        # limits apply: a conversation outside them is left out of the list.
+        #
+        # +GET /v3/messages/conversations/+
+        #
+        # @param status [String] `needs_reply`: the person wrote last and nobody answered yet. `closed`: a team member
+        #   closed the thread.
+        # @param assignee [String] A member's id, exactly as `assignee` shows it on a conversation: only the
+        #   conversations assigned to that member are listed. The value is compared as it is; this operation takes your
+        #   application's credential, which has no member behind it.
+        # @param limit [Integer]
+        # @param offset [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::MessageConversation>]
+        def list(status: OMIT, assignee: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/conversations/",
+            query: {
+              "status" => status,
+              "assignee" => assignee,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::MessageConversation,
+            request_options: request_options
+          )
+        end
+
+        # Update a conversation
+        #
+        # Assign the conversation to a member or unassign it, open or close it, and mark it read up to a message. A
+        # field left out keeps its value; closing only takes the thread out of the open list, and opening it puts it
+        # back.
+        #
+        # A scoped API key needs write access to messages. It also needs read access to sessions, and its workflow and
+        # approved-only session limits apply: a conversation outside them, or one whose session was deleted, answers
+        # 404 as another application's would.
+        #
+        # +PATCH /v3/messages/conversations/{conversation_id}/+
+        #
+        # @param conversation_id [String] The conversation.
+        # @param assignee [String, nil] The member who owns the conversation, or `null` to unassign it.
+        # @param status [String] `closed` takes the thread out of the open list and keeps its messages readable;
+        #   `open` puts it back.
+        # @param read_up_to [String] The id of a message in the conversation: the conversation is read up to it, and
+        #   only later inbound messages count in `unread_count`.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageConversation]
+        def update(
+          conversation_id,
+          assignee: OMIT,
+          status: OMIT,
+          read_up_to: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/messages/conversations/{conversation_id}/",
+            path_params: { "conversation_id" => conversation_id },
+            body: {
+              "assignee" => assignee,
+              "status" => status,
+              "read_up_to" => read_up_to
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessageConversation,
+            request_options: request_options
+          )
+        end
+
+        # The +messages.conversations.webhooks+ resource.
+        class Webhooks < Didit::Resource
+          # Subscribe a URL to one conversation's events
+          #
+          # Subscribe an HTTPS endpoint to one conversation's events: `message.received`, `message.status.updated` and
+          # `contact.consent.updated`, all three when `events` is left out. Every delivery is signed with
+          # `X-Signature-V2` using the returned `secret`, which this answer shows only once; other conversations keep
+          # their own subscriptions and endpoints.
+          #
+          # A scoped API key needs write access to messages. It also needs read access to sessions, and its workflow
+          # and approved-only session limits apply: a conversation outside them, or one whose session was deleted,
+          # answers 404 as another application's would.
+          #
+          # +POST /v3/messages/conversations/{conversation_id}/webhooks/+
+          #
+          # @param conversation_id [String] The conversation whose events the subscription carries.
+          # @param url [String] A public HTTPS URL of your own that receives this conversation's events. Replace the
+          #   placeholder in the examples with it: a URL that is not HTTPS, or that points to a loopback, private or
+          #   internal address, answers `400 invalid_url`.
+          # @param events [Array<String>] The events to deliver; left out, all three.
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::MessageConversationWebhook]
+          def create(conversation_id, url:, events: OMIT, idempotency_key: OMIT, request_options: nil)
+            @client.request(
+              :post,
+              "/v3/messages/conversations/{conversation_id}/webhooks/",
+              path_params: { "conversation_id" => conversation_id },
+              body: {
+                "url" => url,
+                "events" => events
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::MessageConversationWebhook,
+              request_options: request_options
+            )
+          end
+
+          # Stop one conversation's events
+          #
+          # Remove one of a conversation's webhook subscriptions: deliveries to its URL stop. Other subscriptions, and
+          # the conversation itself, are not touched.
+          #
+          # A scoped API key needs write access to messages. It also needs read access to sessions, and its workflow
+          # and approved-only session limits apply: a conversation outside them, or one whose session was deleted,
+          # answers 404 as another application's would.
+          #
+          # +DELETE /v3/messages/conversations/{conversation_id}/webhooks/{webhook_id}/+
+          #
+          # @param conversation_id [String] The conversation.
+          # @param webhook_id [String] The subscription to remove.
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [nil]
+          def delete(conversation_id, webhook_id, idempotency_key: OMIT, request_options: nil)
+            @client.request(
+              :delete,
+              "/v3/messages/conversations/{conversation_id}/webhooks/{webhook_id}/",
+              path_params: { "conversation_id" => conversation_id, "webhook_id" => webhook_id },
+              headers: { "Idempotency-Key" => idempotency_key },
+              request_options: request_options
+            )
+          end
+        end
+      end
+
       # The +messages.rules+ resource.
       class Rules < Didit::Resource
         # Create a messaging rule
@@ -332,6 +581,145 @@ module Didit
             },
             headers: { "Idempotency-Key" => idempotency_key },
             response: Types::MessagesRulesCreateResponse,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +messages.templates+ resource.
+      class Templates < Didit::Resource
+        # Delete a message template
+        #
+        # Delete the template. Messages already sent keep their history, with no template. A template that a scheduled
+        # or queued message, or a message with a channel left to fall back to, was made from cannot be deleted until
+        # they are done: cancel the scheduled messages first (`409 template_in_use`).
+        #
+        # A scoped API key needs write access to messages.
+        #
+        # +DELETE /v3/messages/templates/{template_id}/+
+        #
+        # @param template_id [String] The template's id.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(template_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/messages/templates/{template_id}/",
+            path_params: { "template_id" => template_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+
+        # List message templates
+        #
+        # The templates you created through the API, newest first, each with its texts and the state of WhatsApp's
+        # review of its WhatsApp texts.
+        #
+        # `status` keeps the templates in one review state, `channel` those with a text on that channel, and `locale`
+        # those with a text in that language; `channel` and `locale` match the same text.
+        #
+        # A scoped API key needs read access to messages.
+        #
+        # +GET /v3/messages/templates/+
+        #
+        # @param status [String] The state of WhatsApp's review of the whole template, not of one of its texts: the
+        #   most serious state any of its WhatsApp texts carries, in this order: rejected, disabled, paused, pending
+        #   (`in_review` here), draft. A template with a WhatsApp text that none of them applies to is `approved`.
+        #   `no_review` selects the templates with no WhatsApp text, so nothing is reviewed. A template whose state is
+        #   `...
+        # @param channel [String] Only the templates with a text on this channel. With `locale`, both must match the
+        #   same text: `channel=sms&locale=es` does not select a template whose SMS text is English and whose Spanish
+        #   text is on WhatsApp. A template holds SMS, WhatsApp and email texts, so `telegram` matches no template.
+        # @param locale [String] Only the templates with a text in this BCP-47 language tag, for example `es` or
+        #   `pt-BR`. With `channel`, both must match the same text.
+        # @param limit [Integer]
+        # @param offset [Integer]
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::MessageTemplate>]
+        def list(status: OMIT, channel: OMIT, locale: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/templates/",
+            query: {
+              "status" => status,
+              "channel" => channel,
+              "locale" => locale,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::MessageTemplate,
+            request_options: request_options
+          )
+        end
+
+        # Retrieve a message template
+        #
+        # One template with its texts and the state of WhatsApp's review of each WhatsApp text.
+        #
+        # A scoped API key needs read access to messages.
+        #
+        # +GET /v3/messages/templates/{template_id}/+
+        #
+        # @param template_id [String] The template's id.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageTemplate]
+        def retrieve(template_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/templates/{template_id}/",
+            path_params: { "template_id" => template_id },
+            response: Types::MessageTemplate,
+            request_options: request_options
+          )
+        end
+
+        # Update a message template
+        #
+        # Change the name, the description, the examples or the texts. The texts you send replace all of the
+        # template's texts. A change makes a new version and WhatsApp reviews the new WhatsApp texts again: until they
+        # are approved a message cannot go out on WhatsApp from this template. Messages already accepted keep the text
+        # they were accepted with, a scheduled WhatsApp message included.
+        #
+        # A scoped API key needs write access to messages.
+        #
+        # +PATCH /v3/messages/templates/{template_id}/+
+        #
+        # @param template_id [String] The template's id.
+        # @param name [String]
+        # @param description [String]
+        # @param variable_examples [Hash{String => String}] Examples are optional for variables used only in SMS or
+        #   email. WhatsApp requires an example for each variable in a WhatsApp text except `app_name`. Each example
+        #   must name a variable used by at least one text. A template can hold up to 500 examples. Each text can use up
+        #   to 50 distinct variables plus `app_name`. Didit fills `app_name` with your application's name by default. If
+        #   you supply it when s...
+        # @param contents [Array<Hash>] Every text the template should have: one per channel and language. Texts you
+        #   leave out are removed.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageTemplate]
+        def update(
+          template_id,
+          name: OMIT,
+          description: OMIT,
+          variable_examples: OMIT,
+          contents: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/messages/templates/{template_id}/",
+            path_params: { "template_id" => template_id },
+            body: {
+              "name" => name,
+              "description" => description,
+              "variable_examples" => variable_examples,
+              "contents" => contents
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessageTemplate,
             request_options: request_options
           )
         end
