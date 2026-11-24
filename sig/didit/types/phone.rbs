@@ -72,6 +72,40 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneFactorsCreateParamsType
+      TOTP: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsStatus
+      UNVERIFIED: String
+      VERIFIED: String
+      DISABLED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsListParamsType
+      TOTP: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFactorsUpdateParamsStatus
+      DISABLED: String
+      VERIFIED: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneFraudEvaluateResponseChallengeChannels
       SILENT: String
       WHATSAPP: String
@@ -266,6 +300,65 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneNetworkRegistrationsCreateParamsFeature
+      SILENT_VERIFICATION: String
+      SIM_SWAP: String
+      NUMBER_VERIFICATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsCreateParamsUseCase
+      SIGNUP: String
+      LOGIN: String
+      PAYMENT: String
+      ACCOUNT_RECOVERY: String
+      FRAUD_CHECK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsFeature
+      SILENT_VERIFICATION: String
+      SIM_SWAP: String
+      NUMBER_VERIFICATION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneNetworkRegistrationsListParamsStatus
+      SUBMITTED: String
+      IN_REVIEW: String
+      APPROVED: String
+      PARTLY_APPROVED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSdkKeysCreateParamsPlatform
+      IOS: String
+      ANDROID: String
+      WEB: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSdkKeysListParamsPlatform
+      IOS: String
+      ANDROID: String
+      WEB: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSendCodeParamsOptionsPreferredChannel
       WHATSAPP: String
       SMS: String
@@ -284,6 +377,15 @@ module Didit
       IPADOS: String
       TVOS: String
       WEB: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSilentRegistrationsCreateParamsUseCase
+      SIGNUP: String
+      LOGIN: String
+      PAYMENT: String
+      ACCOUNT_RECOVERY: String
 
       VALUES: Array[String]
     end
@@ -370,7 +472,11 @@ module Didit
 
     type phone_assess_risk_params = { phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool }
 
-    type phone_check_code_params = { phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String }
+    type phone_check_code_params = { phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?factor_id: String, ?verification_id: String }
+
+    type phone_factors_create_params = { type: String, user_id: String, ?friendly_name: String, ?metadata: Hash[String | Symbol, String] }
+
+    type phone_factors_update_params = { ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?status: String }
 
     type phone_fraud_evaluate_params = { ?phone_number: String, ?email: String, ?action: String, ?ip_address: String, ?device_signals: String, ?existing_user: bool, ?trusted_user: bool, ?fraud_override: String }
 
@@ -388,6 +494,10 @@ module Didit
 
     type phone_lists_check_params = { phone_number: String }
 
+    type phone_network_registrations_create_params = { feature: String, country: String, use_case: String, ?networks: Array[String], company_name: String, website: String, ?purpose: String, ?monthly_volume: Integer? }
+
+    type phone_network_registrations_test_numbers_create_params = { phone_number: String }
+
     type phone_rate_limits_create_params = { key: String, buckets: Array[Didit::Types::phone_rate_limits_create_params_buckets] }
 
     type phone_rate_limits_create_params_buckets = { max: Integer, interval: Integer }
@@ -396,10 +506,18 @@ module Didit
 
     type phone_rate_limits_update_params_buckets = { ?bucket_id: String, ?max: Integer, ?interval: Integer }
 
+    type phone_sdk_keys_create_params = { platform: String, app_ids: Array[String], ?name: String }
+
+    type phone_sdk_keys_rotate_params = { ?overlap_hours: Integer }
+
     type phone_send_code_params = { phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])? }
 
     type phone_send_code_params_options = { ?code_size: Integer, ?locale: String, ?preferred_channel: String, ?use_white_label_customization: bool, ?sms_sender_name: String? }
 
     type phone_send_code_params_signals = { ?ip: String, ?device_id: String, ?device_platform: String, ?device_model: String, ?os_version: String, ?app_version: String, ?user_agent: String }
+
+    type phone_silent_eligibility_params = { phone_number: String, ?ip_address: String }
+
+    type phone_silent_registrations_create_params = { country: String, ?networks: Array[String], use_case: String, company_name: String, website: String, ?monthly_volume: Integer?, ?flow_screenshots: Array[String] }
   end
 end

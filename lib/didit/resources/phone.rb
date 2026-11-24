@@ -5,6 +5,11 @@ module Didit
   module Resources
     # The +phone+ resource.
     class Phone < Didit::Resource
+      # @return [Didit::Resources::Phone::Factors]
+      def factors
+        @factors ||= Factors.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Fraud]
       def fraud
         @fraud ||= Fraud.new(@client)
@@ -20,9 +25,24 @@ module Didit
         @lists ||= Lists.new(@client)
       end
 
+      # @return [Didit::Resources::Phone::Network]
+      def network
+        @network ||= Network.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::RateLimits]
       def rate_limits
         @rate_limits ||= RateLimits.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::SdkKeys]
+      def sdk_keys
+        @sdk_keys ||= SdkKeys.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::Silent]
+      def silent
+        @silent ||= Silent.new(@client)
       end
 
       # Risk-score a phone number
@@ -195,6 +215,16 @@ module Didit
       # block is absent when the add-on was not requested or the check could not be completed, and it is not billed in
       # that case. Billing adds one `phone_social` unit per request on top of this endpoint's own price.
       #
+      # **TOTP factors and test numbers.** A request that names a `factor_id` checks that TOTP factor instead of a
+      # phone code: the service does not read `phone_number` then, but it stays a required field of the request, so
+      # typed SDK calls keep their shape. The answer is the same object with only `verification_id` (the factor),
+      # `status` (`verified` or `failed`) and `attempts`; the phone fields (`request_id`, `message`, `phone`,
+      # `vendor_data`, `metadata`, `created_at`) come back only from a phone code check. A factor that passes its
+      # first check becomes `verified`. A code is accepted once: a code already used for the factor fails. After 3
+      # failed codes in the verification window the answer is `429` with `code: too_many_attempts`. A request that
+      # names the `verification_id` of a registration test number checks the code Didit sent to it and answers like a
+      # phone code check.
+      #
       # +POST /v3/phone/check/+
       #
       # @param phone_number [String] The same phone number used in the matching [`POST
@@ -234,6 +264,14 @@ module Didit
       # @param phone_no_social_presence_action [String] Action when the social footprint check finds the number
       #   registered on none of the platforms it covers. Only NO_ACTION and DECLINE are accepted on this endpoint;
       #   REVIEW is available on the workflow configuration key of the same name.
+      # @param factor_id [String] Check a TOTP factor enrolled with `POST /v3/phone/factors/` instead of a phone code:
+      #   send the 4-8 digit `code` its authenticator app shows. With `factor_id` the service does not read
+      #   `phone_number` (typed SDKs still take it, because it stays a required field of this request, so pass the
+      #   user's number or any valid E.164 number). The answer carries `verification_id`, `status` (`verified` or
+      #   `failed...
+      # @param verification_id [String] Check the code Didit sent to a registration test number: send the
+      #   `verification_id` that `POST /v3/phone/network/registrations/{registration_id}/test-numbers/` returned with
+      #   the `code`. The number itself still goes in `phone_number`.
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationCheckResponse]
@@ -250,6 +288,8 @@ module Didit
         low_phone_trust_action: OMIT,
         enable_social: OMIT,
         phone_no_social_presence_action: OMIT,
+        factor_id: OMIT,
+        verification_id: OMIT,
         idempotency_key: OMIT,
         request_options: nil
       )
@@ -268,7 +308,9 @@ module Didit
             "recent_port_action" => recent_port_action,
             "low_phone_trust_action" => low_phone_trust_action,
             "enable_social" => enable_social,
-            "phone_no_social_presence_action" => phone_no_social_presence_action
+            "phone_no_social_presence_action" => phone_no_social_presence_action,
+            "factor_id" => factor_id,
+            "verification_id" => verification_id
           },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneVerificationCheckResponse,
@@ -414,6 +456,202 @@ module Didit
           response: Types::PhoneVerificationSendResponse,
           request_options: request_options
         )
+      end
+
+      # The +phone.factors+ resource.
+      class Factors < Didit::Resource
+        # Enroll a TOTP factor
+        #
+        # Enroll a TOTP factor for one of your users, so they confirm a verification with the code of an authenticator
+        # app instead of a phone code: `type` is `totp` and `user_id` is your id for the user.
+        #
+        # The answer carries `totp.uri`, the `otpauth://` URI to show as a QR code. It is the only time the secret is
+        # shown.
+        #
+        # **State.** A new factor is `unverified`. It becomes `verified` when its first code passes `POST
+        # /v3/phone/check/` with the `factor_id`.
+        #
+        # **One of each type.** A user holds at most one factor of each type: a second one answers `409
+        # factor_exists`.
+        #
+        # **Permissions.** Only an Owner or Admin API key can enroll factors.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/factors/+
+        #
+        # @param type [String] The factor to enroll: `totp`, an authenticator app. Any other value answers `400
+        #   invalid_type`.
+        # @param user_id [String] Your id for the user the factor belongs to; a check names the factor and the user.
+        # @param friendly_name [String] Shown in the authenticator app and in the factor list.
+        # @param metadata [Hash{String => String}] Your own small object returned with the factor: up to 10 keys, each
+        #   value at most 500 characters.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFactorEnrollment]
+        def create(type:, user_id:, friendly_name: OMIT, metadata: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/factors/",
+            body: {
+              "type" => type,
+              "user_id" => user_id,
+              "friendly_name" => friendly_name,
+              "metadata" => metadata
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFactorEnrollment,
+            request_options: request_options
+          )
+        end
+
+        # Remove a factor
+        #
+        # Delete an enrolled factor. The factor is deleted at once: its `factor_id` stops working, the TOTP secret it
+        # held stops verifying, and the deletion cannot be undone. Verifications the factor already completed stay
+        # verified, and the user's other factors are not affected.
+        #
+        # Enroll the user again with `POST /v3/phone/factors/` to give them a new factor.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +DELETE /v3/phone/factors/{factor_id}/+
+        #
+        # @param factor_id [String] The factor id, `fa_` followed by 32 hexadecimal characters, as enrollment returned
+        #   it.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(factor_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/phone/factors/{factor_id}/",
+            path_params: { "factor_id" => factor_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+
+        # List a user's enrolled factors
+        #
+        # List the factors enrolled for one of your users, newest first, so your app can show them and let the user
+        # pick the one to check with. `user_id` is required; `type` and `status` narrow the list.
+        #
+        # The answer is a page: `count`, `next`, `previous` and `results`, each result a factor as Retrieve returns
+        # it.
+        #
+        # **Export.** `format: csv` answers every row that matches the filters as a CSV file.
+        #
+        # **Paging.** `limit` is 20 by default and 100 at most.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # **Permissions.** Only an Owner or Admin API key can list factors.
+        #
+        # +GET /v3/phone/factors/+
+        #
+        # @param user_id [String] The user whose factors to list: required.
+        # @param type [String] Only factors of this type.
+        # @param status [String] Only factors in this state.
+        # @param limit [Integer] Page size: 20 by default, 100 at most.
+        # @param offset [Integer] Zero-based index of the first row. Prefer following `next`.
+        # @param format [String] `json` (default) for a page, or `csv` to export every row that matches the filters as
+        #   CSV.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::PhoneFactor>]
+        def list(user_id:, type: OMIT, status: OMIT, limit: OMIT, offset: OMIT, format: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/factors/",
+            query: {
+              "user_id" => user_id,
+              "type" => type,
+              "status" => status,
+              "limit" => limit,
+              "offset" => offset,
+              "format" => format
+            },
+            page: Types::PhoneFactor,
+            request_options: request_options
+          )
+        end
+
+        # Retrieve one enrolled factor
+        #
+        # One enrolled factor: its type, state, user, name, metadata and when it was last used. Read it to show a
+        # factor's state after a check changed it, or after it was disabled, without reading the whole list.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +GET /v3/phone/factors/{factor_id}/+
+        #
+        # @param factor_id [String] The factor id, `fa_` followed by 32 hexadecimal characters, as enrollment returned
+        #   it.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFactor]
+        def retrieve(factor_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/factors/{factor_id}/",
+            path_params: { "factor_id" => factor_id },
+            response: Types::PhoneFactor,
+            request_options: request_options
+          )
+        end
+
+        # Change a factor's name, metadata or state
+        #
+        # Change a factor without enrolling it again: rename it (`friendly_name`), replace your `metadata`, disable it
+        # or turn it back on (`status`). The answer is the factor as it now stands.
+        #
+        # `disabled` stops the factor's checks and `verified` turns a disabled factor back on. A factor that was never
+        # verified cannot be turned on: finish its first check instead, or the call answers `409 factor_unverified`.
+        #
+        # `metadata` replaces the keys and values you sent before: up to 10 keys, each value at most 500 characters,
+        # or the call answers `400 invalid_metadata`.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +PATCH /v3/phone/factors/{factor_id}/+
+        #
+        # @param factor_id [String] The factor id, `fa_` followed by 32 hexadecimal characters, as enrollment returned
+        #   it.
+        # @param friendly_name [String] A new name for the authenticator app.
+        # @param metadata [Hash{String => String}] Replaces your keys and values with these, up to 10.
+        # @param status [String] `disabled` stops the factor's checks; `verified` turns a disabled factor back on.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFactor]
+        def update(
+          factor_id,
+          friendly_name: OMIT,
+          metadata: OMIT,
+          status: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/phone/factors/{factor_id}/",
+            path_params: { "factor_id" => factor_id },
+            body: {
+              "friendly_name" => friendly_name,
+              "metadata" => metadata,
+              "status" => status
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFactor,
+            request_options: request_options
+          )
+        end
       end
 
       # The +phone.fraud+ resource.
@@ -945,6 +1183,234 @@ module Didit
         end
       end
 
+      # The +phone.network+ resource.
+      class Network < Didit::Resource
+        # @return [Didit::Resources::Phone::Network::Registrations]
+        def registrations
+          @registrations ||= Registrations.new(@client)
+        end
+
+        # The +phone.network.registrations+ resource.
+        class Registrations < Didit::Resource
+          # @return [Didit::Resources::Phone::Network::Registrations::TestNumbers]
+          def test_numbers
+            @test_numbers ||= TestNumbers.new(@client)
+          end
+
+          # Ask the networks to approve a network feature
+          #
+          # Ask the mobile networks to approve a network feature for one country, so your application can use it for
+          # production traffic there: `feature` (`silent_verification`, `sim_swap` or `number_verification`),
+          # `country`, `use_case`, `company_name` and the `website` where the flow runs, plus optionally the
+          # `networks` to ask, a `purpose` shown to them and your expected `monthly_volume`.
+          #
+          # The answer is the registration with each network's decision (`networks[].status`) and the overall
+          # `status`: `submitted`, `in_review`, `approved`, `partly_approved` or `rejected`.
+          #
+          # **Test access.** While the networks review, `test_access` is `on`: the feature answers for the
+          # registration's verified test numbers and marks those answers `test: true`. Add up to 5 with `POST
+          # /v3/phone/network/registrations/{registration_id}/test-numbers/`. It turns `off` once the registration is
+          # approved or rejected.
+          #
+          # **One per feature, use case and country.** The same three again while one is open answers `409
+          # registration_exists`.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+          #
+          # +POST /v3/phone/network/registrations/+
+          #
+          # @param feature [String] The network feature to ask approval for.
+          # @param country [String] The ISO 3166-1 alpha-2 country it runs in.
+          # @param use_case [String] What you use the feature for.
+          # @param company_name [String] Your legal company name, as the networks see it.
+          # @param website [String] Where the flow runs, so the networks can review it.
+          # @param networks [Array<String>] Only these mobile networks; left out, every network in the country.
+          # @param purpose [String] Why the flow needs the feature, shown to the networks.
+          # @param monthly_volume [Integer, nil] Expected requests a month.
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneNetworkRegistration]
+          def create(
+            feature:,
+            country:,
+            use_case:,
+            company_name:,
+            website:,
+            networks: OMIT,
+            purpose: OMIT,
+            monthly_volume: OMIT,
+            idempotency_key: OMIT,
+            request_options: nil
+          )
+            @client.request(
+              :post,
+              "/v3/phone/network/registrations/",
+              body: {
+                "feature" => feature,
+                "country" => country,
+                "use_case" => use_case,
+                "company_name" => company_name,
+                "website" => website,
+                "networks" => networks,
+                "purpose" => purpose,
+                "monthly_volume" => monthly_volume
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::PhoneNetworkRegistration,
+              request_options: request_options
+            )
+          end
+
+          # List your network feature registrations
+          #
+          # List your network feature registrations, newest first, with each one's feature, country, use case and
+          # status. `feature`, `country` and `status` narrow the list, and `format: csv` exports every row that
+          # matches the filters instead of a page. Read one in full with `GET
+          # /v3/phone/network/registrations/{registration_id}/`.
+          #
+          # **Paging.** `limit` is 20 by default and 100 at most.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+          #
+          # +GET /v3/phone/network/registrations/+
+          #
+          # @param feature [String] Only registrations of this network feature.
+          # @param country [String] Only this ISO 3166-1 alpha-2 country.
+          # @param status [String] Only rows in this state.
+          # @param limit [Integer] Page size: 20 by default, 100 at most.
+          # @param offset [Integer] Zero-based index of the first row. Prefer following `next`.
+          # @param format [String] `json` (default) for a page, or `csv` to export every row that matches the filters
+          #   as CSV.
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Page<Didit::Types::PhoneNetworkRegistrationSummary>]
+          def list(
+            feature: OMIT,
+            country: OMIT,
+            status: OMIT,
+            limit: OMIT,
+            offset: OMIT,
+            format: OMIT,
+            request_options: nil
+          )
+            @client.request(
+              :get,
+              "/v3/phone/network/registrations/",
+              query: {
+                "feature" => feature,
+                "country" => country,
+                "status" => status,
+                "limit" => limit,
+                "offset" => offset,
+                "format" => format
+              },
+              page: Types::PhoneNetworkRegistrationSummary,
+              request_options: request_options
+            )
+          end
+
+          # Track a feature approval, network by network
+          #
+          # Track one feature approval, network by network: the feature, country and use case you submitted, the
+          # overall `status`, each mobile network's decision (`status`, `decided_at` and, when it rejected the
+          # request, `reason`), `live_at` once the feature is live for you in the country, and the `test_numbers` that
+          # answer it while `test_access` is `on`.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+          #
+          # +GET /v3/phone/network/registrations/{registration_id}/+
+          #
+          # @param registration_id [String] The registration id, `nr_` followed by 32 hexadecimal characters, as it
+          #   was created.
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneNetworkRegistration]
+          def retrieve(registration_id, request_options: nil)
+            @client.request(
+              :get,
+              "/v3/phone/network/registrations/{registration_id}/",
+              path_params: { "registration_id" => registration_id },
+              response: Types::PhoneNetworkRegistration,
+              request_options: request_options
+            )
+          end
+
+          # The +phone.network.registrations.test_numbers+ resource.
+          class TestNumbers < Didit::Resource
+            # Add a test number while the networks review
+            #
+            # Add a number you hold as a test number while the networks review a registration, so you can try the
+            # feature before it is approved: send it in E.164 (`phone_number`).
+            #
+            # Didit sends it a code and answers with `verification_id` and `status: code_sent`; check the code with
+            # `POST /v3/phone/check/` and the `verification_id`. Once the code is checked the number is `verified`,
+            # and the feature answers for it under test access, marked `test: true`.
+            #
+            # **Limits.** A registration takes up to 5 test numbers (`409 too_many_test_numbers`), and test access
+            # ends when the networks decide (`409 review_finished`).
+            #
+            # **Authentication.** Send your application's API key in `x-api-key`.
+            #
+            # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+            #
+            # +POST /v3/phone/network/registrations/{registration_id}/test-numbers/+
+            #
+            # @param registration_id [String] The registration id, `nr_` followed by 32 hexadecimal characters, as it
+            #   was created.
+            # @param phone_number [String] A number you hold, in E.164. Didit sends it a code to confirm it.
+            # @param idempotency_key [String] sent as the Idempotency-Key header
+            # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+            # @return [Didit::Types::PhoneNetworkRegistrationTestNumber]
+            def create(registration_id, phone_number:, idempotency_key: OMIT, request_options: nil)
+              @client.request(
+                :post,
+                "/v3/phone/network/registrations/{registration_id}/test-numbers/",
+                path_params: { "registration_id" => registration_id },
+                body: {
+                  "phone_number" => phone_number
+                },
+                headers: { "Idempotency-Key" => idempotency_key },
+                response: Types::PhoneNetworkRegistrationTestNumber,
+                request_options: request_options
+              )
+            end
+
+            # Remove a test number
+            #
+            # Remove a test number from a registration: it is deleted at once, the feature stops answering for it, and
+            # the number can be added again while test access is on.
+            #
+            # The number is in the path in E.164, URL-encoded: `+34600000012` becomes `%2B34600000012`.
+            #
+            # **Authentication.** Send your application's API key in `x-api-key`.
+            #
+            # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+            #
+            # +DELETE /v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/+
+            #
+            # @param registration_id [String] The registration id, `nr_` followed by 32 hexadecimal characters, as it
+            #   was created.
+            # @param phone_number [String] The test number, in E.164 and URL-encoded.
+            # @param idempotency_key [String] sent as the Idempotency-Key header
+            # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+            # @return [nil]
+            def delete(registration_id, phone_number, idempotency_key: OMIT, request_options: nil)
+              @client.request(
+                :delete,
+                "/v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/",
+                path_params: { "registration_id" => registration_id, "phone_number" => phone_number },
+                headers: { "Idempotency-Key" => idempotency_key },
+                request_options: request_options
+              )
+            end
+          end
+        end
+      end
+
       # The +phone.rate_limits+ resource.
       class RateLimits < Didit::Resource
         # @return [Didit::Resources::Phone::RateLimits::Buckets]
@@ -1106,6 +1572,322 @@ module Didit
               "/v3/phone/rate-limits/{rate_limit_id}/buckets/{bucket_id}/",
               path_params: { "rate_limit_id" => rate_limit_id, "bucket_id" => bucket_id },
               headers: { "Idempotency-Key" => idempotency_key },
+              request_options: request_options
+            )
+          end
+        end
+      end
+
+      # The +phone.sdk_keys+ resource.
+      class SdkKeys < Didit::Resource
+        # Issue a publishable key for a client SDK
+        #
+        # Issue a publishable key for the iOS, Android or web build of your app: `platform`, the `app_ids` it may run
+        # in (bundle ids, package names or `https` origins) and an optional `name` shown in API keys. The answer
+        # carries `publishable_key`, which is safe to ship inside the app because it can only start the client SDK's
+        # checks.
+        #
+        # **Rotation.** To replace a key in an app that is already installed, rotate it (`POST
+        # /v3/phone/sdk-keys/{key_id}/rotate/`) rather than issuing a second one: the old value keeps working while
+        # your update ships.
+        #
+        # **Permissions.** Only an Owner or Admin API key may issue a publishable key.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +POST /v3/phone/sdk-keys/+
+        #
+        # @param platform [String] The platform the key is for: `ios`, `android` or `web`.
+        # @param app_ids [Array<String>] The apps the key may run in: iOS bundle ids, Android package names or web
+        #   origins (`https://` and the host), matching `platform`
+        # @param name [String] Shown in API keys.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSdkKey]
+        def create(platform:, app_ids:, name: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/sdk-keys/",
+            body: {
+              "platform" => platform,
+              "app_ids" => app_ids,
+              "name" => name
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneSdkKey,
+            request_options: request_options
+          )
+        end
+
+        # List the publishable keys of your client SDKs
+        #
+        # List the key ID, platform and status of each client SDK key for your application.
+        #
+        # `platform` narrows the list to one platform.
+        #
+        # **Permissions.** Only an Owner or Admin API key may read publishable keys.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +GET /v3/phone/sdk-keys/+
+        #
+        # @param platform [String] Only keys for this platform.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSdkKeysPage]
+        def list(platform: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/sdk-keys/",
+            query: {
+              "platform" => platform
+            },
+            response: Types::PhoneSdkKeysPage,
+            request_options: request_options
+          )
+        end
+
+        # Revoke a publishable key
+        #
+        # Revoke a publishable key at once: it stops starting the client SDK's checks immediately, its status becomes
+        # `revoked`, and it can neither be restored nor rotated. Apps that still ship it fail until they are updated,
+        # so issue the replacement first (`POST /v3/phone/sdk-keys/`).
+        #
+        # **Permissions.** Only an Owner or Admin API key may revoke a publishable key.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +DELETE /v3/phone/sdk-keys/{key_id}/+
+        #
+        # @param key_id [String] The key id, `sk_` followed by 32 hexadecimal characters.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def revoke(key_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/phone/sdk-keys/{key_id}/",
+            path_params: { "key_id" => key_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+
+        # Rotate a publishable key with an overlap
+        #
+        # Rotate a publishable key without breaking the app versions already installed: Didit issues a new value and
+        # keeps the old one working for `overlap_hours` (0 to 168), long enough for your update to ship. The answer is
+        # the key with its new `publishable_key`, and `previous_expires_at` is when the value it replaced stops
+        # working.
+        #
+        # Ship the new value, then let the overlap end. A revoked key cannot be rotated (`409 revoked`) and neither
+        # can a key that was rotated already (`409 already_rotated`).
+        #
+        # **Permissions.** Only an Owner or Admin API key may rotate a publishable key.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +POST /v3/phone/sdk-keys/{key_id}/rotate/+
+        #
+        # @param key_id [String] The key id, `sk_` followed by 32 hexadecimal characters.
+        # @param overlap_hours [Integer] How long the value being replaced keeps working, from 0 to 168 hours, while
+        #   the app update ships.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSdkKeyRotated]
+        def rotate(key_id, overlap_hours: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/sdk-keys/{key_id}/rotate/",
+            path_params: { "key_id" => key_id },
+            body: {
+              "overlap_hours" => overlap_hours
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneSdkKeyRotated,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.silent+ resource.
+      class Silent < Didit::Resource
+        # @return [Didit::Resources::Phone::Silent::Registrations]
+        def registrations
+          @registrations ||= Registrations.new(@client)
+        end
+
+        # List where silent verification runs
+        #
+        # Where silent verification runs: every country where at least one mobile network can run the check, and per
+        # country the networks that can. Read this instead of hardcoding a list, because coverage grows as networks
+        # approve the feature.
+        #
+        # `approval` says whether a network answers for production traffic (`live`) or only while it approves
+        # production use (`test`), in which case it answers for the verified test numbers of a registration. `wifi`
+        # says whether the SIM check also runs over Wi-Fi, so a device without mobile data can still complete it.
+        #
+        # **Narrowing.** `country` answers for one ISO 3166-1 alpha-2 country.
+        #
+        # **Before you start.** `POST /v3/phone/silent/eligibility/` answers for one number, and a silent check that
+        # cannot run falls back to the verification's code channels.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +GET /v3/phone/silent/coverage/+
+        #
+        # @param country [String] Only this ISO 3166-1 alpha-2 country.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSilentCoverage]
+        def coverage(country: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/silent/coverage/",
+            query: {
+              "country" => country
+            },
+            response: Types::PhoneSilentCoverage,
+            request_options: request_options
+          )
+        end
+
+        # Check silent eligibility before you start
+        #
+        # Whether a silent check can run for one number now, so you can decide whether to offer it before you start a
+        # verification. `eligible` is the answer and, when it is `false`, `reason` says why: `unsupported_network`
+        # (the number's mobile network cannot run the check), `not_mobile_data` (the device is not on mobile data) or
+        # `country_not_covered` (silent verification does not run in the number's country).
+        #
+        # `network` is the mobile network the number belongs to, `country` its ISO 3166-1 alpha-2 code, and
+        # `wifi_possible` whether the SIM check can still run over Wi-Fi when the device has no mobile data.
+        #
+        # **Mobile data.** Send `ip_address`, the phone's public IP, to have the answer also confirm the device is on
+        # mobile data. Without it, the answer is about the network alone.
+        #
+        # **What follows.** A verification that runs the silent check first falls back to its next code channel when
+        # the check cannot run.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`. To check a client SDK's publishable key
+        # as well, include it in `X-Publishable-Key`.
+        #
+        # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+        #
+        # +POST /v3/phone/silent/eligibility/+
+        #
+        # @param phone_number [String] The number in international format (E.164), for example `+34600000012`.
+        # @param ip_address [String] The phone's public IP, so the answer also confirms the device is on mobile data.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSilentEligibility]
+        def eligibility(phone_number:, ip_address: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/silent/eligibility/",
+            body: {
+              "phone_number" => phone_number,
+              "ip_address" => ip_address
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneSilentEligibility,
+            request_options: request_options
+          )
+        end
+
+        # The +phone.silent.registrations+ resource.
+        class Registrations < Didit::Resource
+          # Submit a country for carrier approval of silent verification
+          #
+          # Submit a country for carrier approval of silent verification, so silent checks run for your application's
+          # production traffic there: `country`, the `use_case` it runs in, your `company_name` and the `website`
+          # where the flow runs. Optionally name the `networks` to ask, your expected `monthly_volume` and links to
+          # `flow_screenshots`.
+          #
+          # The answer is the registration. `status` starts `submitted`, moves to `in_review`, and ends as `approved`,
+          # `partly_approved` (some networks approved and some rejected) or `rejected`. `networks` lists each mobile
+          # network's own decision and `live_at` is when silent verification went live for you in the country.
+          #
+          # **One per country.** A country with an open registration answers `409 registration_exists`: track that one
+          # with `GET /v3/phone/silent/registrations/{registration_id}/` instead.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+          #
+          # +POST /v3/phone/silent/registrations/+
+          #
+          # @param country [String] The ISO 3166-1 alpha-2 country to ask approval for.
+          # @param use_case [String] What silent verification is used for.
+          # @param company_name [String] Your legal company name, as the networks see it.
+          # @param website [String] Where the flow runs, so the networks can review it.
+          # @param networks [Array<String>] The mobile networks to ask, by the names `GET /v3/phone/silent/coverage/`
+          #   lists; all the country's networks when you send none
+          # @param monthly_volume [Integer, nil] Expected silent checks a month.
+          # @param flow_screenshots [Array<String>] Links to screens of the flow, as the networks ask for them.
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneSilentRegistration]
+          def create(
+            country:,
+            use_case:,
+            company_name:,
+            website:,
+            networks: OMIT,
+            monthly_volume: OMIT,
+            flow_screenshots: OMIT,
+            idempotency_key: OMIT,
+            request_options: nil
+          )
+            @client.request(
+              :post,
+              "/v3/phone/silent/registrations/",
+              body: {
+                "country" => country,
+                "use_case" => use_case,
+                "company_name" => company_name,
+                "website" => website,
+                "networks" => networks,
+                "monthly_volume" => monthly_volume,
+                "flow_screenshots" => flow_screenshots
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::PhoneSilentRegistration,
+              request_options: request_options
+            )
+          end
+
+          # Track a carrier approval, network by network
+          #
+          # Track a carrier approval, network by network: the registration's `status`, each mobile network's decision
+          # (`status`, `decided_at` and, when it rejected the request, `reason`), and `live_at` once silent
+          # verification is live for you in the country.
+          #
+          # A registration that is `partly_approved` runs silent verification on the networks that approved it.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # **Rate limit.** Requests count against the key's budget; over it the answer is `429` with `Retry-After`.
+          #
+          # +GET /v3/phone/silent/registrations/{registration_id}/+
+          #
+          # @param registration_id [String] The registration id, `sr_` followed by 32 hexadecimal characters (an `nr_`
+          #   id of a silent verification registration works too).
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneSilentRegistration]
+          def retrieve(registration_id, request_options: nil)
+            @client.request(
+              :get,
+              "/v3/phone/silent/registrations/{registration_id}/",
+              path_params: { "registration_id" => registration_id },
+              response: Types::PhoneSilentRegistration,
               request_options: request_options
             )
           end
