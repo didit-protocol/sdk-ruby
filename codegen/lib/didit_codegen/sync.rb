@@ -1,0 +1,164 @@
+# frozen_string_literal: true
+
+require "digest"
+require "fileutils"
+require "json"
+require "tmpdir"
+require_relative "../didit_codegen"
+
+module DiditCodegen
+  # The spec sync (docs/DESIGN.md section 3.1): takes freshly downloaded upstream documents,
+  # updates openapi/ (the upstream copies, SOURCE.json, overlay.json and
+  # deprecated-operations.json), regenerates the SDK and describes what changed, with the
+  # type and the release notes lines of section 13.
+  module Sync
+    UPSTREAM = {
+      "verification.json" => "https://docs.didit.me/openapi-25.json",
+      "account.json" => "https://docs.didit.me/openapi-auth.json",
+      "authentication.json" => "https://docs.didit.me/openapi-authentication.json"
+    }.freeze
+    # Names accepted by --from-dir besides the openapi/ ones: the upstream file names.
+    UPSTREAM_NAMES = {
+      "verification.json" => "openapi-25.json", "account.json" => "openapi-auth.json",
+      "authentication.json" => "openapi-authentication.json"
+    }.freeze
+    PREFIXES = {
+      "verification.json" => "", "account.json" => "account ", "authentication.json" => "authentication "
+    }.freeze
+    # The documents the generator reads. authentication.json describes the hand-written
+    # Didit::Authentication instead (docs/DESIGN.md section 10), which
+    # spec/authentication/contract_spec.rb holds to it: nothing is generated, named in
+    # overlay.json or deprecated for its operations.
+    GENERATED = %w[verification.json account.json].freeze
+    SCHEMA_REF = "#/components/schemas/"
+    DEPRECATED_FILE = "deprecated-operations.json"
+    DEPRECATED_DESCRIPTION =
+      "SDK methods kept for one minor version after their operation was removed or renamed upstream " \
+      "(docs/DESIGN.md section 3.1). Written by codegen/spec_sync.rb; do not edit by hand. Each entry holds a " \
+      "dereferenced copy of the operation as it was, the SDK naming it had, deprecated_since (the SDK version " \
+      "when it was deprecated) and remove_in (the method ships deprecated through that version and is deleted " \
+      "by the first sync after it)."
+    VERSION_FILE = "lib/didit/version.rb"
+
+    # A download or a local file the sync cannot work with; nothing is written.
+    class InputError < StandardError; end
+
+    # +generator_error+ is the DiditCodegen::Error the regeneration raised, if any.
+    Result = Struct.new(:changed, :report, :generator_error, keyword_init: true)
+
+    module_function
+
+    # Parses +bytes+ and refuses anything that is not an OpenAPI 3 document with paths
+    # (an error page or a maintenance JSON must never replace the contract).
+    def check_document(label, bytes)
+      text = bytes.dup.force_encoding(Encoding::UTF_8)
+      raise InputError, "#{label}: the download is not UTF-8 text." unless text.valid_encoding?
+
+      begin
+        doc = JSON.parse(text)
+      rescue JSON::ParserError => e
+        raise InputError, "#{label}: the download is not JSON (#{e.message[0, 120]})."
+      end
+      raise InputError, "#{label}: the download is not a JSON object." unless doc.is_a?(Hash)
+
+      version = doc["openapi"]
+      unless version.is_a?(String) && version.start_with?("3.")
+        raise InputError, "#{label}: the download is not an OpenAPI 3 document (openapi: #{version.inspect})."
+      end
+
+      paths = doc["paths"]
+      raise InputError, "#{label}: the download has no paths." unless paths.is_a?(Hash) && !paths.empty?
+
+      doc
+    end
+
+    # The SDK version in lib/didit/version.rb.
+    def read_version(root)
+      text = File.read(File.join(root, VERSION_FILE), encoding: "UTF-8")
+      version = text[/VERSION\s*=\s*["'](\d+\.\d+\.\d+[^"']*)["']/, 1]
+      raise InputError, "#{VERSION_FILE}: no VERSION = \"x.y.z\" found." unless version
+
+      version
+    rescue Errno::ENOENT
+      raise InputError, "#{VERSION_FILE} is missing."
+    end
+
+    # The version through which a method deprecated in +version+ is kept: the next minor.
+    def next_minor(version)
+      major, minor = version.split(".").map(&:to_i)
+      "#{major}.#{minor + 1}.0"
+    end
+
+    # True when +remove_in+ is a version and +current+ has reached it.
+    def expired?(remove_in, current)
+      Gem::Version.correct?(remove_in.to_s) && Gem::Version.new(remove_in.to_s) <= Gem::Version.new(current)
+    end
+
+    # A key that only documents (see DOC_KEYS), or an x- extension.
+    def doc_key?(key)
+      DOC_KEYS.include?(key) || key.start_with?("x-")
+    end
+
+    # +node+ without documentation keys; the keys of NAME_MAPS (property names) stay.
+    def strip_docs(node, names: false)
+      case node
+      when Hash
+        node.each_with_object({}) do |(k, v), out|
+          next if !names && doc_key?(k)
+
+          out[k] = strip_docs(v, names: !names && NAME_MAPS.include?(k))
+        end
+      when Array then node.map { |v| strip_docs(v) }
+      else node
+      end
+    end
+
+    def sha256(bytes)
+      bytes.nil? ? "none" : Digest::SHA256.hexdigest(bytes)
+    end
+
+    # Applies +downloads+ (file name in openapi/ => bytes) to the repository at +root+.
+    def run(root, downloads, date:, now:)
+      Syncer.new(root, downloads, date: date, now: now).run
+    end
+
+    # What the sync makes of verification.json changing from +before+ to +after+ (two parsed
+    # documents, every operation named by its own x-didit-sdk) in an SDK at version 1.0.0:
+    # [type, breaking], the type "feat(spec)" or "chore(spec)" and the counted breaking
+    # changes, normalized, distinct and sorted. openapi/breaking-vectors.json, generated in
+    # sdk-python, holds the expected result of each of its cases.
+    def classify(before, after)
+      Dir.mktmpdir("didit-classify") do |root|
+        openapi = File.join(root, "openapi")
+        FileUtils.mkdir_p([openapi, File.join(root, "lib", "didit")])
+        File.binwrite(File.join(root, VERSION_FILE), "VERSION = \"1.0.0\"\n")
+        File.binwrite(File.join(openapi, "overlay.json"), JSON.generate("operations" => {}))
+        File.binwrite(File.join(openapi, "verification.json"), JSON.generate(before))
+        downloads = { "verification.json" => JSON.generate(after) }
+        # The other documents, the same before and after.
+        other = JSON.generate("openapi" => "3.0.3", "info" => { "title" => "unchanged", "version" => "1" },
+                              "paths" => { "/unchanged/" => {} })
+        (UPSTREAM.keys - downloads.keys).each do |file|
+          File.binwrite(File.join(openapi, file), other)
+          downloads[file] = other
+        end
+        report = Syncer.new(root, downloads, date: "2026-01-01", now: Time.utc(2026), generate: false).run.report
+        report ? ["#{report.type}(spec)", report.normalized.uniq.sort] : ["chore(spec)", []]
+      end
+    end
+  end
+end
+
+require_relative "sync/document"
+require_relative "sync/schemas"
+require_relative "sync/diff"
+require_relative "sync/freeze"
+require_relative "sync/json_text"
+require_relative "sync/report"
+require_relative "sync/download"
+require_relative "sync/state"
+require_relative "sync/methods"
+require_relative "sync/changes"
+require_relative "sync/syncer"
+require_relative "sync/cli"
+require_relative "sync/pull_request"
