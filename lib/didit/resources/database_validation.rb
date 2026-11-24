@@ -184,6 +184,10 @@ module Didit
       #   `left_thumb` or on its own.
       # @param left_thumb [String] Base64-encoded left thumb fingerprint for `zaf_dha_fingerprint_match`, with
       #   `right_thumb` or on its own.
+      # @param cnh_qr_code_image [String] Base64-encoded image of the CNH page carrying the Senatran QR code, required
+      #   by `bra_cnh_facial_qrcode`. Send the whole page as a text field (`data:image/png;base64,...` or the bare
+      #   base64 payload), never as a file part: the registry decodes the QR code server-side. JPEG, PNG or a PDF export
+      #   of the digital CNH; a WebP payload returns `400`.
       # @param score_level [Integer] Minimum biometric score level for `zaf_criminal_face_screening`. Defaults to `3`.
       # @param max_matches [Integer] Maximum number of candidate matches `zaf_criminal_face_screening` returns.
       #   Defaults to `1`.
@@ -284,6 +288,7 @@ module Didit
         phone_number: OMIT,
         right_thumb: OMIT,
         left_thumb: OMIT,
+        cnh_qr_code_image: OMIT,
         score_level: OMIT,
         max_matches: OMIT,
         vehicle_register_number: OMIT,
@@ -374,6 +379,7 @@ module Didit
             "phone_number" => phone_number,
             "right_thumb" => right_thumb,
             "left_thumb" => left_thumb,
+            "cnh_qr_code_image" => cnh_qr_code_image,
             "score_level" => score_level,
             "max_matches" => max_matches,
             "vehicle_register_number" => vehicle_register_number,
