@@ -7,6 +7,7 @@ module Didit
       def configurations: () -> Didit::Resources::Messages::Configurations
       def consent: () -> Didit::Resources::Messages::Consent
       def conversations: () -> Didit::Resources::Messages::Conversations
+      def feedback: () -> Didit::Resources::Messages::Feedback
       def rules: () -> Didit::Resources::Messages::Rules
       def templates: () -> Didit::Resources::Messages::Templates
       def cancel: (String message_id, ?request_options: Didit::request_options?) -> Didit::Types::Message
@@ -38,6 +39,9 @@ module Didit
           def create: (String conversation_id, url: String, ?events: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::MessageConversationWebhook
           def delete: (String conversation_id, String webhook_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         end
+      end
+      class Feedback < Didit::Resource
+        def create: (String message_id, outcome: String, ?occurred_at: Time | String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::MessageFeedbackResponse
       end
       class Rules < Didit::Resource
         def create: (action: String, match: Didit::Types::messages_rules_create_params_match, ?direction: String, ?channels: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::MessagesRulesCreateResponse

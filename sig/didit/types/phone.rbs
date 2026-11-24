@@ -360,6 +360,18 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneSandboxNumbersCreateParamsOutcome
+      VERIFIED: String
+      NOT_DELIVERED: String
+      BLOCKED: String
+      EXPIRED: String
+      SILENT_MATCH: String
+      SILENT_MISMATCH: String
+      SILENT_FALLBACK: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSdkKeysCreateParamsPlatform
       IOS: String
       ANDROID: String
@@ -443,6 +455,24 @@ module Didit
       LOGIN: String
       PAYMENT: String
       ACCOUNT_RECOVERY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneStatsRetrieveParamsGroupBy
+      COUNTRY: String
+      CHANNEL: String
+      NETWORK: String
+      LINE_TYPE: String
+      DAY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneStatsRetrieveParamsProduct
+      VERIFICATION: String
+      MESSAGES: String
+      LOOKUPS: String
 
       VALUES: Array[String]
     end
@@ -627,6 +657,8 @@ module Didit
 
     type phone_rate_limits_update_params_buckets = { ?bucket_id: String, ?max: Integer, ?interval: Integer }
 
+    type phone_sandbox_numbers_create_params = { phone_number: String, outcome: String, ?code: String, ?real_device: bool }
+
     type phone_sdk_keys_create_params = { platform: String, app_ids: Array[String], ?name: String }
 
     type phone_sdk_keys_rotate_params = { ?overlap_hours: Integer }
@@ -650,6 +682,8 @@ module Didit
     type phone_silent_eligibility_params = { phone_number: String, ?ip_address: String }
 
     type phone_silent_registrations_create_params = { country: String, ?networks: Array[String], use_case: String, company_name: String, website: String, ?monthly_volume: Integer?, ?flow_screenshots: Array[String] }
+
+    type phone_validate_params = { phone_number: String, ?country: String }
 
     type phone_verifications_approve_params = { ?reason: String }
 

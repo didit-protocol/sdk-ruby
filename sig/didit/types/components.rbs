@@ -2572,6 +2572,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessageFeedbackResponseOutcome
+      CONVERTED: String
+      NOT_CONVERTED: String
+
+      VALUES: Array[String]
+    end
+
     module MessageStatus
       SCHEDULED: String
       QUEUED: String
@@ -3567,6 +3574,14 @@ module Didit
       SUCCESS: String
       RETRY: String
       BLOCKED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVoiceGender
+      FEMALE: String
+      MALE: String
+      NEUTRAL: String
 
       VALUES: Array[String]
     end
@@ -10212,6 +10227,12 @@ module Didit
       def message: () -> String
     end
 
+    class MessageFeedbackResponse < Didit::Model
+      def message_id: () -> String
+      def outcome: () -> String
+      def conversion_seconds: () -> Integer?
+    end
+
     class MessageList < Didit::Model
       def count: () -> Integer
       def `next`: () -> String?
@@ -10857,8 +10878,25 @@ module Didit
       def failed_insufficient_balance: () -> Integer?
     end
 
+    class PhoneAutoTopUp < Didit::Model
+      def enabled: () -> bool
+      def amount: () -> String
+      def below: () -> String
+    end
+
+    class PhoneBalanceResponse < Didit::Model
+      def balance: () -> String
+      def auto_top_up: () -> Didit::Types::PhoneAutoTopUp
+    end
+
     class PhoneCountriesUpdateResponse < Didit::Model
       def updated: () -> Integer
+    end
+
+    class PhoneDeliverySeconds < Didit::Model
+      def p50: () -> Float
+      def p90: () -> Float
+      def p99: () -> Float
     end
 
     class PhoneFactor < Didit::Model
@@ -11048,6 +11086,11 @@ module Didit
       def results: () -> Array[Didit::Types::PhoneNetworkRegistrationSummary]
     end
 
+    class PhoneNumberFormat < Didit::Model
+      def e164: () -> String
+      def national: () -> String
+    end
+
     class PhoneRateLimit < Didit::Model
       def rate_limit_id: () -> String
       def key: () -> String
@@ -11102,6 +11145,11 @@ module Didit
     class PhoneRiskResponsePhoneCarrier < Didit::Model
       def name: () -> String?
       def `type`: () -> String?
+    end
+
+    class PhoneSandboxNumberResponse < Didit::Model
+      def number_id: () -> String
+      def outcome: () -> String
     end
 
     class PhoneSdkKey < Didit::Model
@@ -11215,6 +11263,28 @@ module Didit
       def not_registered_platforms: () -> Array[Didit::Types::SocialFootprintPlatform]?
       def categories: () -> Hash[String, Didit::Types::SocialFootprintCategorySummary]?
       def profiles: () -> Hash[String, Didit::Types::SocialFootprintProfile]?
+    end
+
+    class PhoneStatsResponse < Didit::Model
+      def rows: () -> Array[Didit::Types::PhoneStatsRow]
+    end
+
+    class PhoneStatsRow < Didit::Model
+      def key: () -> String
+      def conversion_rate: () -> Float
+      def silent_success_rate: () -> Float
+      def code_free_share: () -> Float
+      def delivery_seconds: () -> Didit::Types::PhoneDeliverySeconds
+      def read_rate: () -> Float
+      def reply_rate: () -> Float
+      def spend: () -> String
+    end
+
+    class PhoneValidateResponse < Didit::Model
+      def valid: () -> bool
+      def format: () -> Didit::Types::PhoneNumberFormat
+      def country: () -> String?
+      def charged: () -> bool
     end
 
     class PhoneVerificationApproveResponse < Didit::Model
@@ -11370,6 +11440,18 @@ module Didit
       def challenge_source: () -> String?
       def channels_allowed: () -> Array[String]?
       def exception: () -> String?
+    end
+
+    class PhoneVoice < Didit::Model
+      def voice_id: () -> String
+      def locale: () -> String
+      def gender: () -> String
+      def sample_url: () -> String?
+      def default: () -> bool
+    end
+
+    class PhoneVoiceListResponse < Didit::Model
+      def voices: () -> Array[Didit::Types::PhoneVoice]
     end
 
     class PublicPriceBook < Didit::Model
@@ -15163,6 +15245,12 @@ module Didit
       def subscribed_events: () -> Array[String]
       def created_at: () -> Time
       def updated_at: () -> Time
+    end
+
+    class WebhookCreateResponse < Didit::Model
+      def webhook_id: () -> String
+      def secret: () -> String
+      def events: () -> Array[String]
     end
 
     class WebhookDestinationActivity < Didit::Model

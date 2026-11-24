@@ -414,6 +414,20 @@ module Didit
       VALUES = [SUBMITTED, IN_REVIEW, APPROVED, PARTLY_APPROVED, REJECTED].freeze
     end
 
+    # What the number answers in the sandbox: a correct code, no delivery, a blocked number, an expired code, a silent
+    # check that matches, one that does not, or one that falls back to a code.
+    module PhoneSandboxNumbersCreateParamsOutcome
+      VERIFIED = "verified"
+      NOT_DELIVERED = "not_delivered"
+      BLOCKED = "blocked"
+      EXPIRED = "expired"
+      SILENT_MATCH = "silent_match"
+      SILENT_MISMATCH = "silent_mismatch"
+      SILENT_FALLBACK = "silent_fallback"
+
+      VALUES = [VERIFIED, NOT_DELIVERED, BLOCKED, EXPIRED, SILENT_MATCH, SILENT_MISMATCH, SILENT_FALLBACK].freeze
+    end
+
     # The platform the key is for: `ios`, `android` or `web`.
     module PhoneSdkKeysCreateParamsPlatform
       IOS = "ios"
@@ -517,6 +531,26 @@ module Didit
       ACCOUNT_RECOVERY = "account_recovery"
 
       VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneStatsRetrieveParamsGroupBy
+      COUNTRY = "country"
+      CHANNEL = "channel"
+      NETWORK = "network"
+      LINE_TYPE = "line_type"
+      DAY = "day"
+
+      VALUES = [COUNTRY, CHANNEL, NETWORK, LINE_TYPE, DAY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneStatsRetrieveParamsProduct
+      VERIFICATION = "verification"
+      MESSAGES = "messages"
+      LOOKUPS = "lookups"
+
+      VALUES = [VERIFICATION, MESSAGES, LOOKUPS].freeze
     end
 
     # own_code_check (default): your backend checked the code it sent with code.

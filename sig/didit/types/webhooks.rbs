@@ -2,6 +2,12 @@
 
 module Didit
   module Types
+    module WebhooksCreateParamsEventsVariant2
+      VALUE: String
+
+      VALUES: Array[String]
+    end
+
     module WebhooksDestinationsCreateParamsWebhookVersion
       V1: String
       V2: String
@@ -301,6 +307,8 @@ module Didit
       def last_delivery_at: () -> Time?
       def metrics_window_days: () -> Integer?
     end
+
+    type webhooks_create_params = { url: String, events: Array[String], ?description: String }
 
     type webhooks_destinations_create_params = { label: String, url: String, ?enabled: bool, ?webhook_version: String, ?subscribed_events: Array[String] }
 

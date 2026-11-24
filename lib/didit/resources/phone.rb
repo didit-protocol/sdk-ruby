@@ -5,6 +5,11 @@ module Didit
   module Resources
     # The +phone+ resource.
     class Phone < Didit::Resource
+      # @return [Didit::Resources::Phone::Balance]
+      def balance
+        @balance ||= Balance.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Countries]
       def countries
         @countries ||= Countries.new(@client)
@@ -50,6 +55,11 @@ module Didit
         @rate_limits ||= RateLimits.new(@client)
       end
 
+      # @return [Didit::Resources::Phone::SandboxNumbers]
+      def sandbox_numbers
+        @sandbox_numbers ||= SandboxNumbers.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::SdkKeys]
       def sdk_keys
         @sdk_keys ||= SdkKeys.new(@client)
@@ -65,9 +75,19 @@ module Didit
         @silent ||= Silent.new(@client)
       end
 
+      # @return [Didit::Resources::Phone::Stats]
+      def stats
+        @stats ||= Stats.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Verifications]
       def verifications
         @verifications ||= Verifications.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::Voices]
+      def voices
+        @voices ||= Voices.new(@client)
       end
 
       # Risk-score a phone number
@@ -227,10 +247,13 @@ module Didit
       # **Session persistence.** A finalized check updates the session created by the send (visible in the Business
       # Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
       #
-      # **Sandbox.** Sandbox API keys skip all processing and charge nothing; malformed input still returns `400`. In
-      # a sandbox application, use the code `123456` or the fixed code of a sandbox test number. Today the sandbox
-      # check also approves any other well-formed code for a number that has no fixed code; that is being tightened to
-      # the two codes above, so do not rely on it.
+      # **Sandbox.** Sandbox API keys skip all processing and charge nothing; malformed input still returns `400`. A
+      # number you registered with `POST /v3/phone/sandbox/numbers/` answers by its outcome: with `verified` or
+      # `silent_fallback` it accepts the fixed code it was registered with (any well-formed code when it has none), a
+      # wrong code answers `Failed` and the last attempt `Declined`; `silent_match` answers `Approved`;
+      # `not_delivered`, `blocked` and `silent_mismatch` answer `Declined`; `expired` answers `Expired or Not Found`.
+      # For any other number, the code is `123456`, or the `code` your send set; any other code answers `Failed`, and
+      # the last attempt `Declined`.
       #
       # **Authentication.** Send your application's API key in the `x-api-key` header. A missing `x-api-key` header,
       # or a key that is scoped and does not carry write access to `sessions`, returns `403`; a wrong, revoked or
@@ -453,7 +476,8 @@ module Didit
       # **Send statuses.** `Success` - OTP sent for a new verification; `Retry` - OTP re-sent for the pending
       # verification; `Blocked` - the anti-fraud layer refused to send (see `reason`, e.g. `repeated_attempts`,
       # `suspicious`, `spam`). A `Blocked` send immediately finalizes the verification as `Declined` with a high-risk
-      # warning, so a follow-up check returns `Expired or Not Found`.
+      # warning, so a follow-up check returns `Expired or Not Found`. A sandbox test number registered as `blocked` is
+      # the exception: its send answers `Blocked` and its check answers `Declined`.
       #
       # **Billing.** The price depends on the destination country and the channel that actually delivers the message -
       # see [Phone Verification Pricing](/getting-started/phone-verification-pricing). Only `Blocked` sends are
@@ -469,9 +493,10 @@ module Didit
       # **Sandbox.** A sandbox application's send takes the same path as a live one: the same validation,
       # `on_conflict` handling, channel policy and refusals (an unsupported destination included) and the same answer,
       # with a `verification_id` you can read, cancel or approve. Only the delivery is simulated: no message is sent
-      # and nothing is charged. In a sandbox application, use the code `123456` or the fixed code of a sandbox test
-      # number. Today the sandbox check also approves any other well-formed code for a number that has no fixed code;
-      # that is being tightened to the two codes above, so do not rely on it.
+      # and nothing is charged. A number you registered with `POST /v3/phone/sandbox/numbers/` plays the outcome it
+      # was registered with: `blocked` answers `Blocked`, every other outcome answers `Success`, and the outcomes that
+      # end the verification at send time (`not_delivered`, `silent_match`, `silent_mismatch`) settle it. For any
+      # other number, check with `123456`, or with the `code` your send set.
       #
       # **Authentication.** Send your application's API key in the `x-api-key` header. A missing `x-api-key` header,
       # or a key that is scoped and does not carry write access to `sessions`, returns `403`; a wrong, revoked or
@@ -552,6 +577,63 @@ module Didit
           response: Types::PhoneVerificationSendResponse,
           request_options: request_options
         )
+      end
+
+      # Validate and format a phone number
+      #
+      # Check that a number can exist and return it formatted, without looking anything up: `valid`, `format.e164`,
+      # `format.national` and `country`. Send the number in international format, or a national number with `country`.
+      #
+      # If the number parses but is invalid for its numbering plan, the response is `200` with `valid: false` and both
+      # formats. Validation and formatting are free: `charged` is always `false`.
+      #
+      # **Errors.** `400 invalid_phone_number`: not a number at all.
+      #
+      # A scoped API key needs `phone: write`.
+      #
+      # +POST /v3/phone/validate/+
+      #
+      # @param phone_number [String] The number in international format, or a national number with `country`.
+      # @param country [String] The ISO 3166-1 alpha-2 code of a national number.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::PhoneValidateResponse]
+      def validate(phone_number:, country: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/phone/validate/",
+          body: {
+            "phone_number" => phone_number,
+            "country" => country
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::PhoneValidateResponse,
+          request_options: request_options
+        )
+      end
+
+      # The +phone.balance+ resource.
+      class Balance < Didit::Resource
+        # Read the balance and auto top-up
+        #
+        # The account's Phone balance in USD, and the auto top-up that keeps it funded: whether it is on, the amount
+        # added each time, and the balance that triggers it. See [Phone
+        # pricing](/getting-started/phone-verification-pricing) for what a code or a lookup costs.
+        #
+        # A scoped API key needs `phone: read`.
+        #
+        # +GET /v3/phone/balance/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneBalanceResponse]
+        def retrieve(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/balance/",
+            response: Types::PhoneBalanceResponse,
+            request_options: request_options
+          )
+        end
       end
 
       # The +phone.countries+ resource.
@@ -1830,6 +1912,51 @@ module Didit
         end
       end
 
+      # The +phone.sandbox_numbers+ resource.
+      class SandboxNumbers < Didit::Resource
+        # Add your own test number, its code and outcome
+        #
+        # Define a test number in the sandbox: what it answers when a code is sent to it, and what it accepts.
+        # `outcome` plays the result: `verified`, `not_delivered`, `blocked`, `expired`, `silent_match`,
+        # `silent_mismatch` or `silent_fallback`. To set a fixed code for `/v3/phone/check/`, send `code` as a string
+        # of 4 to 8 digits. An invalid format returns `400` at registration.
+        #
+        # A test number behaves this way in the sandbox only and is never billed. Set `real_device` to `true` to
+        # identify your own handset.
+        #
+        # **Errors.** `403 sandbox_only`: the key belongs to a Live application, where a test number could approve a
+        # real one for free. `409 number_exists`: this number already has a test outcome.
+        #
+        # A scoped API key needs `phone: write`.
+        #
+        # +POST /v3/phone/sandbox/numbers/+
+        #
+        # @param phone_number [String] A fictional number, or your own handset with `real_device`.
+        # @param outcome [String] What the number answers in the sandbox: a correct code, no delivery, a blocked
+        #   number, an expired code, a silent check that matches, one that does not, or one that falls back to a code.
+        # @param code [String] Fixed code accepted by `/v3/phone/check/` for this test number. Send 4 to 8 digits as a
+        #   string to preserve leading zeros.
+        # @param real_device [Boolean] Set to `true` to mark the test number as your own handset.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSandboxNumberResponse]
+        def create(phone_number:, outcome:, code: OMIT, real_device: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/sandbox/numbers/",
+            body: {
+              "phone_number" => phone_number,
+              "outcome" => outcome,
+              "code" => code,
+              "real_device" => real_device
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneSandboxNumberResponse,
+            request_options: request_options
+          )
+        end
+      end
+
       # The +phone.sdk_keys+ resource.
       class SdkKeys < Didit::Resource
         # Issue a publishable key for a client SDK
@@ -2198,6 +2325,50 @@ module Didit
         end
       end
 
+      # The +phone.stats+ resource.
+      class Stats < Didit::Resource
+        # Conversion, delivery time and spend, grouped
+        #
+        # Read conversion, delivery times and spend in USD for the requested product and date range. Each entry in
+        # `rows` identifies its group in `key`. Choose a grouping supported by that product in `group_by`.
+        #
+        # For `verification`, read and reply rates are always `0`. For `messages`, silent success and code-free share
+        # are always `0`. For `lookups`, only spend applies, so all rates and delivery percentiles are `0`. A rate or
+        # percentile a group has no events for is `0`, never `null`.
+        #
+        # **Errors.** `400 invalid_product`: not a product this endpoint groups. `400 invalid_group`: not a grouping
+        # this product supports. `400 stats_window_too_wide`: the range is longer than a year. `400` naming `to`: `to`
+        # is a date no window can end on, such as `9999-12-31`, the last date there is; the body is `{"to": ["to must
+        # be a date a window can end on, before 9999-12-31."]}`.
+        #
+        # A scoped API key needs `phone: read`.
+        #
+        # +GET /v3/phone/stats/+
+        #
+        # @param product [String] The product to report on.
+        # @param group_by [String] For `verification`, use `country`, `channel`, `network`, `line_type` or `day`. For
+        #   `messages`, use `country`, `channel` or `day`. For `lookups`, use `country`, `network`, `line_type` or
+        #   `day`. Defaults to `day`.
+        # @param from [Date, String] The first day, as YYYY-MM-DD.
+        # @param to [Date, String] The last day, as YYYY-MM-DD, before `9999-12-31`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneStatsResponse]
+        def retrieve(product: OMIT, group_by: OMIT, from: OMIT, to: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/stats/",
+            query: {
+              "product" => product,
+              "group_by" => group_by,
+              "from" => from,
+              "to" => to
+            },
+            response: Types::PhoneStatsResponse,
+            request_options: request_options
+          )
+        end
+      end
+
       # The +phone.verifications+ resource.
       class Verifications < Didit::Resource
         # Mark a verification verified
@@ -2387,6 +2558,35 @@ module Didit
             },
             headers: { "Idempotency-Key" => idempotency_key },
             response: Types::PhoneVerificationRetryResponse,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.voices+ resource.
+      class Voices < Didit::Resource
+        # List the voices that read codes aloud, per language
+        #
+        # List the voices that read verification codes aloud. Each locale has one default voice. Every voice includes
+        # `sample_url`, which is currently `null` because no recordings are published. No operation takes a `voice_id`
+        # yet.
+        #
+        # A scoped API key needs `phone: read`.
+        #
+        # +GET /v3/phone/voices/+
+        #
+        # @param locale [String] Filter by a canonical BCP 47 tag such as `es-ES` or `pt-BR`. A language alone returns
+        #   every matching locale. For example, `pt` returns both `pt-BR` and `pt-PT`.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVoiceListResponse]
+        def list(locale: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/voices/",
+            query: {
+              "locale" => locale
+            },
+            response: Types::PhoneVoiceListResponse,
             request_options: request_options
           )
         end

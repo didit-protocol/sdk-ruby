@@ -3,6 +3,13 @@
 
 module Didit
   module Types
+    # Known values of an open enum: the API may send others.
+    module WebhooksCreateParamsEventsVariant2
+      VALUE = "*"
+
+      VALUES = [VALUE].freeze
+    end
+
     # Payload schema version Didit will send. `v3` is the current/recommended format; older versions are kept for
     # backward compatibility with legacy integrations.
     module WebhooksDestinationsCreateParamsWebhookVersion

@@ -815,6 +815,38 @@ RSpec.describe Didit::Resources::Messages do
     expect(result).to be_nil
   end
 
+  it "messages.feedback.create sends POST /v3/messages/{message_id}/feedback/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "message_id": "3f6c9a52-8d1e-4b7a-9c20-5e1f7a3b8d44",
+        "outcome": "converted",
+        "conversion_seconds": 240
+      }
+    JSON
+    result = client.messages.feedback.create(
+      "3f6c9a52-8d1e-4b7a-9c20-5e1f7a3b8d44",
+      outcome: "converted",
+      occurred_at: "2026-11-21T10:04:00Z",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/messages/3f6c9a52-8d1e-4b7a-9c20-5e1f7a3b8d44/feedback/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "outcome" => "converted",
+      "occurred_at" => "2026-11-21T10:04:00Z"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessageFeedbackResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "messages.rules.create sends POST /v3/messages/rules/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {

@@ -6,6 +6,48 @@ RSpec.describe Didit::Resources::Webhooks do
 
   let(:client) { generated_test_client }
 
+  it "webhooks.create sends POST /v3/webhooks/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "webhook_id": "8f14e45f-ceea-467f-a8d4-6f2b1c9b0d11",
+        "secret": "redacted-secret",
+        "events": [
+          "status.updated",
+          "message.status.updated"
+        ]
+      }
+    JSON
+    result = client.webhooks.create(
+      url: "https://api.demo-app.example/didit/webhooks",
+      events: [
+        "status.updated",
+        "message.status.updated"
+      ],
+      description: "Phone events",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/webhooks/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "url" => "https://api.demo-app.example/didit/webhooks",
+      "events" => [
+        "status.updated",
+        "message.status.updated"
+      ],
+      "description" => "Phone events"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::WebhookCreateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "webhooks.retrieve_config sends GET /v3/webhook/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
