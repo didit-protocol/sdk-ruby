@@ -3,6 +3,21 @@
 
 module Didit
   module Types
+    # Known values of an open enum: the API may send others.
+    module PhoneAssessRiskBulkParamsFields
+      FORMAT = "format"
+      LINE_TYPE = "line_type"
+      NETWORK = "network"
+      REACHABILITY = "reachability"
+      SIM_SWAP = "sim_swap"
+      SMS_PUMPING_RISK = "sms_pumping_risk"
+      PREFILL = "prefill"
+      SCAM_SIGNAL = "scam_signal"
+      IDENTITY_MATCH = "identity_match"
+
+      VALUES = [FORMAT, LINE_TYPE, NETWORK, REACHABILITY, SIM_SWAP, SMS_PUMPING_RISK, PREFILL, SCAM_SIGNAL, IDENTITY_MATCH].freeze
+    end
+
     # What to do when the carrier lookup flags the number as a temporary/burner line (`phone.is_disposable`).
     # `DECLINE` flips the final `status` to `Declined`; `NO_ACTION` records the risk in `phone.warnings`.
     module PhoneCheckCodeParamsDisposableNumberAction
@@ -79,6 +94,220 @@ module Didit
       VALUES = [NO_ACTION, DECLINE].freeze
     end
 
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudEvaluateResponseChallengeChannels
+      SILENT = "silent"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, WHATSAPP, TELEGRAM, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # allow, review, challenge or block
+    module PhoneFraudEvaluateResponseDecision
+      ALLOW = "allow"
+      REVIEW = "review"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, CHALLENGE, BLOCK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudEvaluateResponseEmailReasons
+      DISPOSABLE_DOMAIN = "disposable_domain"
+
+      VALUES = [DISPOSABLE_DOMAIN].freeze
+    end
+
+    # `high` for a disposable mailbox, otherwise `low`
+    module PhoneFraudEvaluateResponseEmailRisk
+      LOW = "low"
+      HIGH = "high"
+
+      VALUES = [LOW, HIGH].freeze
+    end
+
+    # `trusted_user` when this request went past your fraud rules as a trusted user; `null` otherwise.
+    module PhoneFraudEvaluateResponseException
+      TRUSTED_USER = "trusted_user"
+
+      VALUES = [TRUSTED_USER].freeze
+    end
+
+    # What the rule asked for
+    module PhoneFraudEvaluateResponseMatchedRulesAction
+      ALLOW = "allow"
+      REVIEW = "review"
+      REQUIRE_CODE = "require_code"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, REQUIRE_CODE, CHALLENGE, BLOCK].freeze
+    end
+
+    # The rule
+    module PhoneFraudEvaluateResponseMatchedRulesKey
+      VELOCITY = "velocity"
+      PUMPING = "pumping"
+      RISK_SCORE = "risk_score"
+      SIM_SWAP = "sim_swap"
+      DEVICE = "device"
+      COUNTRY = "country"
+
+      VALUES = [VELOCITY, PUMPING, RISK_SCORE, SIM_SWAP, DEVICE, COUNTRY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudUpdateParamsChallengeChannels
+      SILENT = "silent"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, WHATSAPP, TELEGRAM, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # standard, strict or custom
+    module PhoneFraudUpdateParamsLevel
+      STANDARD = "standard"
+      STRICT = "strict"
+      CUSTOM = "custom"
+
+      VALUES = [STANDARD, STRICT, CUSTOM].freeze
+    end
+
+    # allow, review, require_code, challenge or block: challenge continues the verification on challenge_channels only
+    module PhoneFraudUpdateParamsRulesAction
+      ALLOW = "allow"
+      REVIEW = "review"
+      REQUIRE_CODE = "require_code"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, REQUIRE_CODE, CHALLENGE, BLOCK].freeze
+    end
+
+    # velocity, pumping, risk_score, sim_swap, device or country
+    module PhoneFraudUpdateParamsRulesKey
+      VELOCITY = "velocity"
+      PUMPING = "pumping"
+      RISK_SCORE = "risk_score"
+      SIM_SWAP = "sim_swap"
+      DEVICE = "device"
+      COUNTRY = "country"
+
+      VALUES = [VELOCITY, PUMPING, RISK_SCORE, SIM_SWAP, DEVICE, COUNTRY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudUpdateParamsRulesPlatforms
+      WEB = "web"
+      IOS = "ios"
+      ANDROID = "android"
+
+      VALUES = [WEB, IOS, ANDROID].freeze
+    end
+
+    # codes (the default and the only value): the rule applies to verification codes
+    module PhoneFraudUpdateParamsRulesScope
+      CODES = "codes"
+
+      VALUES = [CODES].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudUpdateResponseChallengeChannels
+      SILENT = "silent"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, WHATSAPP, TELEGRAM, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # The level now
+    module PhoneFraudUpdateResponseLevel
+      STANDARD = "standard"
+      STRICT = "strict"
+      CUSTOM = "custom"
+
+      VALUES = [STANDARD, STRICT, CUSTOM].freeze
+    end
+
+    # mobile, landline, fixed_voip, non_fixed_voip, toll_free, premium or pager
+    module PhoneLineTypeOverridesCreateParamsLineType
+      MOBILE = "mobile"
+      LANDLINE = "landline"
+      FIXED_VOIP = "fixed_voip"
+      NON_FIXED_VOIP = "non_fixed_voip"
+      TOLL_FREE = "toll_free"
+      PREMIUM = "premium"
+      PAGER = "pager"
+
+      VALUES = [MOBILE, LANDLINE, FIXED_VOIP, NON_FIXED_VOIP, TOLL_FREE, PREMIUM, PAGER].freeze
+    end
+
+    # What lookups return from now on
+    module PhoneLineTypeOverridesCreateResponseLineType
+      MOBILE = "mobile"
+      LANDLINE = "landline"
+      FIXED_VOIP = "fixed_voip"
+      NON_FIXED_VOIP = "non_fixed_voip"
+      TOLL_FREE = "toll_free"
+      PREMIUM = "premium"
+      PAGER = "pager"
+
+      VALUES = [MOBILE, LANDLINE, FIXED_VOIP, NON_FIXED_VOIP, TOLL_FREE, PREMIUM, PAGER].freeze
+    end
+
+    # number, prefix, country or network
+    module PhoneListsAddParamsType
+      NUMBER = "number"
+      PREFIX = "prefix"
+      COUNTRY = "country"
+      NETWORK = "network"
+
+      VALUES = [NUMBER, PREFIX, COUNTRY, NETWORK].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneListsListEntriesParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneListsListEntriesParamsType
+      NUMBER = "number"
+      PREFIX = "prefix"
+      COUNTRY = "country"
+      NETWORK = "network"
+
+      VALUES = [NUMBER, PREFIX, COUNTRY, NETWORK].freeze
+    end
+
     # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message
     # automatically falls back to SMS - the send still reports `Success`.
     module PhoneSendCodeParamsOptionsPreferredChannel
@@ -102,6 +331,86 @@ module Didit
       WEB = "web"
 
       VALUES = [ANDROID, IOS, IPADOS, TVOS, WEB].freeze
+    end
+
+    class PhoneFraudEvaluateResponse < Didit::Model
+      field :decision, "decision", :string
+      field :score, "score", :integer
+      field :matched_rules, "matched_rules", [:array, "PhoneFraudEvaluateResponseMatchedRules"]
+      field :policy, "policy", "PhoneFraudEvaluateResponsePolicy"
+      field :challenge_channels, "challenge_channels", [:array, :string]
+      field :email, "email", "PhoneFraudEvaluateResponseEmail"
+      field :existing_user, "existing_user", :boolean
+      field :exception, "exception", :string
+    end
+
+    # The email check; `null` when no `email` was sent
+    class PhoneFraudEvaluateResponseEmail < Didit::Model
+      field :risk, "risk", :string
+      field :disposable, "disposable", :boolean
+      field :domain_age_days, "domain_age_days", :integer
+      field :reasons, "reasons", [:array, :string]
+      field :email, "email", :string
+    end
+
+    class PhoneFraudEvaluateResponseMatchedRules < Didit::Model
+      field :key, "key", :string
+      field :action, "action", :string
+    end
+
+    # The weighted policy of the flow in `action`; `null` when the flow has none
+    class PhoneFraudEvaluateResponsePolicy < Didit::Model
+      field :policy_id, "policy_id", :string
+      field :score, "score", :integer
+      field :conditions_met, "conditions_met", [:array, :string]
+    end
+
+    class PhoneFraudEventsCreateBatchResponse < Didit::Model
+      field :accepted, "accepted", :integer
+      field :results, "results", [:array, "PhoneFraudEventResult"]
+    end
+
+    class PhoneFraudPoliciesListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "PhoneFraudPolicy"]
+    end
+
+    class PhoneFraudUpdateResponse < Didit::Model
+      field :level, "level", :string
+      field :rules, "rules", [:array, "PhoneFraudRule"]
+      field :updated_at, "updated_at", :datetime
+      field :challenge_channels, "challenge_channels", [:array, :string]
+      field :sim_swap_within, "sim_swap_within", :integer
+      field :daily_cap, "daily_cap", :string
+    end
+
+    class PhoneLineTypeOverridesCreateResponse < Didit::Model
+      field :override_id, "override_id", :string
+      field :phone_number, "phone_number", :string
+      field :line_type, "line_type", :string
+      field :created_at, "created_at", :datetime
+    end
+
+    class PhoneListsCheckResponse < Didit::Model
+      field :allowed, "allowed", :boolean
+      field :blocked, "blocked", :boolean
+      field :matches, "matches", [:array, "PhoneListMatch"]
+    end
+
+    class PhoneListsListEntriesResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "PhoneListEntry"]
+    end
+
+    class PhoneRateLimitsListResponse < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "PhoneRateLimit"]
     end
   end
 end

@@ -2863,9 +2863,149 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneFraudEventResultError
+      INVALID_EVENT: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEventResultStatus
+      ACCEPTED: String
+      REJECTED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudPolicyAction
+      ALLOW: String
+      REVIEW: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudPolicyConditionOperator
+      EQ: String
+      NEQ: String
+      GT: String
+      LT: String
+      IN: String
+      WITHIN_HOURS: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudPolicyConditionSignal
+      RISK_SCORE: String
+      SIM_SWAP: String
+      LINE_TYPE: String
+      COUNTRY: String
+      VELOCITY: String
+      IP_RISK: String
+      DEVICE: String
+      EMAIL_RISK: String
+      EXISTING_USER: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudPolicyInputAction
+      ALLOW: String
+      REVIEW: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudRuleAction
+      ALLOW: String
+      REVIEW: String
+      REQUIRE_CODE: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudRuleKey
+      VELOCITY: String
+      PUMPING: String
+      RISK_SCORE: String
+      SIM_SWAP: String
+      DEVICE: String
+      COUNTRY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudRulePlatforms
+      WEB: String
+      IOS: String
+      ANDROID: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudRuleScope
+      CODES: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneIntelligenceReasonCodesDirection
       RISK: String
       TRUST: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListEntryListId
+      ALLOW: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListEntrySource
+      MANUAL: String
+      API: String
+      ALERT: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListEntryType
+      NUMBER: String
+      PREFIX: String
+      COUNTRY: String
+      NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListMatchListId
+      ALLOW: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListMatchType
+      NUMBER: String
+      PREFIX: String
+      COUNTRY: String
+      NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneRiskBulkJobStatus
+      QUEUED: String
+      RUNNING: String
+      DONE: String
+      FAILED: String
 
       VALUES: Array[String]
     end
@@ -10107,6 +10247,38 @@ module Didit
       def failed_insufficient_balance: () -> Integer?
     end
 
+    class PhoneFraudEventResult < Didit::Model
+      def index: () -> Integer
+      def event_id: () -> String?
+      def status: () -> String
+      def error: () -> String?
+    end
+
+    class PhoneFraudPolicy < Didit::Model
+      def policy_id: () -> String
+      def name: () -> String
+      def flow: () -> String
+      def threshold: () -> Integer
+      def action: () -> String
+      def updated_at: () -> Time
+      def conditions: () -> Array[Didit::Types::PhoneFraudPolicyCondition]
+    end
+
+    class PhoneFraudPolicyCondition < Didit::Model
+      def signal: () -> String
+      def operator: () -> String
+      def value: () -> String
+      def weight: () -> Integer
+    end
+
+    class PhoneFraudRule < Didit::Model
+      def key: () -> String?
+      def action: () -> String?
+      def countries: () -> Array[String]?
+      def platforms: () -> Array[String]?
+      def scope: () -> String?
+    end
+
     class PhoneIntelligence < Didit::Model
       def score: () -> Float?
       def phone_type_risk: () -> String?
@@ -10127,6 +10299,21 @@ module Didit
       def impact_level: () -> String?
     end
 
+    class PhoneListEntry < Didit::Model
+      def entry_id: () -> String
+      def list_id: () -> String
+      def value: () -> String
+      def `type`: () -> String
+      def expires_at: () -> Time?
+      def source: () -> String
+    end
+
+    class PhoneListMatch < Didit::Model
+      def list_id: () -> String
+      def entry_id: () -> String
+      def `type`: () -> String
+    end
+
     class PhoneMatchItem < Didit::Model
       def session_id: () -> String?
       def session_number: () -> Integer?
@@ -10137,6 +10324,27 @@ module Didit
       def is_blocklisted: () -> bool?
       def api_service: () -> String?
       def source: () -> String?
+    end
+
+    class PhoneRateLimit < Didit::Model
+      def rate_limit_id: () -> String
+      def key: () -> String
+      def buckets: () -> Array[Didit::Types::PhoneRateLimitBucket]
+    end
+
+    class PhoneRateLimitBucket < Didit::Model
+      def bucket_id: () -> String
+      def max: () -> Integer
+      def interval: () -> Integer
+      def in_use: () -> Integer
+    end
+
+    class PhoneRiskBulkJob < Didit::Model
+      def job_id: () -> String
+      def status: () -> String
+      def total: () -> Integer
+      def processed: () -> Integer
+      def results_url: () -> String?
     end
 
     class PhoneRiskResponse < Didit::Model
@@ -14235,6 +14443,10 @@ module Didit
     type monitoring_event_create_request_subject = { vendor_data: String, ?entity_type: String, ?full_name: String?, ?email: String?, ?phone: String?, ?country: String? }
 
     type monitoring_event_create_request_transaction_context = { ?amount: String?, ?currency: String?, ?direction: String?, ?payment_reference_id: String? }
+
+    type phone_fraud_policy_condition = { signal: String, operator: String, value: String, weight: Integer }
+
+    type phone_fraud_policy_input = { ?name: String, ?flow: String, ?conditions: Array[Didit::Types::phone_fraud_policy_condition], ?threshold: Integer, ?action: String }
 
     type risk_signals = { ?ip: String, ?device_id: String, ?device_platform: String, ?device_model: String, ?os_version: String, ?app_version: String, ?user_agent: String }
 

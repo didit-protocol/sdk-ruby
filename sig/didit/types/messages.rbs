@@ -23,6 +23,20 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessagesRulesCreateParamsAction
+      ALLOW: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesRulesCreateParamsDirection
+      OUTBOUND: String
+      INBOUND: String
+
+      VALUES: Array[String]
+    end
+
     module MessagesSendParamsChannels
       SMS: String
       WHATSAPP: String
@@ -30,6 +44,14 @@ module Didit
 
       VALUES: Array[String]
     end
+
+    class MessagesRulesCreateResponse < Didit::Model
+      def rule_id: () -> String
+    end
+
+    type messages_rules_create_params = { action: String, ?direction: String, match: Didit::Types::messages_rules_create_params_match, ?channels: Array[String] }
+
+    type messages_rules_create_params_match = { ?country: String, ?prefix: String, ?number: String }
 
     type messages_send_params = { to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options }
 

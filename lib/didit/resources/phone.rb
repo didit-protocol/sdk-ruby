@@ -5,6 +5,26 @@ module Didit
   module Resources
     # The +phone+ resource.
     class Phone < Didit::Resource
+      # @return [Didit::Resources::Phone::Fraud]
+      def fraud
+        @fraud ||= Fraud.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::LineTypeOverrides]
+      def line_type_overrides
+        @line_type_overrides ||= LineTypeOverrides.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::Lists]
+      def lists
+        @lists ||= Lists.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::RateLimits]
+      def rate_limits
+        @rate_limits ||= RateLimits.new(@client)
+      end
+
       # Risk-score a phone number
       #
       # Resolve a phone number and return carrier, line-type, porting, disposable-number, cross-session match, and
@@ -80,6 +100,47 @@ module Didit
           },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneRiskResponse,
+          request_options: request_options
+        )
+      end
+
+      # Start a bulk lookup
+      #
+      # Look up a CSV of numbers as one job: one number per line, up to 100,000 numbers, with `fields` naming the
+      # signals to return for each number. The call answers `202` with the job (`status` `queued`, `processed` 0,
+      # `results_url` `null`). Read it with `GET /v3/phone/risk/bulk/{job_id}/`; when it is done, download the CSV
+      # from `results_url`. `callback_url`, a public HTTPS URL, receives `{job_id, status, total, results_url}` when
+      # the job finishes (described by `PhoneRiskBulkCallback`).
+      #
+      # Billing follows Phone Risk API pricing for each number in the file; a number that is not valid is not charged.
+      #
+      # **Authentication.** Send your application's API key in `x-api-key`.
+      #
+      # +POST /v3/phone/risk/bulk/+
+      #
+      # @param file [Pathname, IO, String, Didit::FilePart] A CSV of numbers, one number per line, up to 100,000.
+      # @param fields [Array<String>] The signals to return, one CSV column each, in this order; all of them when you
+      #   send none. `format`, `line_type` and `network` are answered. `reachability`, `sim_swap`, `sms_pumping_risk`,
+      #   `prefill`, `scam_signal` and `identity_match` are accepted and their columns come back empty: a file that asks
+      #   for those alone looks up nothing and is not charged for lookups.
+      # @param callback_url [String] A public HTTPS URL Didit posts to when the job is done: `{job_id, status, total,
+      #   results_url}`, with `results_url` the same relative path as on the job. Any other URL answers `400`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::PhoneRiskBulkJob]
+      def assess_risk_bulk(file:, fields: OMIT, callback_url: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/phone/risk/bulk/",
+          body: {
+            "file" => file,
+            "fields" => fields,
+            "callback_url" => callback_url
+          },
+          encoding: :multipart,
+          file_fields: %w[file],
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::PhoneRiskBulkJob,
           request_options: request_options
         )
       end
@@ -215,6 +276,53 @@ module Didit
         )
       end
 
+      # Download bulk lookup results
+      #
+      # Download the CSV of a bulk risk job: the column `phone_number` plus one column per requested signal, one row
+      # per number in the order of the uploaded file. A failed job still has the rows it answered. While no result
+      # file exists the answer is `409 results_not_ready`.
+      #
+      # **Authentication.** Send your application's API key in `x-api-key`.
+      #
+      # +GET /v3/phone/risk/bulk/{job_id}/results/+
+      #
+      # @param job_id [String] The job, as returned when it was started.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [String, nil] the body bytes, or nil when a block receives the chunks
+      def download_risk_bulk_results(job_id, request_options: nil, &block)
+        @client.request(
+          :get,
+          "/v3/phone/risk/bulk/{job_id}/results/",
+          path_params: { "job_id" => job_id },
+          response: :binary,
+          accept: "text/csv, application/json",
+          request_options: request_options, &block
+        )
+      end
+
+      # Get a bulk lookup job
+      #
+      # Read a bulk risk job of your application: its `status`, how many numbers it has `processed` of its `total`,
+      # and the `results_url` of the CSV once a result file exists. An unknown job, or one of another application,
+      # answers `404`.
+      #
+      # **Authentication.** Send your application's API key in `x-api-key`.
+      #
+      # +GET /v3/phone/risk/bulk/{job_id}/+
+      #
+      # @param job_id [String] The job, as returned when it was started.
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::PhoneRiskBulkJob]
+      def retrieve_risk_bulk(job_id, request_options: nil)
+        @client.request(
+          :get,
+          "/v3/phone/risk/bulk/{job_id}/",
+          path_params: { "job_id" => job_id },
+          response: Types::PhoneRiskBulkJob,
+          request_options: request_options
+        )
+      end
+
       # Send Phone Code
       #
       # Send a one-time passcode (OTP) to a phone number over WhatsApp, SMS, or another supported channel, then verify
@@ -306,6 +414,702 @@ module Didit
           response: Types::PhoneVerificationSendResponse,
           request_options: request_options
         )
+      end
+
+      # The +phone.fraud+ resource.
+      class Fraud < Didit::Resource
+        # @return [Didit::Resources::Phone::Fraud::Events]
+        def events
+          @events ||= Events.new(@client)
+        end
+
+        # @return [Didit::Resources::Phone::Fraud::Policies]
+        def policies
+          @policies ||= Policies.new(@client)
+        end
+
+        # Score a number, an email address or both against your fraud rules
+        #
+        # Score a request before a code is sent: the number, the email address or both are evaluated against your
+        # fraud rules and the weighted policy of the flow in `action` (`signup`, `login`, `payment` or a flow of your
+        # own). Send `phone_number`, `email`, or both; a request with neither answers `400 target_required`.
+        #
+        # The answer carries the `decision` (`allow`, `review`, `challenge` or `block`), a `score` from 0 to 100, the
+        # rules that decided, the flow policy's score and the conditions that met it, and an email block when an
+        # address was scored. `challenge_channels` lists where a challenged verification may continue: SMS and voice
+        # are withheld.
+        #
+        # Send `ip_address` and `device_signals` when you have them; the `existing_user` flag tells the scoring a
+        # returning user is asking. `trusted_user` with a `fraud_override` signed for this one request takes it past
+        # your fraud rules, and a block list still stops the number.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/fraud/evaluate/+
+        #
+        # @param phone_number [String] The number; or leave it out and send email alone
+        # @param email [String] An email address to score before a code is sent, alone or with the number
+        # @param action [String] The flow being scored: `signup` (the default), `login`, `payment` or a flow of your
+        #   own, at most 64 characters.
+        # @param ip_address [String] Your user's IP address
+        # @param device_signals [String] The signed token from the SDK
+        # @param existing_user [Boolean] true: the number belongs to a user who has signed in before; the fraud
+        #   scoring weighs returning users and new sign-ups differently
+        # @param trusted_user [Boolean] Evaluate as a trusted-user exception: with a fraud_override signed for this
+        #   number, the decision is allow unless a block list matches
+        # @param fraud_override [String] The signed token for this number, as on send
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFraudEvaluateResponse]
+        def evaluate(
+          phone_number: OMIT,
+          email: OMIT,
+          action: OMIT,
+          ip_address: OMIT,
+          device_signals: OMIT,
+          existing_user: OMIT,
+          trusted_user: OMIT,
+          fraud_override: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/phone/fraud/evaluate/",
+            body: {
+              "phone_number" => phone_number,
+              "email" => email,
+              "action" => action,
+              "ip_address" => ip_address,
+              "device_signals" => device_signals,
+              "existing_user" => existing_user,
+              "trusted_user" => trusted_user,
+              "fraud_override" => fraud_override
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFraudEvaluateResponse,
+            request_options: request_options
+          )
+        end
+
+        # Update fraud settings
+        #
+        # Change the application's fraud protection: the level, the rules and where each rule applies. `level` is
+        # `standard` or `strict`, or `custom` when your own rules decide.
+        #
+        # A rule names a `key` - `velocity`, `pumping`, `risk_score`, `sim_swap`, `device` or `country` - and its
+        # `action`: `allow`, `review`, `require_code` or `block`, and `challenge`, which continues the verification
+        # only on the channels in `challenge_channels`. A rule applies only to the `countries` and `platforms` you
+        # name, and to verification codes: `scope` is `codes`, the only value, and any other value answers `400`.
+        #
+        # `sim_swap_within` is the window, in hours, after a SIM change in which a code is required instead of a
+        # silent check, or the number is blocked. `daily_cap` stops new codes at this spend per day, in USD.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +PATCH /v3/phone/fraud/+
+        #
+        # @param level [String] standard, strict or custom
+        # @param rules [Array<Hash>]
+        # @param challenge_channels [Array<String>] Where a challenged verification may continue; SMS and voice are
+        #   withheld
+        # @param sim_swap_within [Integer] Hours: after a SIM change in this window, ask for a code instead of silent,
+        #   or block
+        # @param daily_cap [String, nil] New codes stop at this spend per day, in USD, as a decimal string with at
+        #   most two decimals; `null` removes the cap
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFraudUpdateResponse]
+        def update(
+          level: OMIT,
+          rules: OMIT,
+          challenge_channels: OMIT,
+          sim_swap_within: OMIT,
+          daily_cap: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/phone/fraud/",
+            body: {
+              "level" => level,
+              "rules" => rules,
+              "challenge_channels" => challenge_channels,
+              "sim_swap_within" => sim_swap_within,
+              "daily_cap" => daily_cap
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFraudUpdateResponse,
+            request_options: request_options
+          )
+        end
+
+        # The +phone.fraud.events+ resource.
+        class Events < Didit::Resource
+          # Send fraud events in a batch
+          #
+          # Send up to 1,000 of your own events - a `signup`, a `login`, a `payment`, a `password_reset`, an
+          # `account_change` or a type of your own - to the fraud scoring, with the number, the email address, the IP
+          # address and the device signals of each one.
+          #
+          # The answer is `207 Multi-Status`: `accepted` counts the events the scoring uses from the next request, and
+          # `results` gives each event's place in `events`, its id, whether it was accepted and, when it was rejected,
+          # why. An event with no `type` or `occurred_at` is rejected on its own as `invalid_event` in `results` while
+          # the valid events of the same batch are accepted: the answer is still `207`. A request whose `events` is
+          # not a list of objects with correctly typed fields is a malformed request.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +POST /v3/phone/fraud/events/batch/+
+          #
+          # @param events [Array<Hash>] Up to 1,000 events, each with the number, the address and what happened.
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneFraudEventsCreateBatchResponse]
+          def create_batch(events:, idempotency_key: OMIT, request_options: nil)
+            @client.request(
+              :post,
+              "/v3/phone/fraud/events/batch/",
+              body: {
+                "events" => events
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::PhoneFraudEventsCreateBatchResponse,
+              request_options: request_options
+            )
+          end
+        end
+
+        # The +phone.fraud.policies+ resource.
+        class Policies < Didit::Resource
+          # Create a fraud policy
+          #
+          # Create a weighted fraud policy for one flow. Each condition names a `signal` (`risk_score`, `sim_swap`,
+          # `line_type`, `country`, `velocity`, `ip_risk`, `device`, `email_risk` or `existing_user`), an `operator`
+          # (`eq`, `neq`, `gt`, `lt`, `in` or `within_hours`), the `value` to compare with and the `weight` its points
+          # add to the score (0 to 100). The weights of the conditions that hold add up to a score, and `threshold` is
+          # the score at which `action` applies (`allow`, `review`, `challenge` or `block`).
+          #
+          # A flow has one policy: a second one answers `409 flow_has_policy`, and the existing policy is changed
+          # instead.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +POST /v3/phone/fraud/policies/+
+          #
+          # @param name [String] Its name
+          # @param flow [String] The flow it scores: `signup`, `login`, `payment` or a flow of your own, as sent in
+          #   `action` on evaluate and send.
+          # @param conditions [Array<Hash>]
+          # @param threshold [Integer] The score at which action applies
+          # @param action [String] allow, review, challenge or block
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneFraudPolicy]
+          def create(
+            name: OMIT,
+            flow: OMIT,
+            conditions: OMIT,
+            threshold: OMIT,
+            action: OMIT,
+            idempotency_key: OMIT,
+            request_options: nil
+          )
+            @client.request(
+              :post,
+              "/v3/phone/fraud/policies/",
+              body: {
+                "name" => name,
+                "flow" => flow,
+                "conditions" => conditions,
+                "threshold" => threshold,
+                "action" => action
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::PhoneFraudPolicy,
+              request_options: request_options
+            )
+          end
+
+          # Delete a fraud policy
+          #
+          # Delete a fraud policy. The flow it scored falls back to the fraud level and the rules in the fraud
+          # settings. Deletion is irreversible.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +DELETE /v3/phone/fraud/policies/{policy_id}/+
+          #
+          # @param policy_id [String] The policy
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [nil]
+          def delete(policy_id, idempotency_key: OMIT, request_options: nil)
+            @client.request(
+              :delete,
+              "/v3/phone/fraud/policies/{policy_id}/",
+              path_params: { "policy_id" => policy_id },
+              headers: { "Idempotency-Key" => idempotency_key },
+              request_options: request_options
+            )
+          end
+
+          # List fraud policies
+          #
+          # List the application's weighted fraud policies, one per flow, each with its conditions, weights, threshold
+          # and action. Filter by `flow`. They are listed oldest first.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +GET /v3/phone/fraud/policies/+
+          #
+          # @param flow [String] One flow
+          # @param limit [Integer] 20 by default, 100 at most
+          # @param offset [Integer] Where the page starts
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Page<Didit::Types::PhoneFraudPolicy>]
+          def list(flow: OMIT, limit: OMIT, offset: OMIT, request_options: nil)
+            @client.request(
+              :get,
+              "/v3/phone/fraud/policies/",
+              query: {
+                "flow" => flow,
+                "limit" => limit,
+                "offset" => offset
+              },
+              page: Types::PhoneFraudPolicy,
+              request_options: request_options
+            )
+          end
+
+          # Retrieve a fraud policy
+          #
+          # Read one weighted fraud policy of your application: its flow, conditions, weights, threshold and action.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +GET /v3/phone/fraud/policies/{policy_id}/+
+          #
+          # @param policy_id [String] The policy
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneFraudPolicy]
+          def retrieve(policy_id, request_options: nil)
+            @client.request(
+              :get,
+              "/v3/phone/fraud/policies/{policy_id}/",
+              path_params: { "policy_id" => policy_id },
+              response: Types::PhoneFraudPolicy,
+              request_options: request_options
+            )
+          end
+
+          # Update a fraud policy
+          #
+          # Change a fraud policy: its conditions, their weights, its threshold or its action. A field you leave out
+          # stays as it is.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +PATCH /v3/phone/fraud/policies/{policy_id}/+
+          #
+          # @param policy_id [String] The policy
+          # @param name [String] Its name
+          # @param flow [String] The flow it scores: `signup`, `login`, `payment` or a flow of your own, as sent in
+          #   `action` on evaluate and send.
+          # @param conditions [Array<Hash>]
+          # @param threshold [Integer] The score at which action applies
+          # @param action [String] allow, review, challenge or block
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [Didit::Types::PhoneFraudPolicy]
+          def update(
+            policy_id,
+            name: OMIT,
+            flow: OMIT,
+            conditions: OMIT,
+            threshold: OMIT,
+            action: OMIT,
+            idempotency_key: OMIT,
+            request_options: nil
+          )
+            @client.request(
+              :patch,
+              "/v3/phone/fraud/policies/{policy_id}/",
+              path_params: { "policy_id" => policy_id },
+              body: {
+                "name" => name,
+                "flow" => flow,
+                "conditions" => conditions,
+                "threshold" => threshold,
+                "action" => action
+              },
+              headers: { "Idempotency-Key" => idempotency_key },
+              response: Types::PhoneFraudPolicy,
+              request_options: request_options
+            )
+          end
+        end
+      end
+
+      # The +phone.line_type_overrides+ resource.
+      class LineTypeOverrides < Didit::Resource
+        # Correct the line type of a number
+        #
+        # Correct the line type of a number for your future lookups: later lookups of that number report the corrected
+        # type (`mobile`, `landline`, `fixed_voip`, `non_fixed_voip`, `toll_free`, `premium` or `pager`) instead of
+        # the one the network gives, A second correction for the same number replaces the first and answers `201` too.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/line-type-overrides/+
+        #
+        # @param phone_number [String] The number
+        # @param line_type [String] mobile, landline, fixed_voip, non_fixed_voip, toll_free, premium or pager
+        # @param note [String] Why it is corrected
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneLineTypeOverridesCreateResponse]
+        def create(phone_number:, line_type:, note: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/line-type-overrides/",
+            body: {
+              "phone_number" => phone_number,
+              "line_type" => line_type,
+              "note" => note
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneLineTypeOverridesCreateResponse,
+            request_options: request_options
+          )
+        end
+
+        # Delete a line-type correction
+        #
+        # Delete a line-type correction so lookups report the type the network gives again. Deletion is irreversible.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +DELETE /v3/phone/line-type-overrides/{override_id}/+
+        #
+        # @param override_id [String] The override
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(override_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/phone/line-type-overrides/{override_id}/",
+            path_params: { "override_id" => override_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.lists+ resource.
+      class Lists < Didit::Resource
+        # Add an entry to an allow or block list
+        #
+        # Add an entry to one of the application's phone lists. `list_id` is `allow` or `block`, and `value` is a
+        # number, a prefix, a country code or a network, which `type` names (`number`, `prefix`, `country` or
+        # `network`).
+        #
+        # An `expires_at` makes a temporary entry that ends on its own; `note` records why it was listed. `POST
+        # /v3/phone/lists/check/` answers with the entries that match a number, and the fraud rules read both lists.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/lists/{list_id}/entries/+
+        #
+        # @param list_id [String] The list: `allow` or `block`. Any other value answers `404`.
+        # @param value [String] A number in E.164, a prefix, an ISO country code or a mobile network, as `type` says.
+        # @param type [String] number, prefix, country or network
+        # @param expires_at [Time, String] A temporary entry ends on its own
+        # @param note [String] Why it is listed
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneListEntry]
+        def add(list_id, value:, type: OMIT, expires_at: OMIT, note: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/lists/{list_id}/entries/",
+            path_params: { "list_id" => list_id },
+            body: {
+              "value" => value,
+              "type" => type,
+              "expires_at" => expires_at,
+              "note" => note
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneListEntry,
+            request_options: request_options
+          )
+        end
+
+        # Check a number against your allow and block lists
+        #
+        # Answer whether a number is on the allow or the block list, and which entries match it: a number, a prefix,
+        # the country or the number's network. A match on the block list answers `blocked`.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/lists/check/+
+        #
+        # @param phone_number [String] The number to check
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneListsCheckResponse]
+        def check(phone_number:, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/lists/check/",
+            body: {
+              "phone_number" => phone_number
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneListsCheckResponse,
+            request_options: request_options
+          )
+        end
+
+        # List the entries of an allow or block list
+        #
+        # Read one of the application's lists: its entries, their type and the source that added each one (`manual`,
+        # `api` or `alert`). Filter by `type` or by part of a `value` or a `note`; `format=csv` exports every row of
+        # the filtered list instead of a page. Only the application's own phone and country lists are covered:
+        # `number`, `prefix` and `network` entries are in the phone list and `country` entries in the country list.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +GET /v3/phone/lists/{list_id}/entries/+
+        #
+        # @param list_id [String] The list: `allow` or `block`. Any other value answers `404`.
+        # @param type [String] number, prefix, country or network
+        # @param search [String] Part of a value or a note
+        # @param limit [Integer] 20 by default, 100 at most
+        # @param offset [Integer] Where the page starts
+        # @param format [String] json, or csv to export every row of the filtered list
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::PhoneListEntry>]
+        def list_entries(
+          list_id,
+          type: OMIT,
+          search: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          format: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/phone/lists/{list_id}/entries/",
+            path_params: { "list_id" => list_id },
+            query: {
+              "type" => type,
+              "search" => search,
+              "limit" => limit,
+              "offset" => offset,
+              "format" => format
+            },
+            page: Types::PhoneListEntry,
+            request_options: request_options
+          )
+        end
+
+        # Delete an entry from an allow or block list
+        #
+        # Delete an entry from an allow or block list, for example to unblock a network. Deletion is irreversible: the
+        # number, prefix, country or network is no longer listed from the next request. Only the application's own
+        # phone and country lists are covered: `number`, `prefix` and `network` entries are in the phone list and
+        # `country` entries in the country list.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +DELETE /v3/phone/lists/{list_id}/entries/{entry_id}/+
+        #
+        # @param list_id [String] The list: `allow` or `block`. Any other value answers `404`.
+        # @param entry_id [String] The entry
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def remove(list_id, entry_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/phone/lists/{list_id}/entries/{entry_id}/",
+            path_params: { "list_id" => list_id, "entry_id" => entry_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.rate_limits+ resource.
+      class RateLimits < Didit::Resource
+        # @return [Didit::Resources::Phone::RateLimits::Buckets]
+        def buckets
+          @buckets ||= Buckets.new(@client)
+        end
+
+        # Create a velocity limit
+        #
+        # Create a velocity limit of your own. A limit is keyed by the name of the value your sends are counted by,
+        # for example `user_id`, and each of its `buckets` allows `max` starts in `interval` seconds, at most 30 days
+        # (2,592,000 seconds). Send history is kept for that longest window, so every bucket counts the starts of its
+        # whole interval.
+        #
+        # A request over a bucket answers `429` with `Retry-After`, and the key is refused until the interval ends.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/phone/rate-limits/+
+        #
+        # @param key [String] The name of the value the limit counts, for example `user_id`.
+        # @param buckets [Array<Hash>]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneRateLimit]
+        def create(key:, buckets:, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/rate-limits/",
+            body: {
+              "key" => key,
+              "buckets" => buckets
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneRateLimit,
+            request_options: request_options
+          )
+        end
+
+        # Delete a velocity limit
+        #
+        # Delete a velocity limit and every bucket in it. The key it was created for no longer limits sends. Deletion
+        # is irreversible.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +DELETE /v3/phone/rate-limits/{rate_limit_id}/+
+        #
+        # @param rate_limit_id [String] The limit
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(rate_limit_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/phone/rate-limits/{rate_limit_id}/",
+            path_params: { "rate_limit_id" => rate_limit_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+
+        # List velocity limits
+        #
+        # List the application's velocity limits, oldest first, each with its key and its buckets.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +GET /v3/phone/rate-limits/+
+        #
+        # @param limit [Integer] 20 by default, 100 at most
+        # @param offset [Integer] Where the page starts
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::PhoneRateLimit>]
+        def list(limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/rate-limits/",
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::PhoneRateLimit,
+            request_options: request_options
+          )
+        end
+
+        # Retrieve a velocity limit
+        #
+        # One velocity limit with its buckets, each bucket's `max`, `interval` and the starts already counted in the
+        # current interval as `in_use`.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +GET /v3/phone/rate-limits/{rate_limit_id}/+
+        #
+        # @param rate_limit_id [String] The limit
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneRateLimit]
+        def retrieve(rate_limit_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/rate-limits/{rate_limit_id}/",
+            path_params: { "rate_limit_id" => rate_limit_id },
+            response: Types::PhoneRateLimit,
+            request_options: request_options
+          )
+        end
+
+        # Update a velocity limit
+        #
+        # Change a velocity limit's buckets: send a `bucket_id` to change that bucket, or leave it out to add one.
+        # `max` and `interval` must be positive, and `interval` at most 30 days (2,592,000 seconds), or the answer is
+        # `400`. A `bucket_id` that is not a bucket of this limit answers `404` and nothing is changed; a bucket can
+        # be removed with Delete a bucket of a velocity limit.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +PATCH /v3/phone/rate-limits/{rate_limit_id}/+
+        #
+        # @param rate_limit_id [String] The limit
+        # @param buckets [Array<Hash>]
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneRateLimit]
+        def update(rate_limit_id, buckets:, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :patch,
+            "/v3/phone/rate-limits/{rate_limit_id}/",
+            path_params: { "rate_limit_id" => rate_limit_id },
+            body: {
+              "buckets" => buckets
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneRateLimit,
+            request_options: request_options
+          )
+        end
+
+        # The +phone.rate_limits.buckets+ resource.
+        class Buckets < Didit::Resource
+          # Delete a bucket of a velocity limit
+          #
+          # Delete one bucket of a velocity limit. A limit keeps at least one bucket, so the last one answers `409
+          # last_bucket`: delete the limit instead. Deletion is irreversible.
+          #
+          # **Authentication.** Send your application's API key in `x-api-key`.
+          #
+          # +DELETE /v3/phone/rate-limits/{rate_limit_id}/buckets/{bucket_id}/+
+          #
+          # @param rate_limit_id [String] The limit
+          # @param bucket_id [String] The bucket
+          # @param idempotency_key [String] sent as the Idempotency-Key header
+          # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+          # @return [nil]
+          def delete(rate_limit_id, bucket_id, idempotency_key: OMIT, request_options: nil)
+            @client.request(
+              :delete,
+              "/v3/phone/rate-limits/{rate_limit_id}/buckets/{bucket_id}/",
+              path_params: { "rate_limit_id" => rate_limit_id, "bucket_id" => bucket_id },
+              headers: { "Idempotency-Key" => idempotency_key },
+              request_options: request_options
+            )
+          end
+        end
       end
     end
   end
