@@ -5,6 +5,11 @@ module Didit
   module Resources
     # The +messages+ resource.
     class Messages < Didit::Resource
+      # @return [Didit::Resources::Messages::Rules]
+      def rules
+        @rules ||= Rules.new(@client)
+      end
+
       # Cancel a scheduled message
       #
       # Cancel a message scheduled with `schedule_at`, before its time: only a `scheduled` message can be cancelled,
@@ -293,6 +298,43 @@ module Didit
           response: Types::MessagesSettings,
           request_options: request_options
         )
+      end
+
+      # The +messages.rules+ resource.
+      class Rules < Didit::Resource
+        # Create a messaging rule
+        #
+        # Add a messaging rule that allows or blocks by country, prefix or number. Send exactly one of `match.country`
+        # (an ISO country code), `match.prefix` or `match.number`; `direction` is `outbound` (the default) or
+        # `inbound`, and `channels` limits the rule to the channels it names.
+        #
+        # **Authentication.** Send your application's API key in `x-api-key`.
+        #
+        # +POST /v3/messages/rules/+
+        #
+        # @param action [String] allow or block
+        # @param match [Hash] Exactly one of `country`, `prefix` or `number`.
+        # @param direction [String] outbound (default) or inbound
+        # @param channels [Array<String>] The channels it covers, for example `sms`, `whatsapp` or `voice`; all
+        #   channels when you send none
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessagesRulesCreateResponse]
+        def create(action:, match:, direction: OMIT, channels: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/messages/rules/",
+            body: {
+              "action" => action,
+              "match" => match,
+              "direction" => direction,
+              "channels" => channels
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessagesRulesCreateResponse,
+            request_options: request_options
+          )
+        end
       end
     end
   end

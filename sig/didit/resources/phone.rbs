@@ -3,9 +3,54 @@
 module Didit
   module Resources
     class Phone < Didit::Resource
+      def fraud: () -> Didit::Resources::Phone::Fraud
+      def line_type_overrides: () -> Didit::Resources::Phone::LineTypeOverrides
+      def lists: () -> Didit::Resources::Phone::Lists
+      def rate_limits: () -> Didit::Resources::Phone::RateLimits
       def assess_risk: (phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskResponse
+      def assess_risk_bulk: (file: Didit::upload, ?fields: Array[String], ?callback_url: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskBulkJob
       def check_code: (phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationCheckResponse
+      def download_risk_bulk_results: (String job_id, ?request_options: Didit::request_options?) -> String
+                                    | (String job_id, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
+      def retrieve_risk_bulk: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskBulkJob
       def send_code: (phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationSendResponse
+      class Fraud < Didit::Resource
+        def events: () -> Didit::Resources::Phone::Fraud::Events
+        def policies: () -> Didit::Resources::Phone::Fraud::Policies
+        def evaluate: (?phone_number: String, ?email: String, ?action: String, ?ip_address: String, ?device_signals: String, ?existing_user: bool, ?trusted_user: bool, ?fraud_override: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudEvaluateResponse
+        def update: (?level: String, ?rules: Array[Didit::Types::phone_fraud_update_params_rules], ?challenge_channels: Array[String], ?sim_swap_within: Integer, ?daily_cap: String?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudUpdateResponse
+        class Events < Didit::Resource
+          def create_batch: (events: Array[Didit::Types::phone_fraud_events_create_batch_params_events], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudEventsCreateBatchResponse
+        end
+        class Policies < Didit::Resource
+          def create: (?name: String, ?flow: String, ?conditions: Array[Didit::Types::phone_fraud_policy_condition], ?threshold: Integer, ?action: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudPolicy
+          def delete: (String policy_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+          def list: (?flow: String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneFraudPolicy]
+          def retrieve: (String policy_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudPolicy
+          def update: (String policy_id, ?name: String, ?flow: String, ?conditions: Array[Didit::Types::phone_fraud_policy_condition], ?threshold: Integer, ?action: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFraudPolicy
+        end
+      end
+      class LineTypeOverrides < Didit::Resource
+        def create: (phone_number: String, line_type: String, ?note: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneLineTypeOverridesCreateResponse
+        def delete: (String override_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+      end
+      class Lists < Didit::Resource
+        def add: (String list_id, value: String, ?type: String, ?expires_at: Time | String, ?note: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneListEntry
+        def check: (phone_number: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneListsCheckResponse
+        def list_entries: (String list_id, ?type: String, ?search: String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneListEntry]
+        def remove: (String list_id, String entry_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+      end
+      class RateLimits < Didit::Resource
+        def buckets: () -> Didit::Resources::Phone::RateLimits::Buckets
+        def create: (key: String, buckets: Array[Didit::Types::phone_rate_limits_create_params_buckets], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRateLimit
+        def delete: (String rate_limit_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+        def list: (?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneRateLimit]
+        def retrieve: (String rate_limit_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRateLimit
+        def update: (String rate_limit_id, buckets: Array[Didit::Types::phone_rate_limits_update_params_buckets], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRateLimit
+        class Buckets < Didit::Resource
+          def delete: (String rate_limit_id, String bucket_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+        end
+      end
     end
   end
 end

@@ -81,6 +81,51 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.assess_risk_bulk sends POST /v3/phone/risk/bulk/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "job_id": "8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55",
+        "status": "queued",
+        "total": 2400,
+        "processed": 0,
+        "results_url": null
+      }
+    JSON
+    result = client.phone.assess_risk_bulk(
+      fields: [
+        "line_type",
+        "sim_swap"
+      ],
+      file: Didit::FilePart.new("fake-file-bytes", filename: "file.jpg", content_type: "image/jpeg"),
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/risk/bulk/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_multipart_body(
+      request,
+      fields: {
+        "fields" => "[\"line_type\",\"sim_swap\"]"
+      },
+      files: {
+        "file" => [
+          "file.jpg",
+          "image/jpeg",
+          "fake-file-bytes"
+        ]
+      }
+    )
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneRiskBulkJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.check_code sends POST /v3/phone/check/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -174,6 +219,50 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.download_risk_bulk_results sends GET /v3/phone/risk/bulk/{job_id}/results/" do
+    calls = stub_api(status: 200, body: "fake-binary-body", content_type: "text/csv")
+    result = client.phone.download_risk_bulk_results(
+      "8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/risk/bulk/8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55/results/",
+      query: [],
+      auth: :api_key,
+      accept: "text/csv, application/json"
+    )
+    expect_no_body(request)
+    expect(result).to eq("fake-binary-body")
+  end
+
+  it "phone.retrieve_risk_bulk sends GET /v3/phone/risk/bulk/{job_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "job_id": "8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55",
+        "status": "done",
+        "total": 2400,
+        "processed": 2400,
+        "results_url": "/v3/phone/risk/bulk/8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55/results/"
+      }
+    JSON
+    result = client.phone.retrieve_risk_bulk(
+      "8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/risk/bulk/8c1f2d3e-5a47-4b90-8e21-7d3a9b6c4f55/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneRiskBulkJob)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.send_code sends POST /v3/phone/send/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -213,5 +302,794 @@ RSpec.describe Didit::Resources::Phone do
     expect(result).to be_a(Didit::Types::PhoneVerificationSendResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
+  end
+
+  it "phone.fraud.evaluate sends POST /v3/phone/fraud/evaluate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "decision": "allow",
+        "score": 12,
+        "matched_rules": [],
+        "policy": {
+          "policy_id": "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+          "score": 40,
+          "conditions_met": [
+            "sim_swap"
+          ]
+        },
+        "challenge_channels": [],
+        "email": null,
+        "existing_user": false,
+        "exception": null
+      }
+    JSON
+    result = client.phone.fraud.evaluate(
+      phone_number: "+34600000012",
+      action: "signup",
+      existing_user: false,
+      trusted_user: false,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/fraud/evaluate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+34600000012",
+      "action" => "signup",
+      "existing_user" => false,
+      "trusted_user" => false
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFraudEvaluateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.fraud.update sends PATCH /v3/phone/fraud/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "level": "custom",
+        "rules": [
+          {
+            "key": "sim_swap",
+            "action": "require_code",
+            "countries": [
+              "GB",
+              "ES"
+            ]
+          }
+        ],
+        "challenge_channels": [
+          "silent",
+          "whatsapp",
+          "passkey"
+        ],
+        "updated_at": "2026-11-21T10:00:00Z",
+        "sim_swap_within": 72,
+        "daily_cap": null
+      }
+    JSON
+    result = client.phone.fraud.update(
+      level: "custom",
+      rules: [
+        {
+          key: "sim_swap",
+          action: "require_code",
+          countries: [
+            "GB",
+            "ES"
+          ]
+        }
+      ],
+      challenge_channels: [
+        "silent",
+        "whatsapp",
+        "passkey"
+      ],
+      sim_swap_within: 72,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/fraud/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "level" => "custom",
+      "rules" => [
+        {
+          "key" => "sim_swap",
+          "action" => "require_code",
+          "countries" => [
+            "GB",
+            "ES"
+          ]
+        }
+      ],
+      "challenge_channels" => [
+        "silent",
+        "whatsapp",
+        "passkey"
+      ],
+      "sim_swap_within" => 72
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFraudUpdateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.fraud.events.create_batch sends POST /v3/phone/fraud/events/batch/" do
+    calls = stub_api(status: 207, body: <<~'JSON')
+      {
+        "accepted": 1,
+        "results": [
+          {
+            "index": 0,
+            "event_id": "ae4f1a36-8c7a-4d25-9a49-3f6b0c2d7e55",
+            "status": "accepted",
+            "error": null
+          }
+        ]
+      }
+    JSON
+    result = client.phone.fraud.events.create_batch(
+      events: [
+        {
+          type: "login",
+          phone_number: "+34600000012",
+          occurred_at: "2026-11-21T09:58:00Z",
+          reference: "login-99812"
+        }
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/fraud/events/batch/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "events" => [
+        {
+          "type" => "login",
+          "phone_number" => "+34600000012",
+          "occurred_at" => "2026-11-21T09:58:00Z",
+          "reference" => "login-99812"
+        }
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFraudEventsCreateBatchResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.fraud.policies.create sends POST /v3/phone/fraud/policies/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "policy_id": "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+        "name": "Payment check",
+        "flow": "payment",
+        "conditions": [
+          {
+            "signal": "sim_swap",
+            "operator": "within_hours",
+            "value": "72",
+            "weight": 40
+          }
+        ],
+        "threshold": 60,
+        "action": "challenge",
+        "updated_at": "2026-11-21T09:00:00Z"
+      }
+    JSON
+    result = client.phone.fraud.policies.create(
+      name: "Payment check",
+      flow: "payment",
+      conditions: [
+        {
+          signal: "sim_swap",
+          operator: "within_hours",
+          value: "72",
+          weight: 40
+        }
+      ],
+      threshold: 60,
+      action: "challenge",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/fraud/policies/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Payment check",
+      "flow" => "payment",
+      "conditions" => [
+        {
+          "signal" => "sim_swap",
+          "operator" => "within_hours",
+          "value" => "72",
+          "weight" => 40
+        }
+      ],
+      "threshold" => 60,
+      "action" => "challenge"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFraudPolicy)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.fraud.policies.delete sends DELETE /v3/phone/fraud/policies/{policy_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.fraud.policies.delete(
+      "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/fraud/policies/9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.fraud.policies.list sends GET /v3/phone/fraud/policies/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "policy_id": "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+            "name": "Payment check",
+            "flow": "payment",
+            "conditions": [
+              {
+                "signal": "sim_swap",
+                "operator": "within_hours",
+                "value": "72",
+                "weight": 40
+              }
+            ],
+            "threshold": 60,
+            "action": "challenge",
+            "updated_at": "2026-11-21T09:00:00Z"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.fraud.policies.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/fraud/policies/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneFraudPolicy))
+    exercise_readers(result.results)
+  end
+
+  it "phone.fraud.policies.retrieve sends GET /v3/phone/fraud/policies/{policy_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "policy_id": "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+        "name": "Payment check",
+        "flow": "payment",
+        "conditions": [
+          {
+            "signal": "sim_swap",
+            "operator": "within_hours",
+            "value": "72",
+            "weight": 40
+          },
+          {
+            "signal": "email_risk",
+            "operator": "eq",
+            "value": "high",
+            "weight": 30
+          }
+        ],
+        "threshold": 60,
+        "action": "challenge",
+        "updated_at": "2026-11-21T09:00:00Z"
+      }
+    JSON
+    result = client.phone.fraud.policies.retrieve(
+      "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/fraud/policies/9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneFraudPolicy)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.fraud.policies.update sends PATCH /v3/phone/fraud/policies/{policy_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "policy_id": "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+        "name": "Payment check",
+        "flow": "payment",
+        "conditions": [
+          {
+            "signal": "sim_swap",
+            "operator": "within_hours",
+            "value": "72",
+            "weight": 40
+          },
+          {
+            "signal": "email_risk",
+            "operator": "eq",
+            "value": "high",
+            "weight": 30
+          }
+        ],
+        "threshold": 60,
+        "action": "challenge",
+        "updated_at": "2026-11-21T09:00:00Z"
+      }
+    JSON
+    result = client.phone.fraud.policies.update(
+      "9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44",
+      name: "Payment check",
+      flow: "payment",
+      conditions: [
+        {
+          signal: "sim_swap",
+          operator: "within_hours",
+          value: "72",
+          weight: 40
+        }
+      ],
+      threshold: 60,
+      action: "challenge",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/fraud/policies/9d3e0f25-7b69-4c14-8f38-2e5a9b1c6d44/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Payment check",
+      "flow" => "payment",
+      "conditions" => [
+        {
+          "signal" => "sim_swap",
+          "operator" => "within_hours",
+          "value" => "72",
+          "weight" => 40
+        }
+      ],
+      "threshold" => 60,
+      "action" => "challenge"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFraudPolicy)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.line_type_overrides.create sends POST /v3/phone/line-type-overrides/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "override_id": "7c2d9e14-6a58-4b03-9e27-1d4f8a0b5c33",
+        "phone_number": "+34911234567",
+        "line_type": "landline",
+        "created_at": "2026-11-21T09:00:00Z"
+      }
+    JSON
+    result = client.phone.line_type_overrides.create(
+      phone_number: "+34911234567",
+      line_type: "landline",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/line-type-overrides/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+34911234567",
+      "line_type" => "landline"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneLineTypeOverridesCreateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.line_type_overrides.delete sends DELETE /v3/phone/line-type-overrides/{override_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.line_type_overrides.delete(
+      "7c2d9e14-6a58-4b03-9e27-1d4f8a0b5c33",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/line-type-overrides/7c2d9e14-6a58-4b03-9e27-1d4f8a0b5c33/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.lists.add sends POST /v3/phone/lists/{list_id}/entries/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "entry_id": "bf5a2b47-9d8b-4e36-8b5a-407c1d3e8f66",
+        "list_id": "block",
+        "value": "+88216",
+        "expires_at": null,
+        "type": "prefix",
+        "source": "api"
+      }
+    JSON
+    result = client.phone.lists.add(
+      "block",
+      value: "+88216",
+      type: "prefix",
+      note: "Pumping from this prefix",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/lists/block/entries/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "value" => "+88216",
+      "type" => "prefix",
+      "note" => "Pumping from this prefix"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneListEntry)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.lists.check sends POST /v3/phone/lists/check/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "allowed": false,
+        "blocked": true,
+        "matches": [
+          {
+            "list_id": "block",
+            "entry_id": "c06b3c58-ae9c-4f47-9c6b-518d2e4f9a77",
+            "type": "prefix"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.lists.check(
+      phone_number: "+447700900123",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/lists/check/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+447700900123"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneListsCheckResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.lists.list_entries sends GET /v3/phone/lists/{list_id}/entries/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "entry_id": "c06b3c58-ae9c-4f47-9c6b-518d2e4f9a77",
+            "value": "+4475",
+            "type": "prefix",
+            "expires_at": null,
+            "source": "alert"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.lists.list_entries(
+      "block"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/lists/block/entries/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneListEntry))
+    exercise_readers(result.results)
+  end
+
+  it "phone.lists.remove sends DELETE /v3/phone/lists/{list_id}/entries/{entry_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.lists.remove(
+      "block",
+      "bf5a2b47-9d8b-4e36-8b5a-407c1d3e8f66",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/lists/block/entries/bf5a2b47-9d8b-4e36-8b5a-407c1d3e8f66/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.rate_limits.create sends POST /v3/phone/rate-limits/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "rate_limit_id": "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+        "key": "user_id",
+        "buckets": [
+          {
+            "bucket_id": "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+            "max": 5,
+            "interval": 3600
+          }
+        ]
+      }
+    JSON
+    result = client.phone.rate_limits.create(
+      key: "user_id",
+      buckets: [
+        {
+          max: 5,
+          interval: 3600
+        }
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/rate-limits/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "key" => "user_id",
+      "buckets" => [
+        {
+          "max" => 5,
+          "interval" => 3600
+        }
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneRateLimit)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.rate_limits.delete sends DELETE /v3/phone/rate-limits/{rate_limit_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.rate_limits.delete(
+      "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/rate-limits/3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "phone.rate_limits.list sends GET /v3/phone/rate-limits/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "rate_limit_id": "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+            "key": "user_id",
+            "buckets": [
+              {
+                "bucket_id": "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+                "max": 5,
+                "interval": 3600,
+                "in_use": 2
+              }
+            ]
+          }
+        ]
+      }
+    JSON
+    result = client.phone.rate_limits.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/rate-limits/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneRateLimit))
+    exercise_readers(result.results)
+  end
+
+  it "phone.rate_limits.retrieve sends GET /v3/phone/rate-limits/{rate_limit_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "rate_limit_id": "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+        "key": "user_id",
+        "buckets": [
+          {
+            "bucket_id": "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+            "max": 5,
+            "interval": 3600,
+            "in_use": 2
+          }
+        ]
+      }
+    JSON
+    result = client.phone.rate_limits.retrieve(
+      "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/rate-limits/3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneRateLimit)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.rate_limits.update sends PATCH /v3/phone/rate-limits/{rate_limit_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "rate_limit_id": "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+        "key": "user_id",
+        "buckets": [
+          {
+            "bucket_id": "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+            "max": 10,
+            "interval": 86400,
+            "in_use": 2
+          }
+        ]
+      }
+    JSON
+    result = client.phone.rate_limits.update(
+      "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+      buckets: [
+        {
+          bucket_id: "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+          max: 10,
+          interval: 86400
+        }
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/rate-limits/3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "buckets" => [
+        {
+          "bucket_id" => "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+          "max" => 10,
+          "interval" => 86400
+        }
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneRateLimit)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.rate_limits.buckets.delete sends DELETE /v3/phone/rate-limits/{rate_limit_id}/buckets/{bucket_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.phone.rate_limits.buckets.delete(
+      "3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01",
+      "0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/phone/rate-limits/3f6c1b52-8d4e-4a7b-9c10-5e2a7d9b1c01/buckets/0b6f6a4e-3f1a-4c6e-9a53-6b1d2f9c7a10/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
   end
 end

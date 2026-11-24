@@ -2,6 +2,20 @@
 
 module Didit
   module Types
+    module PhoneAssessRiskBulkParamsFields
+      FORMAT: String
+      LINE_TYPE: String
+      NETWORK: String
+      REACHABILITY: String
+      SIM_SWAP: String
+      SMS_PUMPING_RISK: String
+      PREFILL: String
+      SCAM_SIGNAL: String
+      IDENTITY_MATCH: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneCheckCodeParamsDisposableNumberAction
       NO_ACTION: String
       DECLINE: String
@@ -58,6 +72,200 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneFraudEvaluateResponseChallengeChannels
+      SILENT: String
+      WHATSAPP: String
+      TELEGRAM: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseDecision
+      ALLOW: String
+      REVIEW: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseEmailReasons
+      DISPOSABLE_DOMAIN: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseEmailRisk
+      LOW: String
+      HIGH: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseException
+      TRUSTED_USER: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseMatchedRulesAction
+      ALLOW: String
+      REVIEW: String
+      REQUIRE_CODE: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudEvaluateResponseMatchedRulesKey
+      VELOCITY: String
+      PUMPING: String
+      RISK_SCORE: String
+      SIM_SWAP: String
+      DEVICE: String
+      COUNTRY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsChallengeChannels
+      SILENT: String
+      WHATSAPP: String
+      TELEGRAM: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsLevel
+      STANDARD: String
+      STRICT: String
+      CUSTOM: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsRulesAction
+      ALLOW: String
+      REVIEW: String
+      REQUIRE_CODE: String
+      CHALLENGE: String
+      BLOCK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsRulesKey
+      VELOCITY: String
+      PUMPING: String
+      RISK_SCORE: String
+      SIM_SWAP: String
+      DEVICE: String
+      COUNTRY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsRulesPlatforms
+      WEB: String
+      IOS: String
+      ANDROID: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateParamsRulesScope
+      CODES: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateResponseChallengeChannels
+      SILENT: String
+      WHATSAPP: String
+      TELEGRAM: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFraudUpdateResponseLevel
+      STANDARD: String
+      STRICT: String
+      CUSTOM: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneLineTypeOverridesCreateParamsLineType
+      MOBILE: String
+      LANDLINE: String
+      FIXED_VOIP: String
+      NON_FIXED_VOIP: String
+      TOLL_FREE: String
+      PREMIUM: String
+      PAGER: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneLineTypeOverridesCreateResponseLineType
+      MOBILE: String
+      LANDLINE: String
+      FIXED_VOIP: String
+      NON_FIXED_VOIP: String
+      TOLL_FREE: String
+      PREMIUM: String
+      PAGER: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListsAddParamsType
+      NUMBER: String
+      PREFIX: String
+      COUNTRY: String
+      NETWORK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListsListEntriesParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneListsListEntriesParamsType
+      NUMBER: String
+      PREFIX: String
+      COUNTRY: String
+      NETWORK: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSendCodeParamsOptionsPreferredChannel
       WHATSAPP: String
       SMS: String
@@ -80,9 +288,113 @@ module Didit
       VALUES: Array[String]
     end
 
+    class PhoneFraudEvaluateResponse < Didit::Model
+      def decision: () -> String
+      def score: () -> Integer
+      def matched_rules: () -> Array[Didit::Types::PhoneFraudEvaluateResponseMatchedRules]
+      def policy: () -> Didit::Types::PhoneFraudEvaluateResponsePolicy?
+      def challenge_channels: () -> Array[String]
+      def email: () -> Didit::Types::PhoneFraudEvaluateResponseEmail?
+      def existing_user: () -> bool
+      def exception: () -> String?
+    end
+
+    class PhoneFraudEvaluateResponseEmail < Didit::Model
+      def risk: () -> String
+      def disposable: () -> bool
+      def domain_age_days: () -> Integer?
+      def reasons: () -> Array[String]
+      def email: () -> String
+    end
+
+    class PhoneFraudEvaluateResponseMatchedRules < Didit::Model
+      def key: () -> String
+      def action: () -> String
+    end
+
+    class PhoneFraudEvaluateResponsePolicy < Didit::Model
+      def policy_id: () -> String
+      def score: () -> Integer
+      def conditions_met: () -> Array[String]
+    end
+
+    class PhoneFraudEventsCreateBatchResponse < Didit::Model
+      def accepted: () -> Integer?
+      def results: () -> Array[Didit::Types::PhoneFraudEventResult]?
+    end
+
+    class PhoneFraudPoliciesListResponse < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::PhoneFraudPolicy]?
+    end
+
+    class PhoneFraudUpdateResponse < Didit::Model
+      def level: () -> String
+      def rules: () -> Array[Didit::Types::PhoneFraudRule]
+      def updated_at: () -> Time
+      def challenge_channels: () -> Array[String]
+      def sim_swap_within: () -> Integer
+      def daily_cap: () -> String?
+    end
+
+    class PhoneLineTypeOverridesCreateResponse < Didit::Model
+      def override_id: () -> String
+      def phone_number: () -> String
+      def line_type: () -> String
+      def created_at: () -> Time
+    end
+
+    class PhoneListsCheckResponse < Didit::Model
+      def allowed: () -> bool?
+      def blocked: () -> bool?
+      def matches: () -> Array[Didit::Types::PhoneListMatch]?
+    end
+
+    class PhoneListsListEntriesResponse < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::PhoneListEntry]?
+    end
+
+    class PhoneRateLimitsListResponse < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::PhoneRateLimit]?
+    end
+
+    type phone_assess_risk_bulk_params = { file: Didit::upload, ?fields: Array[String], ?callback_url: String }
+
     type phone_assess_risk_params = { phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool }
 
     type phone_check_code_params = { phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String }
+
+    type phone_fraud_evaluate_params = { ?phone_number: String, ?email: String, ?action: String, ?ip_address: String, ?device_signals: String, ?existing_user: bool, ?trusted_user: bool, ?fraud_override: String }
+
+    type phone_fraud_events_create_batch_params = { events: Array[Didit::Types::phone_fraud_events_create_batch_params_events] }
+
+    type phone_fraud_events_create_batch_params_events = { ?type: String, ?phone_number: String, ?email: String, ?ip_address: String, ?device_signals: String, ?existing_user: bool, ?occurred_at: String, ?reference: String }
+
+    type phone_fraud_update_params = { ?level: String, ?rules: Array[Didit::Types::phone_fraud_update_params_rules], ?challenge_channels: Array[String], ?sim_swap_within: Integer, ?daily_cap: String? }
+
+    type phone_fraud_update_params_rules = { key: String, action: String, ?countries: Array[String], ?platforms: Array[String], ?scope: String }
+
+    type phone_line_type_overrides_create_params = { phone_number: String, line_type: String, ?note: String }
+
+    type phone_lists_add_params = { value: String, ?type: String, ?expires_at: Time | String, ?note: String }
+
+    type phone_lists_check_params = { phone_number: String }
+
+    type phone_rate_limits_create_params = { key: String, buckets: Array[Didit::Types::phone_rate_limits_create_params_buckets] }
+
+    type phone_rate_limits_create_params_buckets = { max: Integer, interval: Integer }
+
+    type phone_rate_limits_update_params = { buckets: Array[Didit::Types::phone_rate_limits_update_params_buckets] }
+
+    type phone_rate_limits_update_params_buckets = { ?bucket_id: String, ?max: Integer, ?interval: Integer }
 
     type phone_send_code_params = { phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])? }
 

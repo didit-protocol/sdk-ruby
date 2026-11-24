@@ -26,6 +26,22 @@ module Didit
       VALUES = [SCHEDULED, QUEUED, SENDING, SENT, DELIVERED, READ, FAILED, CANCELLED].freeze
     end
 
+    # allow or block
+    module MessagesRulesCreateParamsAction
+      ALLOW = "allow"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, BLOCK].freeze
+    end
+
+    # outbound (default) or inbound
+    module MessagesRulesCreateParamsDirection
+      OUTBOUND = "outbound"
+      INBOUND = "inbound"
+
+      VALUES = [OUTBOUND, INBOUND].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module MessagesSendParamsChannels
       SMS = "sms"
@@ -33,6 +49,10 @@ module Didit
       EMAIL = "email"
 
       VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    class MessagesRulesCreateResponse < Didit::Model
+      field :rule_id, "rule_id", :string
     end
   end
 end

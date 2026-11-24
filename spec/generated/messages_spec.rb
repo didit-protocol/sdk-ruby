@@ -436,4 +436,45 @@ RSpec.describe Didit::Resources::Messages do
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
+
+  it "messages.rules.create sends POST /v3/messages/rules/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "rule_id": "5b1e7a90-2c43-4d68-8f15-0a9c3e6d7b22"
+      }
+    JSON
+    result = client.messages.rules.create(
+      action: "block",
+      direction: "outbound",
+      match: {
+        prefix: "+88216"
+      },
+      channels: [
+        "sms"
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/messages/rules/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "action" => "block",
+      "direction" => "outbound",
+      "match" => {
+        "prefix" => "+88216"
+      },
+      "channels" => [
+        "sms"
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessagesRulesCreateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
 end

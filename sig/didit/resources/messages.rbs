@@ -3,6 +3,7 @@
 module Didit
   module Resources
     class Messages < Didit::Resource
+      def rules: () -> Didit::Resources::Messages::Rules
       def cancel: (String message_id, ?request_options: Didit::request_options?) -> Didit::Types::Message
       def delete: (String message_id, ?request_options: Didit::request_options?) -> nil
       def list: (?limit: Integer, ?offset: Integer, ?status: String, ?channel: String, ?to: String, ?correlation_id: String, ?created_after: Time | String, ?created_before: Time | String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::Message]
@@ -11,6 +12,9 @@ module Didit
       def retrieve_settings: (?request_options: Didit::request_options?) -> Didit::Types::MessagesSettings
       def send_message: (to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::Message
       def update_settings: (retention_days: Integer, ?request_options: Didit::request_options?) -> Didit::Types::MessagesSettings
+      class Rules < Didit::Resource
+        def create: (action: String, match: Didit::Types::messages_rules_create_params_match, ?direction: String, ?channels: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::MessagesRulesCreateResponse
+      end
     end
   end
 end

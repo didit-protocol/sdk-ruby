@@ -3431,12 +3431,169 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
+    # Why it was rejected: `invalid_event`; `null` for an accepted event
+    module PhoneFraudEventResultError
+      INVALID_EVENT = "invalid_event"
+
+      VALUES = [INVALID_EVENT].freeze
+    end
+
+    # accepted or rejected
+    module PhoneFraudEventResultStatus
+      ACCEPTED = "accepted"
+      REJECTED = "rejected"
+
+      VALUES = [ACCEPTED, REJECTED].freeze
+    end
+
+    # allow, review, challenge or block
+    module PhoneFraudPolicyAction
+      ALLOW = "allow"
+      REVIEW = "review"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, CHALLENGE, BLOCK].freeze
+    end
+
+    # eq, neq, gt, lt, in or within_hours
+    module PhoneFraudPolicyConditionOperator
+      EQ = "eq"
+      NEQ = "neq"
+      GT = "gt"
+      LT = "lt"
+      IN = "in"
+      WITHIN_HOURS = "within_hours"
+
+      VALUES = [EQ, NEQ, GT, LT, IN, WITHIN_HOURS].freeze
+    end
+
+    # risk_score, sim_swap, line_type, country, velocity, ip_risk, device, email_risk or existing_user
+    module PhoneFraudPolicyConditionSignal
+      RISK_SCORE = "risk_score"
+      SIM_SWAP = "sim_swap"
+      LINE_TYPE = "line_type"
+      COUNTRY = "country"
+      VELOCITY = "velocity"
+      IP_RISK = "ip_risk"
+      DEVICE = "device"
+      EMAIL_RISK = "email_risk"
+      EXISTING_USER = "existing_user"
+
+      VALUES = [RISK_SCORE, SIM_SWAP, LINE_TYPE, COUNTRY, VELOCITY, IP_RISK, DEVICE, EMAIL_RISK, EXISTING_USER].freeze
+    end
+
+    # allow, review, challenge or block
+    module PhoneFraudPolicyInputAction
+      ALLOW = "allow"
+      REVIEW = "review"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, CHALLENGE, BLOCK].freeze
+    end
+
+    # allow, review, require_code, challenge or block: challenge continues the verification on challenge_channels only
+    module PhoneFraudRuleAction
+      ALLOW = "allow"
+      REVIEW = "review"
+      REQUIRE_CODE = "require_code"
+      CHALLENGE = "challenge"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, REVIEW, REQUIRE_CODE, CHALLENGE, BLOCK].freeze
+    end
+
+    # velocity, pumping, risk_score, sim_swap, device or country
+    module PhoneFraudRuleKey
+      VELOCITY = "velocity"
+      PUMPING = "pumping"
+      RISK_SCORE = "risk_score"
+      SIM_SWAP = "sim_swap"
+      DEVICE = "device"
+      COUNTRY = "country"
+
+      VALUES = [VELOCITY, PUMPING, RISK_SCORE, SIM_SWAP, DEVICE, COUNTRY].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module PhoneFraudRulePlatforms
+      WEB = "web"
+      IOS = "ios"
+      ANDROID = "android"
+
+      VALUES = [WEB, IOS, ANDROID].freeze
+    end
+
+    # codes (the only value): the rule applies to verification codes
+    module PhoneFraudRuleScope
+      CODES = "codes"
+
+      VALUES = [CODES].freeze
+    end
+
     # Whether the signal raised the risk or added trust.
     module PhoneIntelligenceReasonCodesDirection
       RISK = "risk"
       TRUST = "trust"
 
       VALUES = [RISK, TRUST].freeze
+    end
+
+    # The list it is on
+    module PhoneListEntryListId
+      ALLOW = "allow"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, BLOCK].freeze
+    end
+
+    # Who added it: `manual` in the console, `api` through this API or `alert`
+    module PhoneListEntrySource
+      MANUAL = "manual"
+      API = "api"
+      ALERT = "alert"
+
+      VALUES = [MANUAL, API, ALERT].freeze
+    end
+
+    # Its type
+    module PhoneListEntryType
+      NUMBER = "number"
+      PREFIX = "prefix"
+      COUNTRY = "country"
+      NETWORK = "network"
+
+      VALUES = [NUMBER, PREFIX, COUNTRY, NETWORK].freeze
+    end
+
+    # allow or block
+    module PhoneListMatchListId
+      ALLOW = "allow"
+      BLOCK = "block"
+
+      VALUES = [ALLOW, BLOCK].freeze
+    end
+
+    # number, prefix, country or network
+    module PhoneListMatchType
+      NUMBER = "number"
+      PREFIX = "prefix"
+      COUNTRY = "country"
+      NETWORK = "network"
+
+      VALUES = [NUMBER, PREFIX, COUNTRY, NETWORK].freeze
+    end
+
+    # `queued`, `running`, `done`, or `failed`. A job fails when your organization balance cannot pay for the next
+    # paid lookup (the rows already answered stay downloadable) or after 3 failed retries.
+    module PhoneRiskBulkJobStatus
+      QUEUED = "queued"
+      RUNNING = "running"
+      DONE = "done"
+      FAILED = "failed"
+
+      VALUES = [QUEUED, RUNNING, DONE, FAILED].freeze
     end
 
     # Decision for this phone number. Mirrors the top-level `status`.
@@ -11612,6 +11769,39 @@ module Didit
       field :failed_insufficient_balance, "failed_insufficient_balance", :integer
     end
 
+    class PhoneFraudEventResult < Didit::Model
+      field :index, "index", :integer
+      field :event_id, "event_id", :string
+      field :status, "status", :string
+      field :error, "error", :string
+    end
+
+    class PhoneFraudPolicy < Didit::Model
+      field :policy_id, "policy_id", :string
+      field :name, "name", :string
+      field :flow, "flow", :string
+      field :threshold, "threshold", :integer
+      field :action, "action", :string
+      field :updated_at, "updated_at", :datetime
+      field :conditions, "conditions", [:array, "PhoneFraudPolicyCondition"]
+    end
+
+    class PhoneFraudPolicyCondition < Didit::Model
+      field :signal, "signal", :string
+      field :operator, "operator", :string
+      field :value, "value", :string
+      field :weight, "weight", :integer
+    end
+
+    # One fraud rule: the signal it reads, the action it takes and where it applies.
+    class PhoneFraudRule < Didit::Model
+      field :key, "key", :string
+      field :action, "action", :string
+      field :countries, "countries", [:array, :string]
+      field :platforms, "platforms", [:array, :string]
+      field :scope, "scope", :string
+    end
+
     # Normalized phone-intelligence block. Present only when the intelligence add-on ran for this lookup; when present
     # it is also exposed under the `enrichment` alias with identical values.
     class PhoneIntelligence < Didit::Model
@@ -11634,6 +11824,21 @@ module Didit
       field :impact_level, "impact_level", :string
     end
 
+    class PhoneListEntry < Didit::Model
+      field :entry_id, "entry_id", :string
+      field :list_id, "list_id", :string
+      field :value, "value", :string
+      field :type, "type", :string
+      field :expires_at, "expires_at", :datetime
+      field :source, "source", :string
+    end
+
+    class PhoneListMatch < Didit::Model
+      field :list_id, "list_id", :string
+      field :entry_id, "entry_id", :string
+      field :type, "type", :string
+    end
+
     # Another session of your application that used the same phone number with a different `vendor_data`.
     class PhoneMatchItem < Didit::Model
       field :session_id, "session_id", :string
@@ -11645,6 +11850,28 @@ module Didit
       field :is_blocklisted, "is_blocklisted", :boolean
       field :api_service, "api_service", :string
       field :source, "source", :string
+    end
+
+    class PhoneRateLimit < Didit::Model
+      field :rate_limit_id, "rate_limit_id", :string
+      field :key, "key", :string
+      field :buckets, "buckets", [:array, "PhoneRateLimitBucket"]
+    end
+
+    class PhoneRateLimitBucket < Didit::Model
+      field :bucket_id, "bucket_id", :string
+      field :max, "max", :integer
+      field :interval, "interval", :integer
+      field :in_use, "in_use", :integer
+    end
+
+    # A bulk risk job.
+    class PhoneRiskBulkJob < Didit::Model
+      field :job_id, "job_id", :string
+      field :status, "status", :string
+      field :total, "total", :integer
+      field :processed, "processed", :integer
+      field :results_url, "results_url", :string
     end
 
     class PhoneRiskResponse < Didit::Model
