@@ -3150,6 +3150,21 @@ module Didit
       VALUES = [DRAFT, PENDING, APPROVED, REJECTED, PAUSED, DISABLED].freeze
     end
 
+    # A messaging channel.
+    module MessagingConfigurationChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      MMS = "mms"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, MMS].freeze
+    end
+
     # Event category.
     module MonitoringEventCreateRequestEventCategory
       AUTH = "auth"
@@ -3517,6 +3532,68 @@ module Didit
       VALUES = [PENDING, PROCESSING, COMPLETED, FAILED].freeze
     end
 
+    # A verification channel.
+    module PhoneChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # Channel to block for this country.
+    module PhoneCountryClosedChannelChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # Device platform.
+    module PhoneCountryClosedChannelPlatforms
+      WEB = "web"
+      IOS = "ios"
+      ANDROID = "android"
+
+      VALUES = [WEB, IOS, ANDROID].freeze
+    end
+
+    # What routing optimises in the country: price, balanced (default) or conversion.
+    module PhoneCountryUpdateObjective
+      PRICE = "price"
+      BALANCED = "balanced"
+      CONVERSION = "conversion"
+
+      VALUES = [PRICE, BALANCED, CONVERSION].freeze
+    end
+
+    # Route A or Route B for SMS.
+    module PhoneCountryUpdateRoute
+      ROUTE_A = "Route A"
+      ROUTE_B = "Route B"
+
+      VALUES = [ROUTE_A, ROUTE_B].freeze
+    end
+
     # A new factor is `unverified` until its first check passes
     module PhoneFactorEnrollmentStatus
       UNVERIFIED = "unverified"
@@ -3545,6 +3622,33 @@ module Didit
       TOTP = "totp"
 
       VALUES = [TOTP].freeze
+    end
+
+    # low, medium or high.
+    module PhoneFeedbackBatchItemConfidence
+      LOW = "low"
+      MEDIUM = "medium"
+      HIGH = "high"
+
+      VALUES = [LOW, MEDIUM, HIGH].freeze
+    end
+
+    # fraud, legitimate, converted or abuse.
+    module PhoneFeedbackBatchItemOutcome
+      FRAUD = "fraud"
+      LEGITIMATE = "legitimate"
+      CONVERTED = "converted"
+      ABUSE = "abuse"
+
+      VALUES = [FRAUD, LEGITIMATE, CONVERTED, ABUSE].freeze
+    end
+
+    # accepted or rejected.
+    module PhoneFeedbackBatchResponseResultsStatus
+      ACCEPTED = "accepted"
+      REJECTED = "rejected"
+
+      VALUES = [ACCEPTED, REJECTED].freeze
     end
 
     # Why it was rejected: `invalid_event`; `null` for an accepted event
@@ -3870,6 +3974,40 @@ module Didit
       VALUES = [ACTIVE, EXPIRING, REVOKED].freeze
     end
 
+    # The application's saved data region preference.
+    module PhoneSettingsDataRegion
+      EU = "eu"
+      US = "us"
+
+      VALUES = [EU, US].freeze
+    end
+
+    # A verification channel.
+    module PhoneSettingsVerificationChannelOrder
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # fixed or conversion.
+    module PhoneSettingsVerificationRouting
+      FIXED = "fixed"
+      CONVERSION = "conversion"
+
+      VALUES = [FIXED, CONVERSION].freeze
+    end
+
     # `live` - the network answers silent checks for production traffic. `test` - it answers only while it approves
     # production use, for the verified test numbers of a registration.
     module PhoneSilentCoverageNetworkApproval
@@ -3912,6 +4050,65 @@ module Didit
       VALUES = [BASIC, PARTIAL, COMPLETE, NOT_PRESENT].freeze
     end
 
+    # verified: it counts in Verifications, Analytics and the events like any other.
+    module PhoneVerificationApproveResponseStatus
+      VERIFIED = "verified"
+
+      VALUES = [VERIFIED].freeze
+    end
+
+    # api: your backend approved it.
+    module PhoneVerificationApproveResponseVerifiedBy
+      API = "api"
+
+      VALUES = [API].freeze
+    end
+
+    # The channel this attempt used.
+    module PhoneVerificationAttemptChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # match, mismatch or failed, for a silent attempt.
+    module PhoneVerificationAttemptSilentResult
+      MATCH = "match"
+      MISMATCH = "mismatch"
+      FAILED = "failed"
+
+      VALUES = [MATCH, MISMATCH, FAILED].freeze
+    end
+
+    # Its status: sent, delivered, read, failed or expired.
+    module PhoneVerificationAttemptStatus
+      SENT = "sent"
+      DELIVERED = "delivered"
+      READ = "read"
+      FAILED = "failed"
+      EXPIRED = "expired"
+
+      VALUES = [SENT, DELIVERED, READ, FAILED, EXPIRED].freeze
+    end
+
+    # cancelled: the code stops working, unsent steps are not charged.
+    module PhoneVerificationCancelResponseStatus
+      CANCELLED = "cancelled"
+
+      VALUES = [CANCELLED].freeze
+    end
+
     # Final status of the phone verification. Matches the top-level `status` for finalized checks.
     module PhoneVerificationCheckResponsePhoneStatus
       APPROVED = "Approved"
@@ -3934,9 +4131,9 @@ module Didit
     end
 
     # `Approved` - correct code, no declining risk. `Declined` - terminal: a declining risk matched or the attempt
-    # budget (3) was exhausted. `Failed` - wrong code, attempts remaining. `Expired or Not Found` - no pending
-    # verification for this number in the last 5 minutes. For a TOTP factor check (a request that names `factor_id`)
-    # the status is `verified` (the code matched) or `failed`.
+    # budget (your `verification.max_attempts` setting, 5 by default) was exhausted. `Failed` - wrong code, attempts
+    # remaining. `Expired or Not Found` - no pending verification for this number in the last 5 minutes. For a TOTP
+    # factor check (a request that names `factor_id`) the status is `verified` (the code matched) or `failed`.
     module PhoneVerificationCheckResponseStatus
       APPROVED = "Approved"
       DECLINED = "Declined"
@@ -3946,6 +4143,93 @@ module Didit
       FAILED_ = "failed"
 
       VALUES = [APPROVED, DECLINED, FAILED, EXPIRED_OR_NOT_FOUND, VERIFIED, FAILED_].freeze
+    end
+
+    # Its status.
+    module PhoneVerificationDetailStatus
+      PENDING = "pending"
+      VERIFIED = "verified"
+      NOT_DELIVERED = "not_delivered"
+      EXPIRED = "expired"
+      BLOCKED = "blocked"
+      CANCELLED = "cancelled"
+
+      VALUES = [PENDING, VERIFIED, NOT_DELIVERED, EXPIRED, BLOCKED, CANCELLED].freeze
+    end
+
+    # The channel trying now.
+    module PhoneVerificationNextResponseChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # A successful send remains pending. A blocked send ends the verification.
+    module PhoneVerificationNextResponseStatus
+      PENDING = "pending"
+      BLOCKED = "blocked"
+
+      VALUES = [PENDING, BLOCKED].freeze
+    end
+
+    # The channel this send went by.
+    module PhoneVerificationRetryResponseChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # A successful send remains pending. A blocked send ends the verification.
+    module PhoneVerificationRetryResponseStatus
+      PENDING = "pending"
+      BLOCKED = "blocked"
+
+      VALUES = [PENDING, BLOCKED].freeze
+    end
+
+    # allow, or challenge: the verification continues on fraud-resistant channels only.
+    module PhoneVerificationSendResponseFraudAction
+      ALLOW = "allow"
+      CHALLENGE = "challenge"
+
+      VALUES = [ALLOW, CHALLENGE].freeze
+    end
+
+    # caller (your force_challenge) or policy (a fraud rule), when challenged.
+    module PhoneVerificationSendResponseFraudChallengeSource
+      CALLER = "caller"
+      POLICY = "policy"
+
+      VALUES = [CALLER, POLICY].freeze
+    end
+
+    # trusted_user when this request went past your fraud rules as a trusted user; null otherwise.
+    module PhoneVerificationSendResponseFraudException
+      TRUSTED_USER = "trusted_user"
+
+      VALUES = [TRUSTED_USER].freeze
     end
 
     # `Success` - OTP sent to a new verification. `Retry` - OTP re-sent for the pending verification created by a
@@ -11408,6 +11692,21 @@ module Didit
       field :failed_at, "failed_at", :datetime
     end
 
+    # Channels a number can receive now.
+    class MessageCapabilities < Didit::Model
+      field :channels, "channels", "MessageCapabilitiesChannels"
+    end
+
+    # What the number can receive now.
+    class MessageCapabilitiesChannels < Didit::Model
+      field :sms, "sms", :boolean
+      field :whatsapp, "whatsapp", :boolean
+      field :telegram, "telegram", :boolean
+      field :rcs, "rcs", :boolean
+      field :viber, "viber", :boolean
+      field :mms, "mms", :boolean
+    end
+
     class MessageChannelPrice < Didit::Model
       field :channel, "channel", :string
       field :unit, "unit", :string
@@ -11527,6 +11826,31 @@ module Didit
     # Your application's settings for the Messages API.
     class MessagesSettings < Didit::Model
       field :retention_days, "retention_days", :integer
+    end
+
+    # A messaging configuration.
+    class MessagingConfiguration < Didit::Model
+      field :configuration_id, "configuration_id", :string
+      field :name, "name", :string
+      field :from, "from", :string
+      field :channels, "channels", [:array, :string]
+      field :status_callback_url, "status_callback_url", :string
+      field :inbound_url, "inbound_url", :string
+      field :opt_out, "opt_out", "MessagingConfigurationOptOut"
+      field :append_opt_out_line, "append_opt_out_line", :boolean
+    end
+
+    class MessagingConfigurationList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "MessagingConfiguration"]
+    end
+
+    # Stored opt-out rules. Leave this object empty to use this configuration in a send.
+    class MessagingConfigurationOptOut < Didit::Model
+      field :keywords, "keywords", [:array, :string]
+      field :confirmation, "confirmation", :string
     end
 
     # One stored monitoring event as returned by the list and subject-timeline endpoints. Restricted evidence
@@ -12137,6 +12461,11 @@ module Didit
       field :failed_insufficient_balance, "failed_insufficient_balance", :integer
     end
 
+    # How many country entries the request carried.
+    class PhoneCountriesUpdateResponse < Didit::Model
+      field :updated, "updated", :integer
+    end
+
     class PhoneFactor < Didit::Model
       field :factor_id, "factor_id", :string
       field :type, "type", :string
@@ -12166,6 +12495,22 @@ module Didit
       field :next, "next", :string
       field :previous, "previous", :string
       field :results, "results", [:array, "PhoneFactor"]
+    end
+
+    class PhoneFeedbackBatchResponse < Didit::Model
+      field :accepted, "accepted", :integer
+      field :results, "results", [:array, "PhoneFeedbackBatchResponseResults"]
+    end
+
+    class PhoneFeedbackBatchResponseResults < Didit::Model
+      field :index, "index", :integer
+      field :status, "status", :string
+      field :error, "error", :string
+    end
+
+    class PhoneFeedbackResponse < Didit::Model
+      field :received, "received", :boolean
+      field :weight, "weight", :float
     end
 
     class PhoneFraudEventResult < Didit::Model
@@ -12236,6 +12581,24 @@ module Didit
       field :list_id, "list_id", :string
       field :entry_id, "entry_id", :string
       field :type, "type", :string
+    end
+
+    class PhoneLookupList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "PhoneLookupSummary"]
+    end
+
+    # One result from your application's Phone risk lookup history.
+    class PhoneLookupSummary < Didit::Model
+      field :lookup_id, "lookup_id", :string
+      field :phone_number, "phone_number", :string
+      field :status, "status", :string
+      field :country, "country", :string
+      field :line_type, "line_type", :string
+      field :risk_score, "risk_score", :float
+      field :created_at, "created_at", :datetime
     end
 
     # Another session of your application that used the same phone number with a different `vendor_data`.
@@ -12390,6 +12753,44 @@ module Didit
       field :results, "results", [:array, "PhoneSdkKeySummary"]
     end
 
+    # Your Phone settings.
+    class PhoneSettings < Didit::Model
+      field :verification, "verification", "PhoneSettingsVerification"
+      field :messages, "messages", "PhoneSettingsMessages"
+      field :data_region, "data_region", :string
+    end
+
+    # Message settings.
+    class PhoneSettingsMessages < Didit::Model
+      field :retention_days, "retention_days", :integer
+    end
+
+    class PhoneSettingsUpdateResponse < Didit::Model
+      field :updated_at, "updated_at", :datetime
+    end
+
+    # Verification settings.
+    class PhoneSettingsVerification < Didit::Model
+      field :code_length, "code_length", :integer
+      field :valid_minutes, "valid_minutes", :integer
+      field :max_attempts, "max_attempts", :integer
+      field :resend_limit, "resend_limit", :integer
+      field :channel_order, "channel_order", [:array, :string]
+      field :routing, "routing", :string
+      field :voice, "voice", "PhoneSettingsVerificationVoice"
+      field :email, "email", "PhoneSettingsVerificationEmail"
+    end
+
+    # Email policy.
+    class PhoneSettingsVerificationEmail < Didit::Model
+      field :domain_id, "domain_id", :string
+    end
+
+    # Voice policy.
+    class PhoneSettingsVerificationVoice < Didit::Model
+      field :tts_voice, "tts_voice", :string
+    end
+
     # Where silent verification runs: one entry per country, and per country the mobile networks that can run the
     # check.
     class PhoneSilentCoverage < Didit::Model
@@ -12445,6 +12846,34 @@ module Didit
       field :not_registered_platforms, "not_registered_platforms", [:array, "SocialFootprintPlatform"]
       field :categories, "categories", [:map, "SocialFootprintCategorySummary"]
       field :profiles, "profiles", [:map, "SocialFootprintProfile"]
+    end
+
+    class PhoneVerificationApproveResponse < Didit::Model
+      field :verification_id, "verification_id", :string
+      field :status, "status", :string
+      field :verified_by, "verified_by", :string
+      field :verified_at, "verified_at", :datetime
+    end
+
+    # One channel tried for a verification.
+    class PhoneVerificationAttempt < Didit::Model
+      field :channel, "channel", :string
+      field :status, "status", :string
+      field :network, "network", :string
+      field :route, "route", :string
+      field :error, "error", :string
+      field :silent_result, "silent_result", :string
+      field :sent_at, "sent_at", :datetime
+      field :delivered_at, "delivered_at", :datetime
+      field :read_at, "read_at", :datetime
+      field :expired_at, "expired_at", :datetime
+      field :charged, "charged", :boolean
+      field :price, "price", "PhoneVerificationPrice"
+    end
+
+    class PhoneVerificationCancelResponse < Didit::Model
+      field :verification_id, "verification_id", :string
+      field :status, "status", :string
     end
 
     class PhoneVerificationCheckResponse < Didit::Model
@@ -12515,6 +12944,53 @@ module Didit
       field :long_description, "long_description", :string
     end
 
+    # One verification with every attempt.
+    class PhoneVerificationDetail < Didit::Model
+      field :verification_id, "verification_id", :string
+      field :status, "status", :string
+      field :phone_number, "phone_number", :string
+      field :country, "country", :string
+      field :attempts, "attempts", [:array, "PhoneVerificationAttempt"]
+      field :reference, "reference", :string
+      field :tags, "tags", :any
+      field :created_at, "created_at", :datetime
+      field :verified_at, "verified_at", :datetime
+    end
+
+    class PhoneVerificationList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "PhoneVerificationDetail"]
+    end
+
+    class PhoneVerificationNextResponse < Didit::Model
+      field :verification_id, "verification_id", :string
+      field :channel, "channel", :string
+      field :status, "status", :string
+      field :reason, "reason", :string
+    end
+
+    # The price line of one attempt.
+    class PhoneVerificationPrice < Didit::Model
+      field :amount, "amount", :string
+      field :carrier, "carrier", :string
+      field :fee, "fee", :string
+      field :final, "final", :boolean
+    end
+
+    # A pending retry includes sends, sends_left, expires_at and charged. A blocked retry returns the reason instead.
+    class PhoneVerificationRetryResponse < Didit::Model
+      field :verification_id, "verification_id", :string
+      field :status, "status", :string
+      field :channel, "channel", :string
+      field :sends, "sends", :integer
+      field :sends_left, "sends_left", :integer
+      field :expires_at, "expires_at", :datetime
+      field :charged, "charged", :boolean
+      field :reason, "reason", :string
+    end
+
     class PhoneVerificationSendResponse < Didit::Model
       field :request_id, "request_id", :string
       field :status, "status", :string
@@ -12522,6 +12998,17 @@ module Didit
       field :reason, "reason", :string
       field :vendor_data, "vendor_data", :string
       field :metadata, "metadata", :any
+      field :verification_id, "verification_id", :string
+      field :expires_in, "expires_in", :integer
+      field :fraud, "fraud", "PhoneVerificationSendResponseFraud"
+    end
+
+    # The fraud decision for this send.
+    class PhoneVerificationSendResponseFraud < Didit::Model
+      field :action, "action", :string
+      field :challenge_source, "challenge_source", :string
+      field :channels_allowed, "channels_allowed", [:array, :string]
+      field :exception, "exception", :string
     end
 
     class PublicPriceBook < Didit::Model

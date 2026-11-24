@@ -106,6 +106,23 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneFeedbackCreateParamsConfidence
+      LOW: String
+      MEDIUM: String
+      HIGH: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFeedbackCreateParamsOutcome
+      FRAUD: String
+      LEGITIMATE: String
+      CONVERTED: String
+      ABUSE: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneFraudEvaluateResponseChallengeChannels
       SILENT: String
       WHATSAPP: String
@@ -359,6 +376,15 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneSendCodeParamsOnConflict
+      REPLACE: String
+      REUSE: String
+      RETRY: String
+      REJECT: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSendCodeParamsOptionsPreferredChannel
       WHATSAPP: String
       SMS: String
@@ -381,11 +407,100 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneSettingsUpdateParamsDataRegion
+      EU: String
+      US: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSettingsUpdateParamsVerificationChannelOrder
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSettingsUpdateParamsVerificationRouting
+      CONVERSION: String
+      FIXED: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSilentRegistrationsCreateParamsUseCase
       SIGNUP: String
       LOGIN: String
       PAYMENT: String
       ACCOUNT_RECOVERY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationsApproveParamsReason
+      OWN_CODE_CHECK: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationsListParamsFormat
+      JSON: String
+      CSV: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationsListParamsStatus
+      PENDING: String
+      VERIFIED: String
+      NOT_DELIVERED: String
+      EXPIRED: String
+      BLOCKED: String
+      CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationsNextParamsChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationsRetryParamsChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
 
       VALUES: Array[String]
     end
@@ -474,9 +589,15 @@ module Didit
 
     type phone_check_code_params = { phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?factor_id: String, ?verification_id: String }
 
+    type phone_countries_update_params = { countries: Array[Didit::Types::phone_country_update] }
+
     type phone_factors_create_params = { type: String, user_id: String, ?friendly_name: String, ?metadata: Hash[String | Symbol, String] }
 
     type phone_factors_update_params = { ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?status: String }
+
+    type phone_feedback_create_batch_params = { items: Array[Didit::Types::phone_feedback_batch_item] }
+
+    type phone_feedback_create_params = { ?verification_id: String, ?phone_number: String, ?email: String, outcome: String, ?event: String, ?confidence: String, ?occurred_at: Time | String, ?note: String }
 
     type phone_fraud_evaluate_params = { ?phone_number: String, ?email: String, ?action: String, ?ip_address: String, ?device_signals: String, ?existing_user: bool, ?trusted_user: bool, ?fraud_override: String }
 
@@ -510,14 +631,30 @@ module Didit
 
     type phone_sdk_keys_rotate_params = { ?overlap_hours: Integer }
 
-    type phone_send_code_params = { phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])? }
+    type phone_send_code_params = { phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?code: String, ?code_length: Integer, ?on_conflict: String, ?trusted_user: bool, ?force_challenge: bool, ?fraud_override: String }
 
     type phone_send_code_params_options = { ?code_size: Integer, ?locale: String, ?preferred_channel: String, ?use_white_label_customization: bool, ?sms_sender_name: String? }
 
     type phone_send_code_params_signals = { ?ip: String, ?device_id: String, ?device_platform: String, ?device_model: String, ?os_version: String, ?app_version: String, ?user_agent: String }
 
+    type phone_settings_update_params = { ?verification: Didit::Types::phone_settings_update_params_verification, ?messages: Didit::Types::phone_settings_update_params_messages, ?data_region: String }
+
+    type phone_settings_update_params_messages = { ?retention_days: Integer }
+
+    type phone_settings_update_params_verification = { ?code_length: Integer, ?valid_minutes: Integer, ?max_attempts: Integer, ?resend_limit: Integer, ?cancel_on_resend: bool, ?channel_order: Array[String], ?routing: String, ?voice: Didit::Types::phone_settings_update_params_verification_voice, ?email: Didit::Types::phone_settings_update_params_verification_email }
+
+    type phone_settings_update_params_verification_email = { ?domain_id: String, ?from_address: String, ?from_name: String }
+
+    type phone_settings_update_params_verification_voice = { ?tts_voice: String, ?speech_rate: Float | Integer }
+
     type phone_silent_eligibility_params = { phone_number: String, ?ip_address: String }
 
     type phone_silent_registrations_create_params = { country: String, ?networks: Array[String], use_case: String, company_name: String, website: String, ?monthly_volume: Integer?, ?flow_screenshots: Array[String] }
+
+    type phone_verifications_approve_params = { ?reason: String }
+
+    type phone_verifications_next_params = { ?channel: String }
+
+    type phone_verifications_retry_params = { ?channel: String }
   end
 end

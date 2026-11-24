@@ -3,27 +3,39 @@
 module Didit
   module Resources
     class Phone < Didit::Resource
+      def countries: () -> Didit::Resources::Phone::Countries
       def factors: () -> Didit::Resources::Phone::Factors
+      def feedback: () -> Didit::Resources::Phone::Feedback
       def fraud: () -> Didit::Resources::Phone::Fraud
       def line_type_overrides: () -> Didit::Resources::Phone::LineTypeOverrides
       def lists: () -> Didit::Resources::Phone::Lists
+      def lookups: () -> Didit::Resources::Phone::Lookups
       def network: () -> Didit::Resources::Phone::Network
       def rate_limits: () -> Didit::Resources::Phone::RateLimits
       def sdk_keys: () -> Didit::Resources::Phone::SdkKeys
+      def settings: () -> Didit::Resources::Phone::Settings
       def silent: () -> Didit::Resources::Phone::Silent
+      def verifications: () -> Didit::Resources::Phone::Verifications
       def assess_risk: (phone_number: String, ?country_code: String, ?signals: Didit::Types::risk_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?enable_social: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskResponse
       def assess_risk_bulk: (file: Didit::upload, ?fields: Array[String], ?callback_url: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskBulkJob
       def check_code: (phone_number: String, code: String, ?duplicated_phone_number_action: String, ?disposable_number_action: String, ?voip_number_action: String, ?enable_enrichment: bool, ?phone_intelligence_score_action: String, ?phone_type_risk_action: String, ?recent_port_action: String, ?low_phone_trust_action: String, ?enable_social: bool, ?phone_no_social_presence_action: String, ?factor_id: String, ?verification_id: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationCheckResponse
       def download_risk_bulk_results: (String job_id, ?request_options: Didit::request_options?) -> String
                                     | (String job_id, ?request_options: Didit::request_options?) { (String chunk) -> void } -> nil
       def retrieve_risk_bulk: (String job_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneRiskBulkJob
-      def send_code: (phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationSendResponse
+      def send_code: (phone_number: String, ?options: Didit::Types::phone_send_code_params_options, ?signals: Didit::Types::phone_send_code_params_signals, ?vendor_data: String, ?metadata: (Hash[String | Symbol, untyped])?, ?code: String, ?code_length: Integer, ?on_conflict: String, ?trusted_user: bool, ?force_challenge: bool, ?fraud_override: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationSendResponse
+      class Countries < Didit::Resource
+        def update: (countries: Array[Didit::Types::phone_country_update], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneCountriesUpdateResponse
+      end
       class Factors < Didit::Resource
         def create: (type: String, user_id: String, ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactorEnrollment
         def delete: (String factor_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         def list: (user_id: String, ?type: String, ?status: String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneFactor]
         def retrieve: (String factor_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactor
         def update: (String factor_id, ?friendly_name: String, ?metadata: Hash[String | Symbol, String], ?status: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFactor
+      end
+      class Feedback < Didit::Resource
+        def create: (outcome: String, ?verification_id: String, ?phone_number: String, ?email: String, ?event: String, ?confidence: String, ?occurred_at: Time | String, ?note: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFeedbackResponse
+        def create_batch: (items: Array[Didit::Types::phone_feedback_batch_item], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneFeedbackBatchResponse
       end
       class Fraud < Didit::Resource
         def events: () -> Didit::Resources::Phone::Fraud::Events
@@ -50,6 +62,9 @@ module Didit
         def check: (phone_number: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneListsCheckResponse
         def list_entries: (String list_id, ?type: String, ?search: String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneListEntry]
         def remove: (String list_id, String entry_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
+      end
+      class Lookups < Didit::Resource
+        def list: (?phone_number: String, ?created_after: Time | String, ?created_before: Time | String, ?limit: Integer, ?offset: Integer, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneLookupSummary]
       end
       class Network < Didit::Resource
         def registrations: () -> Didit::Resources::Phone::Network::Registrations
@@ -81,6 +96,10 @@ module Didit
         def revoke: (String key_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> nil
         def rotate: (String key_id, ?overlap_hours: Integer, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSdkKeyRotated
       end
+      class Settings < Didit::Resource
+        def retrieve: (?request_options: Didit::request_options?) -> Didit::Types::PhoneSettings
+        def update: (?verification: Didit::Types::phone_settings_update_params_verification, ?messages: Didit::Types::phone_settings_update_params_messages, ?data_region: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSettingsUpdateResponse
+      end
       class Silent < Didit::Resource
         def registrations: () -> Didit::Resources::Phone::Silent::Registrations
         def coverage: (?country: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentCoverage
@@ -89,6 +108,14 @@ module Didit
           def create: (country: String, use_case: String, company_name: String, website: String, ?networks: Array[String], ?monthly_volume: Integer?, ?flow_screenshots: Array[String], ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentRegistration
           def retrieve: (String registration_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneSilentRegistration
         end
+      end
+      class Verifications < Didit::Resource
+        def approve: (String verification_id, ?reason: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationApproveResponse
+        def cancel: (String verification_id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationCancelResponse
+        def list: (?status: String, ?channel: String, ?phone_number: String, ?reference: String, ?tag: String, ?created_after: Time | String, ?created_before: Time | String, ?limit: Integer, ?offset: Integer, ?format: String, ?request_options: Didit::request_options?) -> Didit::Page[Didit::Types::PhoneVerificationDetail]
+        def `next`: (String verification_id, ?channel: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationNextResponse
+        def retrieve: (String verification_id, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationDetail
+        def `retry`: (String verification_id, ?channel: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::PhoneVerificationRetryResponse
       end
     end
   end

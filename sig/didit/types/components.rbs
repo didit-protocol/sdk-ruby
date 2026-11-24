@@ -2620,6 +2620,20 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessagingConfigurationChannels
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      MMS: String
+
+      VALUES: Array[String]
+    end
+
     module MonitoringEventCreateRequestEventCategory
       AUTH: String
       SESSION: String
@@ -2936,6 +2950,63 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCountryClosedChannelChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCountryClosedChannelPlatforms
+      WEB: String
+      IOS: String
+      ANDROID: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCountryUpdateObjective
+      PRICE: String
+      BALANCED: String
+      CONVERSION: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneCountryUpdateRoute
+      ROUTE_A: String
+      ROUTE_B: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneFactorEnrollmentStatus
       UNVERIFIED: String
 
@@ -2958,6 +3029,30 @@ module Didit
 
     module PhoneFactorType
       TOTP: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFeedbackBatchItemConfidence
+      LOW: String
+      MEDIUM: String
+      HIGH: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFeedbackBatchItemOutcome
+      FRAUD: String
+      LEGITIMATE: String
+      CONVERTED: String
+      ABUSE: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneFeedbackBatchResponseResultsStatus
+      ACCEPTED: String
+      REJECTED: String
 
       VALUES: Array[String]
     end
@@ -3242,6 +3337,37 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneSettingsDataRegion
+      EU: String
+      US: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSettingsVerificationChannelOrder
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneSettingsVerificationRouting
+      FIXED: String
+      CONVERSION: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneSilentCoverageNetworkApproval
       LIVE: String
       TEST: String
@@ -3276,6 +3402,59 @@ module Didit
       VALUES: Array[String]
     end
 
+    module PhoneVerificationApproveResponseStatus
+      VERIFIED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationApproveResponseVerifiedBy
+      API: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationAttemptChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationAttemptSilentResult
+      MATCH: String
+      MISMATCH: String
+      FAILED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationAttemptStatus
+      SENT: String
+      DELIVERED: String
+      READ: String
+      FAILED: String
+      EXPIRED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationCancelResponseStatus
+      CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
     module PhoneVerificationCheckResponsePhoneStatus
       APPROVED: String
       DECLINED: String
@@ -3301,6 +3480,85 @@ module Didit
       EXPIRED_OR_NOT_FOUND: String
       VERIFIED: String
       FAILED_: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationDetailStatus
+      PENDING: String
+      VERIFIED: String
+      NOT_DELIVERED: String
+      EXPIRED: String
+      BLOCKED: String
+      CANCELLED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationNextResponseChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationNextResponseStatus
+      PENDING: String
+      BLOCKED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationRetryResponseChannel
+      SILENT: String
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      PUSH: String
+      TOTP: String
+      PASSKEY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationRetryResponseStatus
+      PENDING: String
+      BLOCKED: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationSendResponseFraudAction
+      ALLOW: String
+      CHALLENGE: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationSendResponseFraudChallengeSource
+      CALLER: String
+      POLICY: String
+
+      VALUES: Array[String]
+    end
+
+    module PhoneVerificationSendResponseFraudException
+      TRUSTED_USER: String
 
       VALUES: Array[String]
     end
@@ -9892,6 +10150,19 @@ module Didit
       def failed_at: () -> Time?
     end
 
+    class MessageCapabilities < Didit::Model
+      def channels: () -> Didit::Types::MessageCapabilitiesChannels?
+    end
+
+    class MessageCapabilitiesChannels < Didit::Model
+      def sms: () -> bool?
+      def whatsapp: () -> bool?
+      def telegram: () -> bool?
+      def rcs: () -> bool?
+      def viber: () -> bool?
+      def mms: () -> bool?
+    end
+
     class MessageChannelPrice < Didit::Model
       def channel: () -> String
       def unit: () -> String
@@ -10000,6 +10271,29 @@ module Didit
 
     class MessagesSettings < Didit::Model
       def retention_days: () -> Integer
+    end
+
+    class MessagingConfiguration < Didit::Model
+      def configuration_id: () -> String
+      def name: () -> String
+      def from: () -> String
+      def channels: () -> Array[String]
+      def status_callback_url: () -> String
+      def inbound_url: () -> String
+      def opt_out: () -> Didit::Types::MessagingConfigurationOptOut
+      def append_opt_out_line: () -> bool
+    end
+
+    class MessagingConfigurationList < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::MessagingConfiguration]?
+    end
+
+    class MessagingConfigurationOptOut < Didit::Model
+      def keywords: () -> Array[String]?
+      def confirmation: () -> String?
     end
 
     class MonitoringEvent < Didit::Model
@@ -10563,6 +10857,10 @@ module Didit
       def failed_insufficient_balance: () -> Integer?
     end
 
+    class PhoneCountriesUpdateResponse < Didit::Model
+      def updated: () -> Integer
+    end
+
     class PhoneFactor < Didit::Model
       def factor_id: () -> String
       def `type`: () -> String
@@ -10590,6 +10888,22 @@ module Didit
       def `next`: () -> String?
       def previous: () -> String?
       def results: () -> Array[Didit::Types::PhoneFactor]
+    end
+
+    class PhoneFeedbackBatchResponse < Didit::Model
+      def accepted: () -> Integer?
+      def results: () -> Array[Didit::Types::PhoneFeedbackBatchResponseResults]?
+    end
+
+    class PhoneFeedbackBatchResponseResults < Didit::Model
+      def index: () -> Integer?
+      def status: () -> String?
+      def error: () -> String?
+    end
+
+    class PhoneFeedbackResponse < Didit::Model
+      def received: () -> bool?
+      def weight: () -> Float?
     end
 
     class PhoneFraudEventResult < Didit::Model
@@ -10657,6 +10971,23 @@ module Didit
       def list_id: () -> String
       def entry_id: () -> String
       def `type`: () -> String
+    end
+
+    class PhoneLookupList < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::PhoneLookupSummary]?
+    end
+
+    class PhoneLookupSummary < Didit::Model
+      def lookup_id: () -> String
+      def phone_number: () -> String
+      def status: () -> String
+      def country: () -> String
+      def line_type: () -> String
+      def risk_score: () -> Float?
+      def created_at: () -> Time
     end
 
     class PhoneMatchItem < Didit::Model
@@ -10802,6 +11133,39 @@ module Didit
       def results: () -> Array[Didit::Types::PhoneSdkKeySummary]
     end
 
+    class PhoneSettings < Didit::Model
+      def verification: () -> Didit::Types::PhoneSettingsVerification?
+      def messages: () -> Didit::Types::PhoneSettingsMessages?
+      def data_region: () -> String?
+    end
+
+    class PhoneSettingsMessages < Didit::Model
+      def retention_days: () -> Integer?
+    end
+
+    class PhoneSettingsUpdateResponse < Didit::Model
+      def updated_at: () -> Time?
+    end
+
+    class PhoneSettingsVerification < Didit::Model
+      def code_length: () -> Integer?
+      def valid_minutes: () -> Integer?
+      def max_attempts: () -> Integer?
+      def resend_limit: () -> Integer?
+      def channel_order: () -> Array[String]?
+      def routing: () -> String?
+      def voice: () -> Didit::Types::PhoneSettingsVerificationVoice?
+      def email: () -> Didit::Types::PhoneSettingsVerificationEmail?
+    end
+
+    class PhoneSettingsVerificationEmail < Didit::Model
+      def domain_id: () -> String?
+    end
+
+    class PhoneSettingsVerificationVoice < Didit::Model
+      def tts_voice: () -> String?
+    end
+
     class PhoneSilentCoverage < Didit::Model
       def countries: () -> Array[Didit::Types::PhoneSilentCoverageCountry]
     end
@@ -10851,6 +11215,33 @@ module Didit
       def not_registered_platforms: () -> Array[Didit::Types::SocialFootprintPlatform]?
       def categories: () -> Hash[String, Didit::Types::SocialFootprintCategorySummary]?
       def profiles: () -> Hash[String, Didit::Types::SocialFootprintProfile]?
+    end
+
+    class PhoneVerificationApproveResponse < Didit::Model
+      def verification_id: () -> String?
+      def status: () -> String?
+      def verified_by: () -> String?
+      def verified_at: () -> Time?
+    end
+
+    class PhoneVerificationAttempt < Didit::Model
+      def channel: () -> String?
+      def status: () -> String?
+      def network: () -> String?
+      def route: () -> String?
+      def error: () -> String?
+      def silent_result: () -> String?
+      def sent_at: () -> Time?
+      def delivered_at: () -> Time?
+      def read_at: () -> Time?
+      def expired_at: () -> Time?
+      def charged: () -> bool?
+      def price: () -> Didit::Types::PhoneVerificationPrice?
+    end
+
+    class PhoneVerificationCancelResponse < Didit::Model
+      def verification_id: () -> String?
+      def status: () -> String?
     end
 
     class PhoneVerificationCheckResponse < Didit::Model
@@ -10918,6 +11309,50 @@ module Didit
       def long_description: () -> String?
     end
 
+    class PhoneVerificationDetail < Didit::Model
+      def verification_id: () -> String?
+      def status: () -> String?
+      def phone_number: () -> String?
+      def country: () -> String?
+      def attempts: () -> Array[Didit::Types::PhoneVerificationAttempt]?
+      def reference: () -> String?
+      def tags: () -> Hash[String, untyped]?
+      def created_at: () -> Time?
+      def verified_at: () -> Time?
+    end
+
+    class PhoneVerificationList < Didit::Model
+      def count: () -> Integer?
+      def `next`: () -> String?
+      def previous: () -> String?
+      def results: () -> Array[Didit::Types::PhoneVerificationDetail]?
+    end
+
+    class PhoneVerificationNextResponse < Didit::Model
+      def verification_id: () -> String
+      def channel: () -> String
+      def status: () -> String
+      def reason: () -> String?
+    end
+
+    class PhoneVerificationPrice < Didit::Model
+      def amount: () -> String?
+      def carrier: () -> String?
+      def fee: () -> String?
+      def final: () -> bool?
+    end
+
+    class PhoneVerificationRetryResponse < Didit::Model
+      def verification_id: () -> String
+      def status: () -> String
+      def channel: () -> String
+      def sends: () -> Integer?
+      def sends_left: () -> Integer?
+      def expires_at: () -> Time?
+      def charged: () -> bool?
+      def reason: () -> String?
+    end
+
     class PhoneVerificationSendResponse < Didit::Model
       def request_id: () -> String?
       def status: () -> String?
@@ -10925,6 +11360,16 @@ module Didit
       def reason: () -> String?
       def vendor_data: () -> String?
       def metadata: () -> Hash[String, untyped]?
+      def verification_id: () -> String?
+      def expires_in: () -> Integer?
+      def fraud: () -> Didit::Types::PhoneVerificationSendResponseFraud?
+    end
+
+    class PhoneVerificationSendResponseFraud < Didit::Model
+      def action: () -> String?
+      def challenge_source: () -> String?
+      def channels_allowed: () -> Array[String]?
+      def exception: () -> String?
     end
 
     class PublicPriceBook < Didit::Model
@@ -14899,6 +15344,12 @@ module Didit
     type monitoring_event_create_request_subject = { vendor_data: String, ?entity_type: String, ?full_name: String?, ?email: String?, ?phone: String?, ?country: String? }
 
     type monitoring_event_create_request_transaction_context = { ?amount: String?, ?currency: String?, ?direction: String?, ?payment_reference_id: String? }
+
+    type phone_country_closed_channel = { channel: String, ?platforms: Array[String] }
+
+    type phone_country_update = { country: String, ?sms: bool, ?voice: bool, ?whatsapp: bool, ?silent: bool, ?route: String, ?objective: String, ?closed_channels: Array[Didit::Types::phone_country_closed_channel] }
+
+    type phone_feedback_batch_item = { ?verification_id: String, ?phone_number: String, ?email: String, outcome: String, ?event: String, ?confidence: String, ?occurred_at: Time | String }
 
     type phone_fraud_policy_condition = { signal: String, operator: String, value: String, weight: Integer }
 
