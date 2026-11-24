@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.37.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.36.0...v2.37.0) (2026-11-24)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.factors.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.delete` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.update` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.test_numbers.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.test_numbers.delete` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.revoke` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.rotate` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.coverage` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.eligibility` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.registrations.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.registrations.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+
 ## [2.36.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.35.0...v2.36.0) (2026-11-23)
 
 
