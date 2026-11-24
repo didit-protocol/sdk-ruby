@@ -49,9 +49,17 @@ module Didit
       # `email_undeliverable`. Rate limits: 5/IP/hour, plus a shared hourly budget per network (/24 for IPv4, /64 for
       # IPv6).
       #
+      # Register with the mailbox address without a `+tag`. If normalization removes a tag (for example,
+      # `you+test@yourdomain.com` becomes `you@yourdomain.com`), registration returns 400 with an `email` field error
+      # naming that address, before looking up an account. The response is the same whether the account exists or not.
+      # No account is created or changed and no code is sent. Only explicitly configured staging test mailboxes keep
+      # their tags; production does not allow this exception.
+      #
       # +POST /programmatic/register/+
       #
-      # @param email [String] Any valid email address (personal, work, alias). Used as the unique account identifier.
+      # @param email [String] A real, deliverable mailbox address without a +tag, used as the unique account
+      #   identifier. Registration rejects tags that normalization would remove, with a 400 email field error naming the
+      #   canonical address. Only explicitly configured staging test mailboxes retain tags.
       # @param password [String] Minimum 8 characters. Must contain at least one uppercase letter (`A-Z`), one
       #   lowercase letter (`a-z`), one digit (`0-9`), and one special character from `!@#$%^&*()_+-=[]{}|;:,.<>?`.
       #   Validation reports one failed rule at a time.
@@ -80,6 +88,9 @@ module Didit
       #
       # Rate limits: a per-email cooldown of 60 seconds between resends (HTTP 429 with `Retry-After`), and the same
       # 5-per-IP-per-hour and per-network hourly budgets as registration.
+      #
+      # The password is required on every resend request. Omitting it returns HTTP 400 with {"password": ["This field
+      # is required."]}; no code is sent.
       #
       # +POST /programmatic/resend-otp/+
       #
