@@ -209,8 +209,24 @@ module Didit
       # message fails on it later (rejected, undeliverable, expired). Every attempt is in `attempts`; a skipped
       # channel is a `failed` attempt with its `error` and no price.
       #
-      # **Statuses** reach your webhook destinations subscribed to `message.status.updated`; a reply from the person
-      # reaches `message.received` (WhatsApp and Telegram) and a change of their consent `contact.consent.updated`.
+      # **Statuses** reach your webhook destinations subscribed to `message.status.updated`.
+      #
+      # **Replies on Didit's shared WhatsApp number.** Many organizations send from this number, so a reply reaches an
+      # organization only when the person replies to (quotes) that organization's message. An unquoted reply reaches
+      # no organization and gets no automatic answer; for two-way conversations, connect your own WhatsApp number. The
+      # one exception is an unquoted STOP, which is also recorded in the thread of the organization that wrote to the
+      # person last, so that organization sees the opt-out; an unquoted START is recorded in no organization's thread.
+      # STOP and START always apply, quoted or not: a recipient who replies STOP to the shared number is opted out of
+      # the messages that go out from it for every organization that sends from it, not only the one whose message
+      # they answered. The WhatsApp attempt to them is skipped with the error `opted_out`: the next channel in
+      # `channels` takes the message when it can (the request still succeeds, and the skipped attempt shows
+      # `opted_out` in `attempts`), and a request with no channel left is refused. A reply of START to Didit's shared
+      # number lifts the shared-number opt-out; when the START quotes (replies to) an organization's message it also
+      # lifts that organization's own opt-out, and an unquoted START lifts no organization's own opt-out. So after an
+      # unquoted START an organization's own opt-out can still answer `opted_out`; only the shared-number opt-out ever
+      # applies to every organization. A WhatsApp number you connect yourself keeps consent per organization: a STOP
+      # to it only affects your own sends; a reply from the person reaches `message.received` (WhatsApp and Telegram)
+      # and a change of their consent `contact.consent.updated`.
       #
       # **Billing.** SMS: the carrier's price plus Didit's fee, per segment. WhatsApp from Didit's number: WhatsApp's
       # rate for the market plus Didit's fee; from your own connected WhatsApp Business account, WhatsApp bills its
