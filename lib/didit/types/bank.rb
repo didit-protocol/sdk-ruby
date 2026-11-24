@@ -53,10 +53,12 @@ module Didit
     # The Test Bank customer: `personal_basic` (one current account, 60 movements), `business_multi` (three accounts
     # held by a company), `long_history` (one account with 400 days and 1,400 movements; a read returns the last 365
     # days, so set `history_days` to 365), `pending` (includes pending transactions), `sparse_fields` (no value date,
-    # no counterparty IBAN, no bank reference) or `no_ongoing` (a bank that only allows one-time access: use
-    # `allow_one_time_fallback`). `requires_email`: the Test Bank behaves as a bank that needs the person's email, so
-    # the link asks for an email address and a code before the bank. In sandbox no email is sent and the code is
-    # always `123456`; ignored for live applications.
+    # no counterparty IBAN, no bank reference), `no_ongoing` (a bank that only allows one-time access: use
+    # `allow_one_time_fallback`) or `multi_currency` (one multi-currency account that the bank lists as an EUR and a
+    # USD account on the same IBAN; a link that selects both stores both, and they share one `account_ref` and differ
+    # by `id` and `currency`). `requires_email`: the Test Bank behaves as a bank that needs the person's email, so the
+    # link asks for an email address and a code before the bank. In sandbox no email is sent and the code is always
+    # `123456`; ignored for live applications.
     module BankCreateLinkParamsSandboxPersona
       PERSONAL_BASIC = "personal_basic"
       BUSINESS_MULTI = "business_multi"
@@ -64,9 +66,10 @@ module Didit
       PENDING = "pending"
       SPARSE_FIELDS = "sparse_fields"
       NO_ONGOING = "no_ongoing"
+      MULTI_CURRENCY = "multi_currency"
       REQUIRES_EMAIL = "requires_email"
 
-      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING, REQUIRES_EMAIL].freeze
+      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING, MULTI_CURRENCY, REQUIRES_EMAIL].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -184,7 +187,9 @@ module Didit
 
     # The Test Bank customer who signs in: `personal_basic` (one current account), `business_multi` (several business
     # accounts), `long_history` (a long transaction history), `pending` (pending rows), `sparse_fields` (transactions
-    # with fields missing, one automatic sync a day) or `no_ongoing` (a bank that cannot keep access open).
+    # with fields missing, one automatic sync a day), `no_ongoing` (a bank that cannot keep access open) or
+    # `multi_currency` (an EUR and a USD account on one IBAN; the connection keeps both, with one `account_ref` and a
+    # different `id` and `currency` each).
     module BankSimulateLinkParamsPersona
       PERSONAL_BASIC = "personal_basic"
       BUSINESS_MULTI = "business_multi"
@@ -192,8 +197,9 @@ module Didit
       PENDING = "pending"
       SPARSE_FIELDS = "sparse_fields"
       NO_ONGOING = "no_ongoing"
+      MULTI_CURRENCY = "multi_currency"
 
-      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING].freeze
+      VALUES = [PERSONAL_BASIC, BUSINESS_MULTI, LONG_HISTORY, PENDING, SPARSE_FIELDS, NO_ONGOING, MULTI_CURRENCY].freeze
     end
   end
 end
