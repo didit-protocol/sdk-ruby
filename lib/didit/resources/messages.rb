@@ -186,8 +186,8 @@ module Didit
       # rate to your account directly and Didit charges only its fee. Email: a flat price. Your plan's discount
       # applies to the fee, never to the carrier's or WhatsApp's part. A failed SMS or WhatsApp attempt, a skipped one
       # and a cancelled one are free; an email is charged once the receiving mail system accepts it, so an email that
-      # bounces later is charged. SMS and WhatsApp open after your first top-up (`403 plan_locked`); a sandbox
-      # application simulates every message and charges nothing. See the [prices per
+      # bounces later is charged. SMS and WhatsApp open with a paid plan or after your first top-up (`403
+      # plan_locked`); a sandbox application simulates every message and charges nothing. See the [prices per
       # country](/getting-started/pricing).
       #
       # **Retention.** Didit erases a message's text and recipient `retention_days` after its last event (created,

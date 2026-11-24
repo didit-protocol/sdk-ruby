@@ -3021,11 +3021,11 @@ module Didit
     # `unreachable`: the carrier could not reach the device. `rejected`: the carrier or platform refused the message.
     # `opted_out`: the recipient opted out of the channel. `expired`: `expires_at` passed before it could go out.
     # `template_required`: WhatsApp only delivers an approved WhatsApp template. `channel_unavailable`: the channel is
-    # switched off, not configured, not in your contract or locked until your first top-up. `insufficient_credits`:
-    # the balance does not cover it. `rate_limited`: throttled and retries ran out. `delivery_unconfirmed`: the
-    # outcome is unknown and it is not sent again automatically. `cancelled`: cancelled before its time.
-    # `template_channel_missing`, `template_variable_missing`, `empty_body`, `body_too_long`: the content cannot go
-    # out on this channel. `unknown`: any other failure.
+    # switched off, not configured, not in your contract or locked until a paid plan or your first top-up.
+    # `insufficient_credits`: the balance does not cover it. `rate_limited`: throttled and retries ran out.
+    # `delivery_unconfirmed`: the outcome is unknown and it is not sent again automatically. `cancelled`: cancelled
+    # before its time. `template_channel_missing`, `template_variable_missing`, `empty_body`, `body_too_long`: the
+    # content cannot go out on this channel. `unknown`: any other failure.
     module MessageErrorCode
       INVALID_RECIPIENT = "invalid_recipient"
       UNREACHABLE = "unreachable"
