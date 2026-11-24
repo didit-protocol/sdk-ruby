@@ -291,9 +291,8 @@ module Didit
       # not when you read it.
       #
       # Needs an API key with read access to Bank data: a full-access key has it, and a scoped key needs `bank-data`
-      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A sandbox application reads its
-      # Test Bank data with the key alone. A request without an API key (client credentials) is refused on raw data
-      # with the same `403`.
+      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A request without an API key
+      # (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/+
       #
@@ -315,9 +314,8 @@ module Didit
       # Returns the typed balances of an account with their reference dates. Balances are replaced at each sync.
       #
       # Needs an API key with read access to Bank data: a full-access key has it, and a scoped key needs `bank-data`
-      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A sandbox application reads its
-      # Test Bank data with the key alone. A request without an API key (client credentials) is refused on raw data
-      # with the same `403`.
+      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A request without an API key
+      # (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/balances/+
       #
@@ -460,9 +458,8 @@ module Didit
       # Lists every account of the connection, oldest first, with full identifiers and holders. A read never bills.
       #
       # Needs an API key with read access to Bank data: a full-access key has it, and a scoped key needs `bank-data`
-      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A sandbox application reads its
-      # Test Bank data with the key alone. A request without an API key (client credentials) is refused on raw data
-      # with the same `403`.
+      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A request without an API key
+      # (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/connections/{id}/accounts/+
       #
@@ -648,9 +645,8 @@ module Didit
       # Response headers: `X-Bank-Last-Synced-At` and `Cache-Control: no-store`.
       #
       # Needs an API key with read access to Bank data: a full-access key has it, and a scoped key needs `bank-data`
-      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A sandbox application reads its
-      # Test Bank data with the key alone. A request without an API key (client credentials) is refused on raw data
-      # with the same `403`.
+      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A request without an API key
+      # (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/accounts/{account_id}/transactions/+
       #
@@ -981,9 +977,8 @@ module Didit
       # `bank.data.updated` tells you when to call.
       #
       # Needs an API key with read access to Bank data: a full-access key has it, and a scoped key needs `bank-data`
-      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A sandbox application reads its
-      # Test Bank data with the key alone. A request without an API key (client credentials) is refused on raw data
-      # with the same `403`.
+      # read in its scopes. Otherwise the call answers `403 bank_data_access_denied`. A request without an API key
+      # (client credentials) is refused on raw data with the same `403`.
       #
       # +GET /v3/bank/connections/{id}/transactions/sync/+
       #
