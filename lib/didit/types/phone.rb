@@ -133,6 +133,25 @@ module Didit
       VALUES = [DISABLED, VERIFIED].freeze
     end
 
+    # low, medium or high: how sure you are; high weighs most in the scoring.
+    module PhoneFeedbackCreateParamsConfidence
+      LOW = "low"
+      MEDIUM = "medium"
+      HIGH = "high"
+
+      VALUES = [LOW, MEDIUM, HIGH].freeze
+    end
+
+    # fraud, legitimate, converted, or abuse with event naming what happened.
+    module PhoneFeedbackCreateParamsOutcome
+      FRAUD = "fraud"
+      LEGITIMATE = "legitimate"
+      CONVERTED = "converted"
+      ABUSE = "abuse"
+
+      VALUES = [FRAUD, LEGITIMATE, CONVERTED, ABUSE].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module PhoneFraudEvaluateResponseChallengeChannels
       SILENT = "silent"
@@ -413,6 +432,21 @@ module Didit
       VALUES = [IOS, ANDROID, WEB].freeze
     end
 
+    # A code is still valid: `replace` (default) sends a new one, `reuse` returns it without sending, `retry` sends
+    # the same code again in the same window (up to two retries, three sends total), `reject` answers `409
+    # verification_in_progress`. For `reuse` and `retry`, if the pending verification does not meet the requested
+    # channel or challenge policy, the send starts a new verification. A retry also starts a new verification if the
+    # requested channel differs from the last delivery channel. Both `reuse` and `retry` start a new verification if
+    # the caller supplies a different code.
+    module PhoneSendCodeParamsOnConflict
+      REPLACE = "replace"
+      REUSE = "reuse"
+      RETRY = "retry"
+      REJECT = "reject"
+
+      VALUES = [REPLACE, REUSE, RETRY, REJECT].freeze
+    end
+
     # Preferred delivery channel. If the channel is unavailable for the destination country or number, the message
     # automatically falls back to SMS - the send still reports `Success`. A new `sms` send to a fixed line is read out
     # in a call instead only under the conditions in **Fixed lines** in the operation description: it never applies to
@@ -441,6 +475,40 @@ module Didit
       VALUES = [ANDROID, IOS, IPADOS, TVOS, WEB].freeze
     end
 
+    # The data region preference to save for the application.
+    module PhoneSettingsUpdateParamsDataRegion
+      EU = "eu"
+      US = "us"
+
+      VALUES = [EU, US].freeze
+    end
+
+    # A verification channel.
+    module PhoneSettingsUpdateParamsVerificationChannelOrder
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # conversion picks the route and channel with the best conversion per country over 7 days; fixed keeps your order.
+    module PhoneSettingsUpdateParamsVerificationRouting
+      CONVERSION = "conversion"
+      FIXED = "fixed"
+
+      VALUES = [CONVERSION, FIXED].freeze
+    end
+
     # What silent verification is used for.
     module PhoneSilentRegistrationsCreateParamsUseCase
       SIGNUP = "signup"
@@ -449,6 +517,69 @@ module Didit
       ACCOUNT_RECOVERY = "account_recovery"
 
       VALUES = [SIGNUP, LOGIN, PAYMENT, ACCOUNT_RECOVERY].freeze
+    end
+
+    # own_code_check (default): your backend checked the code it sent with code.
+    module PhoneVerificationsApproveParamsReason
+      OWN_CODE_CHECK = "own_code_check"
+
+      VALUES = [OWN_CODE_CHECK].freeze
+    end
+
+    # The response format.
+    module PhoneVerificationsListParamsFormat
+      JSON = "json"
+      CSV = "csv"
+
+      VALUES = [JSON, CSV].freeze
+    end
+
+    # Its status.
+    module PhoneVerificationsListParamsStatus
+      PENDING = "pending"
+      VERIFIED = "verified"
+      NOT_DELIVERED = "not_delivered"
+      EXPIRED = "expired"
+      BLOCKED = "blocked"
+      CANCELLED = "cancelled"
+
+      VALUES = [PENDING, VERIFIED, NOT_DELIVERED, EXPIRED, BLOCKED, CANCELLED].freeze
+    end
+
+    # Jump to this channel instead of the next one.
+    module PhoneVerificationsNextParamsChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
+    end
+
+    # The last delivery channel. Requesting a different allowed channel returns `409 code_not_resendable`.
+    module PhoneVerificationsRetryParamsChannel
+      SILENT = "silent"
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      PUSH = "push"
+      TOTP = "totp"
+      PASSKEY = "passkey"
+
+      VALUES = [SILENT, SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, PUSH, TOTP, PASSKEY].freeze
     end
 
     class PhoneFraudEvaluateResponse < Didit::Model

@@ -3,6 +3,36 @@
 
 module Didit
   module Types
+    # A messaging channel.
+    module MessagesConfigurationsCreateParamsChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      MMS = "mms"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, MMS].freeze
+    end
+
+    # A messaging channel.
+    module MessagesConfigurationsUpdateParamsChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      VOICE = "voice"
+      RCS = "rcs"
+      VIBER = "viber"
+      ZALO = "zalo"
+      EMAIL = "email"
+      MMS = "mms"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, VOICE, RCS, VIBER, ZALO, EMAIL, MMS].freeze
+    end
+
     # The channel the choice applies to.
     module MessagesConsentUpdateParamsChannel
       SMS = "sms"

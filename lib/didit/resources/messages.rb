@@ -5,6 +5,16 @@ module Didit
   module Resources
     # The +messages+ resource.
     class Messages < Didit::Resource
+      # @return [Didit::Resources::Messages::Capabilities]
+      def capabilities
+        @capabilities ||= Capabilities.new(@client)
+      end
+
+      # @return [Didit::Resources::Messages::Configurations]
+      def configurations
+        @configurations ||= Configurations.new(@client)
+      end
+
       # @return [Didit::Resources::Messages::Consent]
       def consent
         @consent ||= Consent.new(@client)
@@ -245,6 +255,10 @@ module Didit
       #   it.
       # @param correlation_id [String] Your reference, returned in every response and webhook, filterable in the list.
       # @param options [Hash]
+      # @param configuration_id [String] One of your messaging configurations (`POST /v3/messages/configurations/`):
+      #   its channel order applies unless this request sets `channels` itself, its status callback URL is used for the
+      #   message's status events, and its `append_opt_out_line` applies unless `options.append_opt_out_line` is sent. A
+      #   configuration that sets a sender (`from`), an `inbound_url` or `opt_out` rules cannot be used in a sen...
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::Message]
@@ -261,6 +275,7 @@ module Didit
         expires_at: OMIT,
         correlation_id: OMIT,
         options: OMIT,
+        configuration_id: OMIT,
         idempotency_key: OMIT,
         request_options: nil
       )
@@ -279,7 +294,8 @@ module Didit
             "schedule_at" => schedule_at,
             "expires_at" => expires_at,
             "correlation_id" => correlation_id,
-            "options" => options
+            "options" => options,
+            "configuration_id" => configuration_id
           },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::Message,
@@ -314,6 +330,176 @@ module Didit
           response: Types::MessagesSettings,
           request_options: request_options
         )
+      end
+
+      # The +messages.capabilities+ resource.
+      class Capabilities < Didit::Resource
+        # Channels a number can receive now
+        #
+        # Check which messaging channels are available for the E.164 phone number in `to`. The response reports a
+        # boolean for each channel.
+        #
+        # +GET /v3/messages/capabilities/+
+        #
+        # @param to [String] An E.164 number.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageCapabilities]
+        def retrieve(to:, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/capabilities/",
+            query: {
+              "to" => to
+            },
+            response: Types::MessageCapabilities,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +messages.configurations+ resource.
+      class Configurations < Didit::Resource
+        # Create a messaging configuration
+        #
+        # Save the channel order, status callback URL and SMS opt-out line for a workload. Pass the returned
+        # `configuration_id` to send a message with `POST /v3/messages/`. Leave `from`, `inbound_url` and `opt_out`
+        # empty for a configuration used to send messages.
+        #
+        # +POST /v3/messages/configurations/+
+        #
+        # @param name [String] Its name.
+        # @param from [String] Stored sender or sender pool. Leave empty to use this configuration in a send.
+        # @param channels [Array<String>] Channel order for this workload. Message sends use the supported channels in
+        #   this order unless the request sets its own channels.
+        # @param status_callback_url [String] Use a publicly reachable HTTPS URL for this workload's
+        #   message.status.updated events. An empty string clears the callback.
+        # @param inbound_url [String] Stored inbound URL. Leave empty to use this configuration in a send.
+        # @param opt_out [Hash] Stored opt-out rules. Leave this object empty to use this configuration in a send.
+        # @param append_opt_out_line [Boolean] Add the opt-out line to its SMS.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessagingConfiguration]
+        def create(
+          name:,
+          from: OMIT,
+          channels: OMIT,
+          status_callback_url: OMIT,
+          inbound_url: OMIT,
+          opt_out: OMIT,
+          append_opt_out_line: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/messages/configurations/",
+            body: {
+              "name" => name,
+              "from" => from,
+              "channels" => channels,
+              "status_callback_url" => status_callback_url,
+              "inbound_url" => inbound_url,
+              "opt_out" => opt_out,
+              "append_opt_out_line" => append_opt_out_line
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessagingConfiguration,
+            request_options: request_options
+          )
+        end
+
+        # Remove a messaging configuration
+        #
+        # Permanently delete a messaging configuration by its UUID.
+        #
+        # +DELETE /v3/messages/configurations/{configuration_id}/+
+        #
+        # @param configuration_id [String] The configuration.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [nil]
+        def delete(configuration_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :delete,
+            "/v3/messages/configurations/{configuration_id}/",
+            path_params: { "configuration_id" => configuration_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+
+        # List your messaging configurations
+        #
+        # List your messaging configurations. `limit` is 20 by default and 100 at most; `offset` starts another page.
+        #
+        # +GET /v3/messages/configurations/+
+        #
+        # @param limit [Integer] 20 by default, 100 at most.
+        # @param offset [Integer] Where the page starts.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::MessagingConfiguration>]
+        def list(limit: OMIT, offset: OMIT, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/messages/configurations/",
+            query: {
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::MessagingConfiguration,
+            request_options: request_options
+          )
+        end
+
+        # Change a messaging configuration
+        #
+        # Change a messaging configuration. Only the fields you send change.
+        #
+        # +PATCH /v3/messages/configurations/{configuration_id}/+
+        #
+        # @param configuration_id [String] The configuration.
+        # @param name [String] Its name.
+        # @param from [String] Stored sender or sender pool. Leave empty to use this configuration in a send.
+        # @param channels [Array<String>] Channel order for this workload. Message sends use the supported channels in
+        #   this order unless the request sets its own channels.
+        # @param status_callback_url [String] Use a publicly reachable HTTPS URL for this workload's
+        #   message.status.updated events. An empty string clears the callback.
+        # @param inbound_url [String] Stored inbound URL. Leave empty to use this configuration in a send.
+        # @param opt_out [Hash] Stored opt-out rules. Leave this object empty to use this configuration in a send.
+        # @param append_opt_out_line [Boolean] Add the opt-out line to its SMS.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessagingConfiguration]
+        def update(
+          configuration_id,
+          name: OMIT,
+          from: OMIT,
+          channels: OMIT,
+          status_callback_url: OMIT,
+          inbound_url: OMIT,
+          opt_out: OMIT,
+          append_opt_out_line: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :patch,
+            "/v3/messages/configurations/{configuration_id}/",
+            path_params: { "configuration_id" => configuration_id },
+            body: {
+              "name" => name,
+              "from" => from,
+              "channels" => channels,
+              "status_callback_url" => status_callback_url,
+              "inbound_url" => inbound_url,
+              "opt_out" => opt_out,
+              "append_opt_out_line" => append_opt_out_line
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessagingConfiguration,
+            request_options: request_options
+          )
+        end
       end
 
       # The +messages.consent+ resource.

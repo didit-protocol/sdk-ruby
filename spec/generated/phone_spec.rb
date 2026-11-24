@@ -271,7 +271,8 @@ RSpec.describe Didit::Resources::Phone do
         "channel": null,
         "reason": null,
         "vendor_data": "user-1234",
-        "metadata": null
+        "metadata": null,
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d"
       }
     JSON
     result = client.phone.send_code(
@@ -301,6 +302,61 @@ RSpec.describe Didit::Resources::Phone do
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneVerificationSendResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.countries.update sends PATCH /v3/phone/countries/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "updated": 1
+      }
+    JSON
+    result = client.phone.countries.update(
+      countries: [
+        {
+          country: "TJ",
+          sms: false,
+          objective: "conversion",
+          closed_channels: [
+            {
+              channel: "sms",
+              platforms: [
+                "web"
+              ]
+            }
+          ]
+        }
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/countries/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "countries" => [
+        {
+          "country" => "TJ",
+          "sms" => false,
+          "objective" => "conversion",
+          "closed_channels" => [
+            {
+              "channel" => "sms",
+              "platforms" => [
+                "web"
+              ]
+            }
+          ]
+        }
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneCountriesUpdateResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -494,6 +550,92 @@ RSpec.describe Didit::Resources::Phone do
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneFactor)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.feedback.create sends POST /v3/phone/feedback/" do
+    calls = stub_api(status: 202, body: <<~'JSON')
+      {
+        "received": true,
+        "weight": 0.9
+      }
+    JSON
+    result = client.phone.feedback.create(
+      verification_id: "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      outcome: "converted",
+      confidence: "high",
+      event: "chargeback",
+      occurred_at: "2026-11-20T18:40:00Z",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/feedback/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "verification_id" => "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      "outcome" => "converted",
+      "confidence" => "high",
+      "event" => "chargeback",
+      "occurred_at" => "2026-11-20T18:40:00Z"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFeedbackResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.feedback.create_batch sends POST /v3/phone/feedback/batch/" do
+    calls = stub_api(status: 207, body: <<~'JSON')
+      {
+        "accepted": 1,
+        "results": [
+          {
+            "index": 0,
+            "status": "accepted",
+            "error": null
+          }
+        ]
+      }
+    JSON
+    result = client.phone.feedback.create_batch(
+      items: [
+        {
+          verification_id: "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+          outcome: "fraud",
+          event: "chargeback",
+          confidence: "high",
+          occurred_at: "2026-11-20T18:40:00Z"
+        }
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/feedback/batch/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "items" => [
+        {
+          "verification_id" => "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+          "outcome" => "fraud",
+          "event" => "chargeback",
+          "confidence" => "high",
+          "occurred_at" => "2026-11-20T18:40:00Z"
+        }
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneFeedbackBatchResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end
@@ -1082,6 +1224,53 @@ RSpec.describe Didit::Resources::Phone do
     expect(result).to be_nil
   end
 
+  it "phone.lookups.list sends GET /v3/phone/lookups/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "lookup_id": "123e4567-e89b-42d3-a456-426614174001",
+            "phone_number": "+12025550136",
+            "status": "Approved",
+            "country": "US",
+            "line_type": "mobile",
+            "risk_score": 12.5,
+            "created_at": "2026-11-21T12:00:00Z"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.lookups.list(
+      phone_number: "+12025550136",
+      limit: 20
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/lookups/",
+      query: [
+        [
+          "phone_number",
+          "+12025550136"
+        ],
+        [
+          "limit",
+          "20"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneLookupSummary))
+    exercise_readers(result.results)
+  end
+
   it "phone.network.registrations.create sends POST /v3/phone/network/registrations/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -1641,6 +1830,87 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.settings.retrieve sends GET /v3/phone/settings/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification": {
+          "code_length": 6,
+          "valid_minutes": 5,
+          "max_attempts": 5,
+          "resend_limit": 5,
+          "channel_order": [
+            "silent",
+            "whatsapp",
+            "sms"
+          ],
+          "routing": "conversion",
+          "voice": {
+            "tts_voice": "es-ES-female-2"
+          },
+          "email": {
+            "domain_id": "ed_01JCH8S3"
+          }
+        },
+        "messages": {
+          "retention_days": 30
+        },
+        "data_region": "eu"
+      }
+    JSON
+    result = client.phone.settings.retrieve
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/settings/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneSettings)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.settings.update sends PATCH /v3/phone/settings/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "updated_at": "2026-11-21T10:00:00Z"
+      }
+    JSON
+    result = client.phone.settings.update(
+      verification: {
+        code_length: 6,
+        routing: "conversion"
+      },
+      messages: {
+        retention_days: 30
+      },
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/phone/settings/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "verification" => {
+        "code_length" => 6,
+        "routing" => "conversion"
+      },
+      "messages" => {
+        "retention_days" => 30
+      }
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSettingsUpdateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.silent.coverage sends GET /v3/phone/silent/coverage/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1801,6 +2071,263 @@ RSpec.describe Didit::Resources::Phone do
     )
     expect_no_body(request)
     expect(result).to be_a(Didit::Types::PhoneSilentRegistration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.verifications.approve sends POST /v3/phone/verifications/{verification_id}/approve/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+        "status": "verified",
+        "verified_by": "api",
+        "verified_at": "2026-11-21T10:00:12Z"
+      }
+    JSON
+    result = client.phone.verifications.approve(
+      "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      reason: "own_code_check",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/verifications/c9b18621-9f8f-4590-a3b4-f8ebea4baa7d/approve/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "reason" => "own_code_check"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneVerificationApproveResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.verifications.cancel sends POST /v3/phone/verifications/{verification_id}/cancel/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+        "status": "cancelled"
+      }
+    JSON
+    result = client.phone.verifications.cancel(
+      "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/verifications/c9b18621-9f8f-4590-a3b4-f8ebea4baa7d/cancel/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneVerificationCancelResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.verifications.list sends GET /v3/phone/verifications/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+            "status": "verified",
+            "phone_number": "+12025550136",
+            "country": "US",
+            "attempts": [
+              {
+                "channel": "whatsapp",
+                "status": "delivered",
+                "network": "Mobile network A",
+                "route": "Route A",
+                "error": null,
+                "silent_result": null,
+                "sent_at": "2026-11-21T10:00:01Z",
+                "delivered_at": "2026-11-21T10:00:03Z",
+                "read_at": null,
+                "expired_at": null,
+                "charged": true,
+                "price": {
+                  "amount": "0.0300",
+                  "carrier": null,
+                  "fee": null,
+                  "final": true
+                }
+              }
+            ],
+            "reference": "signup-48221",
+            "tags": {
+              "flow": "signup"
+            },
+            "created_at": "2026-11-21T10:00:00Z",
+            "verified_at": "2026-11-21T10:00:12Z"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.verifications.list(
+      status: "verified",
+      phone_number: "+34600000012",
+      reference: "signup-48221",
+      tag: "flow:signup",
+      limit: 20
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/verifications/",
+      query: [
+        [
+          "status",
+          "verified"
+        ],
+        [
+          "phone_number",
+          "+34600000012"
+        ],
+        [
+          "reference",
+          "signup-48221"
+        ],
+        [
+          "tag",
+          "flow:signup"
+        ],
+        [
+          "limit",
+          "20"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::PhoneVerificationDetail))
+    exercise_readers(result.results)
+  end
+
+  it "phone.verifications.next sends POST /v3/phone/verifications/{verification_id}/next/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+        "channel": "sms",
+        "status": "pending"
+      }
+    JSON
+    result = client.phone.verifications.next(
+      "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      channel: "sms",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/verifications/c9b18621-9f8f-4590-a3b4-f8ebea4baa7d/next/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "channel" => "sms"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneVerificationNextResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.verifications.retrieve sends GET /v3/phone/verifications/{verification_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+        "status": "verified",
+        "phone_number": "+12025550136",
+        "country": "US",
+        "attempts": [
+          {
+            "channel": "whatsapp",
+            "status": "delivered",
+            "network": "Mobile network A",
+            "route": "Route A",
+            "error": null,
+            "silent_result": null,
+            "sent_at": "2026-11-21T10:00:01Z",
+            "delivered_at": "2026-11-21T10:00:03Z",
+            "read_at": null,
+            "expired_at": null,
+            "charged": true,
+            "price": {
+              "amount": "0.0300",
+              "carrier": null,
+              "fee": null,
+              "final": true
+            }
+          }
+        ],
+        "reference": "signup-48221",
+        "tags": {
+          "flow": "signup"
+        },
+        "created_at": "2026-11-21T10:00:00Z",
+        "verified_at": "2026-11-21T10:00:12Z"
+      }
+    JSON
+    result = client.phone.verifications.retrieve(
+      "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/verifications/c9b18621-9f8f-4590-a3b4-f8ebea4baa7d/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneVerificationDetail)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.verifications.retry sends POST /v3/phone/verifications/{verification_id}/retry/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "verification_id": "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+        "status": "pending",
+        "channel": "sms",
+        "sends": 2,
+        "sends_left": 1,
+        "expires_at": "2026-11-21T10:05:00Z",
+        "charged": true
+      }
+    JSON
+    result = client.phone.verifications.retry(
+      "c9b18621-9f8f-4590-a3b4-f8ebea4baa7d",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/verifications/c9b18621-9f8f-4590-a3b4-f8ebea4baa7d/retry/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {})
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneVerificationRetryResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

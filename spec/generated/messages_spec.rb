@@ -437,6 +437,195 @@ RSpec.describe Didit::Resources::Messages do
     exercise_readers(result)
   end
 
+  it "messages.capabilities.retrieve sends GET /v3/messages/capabilities/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "channels": {
+          "sms": true,
+          "whatsapp": true,
+          "telegram": false,
+          "rcs": true,
+          "viber": false,
+          "mms": true
+        }
+      }
+    JSON
+    result = client.messages.capabilities.retrieve(
+      to: "+34600000012"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/capabilities/",
+      query: [
+        [
+          "to",
+          "+34600000012"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::MessageCapabilities)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.configurations.create sends POST /v3/messages/configurations/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "configuration_id": "d7e3d55d-4fc8-4bab-9710-123456789abc",
+        "name": "Order updates",
+        "from": "",
+        "channels": [
+          "sms"
+        ],
+        "status_callback_url": "",
+        "inbound_url": "",
+        "opt_out": {},
+        "append_opt_out_line": true
+      }
+    JSON
+    result = client.messages.configurations.create(
+      name: "Order updates",
+      channels: [
+        "sms"
+      ],
+      append_opt_out_line: true,
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/messages/configurations/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Order updates",
+      "channels" => [
+        "sms"
+      ],
+      "append_opt_out_line" => true
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessagingConfiguration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.configurations.delete sends DELETE /v3/messages/configurations/{configuration_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.messages.configurations.delete(
+      "d7e3d55d-4fc8-4bab-9710-123456789abc",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/messages/configurations/d7e3d55d-4fc8-4bab-9710-123456789abc/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "messages.configurations.list sends GET /v3/messages/configurations/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "configuration_id": "d7e3d55d-4fc8-4bab-9710-123456789abc",
+            "name": "Order updates",
+            "from": "",
+            "channels": [
+              "sms"
+            ],
+            "status_callback_url": "",
+            "inbound_url": "",
+            "opt_out": {},
+            "append_opt_out_line": true
+          }
+        ]
+      }
+    JSON
+    result = client.messages.configurations.list(
+      limit: 20
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/configurations/",
+      query: [
+        [
+          "limit",
+          "20"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::MessagingConfiguration))
+    exercise_readers(result.results)
+  end
+
+  it "messages.configurations.update sends PATCH /v3/messages/configurations/{configuration_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "configuration_id": "d7e3d55d-4fc8-4bab-9710-123456789abc",
+        "name": "Order updates",
+        "from": "",
+        "channels": [
+          "whatsapp",
+          "sms"
+        ],
+        "status_callback_url": "",
+        "inbound_url": "",
+        "opt_out": {},
+        "append_opt_out_line": true
+      }
+    JSON
+    result = client.messages.configurations.update(
+      "d7e3d55d-4fc8-4bab-9710-123456789abc",
+      name: "Order updates",
+      channels: [
+        "whatsapp",
+        "sms"
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/messages/configurations/d7e3d55d-4fc8-4bab-9710-123456789abc/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Order updates",
+      "channels" => [
+        "whatsapp",
+        "sms"
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessagingConfiguration)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "messages.consent.retrieve sends GET /v3/messages/contacts/{to}/consent/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {

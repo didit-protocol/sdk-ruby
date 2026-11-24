@@ -2,6 +2,34 @@
 
 module Didit
   module Types
+    module MessagesConfigurationsCreateParamsChannels
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      MMS: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConfigurationsUpdateParamsChannels
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      VOICE: String
+      RCS: String
+      VIBER: String
+      ZALO: String
+      EMAIL: String
+      MMS: String
+
+      VALUES: Array[String]
+    end
+
     module MessagesConsentUpdateParamsChannel
       SMS: String
       WHATSAPP: String
@@ -122,6 +150,14 @@ module Didit
       def rule_id: () -> String
     end
 
+    type messages_configurations_create_params = { name: String, ?from: String, ?channels: Array[String], ?status_callback_url: String, ?inbound_url: String, ?opt_out: Didit::Types::messages_configurations_create_params_opt_out, ?append_opt_out_line: bool }
+
+    type messages_configurations_create_params_opt_out = { ?keywords: Array[String], ?confirmation: String }
+
+    type messages_configurations_update_params = { ?name: String, ?from: String, ?channels: Array[String], ?status_callback_url: String, ?inbound_url: String, ?opt_out: Didit::Types::messages_configurations_update_params_opt_out, ?append_opt_out_line: bool }
+
+    type messages_configurations_update_params_opt_out = { ?keywords: Array[String], ?confirmation: String }
+
     type messages_consent_update_params = { channel: String, status: String, ?source: String }
 
     type messages_conversations_update_params = { ?assignee: String?, ?status: String, ?read_up_to: String }
@@ -132,7 +168,7 @@ module Didit
 
     type messages_rules_create_params_match = { ?country: String, ?prefix: String, ?number: String }
 
-    type messages_send_params = { to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options }
+    type messages_send_params = { to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options, ?configuration_id: String }
 
     type messages_send_params_options = { ?append_opt_out_line: bool }
 

@@ -5,9 +5,19 @@ module Didit
   module Resources
     # The +phone+ resource.
     class Phone < Didit::Resource
+      # @return [Didit::Resources::Phone::Countries]
+      def countries
+        @countries ||= Countries.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Factors]
       def factors
         @factors ||= Factors.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::Feedback]
+      def feedback
+        @feedback ||= Feedback.new(@client)
       end
 
       # @return [Didit::Resources::Phone::Fraud]
@@ -25,6 +35,11 @@ module Didit
         @lists ||= Lists.new(@client)
       end
 
+      # @return [Didit::Resources::Phone::Lookups]
+      def lookups
+        @lookups ||= Lookups.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Network]
       def network
         @network ||= Network.new(@client)
@@ -40,9 +55,19 @@ module Didit
         @sdk_keys ||= SdkKeys.new(@client)
       end
 
+      # @return [Didit::Resources::Phone::Settings]
+      def settings
+        @settings ||= Settings.new(@client)
+      end
+
       # @return [Didit::Resources::Phone::Silent]
       def silent
         @silent ||= Silent.new(@client)
+      end
+
+      # @return [Didit::Resources::Phone::Verifications]
+      def verifications
+        @verifications ||= Verifications.new(@client)
       end
 
       # Risk-score a phone number
@@ -171,14 +196,19 @@ module Didit
       # verification result plus phone intelligence: carrier name and line type, virtual (VoIP) and disposable flags,
       # and duplicate usage of the number across your sessions.
       #
-      # **How the check finds the verification.** Matching is by your application plus the E.164 `phone_number` -
-      # `request_id` is not an input. The most recent pending verification created within the last **5 minutes** is
-      # checked. If there is none (never sent, already finalized, or older than 5 minutes) the endpoint returns `200`
-      # with `status: "Expired or Not Found"`.
+      # **How the check finds the verification.** Send the code and the E.164 `phone_number`: the number selects its
+      # latest pending verification in your application. Add the `verification_id` the send returned to check that
+      # specific verification: Didit then checks it and takes its number, so the `phone_number` of the request is not
+      # used. `phone_number` stays a required field of the request. An ID that is not one of your application's
+      # checkable verifications (unknown, cancelled, or of another application) is ignored, and the check falls back
+      # to the latest pending verification of `phone_number`. A finalized or expired verification, or no matching
+      # verification, returns `200` with `status: "Expired or Not Found"`.
       #
-      # **Attempt budget.** Each verification allows **3 code attempts**. The first two wrong codes return `status:
-      # "Failed"` with the attempts remaining and `phone: null`; the third wrong code finalizes the verification as
-      # `Declined` with a `VERIFICATION_CODE_ATTEMPTS_EXCEEDED` warning and returns the full phone report.
+      # **Attempt budget for delivered codes.** Your application's `verification.max_attempts` setting (3 to 10) sets
+      # how many wrong codes a verification takes, and it defaults to 5 on v3. With that default, the first four wrong
+      # codes return `Failed` with the attempts remaining and `phone: null`, and the fifth returns `Declined` with the
+      # full phone report and a `VERIFICATION_CODE_ATTEMPTS_EXCEEDED` warning. A verification started in a hosted flow
+      # uses the workflow's own limit instead.
       #
       # **Outcomes.** `Approved` - correct code and no declining risk. `Declined` - terminal: the code was correct but
       # a declining risk matched (a `DECLINE` action below, a blocklisted or high-risk number), or the attempt budget
@@ -197,14 +227,14 @@ module Didit
       # **Session persistence.** A finalized check updates the session created by the send (visible in the Business
       # Console, queryable via `GET /v3/session/{sessionId}/decision/`) and fires a `status.updated` webhook.
       #
-      # **Sandbox.** Sandbox API keys skip all processing: any well-formed code (4-8 digits, `123456` included)
-      # returns a static `Approved` payload with a simplified flat `phone` object (`status`, `phone_number`,
-      # `country_code`, `carrier_name`, `line_type`, `flags`); malformed input still returns `400`. Nothing is
-      # persisted.
+      # **Sandbox.** Sandbox API keys skip all processing and charge nothing; malformed input still returns `400`. In
+      # a sandbox application, use the code `123456` or the fixed code of a sandbox test number. Today the sandbox
+      # check also approves any other well-formed code for a number that has no fixed code; that is being tightened to
+      # the two codes above, so do not rely on it.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
-      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
-      # `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. A missing `x-api-key` header,
+      # or a key that is scoped and does not carry write access to `sessions`, returns `403`; a wrong, revoked or
+      # expired key returns `401`.
       #
       # **Rate limits.** Shared write budget of 300 requests/min per API key, plus the upstream anti-abuse cap of 4
       # attempts per number per hour; exceeding either returns `429`.
@@ -230,9 +260,9 @@ module Didit
       # @param phone_number [String] The same phone number used in the matching [`POST
       #   /v3/phone/send/`](/standalone-apis/phone-send) call, in E.164 format. This is what links the check to the
       #   send.
-      # @param code [String] The OTP the end user received. Must be 4-8 numeric digits - anything else returns `400`
-      #   without consuming an attempt. A well-formed but wrong code returns `200` with `status: "Failed"` and consumes
-      #   one of the 3 attempts.
+      # @param code [String] For a delivered code, enter 4 to 10 letters or digits. Letters match in either case. A
+      #   wrong delivered code consumes one attempt and returns `Failed` while attempts remain or `Declined` on the last
+      #   attempt.
       # @param duplicated_phone_number_action [String] What to do when the same number was already used by a different
       #   user (different `vendor_data`) of your application. `DECLINE` flips the final `status` to `Declined`;
       #   `NO_ACTION` records the risk in `phone.warnings` and fills `phone.matches`.
@@ -269,9 +299,11 @@ module Didit
       #   `phone_number` (typed SDKs still take it, because it stays a required field of this request, so pass the
       #   user's number or any valid E.164 number). The answer carries `verification_id`, `status` (`verified` or
       #   `failed...
-      # @param verification_id [String] Check the code Didit sent to a registration test number: send the
-      #   `verification_id` that `POST /v3/phone/network/registrations/{registration_id}/test-numbers/` returned with
-      #   the `code`. The number itself still goes in `phone_number`.
+      # @param verification_id [String] Check this verification instead of the number's latest one: the
+      #   `verification_id` a send returned, or the one `POST
+      #   /v3/phone/network/registrations/{registration_id}/test-numbers/` returned for a registration test number.
+      #   Didit takes the number from that verification, so the request's `phone_number` is not used, but it stays a
+      #   required field. An ID that is not one of your application's checkable...
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationCheckResponse]
@@ -370,13 +402,30 @@ module Didit
       # Send a one-time passcode (OTP) to a phone number over WhatsApp, SMS, or another supported channel, then verify
       # it with [`POST /v3/phone/check/`](/standalone-apis/phone-check).
       #
-      # **How send and check pair up.** Verification state is keyed by your application plus the E.164 `phone_number`
-      # - the check call does not take `request_id`. Each new send creates a pending verification that lives for **5
-      # minutes**: call the check with the same number and the code the user received before the window closes.
-      # Calling send again for the same number while a verification is pending re-sends a code for that same
-      # verification (`status: "Retry"`, same `request_id`). At most one retry is attached this way (two sends total);
-      # a further send starts a fresh verification with a new `request_id`. The 5-minute window is measured from the
-      # first send and is not extended by retries.
+      # **How send and check pair up.** Send the same E.164 `phone_number` and the code to check the latest pending
+      # verification of that number in your application. Add the `verification_id` the send returned to check that
+      # specific verification: Didit then checks it and takes its number, so the `phone_number` of the request is not
+      # used. `phone_number` stays a required field of the request. An ID that is not one of your application's
+      # checkable verifications (unknown, cancelled, or of another application) is ignored, and the check falls back
+      # to the latest pending verification of `phone_number`. The verification window defaults to **5 minutes**.
+      # Calling send again for the same number while a verification is pending follows `on_conflict`: by default
+      # (`replace`) it starts a fresh verification with a new `request_id`; `retry` re-sends a code for the same
+      # verification (`status: "Retry"`, same `request_id` and `verification_id`), at most twice (three sends total,
+      # the first included, shared with `POST /v3/phone/verifications/{verification_id}/retry/`); `reuse` returns the
+      # pending verification without sending; `reject` answers `409 verification_in_progress`. For `reuse` and
+      # `retry`, if the pending verification does not meet the requested channel or challenge policy, the send starts
+      # a new verification. A retry also starts a new verification if the requested channel differs from the last
+      # delivery channel. Both `reuse` and `retry` start a new verification if the caller supplies a different code. A
+      # same-window retry keeps the expiry from the first send.
+      #
+      # **Conflict, challenge and code options.** `on_conflict` picks what happens while a code is still valid:
+      # `replace` (default) sends a new one, `reuse` returns it without sending, `retry` sends the same code again in
+      # the same window, up to two retries (three sends total, the first included), and `reject` answers `409
+      # verification_in_progress`. `force_challenge` restricts the send to `fraud.channels_allowed` and records the
+      # challenge as yours, not as fraud. `trusted_user` needs a `fraud_override` signed for this number with your
+      # application's webhook signing secret; an unsigned or wrongly signed one returns `403 invalid_fraud_override`.
+      # `code` sets your own 4 to 10 letter-and-digit code and `code_length` the length of a Didit-made numeric code;
+      # `code` wins over `code_length`, and `code_length` wins over `options.code_size`.
       #
       # **Delivery channels.** `options.preferred_channel` selects the channel (`whatsapp` by default; `sms`,
       # `telegram`, `voice`, `rcs`, `viber`, and `zalo` are also supported). When the preferred channel is unavailable
@@ -417,13 +466,16 @@ module Didit
       # session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business
       # Console, and `status.updated` webhooks fire as it progresses.
       #
-      # **Sandbox.** Sandbox API keys skip delivery and billing: after request validation (malformed input still
-      # returns `400`), the endpoint returns a static `Success` payload with a random `request_id`; no message is sent
-      # and nothing is persisted. Use code `123456` on the sandbox check.
+      # **Sandbox.** A sandbox application's send takes the same path as a live one: the same validation,
+      # `on_conflict` handling, channel policy and refusals (an unsupported destination included) and the same answer,
+      # with a `verification_id` you can read, cancel or approve. Only the delivery is simulated: no message is sent
+      # and nothing is charged. In a sandbox application, use the code `123456` or the fixed code of a sandbox test
+      # number. Today the sandbox check also approves any other well-formed code for a number that has no fixed code;
+      # that is being tightened to the two codes above, so do not rely on it.
       #
-      # **Authentication.** Send your application's API key in the `x-api-key` header. Missing or invalid credentials
-      # return `403` (`{"detail": "You do not have permission to perform this action."}`) - this API never returns
-      # `401`.
+      # **Authentication.** Send your application's API key in the `x-api-key` header. A missing `x-api-key` header,
+      # or a key that is scoped and does not carry write access to `sessions`, returns `403`; a wrong, revoked or
+      # expired key returns `401`.
       #
       # **Rate limits.** Shared write budget of 300 requests/min per API key across all POST/PATCH/DELETE endpoints,
       # plus an anti-abuse cap of 4 send attempts per phone number per hour; exceeding either returns `429`.
@@ -441,6 +493,27 @@ module Didit
       #   and the Business Console. Use it to correlate Didit's `request_id` with your user record.
       # @param metadata [Hash, nil] Optional free-form JSON object persisted on the session and echoed back in the
       #   send response, the matching check response, webhooks, and the Business Console.
+      # @param code [String] Supply 4 to 10 letters and digits, such as K7P2QX. Letters match in either case. Your
+      #   code takes precedence over `code_length` and `options.code_size`. Choose a channel that supports
+      #   caller-supplied codes, such as WhatsApp. If the allowed channels cannot carry your code, the send returns `400
+      #   custom_code_unavailable`.
+      # @param code_length [Integer] 4 to 10 digits, for this request. Wins over `options.code_size` when both are
+      #   sent; ignored when `code` is sent.
+      # @param on_conflict [String] A code is still valid: `replace` (default) sends a new one, `reuse` returns it
+      #   without sending, `retry` sends the same code again in the same window (up to two retries, three sends total),
+      #   `reject` answers `409 verification_in_progress`. For `reuse` and `retry`, if the pending verification does not
+      #   meet the requested channel or challenge policy, the send starts a new verification. A retry also st...
+      # @param trusted_user [Boolean] Your server vouches for this user: this one request goes past your fraud rules
+      #   (velocity limits, risk score, network blocks, policies). Needs a `fraud_override` signed for it; a block list
+      #   still stops the number.
+      # @param force_challenge [Boolean] Your server asks for a challenge on this request: Didit uses only
+      #   fraud-resistant channels (`fraud.channels_allowed`) and records it as challenged by you; it is not reported or
+      #   scored as fraud.
+      # @param fraud_override [String] A token signed for this phone number and expiry, in the form
+      #   `v1.<expires_at>.<signature>`. `<expires_at>` is the Unix time in seconds, at most 5 minutes ahead.
+      #   `<signature>` is the base64url encoding, without padding, of the HMAC-SHA256 of the UTF-8 string
+      #   `v1\n<phone_number>\n<expires_at>` (the number in E.164 format, with a newline between each value), keyed with
+      #   your application's webhook sig...
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::PhoneVerificationSendResponse]
@@ -450,6 +523,12 @@ module Didit
         signals: OMIT,
         vendor_data: OMIT,
         metadata: OMIT,
+        code: OMIT,
+        code_length: OMIT,
+        on_conflict: OMIT,
+        trusted_user: OMIT,
+        force_challenge: OMIT,
+        fraud_override: OMIT,
         idempotency_key: OMIT,
         request_options: nil
       )
@@ -461,12 +540,51 @@ module Didit
             "options" => options,
             "signals" => signals,
             "vendor_data" => vendor_data,
-            "metadata" => metadata
+            "metadata" => metadata,
+            "code" => code,
+            "code_length" => code_length,
+            "on_conflict" => on_conflict,
+            "trusted_user" => trusted_user,
+            "force_challenge" => force_challenge,
+            "fraud_override" => fraud_override
           },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::PhoneVerificationSendResponse,
           request_options: request_options
         )
+      end
+
+      # The +phone.countries+ resource.
+      class Countries < Didit::Resource
+        # Switch countries and routes in bulk
+        #
+        # Update channel settings for multiple countries, the SMS route (`Route A` or `Route B`) and the routing
+        # objective (`price`, `balanced` or `conversion`). The `sms`, `voice`, `whatsapp` and `silent` switches apply
+        # to delivery for the whole country. Didit checks each `closed_channels` entry on the initial send and every
+        # fallback hop. The entry blocks its channel when `signals.device_platform` matches a listed platform (`web`,
+        # `ios`, or `android`). Both `ipados` and `tvos` match `ios`. Omit `platforms` or pass `[]` to block the
+        # channel for every send. Listing all three platforms also blocks the channel for every send, including a send
+        # that omits `signals.device_platform`. A list of one or two platforms applies only when the send matches one
+        # of them. A restricted API key needs write access to `applications`.
+        #
+        # +PATCH /v3/phone/countries/+
+        #
+        # @param countries [Array<Hash>] The countries to change.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneCountriesUpdateResponse]
+        def update(countries:, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :patch,
+            "/v3/phone/countries/",
+            body: {
+              "countries" => countries
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneCountriesUpdateResponse,
+            request_options: request_options
+          )
+        end
       end
 
       # The +phone.factors+ resource.
@@ -660,6 +778,86 @@ module Didit
             },
             headers: { "Idempotency-Key" => idempotency_key },
             response: Types::PhoneFactor,
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.feedback+ resource.
+      class Feedback < Didit::Resource
+        # Report fraud, a conversion or an abuse event
+        #
+        # Report fraud, a legitimate user, a conversion or an abuse event. Give the `verification_id`, the
+        # `phone_number` or the `email` it concerns. An outcome that names a verification or a phone number counts
+        # toward that number's fraud rules from its next send; `confidence` decides how much it weighs. An outcome
+        # that names only an `email` is recorded, but does not change any score.
+        #
+        # +POST /v3/phone/feedback/+
+        #
+        # @param outcome [String] fraud, legitimate, converted, or abuse with event naming what happened.
+        # @param verification_id [String] The verification, by the `verification_id` the send returned.
+        # @param phone_number [String] Or the number.
+        # @param email [String] Or the email address it concerns.
+        # @param event [String] Your own label, for example chargeback, account_banned or promo_abuse.
+        # @param confidence [String] low, medium or high: how sure you are; high weighs most in the scoring.
+        # @param occurred_at [Time, String] When it happened, ISO 8601.
+        # @param note [String] Up to 500 characters.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFeedbackResponse]
+        def create(
+          outcome:,
+          verification_id: OMIT,
+          phone_number: OMIT,
+          email: OMIT,
+          event: OMIT,
+          confidence: OMIT,
+          occurred_at: OMIT,
+          note: OMIT,
+          idempotency_key: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :post,
+            "/v3/phone/feedback/",
+            body: {
+              "outcome" => outcome,
+              "verification_id" => verification_id,
+              "phone_number" => phone_number,
+              "email" => email,
+              "event" => event,
+              "confidence" => confidence,
+              "occurred_at" => occurred_at,
+              "note" => note
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFeedbackResponse,
+            request_options: request_options
+          )
+        end
+
+        # Report up to 1,000 outcomes at once
+        #
+        # Report up to 1,000 outcomes at once. The answer is `207 Multi-Status`: one result per item, in order, with
+        # `accepted` or `rejected` and why. Recorded items are counted in `accepted`. An item that names a
+        # verification or a phone number is used by that number's fraud rules from its next send; an `email`-only item
+        # changes no score.
+        #
+        # +POST /v3/phone/feedback/batch/+
+        #
+        # @param items [Array<Hash>] Up to 1,000 outcomes.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneFeedbackBatchResponse]
+        def create_batch(items:, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/feedback/batch/",
+            body: {
+              "items" => items
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneFeedbackBatchResponse,
             request_options: request_options
           )
         end
@@ -1189,6 +1387,49 @@ module Didit
             "/v3/phone/lists/{list_id}/entries/{entry_id}/",
             path_params: { "list_id" => list_id, "entry_id" => entry_id },
             headers: { "Idempotency-Key" => idempotency_key },
+            request_options: request_options
+          )
+        end
+      end
+
+      # The +phone.lookups+ resource.
+      class Lookups < Didit::Resource
+        # Lookup history
+        #
+        # List your application's [Phone risk lookups](/standalone-apis/phone-risk), newest first. Each result
+        # includes the full phone number, lookup status and risk score when available. Filter by an exact number or
+        # creation time. Use `limit` and `offset` to page through the results: `next` and `previous` are offsets, not
+        # URLs, so send `next` as `offset` to read the next page.
+        #
+        # +GET /v3/phone/lookups/+
+        #
+        # @param phone_number [String] One number.
+        # @param created_after [Time, String] Include lookups created at or after this time.
+        # @param created_before [Time, String] Include lookups created before this time.
+        # @param limit [Integer] 20 by default, 100 at most.
+        # @param offset [Integer] Where the page starts: 0 by default, or the `next` or `previous` value of another
+        #   page.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::PhoneLookupSummary>]
+        def list(
+          phone_number: OMIT,
+          created_after: OMIT,
+          created_before: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/phone/lookups/",
+            query: {
+              "phone_number" => phone_number,
+              "created_after" => created_after,
+              "created_before" => created_before,
+              "limit" => limit,
+              "offset" => offset
+            },
+            page: Types::PhoneLookupSummary,
             request_options: request_options
           )
         end
@@ -1728,6 +1969,58 @@ module Didit
         end
       end
 
+      # The +phone.settings+ resource.
+      class Settings < Didit::Resource
+        # Retrieve the Phone settings
+        #
+        # Read your application's verification settings, message retention period and saved data region preference.
+        #
+        # +GET /v3/phone/settings/+
+        #
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSettings]
+        def retrieve(request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/settings/",
+            response: Types::PhoneSettings,
+            request_options: request_options
+          )
+        end
+
+        # Change the Phone settings
+        #
+        # Update verification options, the message retention period (`messages.retention_days`) and the data region
+        # preference (`data_region`). Send only what you want to change: each property you send under `verification`
+        # replaces its saved value, and `cancel_on_resend` is accepted here too. A value out of range answers `400
+        # invalid_setting` (`code_length` 4 to 10, `valid_minutes` 1 to 15, `max_attempts` 3 to 10, `resend_limit` 1
+        # to 10, `routing` `fixed` or `conversion`, `channel_order` a list of Phone channels,
+        # `messages.retention_days` 7, 30, 90 or 365). A restricted API key needs write access to `applications`.
+        #
+        # +PATCH /v3/phone/settings/+
+        #
+        # @param verification [Hash] Each property you supply replaces its saved value.
+        # @param messages [Hash] Message settings to change.
+        # @param data_region [String] The data region preference to save for the application.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneSettingsUpdateResponse]
+        def update(verification: OMIT, messages: OMIT, data_region: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :patch,
+            "/v3/phone/settings/",
+            body: {
+              "verification" => verification,
+              "messages" => messages,
+              "data_region" => data_region
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneSettingsUpdateResponse,
+            request_options: request_options
+          )
+        end
+      end
+
       # The +phone.silent+ resource.
       class Silent < Didit::Resource
         # @return [Didit::Resources::Phone::Silent::Registrations]
@@ -1902,6 +2195,200 @@ module Didit
               request_options: request_options
             )
           end
+        end
+      end
+
+      # The +phone.verifications+ resource.
+      class Verifications < Didit::Resource
+        # Mark a verification verified
+        #
+        # Mark a verification verified after your own code check. It counts in Verifications, Analytics and the events
+        # like any other verification, and `verified_by` is `api`. `reason` defaults to `own_code_check`. A
+        # verification that already ended returns `409 already_final`. Only verifications your application started
+        # with `POST /v3/phone/send/` can be changed here: a Phone step of a hosted verification session is read-only
+        # and returns `404 not_found`.
+        #
+        # +POST /v3/phone/verifications/{verification_id}/approve/+
+        #
+        # @param verification_id [String] The verification.
+        # @param reason [String] own_code_check (default): your backend checked the code it sent with code.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVerificationApproveResponse]
+        def approve(verification_id, reason: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/verifications/{verification_id}/approve/",
+            path_params: { "verification_id" => verification_id },
+            body: {
+              "reason" => reason
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneVerificationApproveResponse,
+            request_options: request_options
+          )
+        end
+
+        # Cancel a verification
+        #
+        # Cancel a verification. The code stops working and unsent steps are not charged. If the code window elapsed
+        # but the verification has yet to be finalized, cancellation returns `200` with status `cancelled` even if the
+        # verification history shows `expired`. A verification already finalized as verified, blocked, cancelled or
+        # expired returns `409 already_final`. Only verifications your application started with `POST /v3/phone/send/`
+        # can be changed here: a Phone step of a hosted verification session is read-only and returns `404 not_found`.
+        #
+        # +POST /v3/phone/verifications/{verification_id}/cancel/+
+        #
+        # @param verification_id [String] The verification.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVerificationCancelResponse]
+        def cancel(verification_id, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/verifications/{verification_id}/cancel/",
+            path_params: { "verification_id" => verification_id },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneVerificationCancelResponse,
+            request_options: request_options
+          )
+        end
+
+        # List or export verifications
+        #
+        # List your application's verifications, newest first. Filter by status, channel, phone number, reference, tag
+        # (`key:value`) or creation time. Use `limit` and `offset` to page through JSON results: `next` and `previous`
+        # are offsets, not URLs, so send `next` as `offset` to read the next page. Use `format=csv` to export all
+        # matching verifications. The `template` query parameter does not filter these records. Verification history
+        # does not return a `template_used` field.
+        #
+        # +GET /v3/phone/verifications/+
+        #
+        # @param status [String] pending, verified, not_delivered, expired, blocked or cancelled.
+        # @param channel [String] Any channel.
+        # @param phone_number [String] One number.
+        # @param reference [String] Your reference.
+        # @param tag [String] key:value, one of your tags.
+        # @param created_after [Time, String] ISO 8601 date and time.
+        # @param created_before [Time, String] ISO 8601 date and time.
+        # @param limit [Integer] 20 by default, 100 at most.
+        # @param offset [Integer] Where the page starts: 0 by default, or the `next` or `previous` value of another
+        #   page.
+        # @param format [String] json, or csv to export every row of the filtered list.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Page<Didit::Types::PhoneVerificationDetail>]
+        def list(
+          status: OMIT,
+          channel: OMIT,
+          phone_number: OMIT,
+          reference: OMIT,
+          tag: OMIT,
+          created_after: OMIT,
+          created_before: OMIT,
+          limit: OMIT,
+          offset: OMIT,
+          format: OMIT,
+          request_options: nil
+        )
+          @client.request(
+            :get,
+            "/v3/phone/verifications/",
+            query: {
+              "status" => status,
+              "channel" => channel,
+              "phone_number" => phone_number,
+              "reference" => reference,
+              "tag" => tag,
+              "created_after" => created_after,
+              "created_before" => created_before,
+              "limit" => limit,
+              "offset" => offset,
+              "format" => format
+            },
+            page: Types::PhoneVerificationDetail,
+            request_options: request_options
+          )
+        end
+
+        # Move to the next channel now
+        #
+        # Move to the next channel now, without waiting for the current step's timeout, or jump to `channel`. A
+        # successful send keeps the same verification ID and expiry, but the new channel may deliver a different code
+        # than the earlier sends; only [a same-window retry](/standalone-apis/phone-verifications-retry) promises the
+        # same code. When every channel in the order was tried, the endpoint returns `409 no_next_channel`; a
+        # verification that already ended returns `409 already_final`. Only verifications your application started
+        # with `POST /v3/phone/send/` can be changed here: a Phone step of a hosted verification session is read-only
+        # and returns `404 not_found`.
+        #
+        # +POST /v3/phone/verifications/{verification_id}/next/+
+        #
+        # @param verification_id [String] The verification.
+        # @param channel [String] Jump to this channel instead of the next one.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVerificationNextResponse]
+        def next(verification_id, channel: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/verifications/{verification_id}/next/",
+            path_params: { "verification_id" => verification_id },
+            body: {
+              "channel" => channel
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneVerificationNextResponse,
+            request_options: request_options
+          )
+        end
+
+        # One verification with every attempt
+        #
+        # Retrieve one verification and its delivery attempts in order. Each attempt includes the channel, status,
+        # network, route, delivery timestamps and price.
+        #
+        # +GET /v3/phone/verifications/{verification_id}/+
+        #
+        # @param verification_id [String] The verification.
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVerificationDetail]
+        def retrieve(verification_id, request_options: nil)
+          @client.request(
+            :get,
+            "/v3/phone/verifications/{verification_id}/",
+            path_params: { "verification_id" => verification_id },
+            response: Types::PhoneVerificationDetail,
+            request_options: request_options
+          )
+        end
+
+        # Send the code again in the same window
+        #
+        # Resend the same code on its last delivery channel. The verification ID and expiry stay the same. Wait at
+        # least 30 seconds after the last send. A verification allows up to three sends, including the first. To
+        # change channels, use [the next-channel endpoint](/standalone-apis/phone-verifications-next). Only
+        # verifications your application started with `POST /v3/phone/send/` can be changed here: a Phone step of a
+        # hosted verification session is read-only and returns `404 not_found`.
+        #
+        # +POST /v3/phone/verifications/{verification_id}/retry/+
+        #
+        # @param verification_id [String] The verification.
+        # @param channel [String] The last delivery channel. Requesting a different allowed channel returns `409
+        #   code_not_resendable`.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::PhoneVerificationRetryResponse]
+        def retry(verification_id, channel: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/phone/verifications/{verification_id}/retry/",
+            path_params: { "verification_id" => verification_id },
+            body: {
+              "channel" => channel
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::PhoneVerificationRetryResponse,
+            request_options: request_options
+          )
         end
       end
     end
