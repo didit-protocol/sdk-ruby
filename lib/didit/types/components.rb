@@ -3009,6 +3009,52 @@ module Didit
       VALUES = [SMS, WHATSAPP, EMAIL].freeze
     end
 
+    # The channel this consent applies to.
+    module MessageConsentChannelChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      RCS = "rcs"
+      VIBER = "viber"
+      VOICE = "voice"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, RCS, VIBER, VOICE, EMAIL].freeze
+    end
+
+    # Where the choice came from. `stop_reply` and `start_reply`: the recipient's own STOP or START reply; an email
+    # bounce or spam complaint reads `stop_reply`, and a completed Telegram opt-in link `start_reply`. `bot_left`: the
+    # recipient blocked or left the sender on the channel. `console`: a team member in the console. `api`: your API
+    # call without a `source`. A `source` your API call sets, `reassigned` included, is returned as you sent it; Didit
+    # never records `reassigned` itself.
+    module MessageConsentChannelSource
+      STOP_REPLY = "stop_reply"
+      START_REPLY = "start_reply"
+      BOT_LEFT = "bot_left"
+      API = "api"
+      CONSOLE = "console"
+      REASSIGNED = "reassigned"
+
+      VALUES = [STOP_REPLY, START_REPLY, BOT_LEFT, API, CONSOLE, REASSIGNED].freeze
+    end
+
+    # `opted_out` refuses every send on this channel with `opted_out`, uncharged.
+    module MessageConsentChannelStatus
+      OPTED_IN = "opted_in"
+      OPTED_OUT = "opted_out"
+
+      VALUES = [OPTED_IN, OPTED_OUT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageConversationWebhookEvents
+      MESSAGE_RECEIVED = "message.received"
+      MESSAGE_STATUS_UPDATED = "message.status.updated"
+      CONTACT_CONSENT_UPDATED = "contact.consent.updated"
+
+      VALUES = [MESSAGE_RECEIVED, MESSAGE_STATUS_UPDATED, CONTACT_CONSENT_UPDATED].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module MessageEncoding
       GSM_7 = "GSM-7"
@@ -3062,6 +3108,46 @@ module Didit
       CANCELLED = "cancelled"
 
       VALUES = [SCHEDULED, QUEUED, SENDING, SENT, DELIVERED, READ, FAILED, CANCELLED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageTemplateChannels
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageTemplateContentChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessageTemplateContentInputChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # `draft`: not submitted yet. `pending`: in review. `approved`: can be sent. `rejected`, `paused` and `disabled`:
+    # WhatsApp refused or stopped it; the `reason` says why.
+    module MessageTemplateWhatsAppStatus
+      DRAFT = "draft"
+      PENDING = "pending"
+      APPROVED = "approved"
+      REJECTED = "rejected"
+      PAUSED = "paused"
+      DISABLED = "disabled"
+
+      VALUES = [DRAFT, PENDING, APPROVED, REJECTED, PAUSED, DISABLED].freeze
     end
 
     # Event category.
@@ -8036,8 +8122,10 @@ module Didit
       BANK_SYNC_FAILED = "bank.sync.failed"
       BANK_SYNC_RECOVERED = "bank.sync.recovered"
       MESSAGE_STATUS_UPDATED = "message.status.updated"
+      MESSAGE_RECEIVED = "message.received"
+      CONTACT_CONSENT_UPDATED = "contact.consent.updated"
 
-      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, BANK_LINK_COMPLETED, BANK_LINK_CANCELLED, BANK_LINK_EXPIRED, BANK_LINK_FAILED, BANK_CONNECTION_CREATED, BANK_CONNECTION_UPDATED, BANK_CONNECTION_CONSENT_EXPIRING, BANK_CONNECTION_RENEWAL_REQUIRED, BANK_CONNECTION_RENEWED, BANK_CONNECTION_REVOKED, BANK_CONNECTION_DELETED, BANK_CONNECTION_HISTORY_COMPLETE, BANK_DATA_UPDATED, BANK_SYNC_COMPLETED, BANK_SYNC_FAILED, BANK_SYNC_RECOVERED, MESSAGE_STATUS_UPDATED].freeze
+      VALUES = [STATUS_UPDATED, DATA_UPDATED, USER_STATUS_UPDATED, USER_DATA_UPDATED, BUSINESS_STATUS_UPDATED, BUSINESS_DATA_UPDATED, ACTIVITY_CREATED, TRANSACTION_CREATED, TRANSACTION_STATUS_UPDATED, TRAVEL_RULE_STATUS_UPDATED, WORKFLOW_COMPLIANCE_CHANGED, TRANSACTION_RULE_SUGGESTIONS_CREATED, AUTH_SIGNUP, AUTH_LOGIN, AUTH_LOGIN_FAILED, AUTH_PASSWORD_RESET_REQUESTED, AUTH_PASSWORD_RESET_COMPLETED, AUTH_MFA_CHANGED, AUTH_NEW_DEVICE, AUTH_ACCOUNT_LOCKED, INVESTIGATOR_REPORT_READY, INVESTIGATOR_DECISION_AUTOMATED, INVESTIGATOR_DECISION_OVERRIDDEN, INVESTIGATOR_DECISION_CONTESTED, INVESTIGATOR_QUESTION_RAISED, INVESTIGATOR_AUTOMATION_PAUSED, INVESTIGATOR_RFI_ANSWERED, INVESTIGATOR_RFI_OVERDUE, INVESTIGATOR_DRIFT_DETECTED, INVESTIGATOR_SLA_BREACHED, INVESTIGATOR_QA_FAILED, INVESTIGATOR_EXTERNAL_REPORT_READY, BANK_LINK_COMPLETED, BANK_LINK_CANCELLED, BANK_LINK_EXPIRED, BANK_LINK_FAILED, BANK_CONNECTION_CREATED, BANK_CONNECTION_UPDATED, BANK_CONNECTION_CONSENT_EXPIRING, BANK_CONNECTION_RENEWAL_REQUIRED, BANK_CONNECTION_RENEWED, BANK_CONNECTION_REVOKED, BANK_CONNECTION_DELETED, BANK_CONNECTION_HISTORY_COMPLETE, BANK_DATA_UPDATED, BANK_SYNC_COMPLETED, BANK_SYNC_FAILED, BANK_SYNC_RECOVERED, MESSAGE_STATUS_UPDATED, MESSAGE_RECEIVED, CONTACT_CONSENT_UPDATED].freeze
     end
 
     # Draft versions are editable; published versions are immutable and used for new sessions.
@@ -11329,6 +11417,43 @@ module Didit
       field :price, "price", :string
     end
 
+    class MessageConsent < Didit::Model
+      field :channels, "channels", [:array, "MessageConsentChannel"]
+      field :reassigned, "reassigned", :boolean
+    end
+
+    # One channel's consent record for the recipient.
+    class MessageConsentChannel < Didit::Model
+      field :channel, "channel", :string
+      field :status, "status", :string
+      field :source, "source", :string
+      field :updated_at, "updated_at", :datetime
+    end
+
+    class MessageConsentChannels < Didit::Model
+      field :channels, "channels", [:array, "MessageConsentChannel"]
+    end
+
+    # One conversation: every message exchanged with one person, on every channel.
+    class MessageConversation < Didit::Model
+      field :conversation_id, "conversation_id", :string
+      field :assignee, "assignee", :string
+      field :unread_count, "unread_count", :integer
+    end
+
+    class MessageConversationList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "MessageConversation"]
+    end
+
+    class MessageConversationWebhook < Didit::Model
+      field :webhook_id, "webhook_id", :string
+      field :secret, "secret", :string
+      field :events, "events", [:array, :string]
+    end
+
     # Why an attempt failed or was skipped. `message` is a sentence for people; read `code` in code.
     class MessageError < Didit::Model
       field :code, "code", :string
@@ -11358,6 +11483,45 @@ module Didit
       field :country, "country", :string
       field :currency, "currency", :string
       field :channels, "channels", [:array, "MessageChannelPrice"]
+    end
+
+    # A message you write once and send in several channels and languages, with variables you name.
+    class MessageTemplate < Didit::Model
+      field :id, "id", :string
+      field :name, "name", :string
+      field :description, "description", :string
+      field :channels, "channels", [:array, :string]
+      field :languages, "languages", [:array, :string]
+      field :variables, "variables", [:array, :string]
+      field :variable_examples, "variable_examples", [:map, :string]
+      field :whatsapp, "whatsapp", "MessageTemplateWhatsApp"
+      field :version, "version", :integer
+      field :contents, "contents", [:array, "MessageTemplateContent"]
+      field :created_at, "created_at", :datetime
+      field :updated_at, "updated_at", :datetime
+    end
+
+    class MessageTemplateContent < Didit::Model
+      field :channel, "channel", :string
+      field :language, "language", :string
+      field :subject, "subject", :string
+      field :body, "body", :string
+      field :whatsapp, "whatsapp", "MessageTemplateWhatsApp"
+      field :updated_at, "updated_at", :datetime
+    end
+
+    class MessageTemplateList < Didit::Model
+      field :count, "count", :integer
+      field :next, "next", :string
+      field :previous, "previous", :string
+      field :results, "results", [:array, "MessageTemplate"]
+    end
+
+    # WhatsApp's review of a WhatsApp text; `null` when there is no WhatsApp text (a text of any other channel, or a
+    # template with none). Only an `approved` text can be sent on WhatsApp.
+    class MessageTemplateWhatsApp < Didit::Model
+      field :status, "status", :string
+      field :reason, "reason", :string
     end
 
     # Your application's settings for the Messages API.

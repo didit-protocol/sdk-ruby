@@ -437,6 +437,195 @@ RSpec.describe Didit::Resources::Messages do
     exercise_readers(result)
   end
 
+  it "messages.consent.retrieve sends GET /v3/messages/contacts/{to}/consent/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "channels": [
+          {
+            "channel": "sms",
+            "status": "opted_in",
+            "source": "api",
+            "updated_at": "2026-11-12T08:30:00Z"
+          }
+        ],
+        "reassigned": false
+      }
+    JSON
+    result = client.messages.consent.retrieve(
+      "to-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/contacts/to-1/consent/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::MessageConsent)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.consent.update sends PATCH /v3/messages/contacts/{to}/consent/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "channels": [
+          {
+            "channel": "whatsapp",
+            "status": "opted_out",
+            "source": "api",
+            "updated_at": "2026-11-22T09:41:00Z"
+          }
+        ]
+      }
+    JSON
+    result = client.messages.consent.update(
+      "to-1",
+      channel: "whatsapp",
+      status: "opted_out",
+      source: "api",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/messages/contacts/to-1/consent/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "channel" => "whatsapp",
+      "status" => "opted_out",
+      "source" => "api"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessageConsentChannels)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.conversations.list sends GET /v3/messages/conversations/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": null,
+        "previous": null,
+        "results": [
+          {
+            "conversation_id": "6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+            "assignee": "mem_ana",
+            "unread_count": 2
+          }
+        ]
+      }
+    JSON
+    result = client.messages.conversations.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/conversations/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::MessageConversation))
+    exercise_readers(result.results)
+  end
+
+  it "messages.conversations.update sends PATCH /v3/messages/conversations/{conversation_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "conversation_id": "6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+        "assignee": "mem_ana",
+        "unread_count": 0
+      }
+    JSON
+    result = client.messages.conversations.update(
+      "6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+      assignee: "mem_ana",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/messages/conversations/6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "assignee" => "mem_ana"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessageConversation)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.conversations.webhooks.create sends POST /v3/messages/conversations/{conversation_id}/webhooks/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "webhook_id": "b3e1d7a2-5c4f-4e8b-9d16-0a7c3f2e8b51",
+        "secret": "redacted-secret",
+        "events": [
+          "message.received"
+        ]
+      }
+    JSON
+    result = client.messages.conversations.webhooks.create(
+      "6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+      url: "https://YOUR_PUBLIC_HOST/didit/conversations/6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+      events: [
+        "message.received"
+      ],
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/messages/conversations/6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90/webhooks/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "url" => "https://YOUR_PUBLIC_HOST/didit/conversations/6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+      "events" => [
+        "message.received"
+      ]
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessageConversationWebhook)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.conversations.webhooks.delete sends DELETE /v3/messages/conversations/{conversation_id}/webhooks/{webhook_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.messages.conversations.webhooks.delete(
+      "6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90",
+      "b3e1d7a2-5c4f-4e8b-9d16-0a7c3f2e8b51",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/messages/conversations/6f0c2a8e-3b1d-4c5e-9a7f-2d8b1e4c6a90/webhooks/b3e1d7a2-5c4f-4e8b-9d16-0a7c3f2e8b51/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
   it "messages.rules.create sends POST /v3/messages/rules/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -474,6 +663,244 @@ RSpec.describe Didit::Resources::Messages do
     })
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::MessagesRulesCreateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.templates.delete sends DELETE /v3/messages/templates/{template_id}/" do
+    calls = stub_api(status: 204, body: nil, content_type: nil)
+    result = client.messages.templates.delete(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :delete,
+      url: "https://verification.didit.me/v3/messages/templates/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_nil
+  end
+
+  it "messages.templates.list sends GET /v3/messages/templates/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "count": 1,
+        "next": "https://example.com/callback",
+        "previous": "https://example.com/callback",
+        "results": [
+          {
+            "id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+            "name": "name-value",
+            "description": "description-value",
+            "channels": [
+              "sms"
+            ],
+            "languages": [
+              "languages-value"
+            ],
+            "variables": [
+              "variables-value"
+            ],
+            "variable_examples": {
+              "key": "value"
+            },
+            "whatsapp": {
+              "status": "draft",
+              "reason": "reason-value"
+            },
+            "version": 1,
+            "contents": [
+              {
+                "channel": "example",
+                "language": "example",
+                "subject": "example",
+                "body": "example",
+                "whatsapp": "example",
+                "updated_at": "example"
+              }
+            ],
+            "created_at": "2026-01-02T03:04:05Z",
+            "updated_at": "2026-01-02T03:04:05Z"
+          }
+        ]
+      }
+    JSON
+    result = client.messages.templates.list
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/templates/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Page)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    expect(result.results).to all(be_a(Didit::Types::MessageTemplate))
+    exercise_readers(result.results)
+  end
+
+  it "messages.templates.retrieve sends GET /v3/messages/templates/{template_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "id": "3b7f2c1e-9d4a-4e6b-8a15-6c0d2f9e7a42",
+        "name": "Order shipped",
+        "description": "Sent when an order leaves the warehouse.",
+        "channels": [
+          "email",
+          "sms",
+          "whatsapp"
+        ],
+        "languages": [
+          "en"
+        ],
+        "variables": [
+          "order_number",
+          "customer"
+        ],
+        "variable_examples": {
+          "customer": "Ana",
+          "order_number": "1042"
+        },
+        "whatsapp": {
+          "status": "pending",
+          "reason": ""
+        },
+        "version": 1,
+        "contents": [
+          {
+            "channel": "email",
+            "language": "en",
+            "subject": "Order {{order_number}} ships today",
+            "body": "Hi {{customer}},\n\nyour order {{order_number}} ships today.",
+            "whatsapp": null,
+            "updated_at": "2026-11-21T10:00:00Z"
+          },
+          {
+            "channel": "sms",
+            "language": "en",
+            "subject": null,
+            "body": "Hi {{customer}}, order {{order_number}} ships today.",
+            "whatsapp": null,
+            "updated_at": "2026-11-21T10:00:00Z"
+          },
+          {
+            "channel": "whatsapp",
+            "language": "en",
+            "subject": null,
+            "body": "Hi {{customer}}, order {{order_number}} ships today.",
+            "whatsapp": {
+              "status": "pending",
+              "reason": ""
+            },
+            "updated_at": "2026-11-21T10:00:00Z"
+          }
+        ],
+        "created_at": "2026-11-21T10:00:00Z",
+        "updated_at": "2026-11-21T10:00:00Z"
+      }
+    JSON
+    result = client.messages.templates.retrieve(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/messages/templates/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::MessageTemplate)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "messages.templates.update sends PATCH /v3/messages/templates/{template_id}/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "id": "3b7f2c1e-9d4a-4e6b-8a15-6c0d2f9e7a42",
+        "name": "Order on its way",
+        "description": "Sent when an order leaves the warehouse.",
+        "channels": [
+          "email",
+          "sms",
+          "whatsapp"
+        ],
+        "languages": [
+          "en"
+        ],
+        "variables": [
+          "order_number",
+          "customer"
+        ],
+        "variable_examples": {
+          "customer": "Ana",
+          "order_number": "1042"
+        },
+        "whatsapp": {
+          "status": "pending",
+          "reason": ""
+        },
+        "version": 2,
+        "contents": [
+          {
+            "channel": "email",
+            "language": "en",
+            "subject": "Order {{order_number}} ships today",
+            "body": "Hi {{customer}},\n\nyour order {{order_number}} ships today.",
+            "whatsapp": null,
+            "updated_at": "2026-11-21T10:00:00Z"
+          },
+          {
+            "channel": "sms",
+            "language": "en",
+            "subject": null,
+            "body": "Hi {{customer}}, order {{order_number}} ships today.",
+            "whatsapp": null,
+            "updated_at": "2026-11-21T10:00:00Z"
+          },
+          {
+            "channel": "whatsapp",
+            "language": "en",
+            "subject": null,
+            "body": "Hi {{customer}}, order {{order_number}} ships today.",
+            "whatsapp": {
+              "status": "pending",
+              "reason": ""
+            },
+            "updated_at": "2026-11-21T10:00:00Z"
+          }
+        ],
+        "created_at": "2026-11-21T10:00:00Z",
+        "updated_at": "2026-11-21T10:00:00Z"
+      }
+    JSON
+    result = client.messages.templates.update(
+      "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
+      name: "Order on its way",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :patch,
+      url: "https://verification.didit.me/v3/messages/templates/3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "name" => "Order on its way"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::MessageTemplate)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

@@ -3,6 +3,66 @@
 
 module Didit
   module Types
+    # The channel the choice applies to.
+    module MessagesConsentUpdateParamsChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      RCS = "rcs"
+      VIBER = "viber"
+      VOICE = "voice"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, RCS, VIBER, VOICE, EMAIL].freeze
+    end
+
+    # Where the choice came from, returned as you send it; `api` when left out. `reassigned` is only a label you can
+    # record: Didit does not detect a change of owner.
+    module MessagesConsentUpdateParamsSource
+      STOP_REPLY = "stop_reply"
+      START_REPLY = "start_reply"
+      BOT_LEFT = "bot_left"
+      API = "api"
+      CONSOLE = "console"
+      REASSIGNED = "reassigned"
+
+      VALUES = [STOP_REPLY, START_REPLY, BOT_LEFT, API, CONSOLE, REASSIGNED].freeze
+    end
+
+    # `opted_out` refuses sends on this channel; `opted_in` allows them again.
+    module MessagesConsentUpdateParamsStatus
+      OPTED_IN = "opted_in"
+      OPTED_OUT = "opted_out"
+
+      VALUES = [OPTED_IN, OPTED_OUT].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessagesConversationsListParamsStatus
+      OPEN = "open"
+      NEEDS_REPLY = "needs_reply"
+      CLOSED = "closed"
+
+      VALUES = [OPEN, NEEDS_REPLY, CLOSED].freeze
+    end
+
+    # `closed` takes the thread out of the open list and keeps its messages readable; `open` puts it back.
+    module MessagesConversationsUpdateParamsStatus
+      OPEN = "open"
+      CLOSED = "closed"
+
+      VALUES = [OPEN, CLOSED].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessagesConversationsWebhooksCreateParamsEvents
+      MESSAGE_RECEIVED = "message.received"
+      MESSAGE_STATUS_UPDATED = "message.status.updated"
+      CONTACT_CONSENT_UPDATED = "contact.consent.updated"
+
+      VALUES = [MESSAGE_RECEIVED, MESSAGE_STATUS_UPDATED, CONTACT_CONSENT_UPDATED].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module MessagesListParamsChannel
       SMS = "sms"
@@ -49,6 +109,28 @@ module Didit
       EMAIL = "email"
 
       VALUES = [SMS, WHATSAPP, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessagesTemplatesListParamsChannel
+      SMS = "sms"
+      WHATSAPP = "whatsapp"
+      TELEGRAM = "telegram"
+      EMAIL = "email"
+
+      VALUES = [SMS, WHATSAPP, TELEGRAM, EMAIL].freeze
+    end
+
+    # Known values of an open enum: the API may send others.
+    module MessagesTemplatesListParamsStatus
+      APPROVED = "approved"
+      IN_REVIEW = "in_review"
+      REJECTED = "rejected"
+      PAUSED = "paused"
+      DRAFT = "draft"
+      NO_REVIEW = "no_review"
+
+      VALUES = [APPROVED, IN_REVIEW, REJECTED, PAUSED, DRAFT, NO_REVIEW].freeze
     end
 
     class MessagesRulesCreateResponse < Didit::Model

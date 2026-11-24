@@ -2,6 +2,59 @@
 
 module Didit
   module Types
+    module MessagesConsentUpdateParamsChannel
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      RCS: String
+      VIBER: String
+      VOICE: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConsentUpdateParamsSource
+      STOP_REPLY: String
+      START_REPLY: String
+      BOT_LEFT: String
+      API: String
+      CONSOLE: String
+      REASSIGNED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConsentUpdateParamsStatus
+      OPTED_IN: String
+      OPTED_OUT: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConversationsListParamsStatus
+      OPEN: String
+      NEEDS_REPLY: String
+      CLOSED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConversationsUpdateParamsStatus
+      OPEN: String
+      CLOSED: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesConversationsWebhooksCreateParamsEvents
+      MESSAGE_RECEIVED: String
+      MESSAGE_STATUS_UPDATED: String
+      CONTACT_CONSENT_UPDATED: String
+
+      VALUES: Array[String]
+    end
+
     module MessagesListParamsChannel
       SMS: String
       WHATSAPP: String
@@ -45,9 +98,35 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessagesTemplatesListParamsChannel
+      SMS: String
+      WHATSAPP: String
+      TELEGRAM: String
+      EMAIL: String
+
+      VALUES: Array[String]
+    end
+
+    module MessagesTemplatesListParamsStatus
+      APPROVED: String
+      IN_REVIEW: String
+      REJECTED: String
+      PAUSED: String
+      DRAFT: String
+      NO_REVIEW: String
+
+      VALUES: Array[String]
+    end
+
     class MessagesRulesCreateResponse < Didit::Model
       def rule_id: () -> String
     end
+
+    type messages_consent_update_params = { channel: String, status: String, ?source: String }
+
+    type messages_conversations_update_params = { ?assignee: String?, ?status: String, ?read_up_to: String }
+
+    type messages_conversations_webhooks_create_params = { url: String, ?events: Array[String] }
 
     type messages_rules_create_params = { action: String, ?direction: String, match: Didit::Types::messages_rules_create_params_match, ?channels: Array[String] }
 
@@ -56,6 +135,8 @@ module Didit
     type messages_send_params = { to: String, ?to_email: String, ?channels: Array[String], ?body: String, ?template_id: String, ?variables: Hash[String | Symbol, String], ?locale: String, ?subject: String, ?schedule_at: Time | String, ?expires_at: Time | String, ?correlation_id: String, ?options: Didit::Types::messages_send_params_options }
 
     type messages_send_params_options = { ?append_opt_out_line: bool }
+
+    type messages_templates_update_params = { ?name: String, ?description: String, ?variable_examples: Hash[String | Symbol, String], ?contents: Array[Didit::Types::message_template_content_input] }
 
     type messages_update_settings_params = { retention_days: Integer }
   end
