@@ -93,6 +93,14 @@ module Didit
       VALUES = [MESSAGE_RECEIVED, MESSAGE_STATUS_UPDATED, CONTACT_CONSENT_UPDATED].freeze
     end
 
+    # What the recipient did after the message.
+    module MessagesFeedbackCreateParamsOutcome
+      CONVERTED = "converted"
+      NOT_CONVERTED = "not_converted"
+
+      VALUES = [CONVERTED, NOT_CONVERTED].freeze
+    end
+
     # Known values of an open enum: the API may send others.
     module MessagesListParamsChannel
       SMS = "sms"

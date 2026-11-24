@@ -25,6 +25,11 @@ module Didit
         @conversations ||= Conversations.new(@client)
       end
 
+      # @return [Didit::Resources::Messages::Feedback]
+      def feedback
+        @feedback ||= Feedback.new(@client)
+      end
+
       # @return [Didit::Resources::Messages::Rules]
       def rules
         @rules ||= Rules.new(@client)
@@ -748,6 +753,44 @@ module Didit
               request_options: request_options
             )
           end
+        end
+      end
+
+      # The +messages.feedback+ resource.
+      class Feedback < Didit::Resource
+        # Report what the recipient did after a message
+        #
+        # Record what the recipient did after a message: `converted` or `not_converted`, and when. Analytics groups
+        # outcomes by channel and template. It measures time to the action from delivery, or from send time when there
+        # is no delivery receipt. One outcome per message: a second one answers `409 feedback_exists`.
+        #
+        # An `occurred_at` more than five minutes in the future returns `400` with an error on that field. If the
+        # application has no message with this ID, the API returns `404` with a `detail` message.
+        #
+        # A scoped API key needs `messages: write`.
+        #
+        # +POST /v3/messages/{message_id}/feedback/+
+        #
+        # @param message_id [String] The message's id, or the id of any of its attempts.
+        # @param outcome [String] What the recipient did after the message.
+        # @param occurred_at [Time, String] When the recipient acted. The timestamp can be up to five minutes ahead of
+        #   the service clock. Omit it to use the time of the request.
+        # @param idempotency_key [String] sent as the Idempotency-Key header
+        # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+        # @return [Didit::Types::MessageFeedbackResponse]
+        def create(message_id, outcome:, occurred_at: OMIT, idempotency_key: OMIT, request_options: nil)
+          @client.request(
+            :post,
+            "/v3/messages/{message_id}/feedback/",
+            path_params: { "message_id" => message_id },
+            body: {
+              "outcome" => outcome,
+              "occurred_at" => occurred_at
+            },
+            headers: { "Idempotency-Key" => idempotency_key },
+            response: Types::MessageFeedbackResponse,
+            request_options: request_options
+          )
         end
       end
 

@@ -306,6 +306,67 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.validate sends POST /v3/phone/validate/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "valid": true,
+        "format": {
+          "e164": "+34600000012",
+          "national": "600 00 00 12"
+        },
+        "country": "ES",
+        "charged": false
+      }
+    JSON
+    result = client.phone.validate(
+      phone_number: "0600000012",
+      country: "ES",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/validate/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "0600000012",
+      "country" => "ES"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneValidateResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.balance.retrieve sends GET /v3/phone/balance/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "balance": "1240.50",
+        "auto_top_up": {
+          "enabled": true,
+          "amount": "50.00",
+          "below": "20.00"
+        }
+      }
+    JSON
+    result = client.phone.balance.retrieve
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/balance/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneBalanceResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.countries.update sends PATCH /v3/phone/countries/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -1699,6 +1760,38 @@ RSpec.describe Didit::Resources::Phone do
     expect(result).to be_nil
   end
 
+  it "phone.sandbox_numbers.create sends POST /v3/phone/sandbox/numbers/" do
+    calls = stub_api(status: 201, body: <<~'JSON')
+      {
+        "number_id": "87c2ad92-1279-4f14-bdc4-33f74b945aef",
+        "outcome": "silent_match"
+      }
+    JSON
+    result = client.phone.sandbox_numbers.create(
+      phone_number: "+34600000099",
+      outcome: "silent_match",
+      code: "000000",
+      idempotency_key: "idem-key-1"
+    )
+    request = expect_api_request(
+      calls,
+      method: :post,
+      url: "https://verification.didit.me/v3/phone/sandbox/numbers/",
+      query: [],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_json_body(request, {
+      "phone_number" => "+34600000099",
+      "outcome" => "silent_match",
+      "code" => "000000"
+    })
+    expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
+    expect(result).to be_a(Didit::Types::PhoneSandboxNumberResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.sdk_keys.create sends POST /v3/phone/sdk-keys/" do
     calls = stub_api(status: 201, body: <<~'JSON')
       {
@@ -2075,6 +2168,78 @@ RSpec.describe Didit::Resources::Phone do
     exercise_readers(result)
   end
 
+  it "phone.stats.retrieve sends GET /v3/phone/stats/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "rows": [
+          {
+            "key": "Mobile network A",
+            "conversion_rate": 0.94,
+            "silent_success_rate": 0.3572,
+            "code_free_share": 0.38,
+            "delivery_seconds": {
+              "p50": 2.1,
+              "p90": 6.4,
+              "p99": 12.8
+            },
+            "read_rate": 0,
+            "reply_rate": 0,
+            "spend": "412.20"
+          },
+          {
+            "key": "Mobile network B",
+            "conversion_rate": 0.88,
+            "silent_success_rate": 0.2728,
+            "code_free_share": 0.31,
+            "delivery_seconds": {
+              "p50": 3.4,
+              "p90": 8.1,
+              "p99": 15.2
+            },
+            "read_rate": 0,
+            "reply_rate": 0,
+            "spend": "298.40"
+          }
+        ]
+      }
+    JSON
+    result = client.phone.stats.retrieve(
+      product: "verification",
+      group_by: "network",
+      from: "2026-10-22",
+      to: "2026-11-20"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/stats/",
+      query: [
+        [
+          "product",
+          "verification"
+        ],
+        [
+          "group_by",
+          "network"
+        ],
+        [
+          "from",
+          "2026-10-22"
+        ],
+        [
+          "to",
+          "2026-11-20"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneStatsResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
   it "phone.verifications.approve sends POST /v3/phone/verifications/{verification_id}/approve/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {
@@ -2328,6 +2493,42 @@ RSpec.describe Didit::Resources::Phone do
     expect_json_body(request, {})
     expect(request.headers["Idempotency-Key"]).to eq("idem-key-1")
     expect(result).to be_a(Didit::Types::PhoneVerificationRetryResponse)
+    expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
+    exercise_readers(result)
+  end
+
+  it "phone.voices.list sends GET /v3/phone/voices/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "voices": [
+          {
+            "voice_id": "es-es-female",
+            "locale": "es-ES",
+            "gender": "female",
+            "sample_url": null,
+            "default": true
+          }
+        ]
+      }
+    JSON
+    result = client.phone.voices.list(
+      locale: "es-ES"
+    )
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/phone/voices/",
+      query: [
+        [
+          "locale",
+          "es-ES"
+        ]
+      ],
+      auth: :api_key,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).to be_a(Didit::Types::PhoneVoiceListResponse)
     expect(result.to_h).to eq(JSON.parse(calls.body, symbolize_names: true))
     exercise_readers(result)
   end

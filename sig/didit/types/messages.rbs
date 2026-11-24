@@ -83,6 +83,13 @@ module Didit
       VALUES: Array[String]
     end
 
+    module MessagesFeedbackCreateParamsOutcome
+      CONVERTED: String
+      NOT_CONVERTED: String
+
+      VALUES: Array[String]
+    end
+
     module MessagesListParamsChannel
       SMS: String
       WHATSAPP: String
@@ -163,6 +170,8 @@ module Didit
     type messages_conversations_update_params = { ?assignee: String?, ?status: String, ?read_up_to: String }
 
     type messages_conversations_webhooks_create_params = { url: String, ?events: Array[String] }
+
+    type messages_feedback_create_params = { outcome: String, ?occurred_at: Time | String }
 
     type messages_rules_create_params = { action: String, ?direction: String, match: Didit::Types::messages_rules_create_params_match, ?channels: Array[String] }
 

@@ -12,6 +12,53 @@ module Didit
         @destinations ||= Destinations.new(@client)
       end
 
+      # Add a webhook endpoint
+      #
+      # Create a webhook endpoint: an HTTPS endpoint that receives the events in `events`. Send the event types to
+      # deliver, or `["*"]` for every event Didit lists: `*` is expanded when the endpoint is created and the answer
+      # lists the event names it now carries. An event Didit does not know answers `400 invalid_events`.
+      #
+      # The endpoint it creates is the destination the Business Console lists and `GET /v3/webhook/destinations/`
+      # returns: `webhook_id` is that destination's `destination_uuid`, `secret` is the same signing secret as
+      # `secret_shared_key`, and `events` is its stored `subscribed_events`, changed later through `PATCH
+      # /v3/webhook/destinations/{destination_uuid}/`. `description` names it in the console; left out, it takes the
+      # host of `url`. The `(application, url)` pair must be unique among the application's destinations.
+      #
+      # Didit delivers events only to the HTTPS endpoint in `url`.
+      #
+      # **Errors.** `400 invalid_url`: `url` is not an HTTPS URL, or the application already has an endpoint at it.
+      # `400 invalid_events`: an event in `events` is not one Didit lists.
+      #
+      # A scoped API key needs `webhooks: write`.
+      #
+      # +POST /v3/webhooks/+
+      #
+      # @param url [String] HTTPS endpoint that receives `POST` requests, one per event. Must be unique among the
+      #   application's destinations. Use a stable, hardened endpoint: Didit retries failed deliveries on a backoff
+      #   schedule.
+      # @param events [Array<String>] Event types to deliver, or `["*"]` for every event Didit lists. `*` is expanded
+      #   when the endpoint is created, and the answer lists every event it covers. A value Didit does not know answers
+      #   `400 invalid_events`.
+      # @param description [String] Its name in the console, so you can tell endpoints apart. Left out, it takes the
+      #   host of `url`.
+      # @param idempotency_key [String] sent as the Idempotency-Key header
+      # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
+      # @return [Didit::Types::WebhookCreateResponse]
+      def create(url:, events:, description: OMIT, idempotency_key: OMIT, request_options: nil)
+        @client.request(
+          :post,
+          "/v3/webhooks/",
+          body: {
+            "url" => url,
+            "events" => events,
+            "description" => description
+          },
+          headers: { "Idempotency-Key" => idempotency_key },
+          response: Types::WebhookCreateResponse,
+          request_options: request_options
+        )
+      end
+
       # Get webhook configuration
       #
       # Return the application's webhook settings in one call: every [webhook

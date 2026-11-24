@@ -3095,6 +3095,14 @@ module Didit
       VALUES = [INVALID_RECIPIENT, UNREACHABLE, REJECTED, OPTED_OUT, EXPIRED, TEMPLATE_REQUIRED, CHANNEL_UNAVAILABLE, INSUFFICIENT_CREDITS, RATE_LIMITED, DELIVERY_UNCONFIRMED, CANCELLED, TEMPLATE_CHANNEL_MISSING, TEMPLATE_VARIABLE_MISSING, EMPTY_BODY, BODY_TOO_LONG, UNKNOWN].freeze
     end
 
+    # As sent.
+    module MessageFeedbackResponseOutcome
+      CONVERTED = "converted"
+      NOT_CONVERTED = "not_converted"
+
+      VALUES = [CONVERTED, NOT_CONVERTED].freeze
+    end
+
     # `scheduled`: waiting for `schedule_at`. `queued`: accepted, waiting to go out. `sending`: being handed to the
     # carrier. `sent`: the carrier or platform accepted it. `delivered`: delivered to the device or inbox. `read`: a
     # WhatsApp read receipt or an email open. `failed`: not delivered, see `error`. `cancelled`: cancelled before its
@@ -4243,6 +4251,15 @@ module Didit
       BLOCKED = "Blocked"
 
       VALUES = [SUCCESS, RETRY, BLOCKED].freeze
+    end
+
+    # Its voice.
+    module PhoneVoiceGender
+      FEMALE = "female"
+      MALE = "male"
+      NEUTRAL = "neutral"
+
+      VALUES = [FEMALE, MALE, NEUTRAL].freeze
     end
 
     # Known values of an open enum: the API may send others.
@@ -11761,6 +11778,12 @@ module Didit
       field :message, "message", :string
     end
 
+    class MessageFeedbackResponse < Didit::Model
+      field :message_id, "message_id", :string
+      field :outcome, "outcome", :string
+      field :conversion_seconds, "conversion_seconds", :integer
+    end
+
     class MessageList < Didit::Model
       field :count, "count", :integer
       field :next, "next", :string
@@ -12463,9 +12486,27 @@ module Didit
       field :failed_insufficient_balance, "failed_insufficient_balance", :integer
     end
 
+    class PhoneAutoTopUp < Didit::Model
+      field :enabled, "enabled", :boolean
+      field :amount, "amount", :string
+      field :below, "below", :string
+    end
+
+    class PhoneBalanceResponse < Didit::Model
+      field :balance, "balance", :string
+      field :auto_top_up, "auto_top_up", "PhoneAutoTopUp"
+    end
+
     # How many country entries the request carried.
     class PhoneCountriesUpdateResponse < Didit::Model
       field :updated, "updated", :integer
+    end
+
+    # Time from send to delivery, in seconds.
+    class PhoneDeliverySeconds < Didit::Model
+      field :p50, "p50", :float
+      field :p90, "p90", :float
+      field :p99, "p99", :float
     end
 
     class PhoneFactor < Didit::Model
@@ -12663,6 +12704,12 @@ module Didit
       field :results, "results", [:array, "PhoneNetworkRegistrationSummary"]
     end
 
+    # The number in international and national form.
+    class PhoneNumberFormat < Didit::Model
+      field :e164, "e164", :string
+      field :national, "national", :string
+    end
+
     class PhoneRateLimit < Didit::Model
       field :rate_limit_id, "rate_limit_id", :string
       field :key, "key", :string
@@ -12720,6 +12767,11 @@ module Didit
     class PhoneRiskResponsePhoneCarrier < Didit::Model
       field :name, "name", :string
       field :type, "type", :string
+    end
+
+    class PhoneSandboxNumberResponse < Didit::Model
+      field :number_id, "number_id", :string
+      field :outcome, "outcome", :string
     end
 
     # A publishable key of a client SDK. It is not a secret: it is bound to the app ids it may run in and cannot make
@@ -12848,6 +12900,29 @@ module Didit
       field :not_registered_platforms, "not_registered_platforms", [:array, "SocialFootprintPlatform"]
       field :categories, "categories", [:map, "SocialFootprintCategorySummary"]
       field :profiles, "profiles", [:map, "SocialFootprintProfile"]
+    end
+
+    class PhoneStatsResponse < Didit::Model
+      field :rows, "rows", [:array, "PhoneStatsRow"]
+    end
+
+    # One group of the filtered figures.
+    class PhoneStatsRow < Didit::Model
+      field :key, "key", :string
+      field :conversion_rate, "conversion_rate", :float
+      field :silent_success_rate, "silent_success_rate", :float
+      field :code_free_share, "code_free_share", :float
+      field :delivery_seconds, "delivery_seconds", "PhoneDeliverySeconds"
+      field :read_rate, "read_rate", :float
+      field :reply_rate, "reply_rate", :float
+      field :spend, "spend", :string
+    end
+
+    class PhoneValidateResponse < Didit::Model
+      field :valid, "valid", :boolean
+      field :format, "format", "PhoneNumberFormat"
+      field :country, "country", :string
+      field :charged, "charged", :boolean
     end
 
     class PhoneVerificationApproveResponse < Didit::Model
@@ -13011,6 +13086,18 @@ module Didit
       field :challenge_source, "challenge_source", :string
       field :channels_allowed, "channels_allowed", [:array, :string]
       field :exception, "exception", :string
+    end
+
+    class PhoneVoice < Didit::Model
+      field :voice_id, "voice_id", :string
+      field :locale, "locale", :string
+      field :gender, "gender", :string
+      field :sample_url, "sample_url", :string
+      field :default, "default", :boolean
+    end
+
+    class PhoneVoiceListResponse < Didit::Model
+      field :voices, "voices", [:array, "PhoneVoice"]
     end
 
     class PublicPriceBook < Didit::Model
@@ -17153,6 +17240,12 @@ module Didit
       field :subscribed_events, "subscribed_events", [:array, :string]
       field :created_at, "created_at", :datetime
       field :updated_at, "updated_at", :datetime
+    end
+
+    class WebhookCreateResponse < Didit::Model
+      field :webhook_id, "webhook_id", :string
+      field :secret, "secret", :string
+      field :events, "events", [:array, :string]
     end
 
     class WebhookDestinationActivity < Didit::Model
