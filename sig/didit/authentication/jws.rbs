@@ -1,0 +1,41 @@
+module Didit
+  class Authentication
+    module Jws
+      type kind = :access | :id
+
+      ALGORITHM: String
+      MAX_TOKEN_LENGTH: Integer
+      ACCESS_TYPES: Array[String]
+      ID_TYPES: Array[String]
+      ZERO: String
+      JSON_OPTIONS: Hash[Symbol, untyped]
+      DECODE_OPTIONS: Hash[Symbol, untyped]
+
+      class Parsed
+        attr_reader token: String
+        attr_reader header: Hash[String, untyped]
+        attr_reader claims: Hash[String, untyped]
+        attr_reader signature: String
+        attr_reader kid: String
+
+        def initialize: (token: String, header: Hash[String, untyped], claims: Hash[String, untyped], signature: String,
+                         kid: String) -> void
+      end
+
+      def self?.parse: (untyped token, Symbol kind) -> Parsed
+      def self?.verify_signature: (Parsed parsed, OpenSSL::PKey::EC key) -> nil
+      def self?.check_claims: (Hash[String, untyped] claims, kind: Symbol, issuer: String, audience: Array[String]?,
+                               nonce: String?, leeway: Float, now: Float) -> nil
+      def self?.shown: (untyped value) -> String
+      def self?.fail!: (Symbol reason, String message) -> bot
+      def self?.json_object: (String segment, String part) -> Hash[String, untyped]
+      def self?.check_header: (Hash[String, untyped] header, Symbol kind) -> void
+      def self?.check_type: (untyped typ, Symbol kind) -> void
+      def self?.check_issuer: (Hash[String, untyped] claims, String issuer) -> void
+      def self?.check_times: (Hash[String, untyped] claims, Float leeway, Float now) -> void
+      def self?.numeric_date: (Hash[String, untyped] claims, String name) -> Float
+      def self?.check_audience: (Hash[String, untyped] claims, Array[String] audience) -> void
+      def self?.check_nonce: (Hash[String, untyped] claims, String? nonce) -> void
+    end
+  end
+end

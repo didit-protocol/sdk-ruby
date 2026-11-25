@@ -1,0 +1,58 @@
+name: Bug report
+description: Something in the Didit Ruby SDK does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste API keys, webhook secrets, access or refresh tokens, or personal data**
+        (names, documents, images, addresses, phone numbers, emails) into this issue.
+        Replace them with placeholders such as `YOUR_API_KEY`.
+
+        To report a security vulnerability, do not open an issue: see [SECURITY.md](https://github.com/didit-protocol/sdk-ruby/blob/main/SECURITY.md).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest Ruby code that shows the problem, with secrets and personal data removed.
+      render: ruby
+    validations:
+      required: true
+  - type: textarea
+    id: error-output
+    attributes:
+      label: Error output
+      description: |
+        The error class, message and backtrace, and the request id of the failing API call if there is one
+        (`error.request_id` on `Didit::APIStatusError`, also part of its message). Remove secrets first.
+      render: text
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK version
+      description: "Output of `ruby -e 'require \"didit\"; puts Didit::VERSION'` (or `bundle exec` it)."
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: ruby-version
+    attributes:
+      label: Ruby version and operating system
+      description: Output of `ruby -v`, and the operating system.
+      placeholder: "ruby 3.4.8 (2025-12-17 revision 995b59f666) +PRISM [x86_64-linux], Ubuntu 24.04"
+    validations:
+      required: true
+  - type: checkboxes
+    id: no-secrets
+    attributes:
+      label: Confirmation
+      options:
+        - label: I removed every API key, secret, token and piece of personal data from this issue.
+          required: true
