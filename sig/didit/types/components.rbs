@@ -8402,6 +8402,7 @@ module Didit
       def status: () -> String?
       def institution_id: () -> String?
       def institution_name: () -> String?
+      def logo_url: () -> String?
       def institution_country: () -> String?
       def oauth: () -> bool?
       def connected_at: () -> Time?
