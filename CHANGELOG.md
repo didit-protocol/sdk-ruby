@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.45.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.44.0...v2.45.0) (2026-11-25)
+
+
+### Features
+
+* **webhooks:** Bank link and connection event fields (renews_connection_id, ends_at, unpaid) in the hand-written webhook events [sdk-ruby ([#159](https://github.com/didit-protocol/sdk-ruby/issues/159)) ([9af5ba1](https://github.com/didit-protocol/sdk-ruby/commit/9af5ba103405479cbae3a5ac47b439e13cfb6f56))
+
 ## [2.44.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.43.0...v2.44.0) (2026-11-24)
 
 
