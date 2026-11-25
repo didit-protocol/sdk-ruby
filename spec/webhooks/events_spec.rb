@@ -53,9 +53,10 @@ module WebhookSpecs
     end
 
     bank_recordings.fetch("deliveries").each_with_index do |record, index|
-      type = JSON.parse(record.fetch("body")).fetch("webhook_type")
-      it "authenticates the recorded #{type} (delivery #{index}) and reads its fields" do
+      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} (delivery #{index}) " \
+         "and reads its fields" do
         body = JSON.parse(record.fetch("body"))
+        type = body.fetch("webhook_type")
         event = Didit::Client.new.webhooks.verify(record.fetch("body"), record.fetch("headers"),
                                                   self.class.bank_recordings.fetch("secret"), now: record.fetch("now"))
         klass = Didit::Webhooks.const_get("#{type.split(/[._]/).map(&:capitalize).join}Event", false)
@@ -73,10 +74,10 @@ module WebhookSpecs
       end
     end
 
-    def bank_event(type, &filter)
+    def bank_event(type)
       record = self.class.bank_recordings.fetch("deliveries").find do |candidate|
         body = JSON.parse(candidate.fetch("body"))
-        body.fetch("webhook_type") == type && filter.call(body)
+        body.fetch("webhook_type") == type && yield(body)
       end
       Didit::Webhooks.parse_event(JSON.parse(record.fetch("body")))
     end
