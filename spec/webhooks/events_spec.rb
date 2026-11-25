@@ -49,11 +49,12 @@ module WebhookSpecs
       types = self.class.bank_recordings.fetch("deliveries").map do |record|
         JSON.parse(record.fetch("body")).fetch("webhook_type")
       end
-      expect(types).to match_array(Didit::Webhooks::EVENT_CLASSES.keys.grep(/\Abank\./))
+      expect(types.uniq).to match_array(Didit::Webhooks::EVENT_CLASSES.keys.grep(/\Abank\./))
     end
 
-    bank_recordings.fetch("deliveries").each do |record|
-      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} and reads its fields" do
+    bank_recordings.fetch("deliveries").each_with_index do |record, index|
+      it "authenticates the recorded #{JSON.parse(record.fetch("body")).fetch("webhook_type")} (delivery #{index}) " \
+         "and reads its fields" do
         body = JSON.parse(record.fetch("body"))
         type = body.fetch("webhook_type")
         event = Didit::Client.new.webhooks.verify(record.fetch("body"), record.fetch("headers"),
@@ -71,6 +72,51 @@ module WebhookSpecs
         end
         expect(event.data).to be_a(Didit::Webhooks::BankLinkEventData) if body.key?("data")
       end
+    end
+
+    def bank_event(type)
+      record = self.class.bank_recordings.fetch("deliveries").find do |candidate|
+        body = JSON.parse(candidate.fetch("body"))
+        body.fetch("webhook_type") == type && yield(body)
+      end
+      Didit::Webhooks.parse_event(JSON.parse(record.fetch("body")))
+    end
+
+    it "reads renews_connection_id and correlates a link to its connection in both shapes" do
+      target = "cccccccc-0000-4000-8000-000000000001"
+      before = bank_event("bank.link.expired") { |body| body["data"].key?("renews_connection_id") }
+      expect(before).to have_attributes(connection_id: nil, renews_connection_id: target)
+      completed = bank_event("bank.link.completed") { |body| body["data"].key?("renews_connection_id") }
+      expect(completed).to have_attributes(connection_id: target, renews_connection_id: target)
+      older = bank_event("bank.link.failed") { |body| body["data"]["connection_id"] }
+      expect(older).to have_attributes(connection_id: target, renews_connection_id: nil)
+      expect(older.deconstruct_keys([:renews_connection_id])).to eq(renews_connection_id: nil)
+      [before, completed, older].each do |event|
+        expect(event.renews_connection_id || event.connection_id).to eq(target)
+      end
+    end
+
+    it "reads renews_connection_id as nil on a link event stored before the field existed" do
+      event = bank_event("bank.link.cancelled") { |body| !body["data"].key?("renews_connection_id") }
+      expect(event.data.renews_connection_id).to be_nil
+      expect(event.renews_connection_id).to be_nil
+      expect(event.deconstruct_keys(nil)).to include(renews_connection_id: nil)
+    end
+
+    it "decodes both shapes of bank.connection.updated" do
+      revoking = bank_event("bank.connection.updated") { |body| body.key?("revocation_status") }
+      expect(revoking).to have_attributes(revocation_status: "pending", status_reason: nil, ends_at: nil)
+      suspended = bank_event("bank.connection.updated") { |body| body["status_reason"] }
+      expect(suspended).to have_attributes(revocation_status: nil, status_reason: "insufficient_balance",
+                                           ends_at: Time.iso8601("2026-12-01T00:00:00Z"))
+      active = bank_event("bank.connection.updated") { |body| body.key?("ends_at") && body["ends_at"].nil? }
+      expect(active).to have_attributes(revocation_status: nil, status_reason: nil, ends_at: nil)
+      expect(active.deconstruct_keys(%i[status_reason ends_at])).to eq(status_reason: nil, ends_at: nil)
+    end
+
+    it "reads a bank.connection.revoked that Didit ended because the month was not paid" do
+      event = bank_event("bank.connection.revoked") { |body| body["ended_by"] == "system" }
+      expect(event).to have_attributes(ended_by: "system", status_reason: "unpaid")
     end
 
     it "can match envelope and link fields when link data has an unexpected shape" do

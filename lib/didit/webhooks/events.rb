@@ -203,8 +203,13 @@ module Didit
       field :link_id, "link_id", :string
       # +"completed"+, +"cancelled"+, +"expired"+ or +"failed"+.
       field :status, "status", :string
-      # The connection the link created or renewed, when there is one.
+      # The connection the link created or renewed; +nil+ until the link completes. A replayed older
+      # failed renewal may carry its target here and no +renews_connection_id+.
       field :connection_id, "connection_id", :string
+      # The connection a renew link targets, set when the link is created; +nil+ on a link that renews
+      # nothing and on events stored before the field existed. To find the connection a link is about,
+      # use +renews_connection_id+ when present, otherwise +connection_id+.
+      field :renews_connection_id, "renews_connection_id", :string
       # The ownership result, when one was asked for.
       field :check_id, "check_id", :string
       # With +bank.link.failed+, for example +"consent_declined"+.
@@ -226,6 +231,10 @@ module Didit
 
       def connection_id
         link_data&.connection_id
+      end
+
+      def renews_connection_id
+        link_data&.renews_connection_id
       end
 
       def check_id
@@ -286,13 +295,19 @@ module Didit
       field :initial_status, "initial_status", :string
     end
 
-    # +bank.connection.updated+: a connection changed status; +revocation_status+ is +"pending"+
-    # while a revocation waits for the bank.
+    # +bank.connection.updated+: a connection changed status. It has two shapes: a revocation starting
+    # carries +connection_id+, +status+ and +revocation_status+ (+"pending"+ while the bank confirms);
+    # every other update carries +connection_id+, +status+, +status_reason+ and +ends_at+. The fields
+    # of the other shape read +nil+.
     class BankConnectionUpdatedEvent < BankConnectionEvent
       WEBHOOK_TYPE = "bank.connection.updated"
 
       field :status, "status", :string
       field :revocation_status, "revocation_status", :string
+      # +"insufficient_balance"+, +"first_sync_failed"+ or +nil+.
+      field :status_reason, "status_reason", :string
+      # When the paid period of the connection ends, or +nil+.
+      field :ends_at, "ends_at", :datetime
     end
 
     # +bank.connection.consent_expiring+: the consent ends in 14, 7 or 1 day.
@@ -333,8 +348,11 @@ module Didit
       WEBHOOK_TYPE = "bank.connection.revoked"
 
       field :status, "status", :string
-      # +"end_user"+, +"bank"+, +"customer"+ or +"unknown"+.
+      # +"end_user"+, +"bank"+, +"customer"+, +"system"+ or +"unknown"+. +"system"+ means Didit ended
+      # the connection: its coming month was not paid, or a one-time read completed.
       field :ended_by, "ended_by", :string
+      # For example +"revoked_by_bank"+, +"unpaid"+ (the coming month was not paid) or
+      # +"collection_complete"+.
       field :status_reason, "status_reason", :string
       field :ended_at, "ended_at", :datetime
       # How long the stored data stays readable.
