@@ -13793,6 +13793,11 @@ module Didit
       def session_id: () -> String?
       def session_age_ms: () -> Float?
       def network_context: () -> Didit::Types::TransactionDetailPartiesDeviceNetworkContext?
+      def metadata: () -> Didit::Types::TransactionDetailPartiesDeviceMetadata?
+    end
+
+    class TransactionDetailPartiesDeviceMetadata < Didit::Model
+      def bot_score: () -> untyped
     end
 
     class TransactionDetailPartiesDeviceNetworkContext < Didit::Model

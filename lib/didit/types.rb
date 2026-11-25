@@ -1972,6 +1972,7 @@ module Didit
     autoload :TransactionDetailNetworkSnapshot, "didit/types/components"
     autoload :TransactionDetailParties, "didit/types/components"
     autoload :TransactionDetailPartiesDevice, "didit/types/components"
+    autoload :TransactionDetailPartiesDeviceMetadata, "didit/types/components"
     autoload :TransactionDetailPartiesDeviceNetworkContext, "didit/types/components"
     autoload :TransactionDetailPartiesEntityType, "didit/types/components"
     autoload :TransactionDetailPartiesKind, "didit/types/components"
