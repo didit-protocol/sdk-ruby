@@ -15638,6 +15638,14 @@ module Didit
       field :session_id, "session_id", :string
       field :session_age_ms, "session_age_ms", :float
       field :network_context, "network_context", "TransactionDetailPartiesDeviceNetworkContext"
+      field :metadata, "metadata", "TransactionDetailPartiesDeviceMetadata"
+    end
+
+    # Further keys of the device context, free-form: the `metadata` that was sent, of any shape, returned as stored.
+    # For the subject (the `APPLICANT` party) of a transaction submitted from a device with a transaction token (`POST
+    # /v1/transactions/`, the Didit SDKs), Didit adds what it read from the request, such as `bot_score`.
+    class TransactionDetailPartiesDeviceMetadata < Didit::Model
+      field :bot_score, "bot_score", :any
     end
 
     # Network context with IP address and geo-location.
