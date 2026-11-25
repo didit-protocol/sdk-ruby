@@ -13378,7 +13378,7 @@ module Didit
 
     class SandboxSampleDocument < Didit::Model
       field :sandbox_sample, "sandbox_sample", :string
-      field :document_name, "document_name", :string
+      field :document_type, "document_type", :string
       field :is_default, "is_default", :boolean
       field :first_name, "first_name", :string
       field :last_name, "last_name", :string

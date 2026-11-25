@@ -11714,7 +11714,7 @@ module Didit
 
     class SandboxSampleDocument < Didit::Model
       def sandbox_sample: () -> String?
-      def document_name: () -> String
+      def document_type: () -> String?
       def is_default: () -> bool
       def first_name: () -> String?
       def last_name: () -> String?
