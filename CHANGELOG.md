@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.53.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.52.0...v2.53.0) (2026-11-25)
+
+
+### API changes that can break typed code
+
+* **spec:** `sandbox.list_scenarios` (`GET /v1/sandbox/scenarios/`): response `sample_identity.documents[].document_name`: removed ([94f197d](https://github.com/didit-protocol/sdk-ruby/commit/94f197d934d9c3da8f85b72ca47dda62f59674dc))
+* **spec:** `sessions.batch_delete` (`POST /v3/sessions/delete/`): request body `filter_document_name`: removed ([94f197d](https://github.com/didit-protocol/sdk-ruby/commit/94f197d934d9c3da8f85b72ca47dda62f59674dc))
+* **spec:** `sessions.list` (`GET /v3/sessions/`): query parameter `document_name`: removed ([94f197d](https://github.com/didit-protocol/sdk-ruby/commit/94f197d934d9c3da8f85b72ca47dda62f59674dc))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-25 ([94f197d](https://github.com/didit-protocol/sdk-ruby/commit/94f197d934d9c3da8f85b72ca47dda62f59674dc))
+
 ## [2.52.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.51.0...v2.52.0) (2026-11-25)
 
 
