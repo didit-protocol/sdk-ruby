@@ -56,7 +56,7 @@ RSpec.describe Didit::Resources::Sandbox do
           "documents": [
             {
               "sandbox_sample": null,
-              "document_name": "Brazil - Passport (2015)",
+              "document_type": "P",
               "is_default": true,
               "first_name": "ALICE",
               "last_name": "SILVA",

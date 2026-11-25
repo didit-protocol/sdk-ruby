@@ -702,7 +702,6 @@ RSpec.describe Didit::Resources::Sessions do
       date_to: "2026-06-30",
       country: "ESP,USA",
       document_type: "P,ID",
-      document_name: "Spain - Id Card (2021)",
       region: "CA,TX",
       didit_internal_id: "d9e78474-6c8d-4f2a-bb90-6f5c2f3a1147",
       session_type: "HOSTED",
@@ -762,10 +761,6 @@ RSpec.describe Didit::Resources::Sessions do
         [
           "document_type",
           "P,ID"
-        ],
-        [
-          "document_name",
-          "Spain - Id Card (2021)"
         ],
         [
           "region",

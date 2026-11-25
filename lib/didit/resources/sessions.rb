@@ -101,9 +101,9 @@ module Didit
       # - With `delete_all: true` you can narrow the selection with the filters of `GET /v3/sessions/`, each prefixed
       #   with `filter_` (for example `filter_status`, `filter_workflow_id`, `filter_date_from`). Filters that take
       #   several values in List Sessions (`status`, `workflow_id`, `country`, `region`, `document_type`,
-      #   `document_name`, `session_type`, `warning`, `organization_name`) accept a comma-separated string or an
-      #   array; the others take one value. An empty value is ignored. Filters apply only together with `delete_all`,
-      #   and a deletion job applies the same filters.
+      #   `session_type`, `warning`, `organization_name`) accept a comma-separated string or an array; the others take
+      #   one value. An empty value is ignored. Filters apply only together with `delete_all`, and a deletion job
+      #   applies the same filters.
       # - An unknown `filter_*` key, or a filter value that cannot be read, rejects the whole request with `400`
       #   before anything is deleted, so a mistyped filter never widens the deletion to every session.
       # - Entries in `session_numbers` that do not match a live KYC session in your application (unknown numbers,
@@ -204,10 +204,6 @@ module Didit
       #   `document_type` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A
       #   comma-separated string or an array. Ignored without `delete_all`. An empty value is ignored and does not
       #   narrow the selection.
-      # @param filter_document_name [String, Array<String>] Narrows a `delete_all` to the sessions that match the
-      #   `document_name` filter of [List Sessions](/sessions-api/list-sessions), with the same values. A
-      #   comma-separated string or an array. Ignored without `delete_all`. An empty value is ignored and does not
-      #   narrow the selection.
       # @param filter_region [String, Array<String>] Narrows a `delete_all` to the sessions that match the `region`
       #   filter of [List Sessions](/sessions-api/list-sessions), with the same values. A comma-separated string or an
       #   array. Ignored without `delete_all`. An empty value is ignored and does not narrow the selection.
@@ -263,7 +259,6 @@ module Didit
         filter_date_to: OMIT,
         filter_country: OMIT,
         filter_document_type: OMIT,
-        filter_document_name: OMIT,
         filter_region: OMIT,
         filter_didit_internal_id: OMIT,
         filter_session_type: OMIT,
@@ -296,7 +291,6 @@ module Didit
             "filter_date_to" => filter_date_to,
             "filter_country" => filter_country,
             "filter_document_type" => filter_document_type,
-            "filter_document_name" => filter_document_name,
             "filter_region" => filter_region,
             "filter_didit_internal_id" => filter_didit_internal_id,
             "filter_session_type" => filter_session_type,
@@ -1024,11 +1018,13 @@ module Didit
       # (registry-company country code), `date_from`, `date_to`, `search` (company name, registration number - type
       # registration numbers without separators, e.g. `DPC001` not `DPC-001` - vendor_data, session number, or session
       # UUID), `warning`, and `organization_name`; the remaining KYC-only filters are ignored for KYB rows.
-      # Comma-separated parameters (`status`, `country`, `document_type`, `region`, `workflow_id`, `document_name`,
-      # `warning`, `organization_name`, `session_type`) match any of the listed values (OR within the parameter).
-      # `vendor_data` is an exact match - use `search` for partial matching. Unknown values in list filters simply
-      # return no rows (no error); malformed typed values (`date_from`, `date_to`, `didit_internal_id`, `api_service`,
-      # `session_kind`) return `400` with a per-field error object.
+      # Comma-separated parameters (`status`, `country`, `document_type`, `region`, `workflow_id`, `warning`,
+      # `organization_name`, `session_type`) match any of the listed values (OR within the parameter). `vendor_data`
+      # is an exact match - use `search` for partial matching. Unknown values in list filters simply return no rows
+      # (no error); malformed typed values (`date_from`, `date_to`, `didit_internal_id`, `api_service`,
+      # `session_kind`) return `400` with a per-field error object. `document_name` is no longer accepted: a request
+      # that still sends it gets `400` with `{"document_name": ["This filter is not available."]}`. Filter by
+      # `document_type` and `country` instead.
       #
       # **Search.** `search` adapts to the input: a full UUID looks up `session_id`; digits (with optional `+ - .
       # space`) match session-number prefix, document/personal numbers, phone-number prefix, or `vendor_data`; values
@@ -1075,10 +1071,6 @@ module Didit
       #   `P` (Passport), `ID` (Identity Card), `DL` (Driver's License), `RP` (Residence Permit), `SSC` (Social Security
       #   Card), `HIC` (Health Insurance Card), `WP` (Work Permit), `TC` (Tax Card), `VISA`, `PSC` (Public Service
       #   Card), `BC` (Birth Certificate), `OTHER`. Note the response field `document_type` contains the display...
-      # @param document_name [String] Exact document names; multiple names can be passed comma-separated, but the
-      #   value is only split on commas when it contains more than one ` - ` separator (a lone name with an embedded
-      #   comma is matched whole). Names are as recognized by document verification (front or back side), e.g. `Spain -
-      #   Id Card (2021)`. KYC rows only.
       # @param region [String] Comma-separated document region/state values (for documents issued per region, such as
       #   US driver's licenses). KYC rows only.
       # @param didit_internal_id [String] Filter by Didit's internal user identifier (the `didit_internal_id` response
@@ -1120,7 +1112,6 @@ module Didit
         decided_to: OMIT,
         country: OMIT,
         document_type: OMIT,
-        document_name: OMIT,
         region: OMIT,
         didit_internal_id: OMIT,
         session_type: OMIT,
@@ -1151,7 +1142,6 @@ module Didit
             "decided_to" => decided_to,
             "country" => country,
             "document_type" => document_type,
-            "document_name" => document_name,
             "region" => region,
             "didit_internal_id" => didit_internal_id,
             "session_type" => session_type,
