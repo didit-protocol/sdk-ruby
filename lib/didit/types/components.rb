@@ -9488,6 +9488,7 @@ module Didit
       field :client_token, "client_token", :string
       field :expires_at, "expires_at", :datetime
       field :connection_id, "connection_id", :string
+      field :renews_connection_id, "renews_connection_id", :string
       field :check_id, "check_id", :string
       field :reused, "reused", :boolean
       field :error, "error", "BankLinkError"

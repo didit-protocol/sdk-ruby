@@ -8076,6 +8076,7 @@ module Didit
       def client_token: () -> String?
       def expires_at: () -> Time
       def connection_id: () -> String?
+      def renews_connection_id: () -> String?
       def check_id: () -> String?
       def reused: () -> bool
       def error: () -> Didit::Types::BankLinkError?
