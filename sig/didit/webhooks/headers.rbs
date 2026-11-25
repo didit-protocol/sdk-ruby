@@ -1,0 +1,22 @@
+module Didit
+  module Webhooks
+    class Headers
+      WANTED: Array[String]
+      HEX: Regexp
+
+      @values: Hash[String, Array[String]]
+
+      def initialize: (untyped source) -> void
+      def present?: (String name) -> bool
+      def signatures: (String name) -> Array[String]
+      def timestamp: () -> String?
+
+      private
+
+      def add: (untyped name, untyped value) -> void
+      def header_key: (untyped name) -> String?
+      def values: (String name) -> Array[String]
+      def parts: (String name) -> Array[String]
+    end
+  end
+end
