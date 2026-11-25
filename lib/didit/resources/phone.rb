@@ -481,10 +481,11 @@ module Didit
       #
       # **Billing.** The price depends on the destination country and the channel that actually delivers the message -
       # see [Phone Verification Pricing](/getting-started/phone-verification-pricing). A `Blocked` send is never
-      # charged, and neither is a send whose every message was reported undeliverable. Any other send is charged once,
-      # even if its delivery was never confirmed: when its delivery report arrives, or else when the verification
-      # finalizes or its code expires. Checks are always free. As an anti-abuse measure, phone verification is
-      # disabled until your organization has a paid plan or makes its first top-up (`403`).
+      # charged. A send whose every message was reported undeliverable is not charged either, unless a later delivery
+      # report shows one of its messages was delivered: that report charges it. Any other send is charged once, even
+      # if its delivery was never confirmed: when its delivery report arrives, or else at billing close, a few minutes
+      # after the code's 5-minute validity ends. Checks are always free. As an anti-abuse measure, phone verification
+      # is disabled until your organization has a paid plan or makes its first top-up (`403`).
       #
       # **Session persistence.** Every new verification is persisted as an API-type session: `request_id` is a real
       # session id you can pass to `GET /v3/session/{sessionId}/decision/`, the verification appears in the Business
