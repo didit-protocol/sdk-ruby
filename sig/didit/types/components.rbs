@@ -5250,6 +5250,7 @@ module Didit
       PHONE_VERIFICATION: String
       EMAIL_VERIFICATION: String
       DATABASE_VALIDATION: String
+      BANK_VERIFICATION: String
       AML: String
       IP_ANALYSIS: String
       AGE_ESTIMATION: String
