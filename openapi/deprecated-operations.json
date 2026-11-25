@@ -1,0 +1,4 @@
+{
+ "description": "SDK methods kept for one minor version after their operation was removed or renamed upstream (docs/DESIGN.md section 3.1). Written by codegen/spec_sync.rb; do not edit by hand. Each entry holds a dereferenced copy of the operation as it was, the SDK naming it had, deprecated_since (the SDK version when it was deprecated) and remove_in (the method ships deprecated through that version and is deleted by the first sync after it).",
+ "methods": {}
+}
