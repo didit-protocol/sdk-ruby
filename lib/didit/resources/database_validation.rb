@@ -30,9 +30,12 @@ module Didit
       # `DOCUMENT_SUPERSEDED`, `REGISTRY_UNAVAILABLE`, `REGISTRY_ERROR`). Note the distinctions: `NO_MATCH` is a
       # definitive mismatch, `INCONCLUSIVE` means the registry could not confirm either way (review, not decline), and
       # `BIOMETRIC_IMAGE_UNUSABLE` is a technical selfie problem (retake), unlike the definitive `BIOMETRIC_NO_MATCH`.
-      # The overall `match_type` aggregates across services (any full → `full_match`, else any partial →
-      # `partial_match`, else `no_match`) and `no_match_action`/`partial_match_action` translate it into the final
-      # `status`. `validation_type` is derived: `two_by_two` when two or more distinct services produced a full match
+      # The overall `match_type` aggregates the services that compared fields (any full → `full_match`, else any
+      # partial → `partial_match`, else `no_match`), except that a rejected fingerprint, a fraud-list hit and a
+      # deceased flag without compared fields override it whatever another service returned; a rejected selfie makes
+      # only its own service `no_match`. `status` is the decision: the results raise warnings, and
+      # `no_match_action`/`partial_match_action` decide what each warning does (see `match_type` and `status` in the
+      # response). `validation_type` is derived: `two_by_two` when two or more distinct services produced a full match
       # (on the identification number, on full name + date of birth together, or on the address without
       # contradictions), else `one_by_one`.
       #
