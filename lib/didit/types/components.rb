@@ -6197,16 +6197,22 @@ module Didit
       VALUES = [NOT_FINISHED, APPROVED, IN_REVIEW, DECLINED].freeze
     end
 
-    # Known values of an open enum: the API may send others.
+    # The warning. `SIGNATURE_OTP_NOT_CONFIRMED` means no code was sent because the code goes by SMS and the signer's
+    # phone is on your phone block list (the number, its prefix, its network or its country); the signing ended by
+    # `signature_otp_failed_action`, and the same warning in the session's activity, and in the top-level `warnings`
+    # of a version 1 decision and its webhooks, carries `additional_data.blocked_reason: "blocked_by_list"`. The
+    # signer's own flow never receives the reason. See [E-signature
+    # warnings](/core-technology/electronic-signature/warnings-electronic-signature).
     module SignatureResultWarningsCode
       SIGNATURE_DECLINED = "SIGNATURE_DECLINED"
       SIGNATURE_OTP_FAILED = "SIGNATURE_OTP_FAILED"
+      SIGNATURE_OTP_NOT_CONFIRMED = "SIGNATURE_OTP_NOT_CONFIRMED"
       SIGNATURE_NAME_MISMATCH = "SIGNATURE_NAME_MISMATCH"
       SIGNATURE_IDENTITY_NOT_VERIFIED = "SIGNATURE_IDENTITY_NOT_VERIFIED"
       SIGNATURE_DOCUMENT_CHANGED = "SIGNATURE_DOCUMENT_CHANGED"
       SIGNATURE_FIELD_DATA_MISSING = "SIGNATURE_FIELD_DATA_MISSING"
 
-      VALUES = [SIGNATURE_DECLINED, SIGNATURE_OTP_FAILED, SIGNATURE_NAME_MISMATCH, SIGNATURE_IDENTITY_NOT_VERIFIED, SIGNATURE_DOCUMENT_CHANGED, SIGNATURE_FIELD_DATA_MISSING].freeze
+      VALUES = [SIGNATURE_DECLINED, SIGNATURE_OTP_FAILED, SIGNATURE_OTP_NOT_CONFIRMED, SIGNATURE_NAME_MISMATCH, SIGNATURE_IDENTITY_NOT_VERIFIED, SIGNATURE_DOCUMENT_CHANGED, SIGNATURE_FIELD_DATA_MISSING].freeze
     end
 
     # Question type. The API accepts these lowercase values and their uppercase equivalents.
