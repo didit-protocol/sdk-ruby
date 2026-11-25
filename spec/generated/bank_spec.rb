@@ -463,7 +463,8 @@ RSpec.describe Didit::Resources::Bank do
         "billing": {
           "unit": "connection_month",
           "price_usd": "0.9000",
-          "billed_through": "2026-11-30"
+          "billed_through": "2026-11-30",
+          "ends_at": null
         },
         "possible_duplicate_of": null,
         "erasure": null,
@@ -880,7 +881,8 @@ RSpec.describe Didit::Resources::Bank do
             "billing": {
               "unit": "connection_month",
               "price_usd": "0.9000",
-              "billed_through": "2026-11-30"
+              "billed_through": "2026-11-30",
+              "ends_at": null
             },
             "possible_duplicate_of": null,
             "erasure": null,
@@ -1383,7 +1385,8 @@ RSpec.describe Didit::Resources::Bank do
         "billing": {
           "unit": "connection_month",
           "price_usd": "0.9000",
-          "billed_through": "2026-11-30"
+          "billed_through": "2026-11-30",
+          "ends_at": null
         },
         "possible_duplicate_of": null,
         "erasure": null,
@@ -1513,7 +1516,8 @@ RSpec.describe Didit::Resources::Bank do
         "billing": {
           "unit": "connection_month",
           "price_usd": "0.9000",
-          "billed_through": "2026-11-30"
+          "billed_through": "2026-11-30",
+          "ends_at": null
         },
         "possible_duplicate_of": null,
         "erasure": null,

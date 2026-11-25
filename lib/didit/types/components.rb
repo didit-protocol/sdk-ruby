@@ -449,8 +449,9 @@ module Didit
       VALUES = [CONNECTION_MONTH, ONE_TIME].freeze
     end
 
-    # Who ended access, set from evidence. `system` when Didit ended it by design: a one-time connection once its read
-    # is complete. `unknown` when neither the bank nor the sync says.
+    # Who ended access, set from evidence. `system` when Didit ended it: a one-time connection once its read is
+    # complete (`status_reason: collection_complete`), or a connection whose coming month was not paid by the deadline
+    # (`status_reason: unpaid`). `unknown` when neither the bank nor the sync says.
     module BankConnectionConsentEndedBy
       END_USER = "end_user"
       BANK = "bank"
@@ -564,11 +565,13 @@ module Didit
     end
 
     # `pending`: first sync running. `active`: consent valid. `renewal_required`: the consent ended or the bank wants
-    # the person to sign in again, data readable as last synced and nothing charged. `paused`: balance too low for the
-    # month. `revoked`: access stopped by the person, the bank or you, or ended because the read of a one-time
-    # connection is complete. `deleted`: only `id`, `status`, `status_reason`, `created_at` and `erasure` remain. The
-    # list returns these only for `status=deleted`; reading one by id always returns it. `failed`: the first sync
-    # never succeeded.
+    # the person to sign in again, data readable as last synced; a month that begins while it waits is not charged.
+    # `paused`: the current month could not be paid, so syncing stops. It resumes by itself once your balance covers
+    # the month: when a credit reaches your wallet, or at the daily check at 05:30 UTC. `revoked`: access stopped by
+    # the person, the bank or you, ended because the read of a one-time connection is complete, or ended by Didit
+    # because its coming month was not paid by the deadline (`status_reason: unpaid`). `deleted`: only `id`, `status`,
+    # `status_reason`, `created_at` and `erasure` remain. The list returns these only for `status=deleted`; reading
+    # one by id always returns it. `failed`: the first sync never succeeded.
     module BankConnectionStatus
       PENDING = "pending"
       ACTIVE = "active"
@@ -583,7 +586,9 @@ module Didit
 
     # Why the connection is in this status. `collection_complete`: a one-time connection whose read is complete, so
     # its access has ended. `paused_by_customer` is reserved. On a `deleted` connection: `deleted_by_customer`,
-    # `consent_lapsed`, `retention_elapsed` or `application_deleted`.
+    # `consent_lapsed`, `retention_elapsed` or `application_deleted`. `unpaid`: the coming month was not paid by 20:00
+    # UTC on the last day of the month before it, so Didit ended access and removed the connection at the bank;
+    # nothing more is charged. `bank.connection.revoked` with this reason is the final signal of that ending.
     module BankConnectionStatusReason
       COLLECTION_COMPLETE = "collection_complete"
       CONSENT_EXPIRED = "consent_expired"
@@ -595,11 +600,12 @@ module Didit
       INSUFFICIENT_BALANCE = "insufficient_balance"
       PAUSED_BY_CUSTOMER = "paused_by_customer"
       FIRST_SYNC_FAILED = "first_sync_failed"
+      UNPAID = "unpaid"
       DELETED_BY_CUSTOMER = "deleted_by_customer"
       RETENTION_ELAPSED = "retention_elapsed"
       APPLICATION_DELETED = "application_deleted"
 
-      VALUES = [COLLECTION_COMPLETE, CONSENT_EXPIRED, CONSENT_LAPSED, BANK_REQUIRES_SIGN_IN, REVOKED_BY_END_USER, REVOKED_BY_BANK, REVOKED_BY_CUSTOMER, INSUFFICIENT_BALANCE, PAUSED_BY_CUSTOMER, FIRST_SYNC_FAILED, DELETED_BY_CUSTOMER, RETENTION_ELAPSED, APPLICATION_DELETED].freeze
+      VALUES = [COLLECTION_COMPLETE, CONSENT_EXPIRED, CONSENT_LAPSED, BANK_REQUIRES_SIGN_IN, REVOKED_BY_END_USER, REVOKED_BY_BANK, REVOKED_BY_CUSTOMER, INSUFFICIENT_BALANCE, PAUSED_BY_CUSTOMER, FIRST_SYNC_FAILED, UNPAID, DELETED_BY_CUSTOMER, RETENTION_ELAPSED, APPLICATION_DELETED].freeze
     end
 
     # Result of the first sync. The connection becomes `active` on `succeeded` or `partial`, and `failed` when no
@@ -9328,6 +9334,7 @@ module Didit
       field :unit, "unit", :string
       field :price_usd, "price_usd", :string
       field :billed_through, "billed_through", :date
+      field :ends_at, "ends_at", :datetime
     end
 
     # The person's consent for this connection.
