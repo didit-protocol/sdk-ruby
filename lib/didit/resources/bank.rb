@@ -702,6 +702,12 @@ module Didit
       # `live_syncs_left_today` and `budgets`. The limit is a ceiling set by the bank, not a promise of a number of
       # syncs.
       #
+      # The bank also asks to rest after every read of a connection, whoever made it (a few minutes, 15 on most
+      # banks): a call inside that rest answers `429 refresh_too_soon` with `Retry-After` set to the end of the rest,
+      # in seconds, and the same `sync` object. It costs nothing and does not touch the day's budget, so wait
+      # `Retry-After` and call again; `refresh_limit_reached` means the day's budget is used up and the wait runs to
+      # its reset. An automatic sync that meets the rest is skipped without a failure and runs again after it.
+      #
       # When a sync stores changes, `bank.data.updated` tells you; then read the change feed.
       #
       # Needs an API key with write access to Bank data, because this operation changes something: a full-access key
