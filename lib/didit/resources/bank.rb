@@ -156,8 +156,9 @@ module Didit
       # @param extended_history [String] `allow_extra_auth` lets a bank that asks for one more confirmation release
       #   older history.
       # @param consent_days [Integer] Ongoing only. How many days to ask the bank to keep access open, 1 or more.
-      #   Default: the longest the bank allows. The connection reports the date the bank actually granted in
-      #   `consent.expires_at`. With `access: one_time` it answers `400 invalid_request` with `field: consent_days`.
+      #   Default: the longest the bank allows. On a renewal link that sends none, the bank is asked for the length the
+      #   person chose before, never above the bank's maximum; only a connection with no recorded length is asked for
+      #   the maximum. The connection reports the date the bank actually granted in `consent.expires_at`. With `acc...
       # @param ownership [Hash] Optional comparison of the account holder with a person or a company.
       # @param end_user [Hash] The person or company that connects the account.
       # @param redirect_url [String] Where the browser goes at the end, with `link_id`, `status` and a signed `state`

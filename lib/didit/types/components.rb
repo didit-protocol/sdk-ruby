@@ -9856,6 +9856,7 @@ module Didit
       field :status, "status", :string
       field :institution_id, "institution_id", :string
       field :institution_name, "institution_name", :string
+      field :logo_url, "logo_url", :string
       field :institution_country, "institution_country", :string
       field :oauth, "oauth", :boolean
       field :connected_at, "connected_at", :datetime
