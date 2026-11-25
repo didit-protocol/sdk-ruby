@@ -126,6 +126,7 @@ module Didit
       def link_id: () -> String?
       def status: () -> String?
       def connection_id: () -> String?
+      def renews_connection_id: () -> String?
       def check_id: () -> String?
       def error_code: () -> String?
     end
@@ -136,6 +137,7 @@ module Didit
       def link_id: () -> String?
       def status: () -> String?
       def connection_id: () -> String?
+      def renews_connection_id: () -> String?
       def check_id: () -> String?
       def error_code: () -> String?
     end
@@ -171,6 +173,8 @@ module Didit
 
       def status: () -> String?
       def revocation_status: () -> String?
+      def status_reason: () -> String?
+      def ends_at: () -> Time?
     end
 
     class BankConnectionConsentExpiringEvent < BankConnectionEvent
