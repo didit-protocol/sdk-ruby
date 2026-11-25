@@ -1,0 +1,675 @@
+# Changelog
+
+## [2.44.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.43.0...v2.44.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([97ae584](https://github.com/didit-protocol/sdk-ruby/commit/97ae584d29072a431becfa6ec47b34058d8ed262))
+* **spec:** sync API spec 2026-11-24 ([7ae9068](https://github.com/didit-protocol/sdk-ruby/commit/7ae90683ea7f654fbbcb7e2d7a5d0c2d618cdc49))
+
+## [2.43.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.42.0...v2.43.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([8511d34](https://github.com/didit-protocol/sdk-ruby/commit/8511d341ba81508f1d83aa6992dcdd1efe6776fd))
+
+## [2.42.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.41.0...v2.42.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([239a1ca](https://github.com/didit-protocol/sdk-ruby/commit/239a1caf42712e21885296e97169816391d79a72))
+
+## [2.41.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.40.0...v2.41.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([7048edc](https://github.com/didit-protocol/sdk-ruby/commit/7048edcd4727b0afec6407fd2ee2b61e59688119))
+
+## [2.40.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.39.0...v2.40.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([3ef05f2](https://github.com/didit-protocol/sdk-ruby/commit/3ef05f25b0f55d0d870ca4680d8c9fb071feab25))
+
+## [2.39.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.38.0...v2.39.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([a114012](https://github.com/didit-protocol/sdk-ruby/commit/a1140122351d4db2076d974dc999e750a5753005))
+* **spec:** sync API spec 2026-11-24 ([f4b09e0](https://github.com/didit-protocol/sdk-ruby/commit/f4b09e02b4a04bb86642d6633f1592a7aba154a2))
+
+## [2.38.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.37.0...v2.38.0) (2026-11-24)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([67a6665](https://github.com/didit-protocol/sdk-ruby/commit/67a6665956927d6556b5327c407235018a8cf23e))
+
+## [2.37.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.36.0...v2.37.0) (2026-11-24)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.factors.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.delete` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.factors.update` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.test_numbers.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.network.registrations.test_numbers.delete` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.list` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.revoke` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.sdk_keys.rotate` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.coverage` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.eligibility` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.registrations.create` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+* **spec:** `phone.silent.registrations.retrieve` is deleted: it was deprecated since 2.35.0 and kept through version 2.36.0 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-24 ([53a66d6](https://github.com/didit-protocol/sdk-ruby/commit/53a66d631f5ecd4111dc34580bdd16a084cc8391))
+
+## [2.36.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.35.0...v2.36.0) (2026-11-23)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `code`: now required ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `factor_id`: removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `phone_number`: now required ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body: type changed from any to object ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body: type changed: 1 anyOf variant(s) removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): response `status`: no longer always present ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): response: type changed: 1 oneOf variant(s) removed ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.create` (`POST /v3/phone/factors/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.delete` (`DELETE /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.list` (`GET /v3/phone/factors/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.retrieve` (`GET /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.factors.update` (`PATCH /v3/phone/factors/{factor_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.create` (`POST /v3/phone/network/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.list` (`GET /v3/phone/network/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.retrieve` (`GET /v3/phone/network/registrations/{registration_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.test_numbers.create` (`POST /v3/phone/network/registrations/{registration_id}/test-numbers/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.network.registrations.test_numbers.delete` (`DELETE /v3/phone/network/registrations/{registration_id}/test-numbers/{phone_number}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.create` (`POST /v3/phone/sdk-keys/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.list` (`GET /v3/phone/sdk-keys/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.revoke` (`DELETE /v3/phone/sdk-keys/{key_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.sdk_keys.rotate` (`POST /v3/phone/sdk-keys/{key_id}/rotate/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.coverage` (`GET /v3/phone/silent/coverage/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.eligibility` (`POST /v3/phone/silent/eligibility/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.registrations.create` (`POST /v3/phone/silent/registrations/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+* **spec:** `phone.silent.registrations.retrieve` (`GET /v3/phone/silent/registrations/{registration_id}/`) was removed upstream; the method is deprecated and kept through version 2.36.0 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([205e062](https://github.com/didit-protocol/sdk-ruby/commit/205e0624750809cc5ac62a8e82d52579e918896c))
+
+## [2.35.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.34.0...v2.35.0) (2026-11-23)
+
+
+### API changes that can break typed code
+
+* **spec:** `phone.check_code` (`POST /v3/phone/check/`): request body `(anyOf 1)`: type changed from object to any ([d50a148](https://github.com/didit-protocol/sdk-ruby/commit/d50a1481e1e5772c2ab871209d5d1a7707dbad9c))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([d50a148](https://github.com/didit-protocol/sdk-ruby/commit/d50a1481e1e5772c2ab871209d5d1a7707dbad9c))
+
+## [2.34.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.33.0...v2.34.0) (2026-11-23)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([f7298bb](https://github.com/didit-protocol/sdk-ruby/commit/f7298bbf9ded092032702987febc4cac478c539d))
+
+## [2.33.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.32.0...v2.33.0) (2026-11-23)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-23 ([c6974d8](https://github.com/didit-protocol/sdk-ruby/commit/c6974d882e15c5cd686497386a543fdff3269a48))
+* **spec:** sync API spec 2026-11-23 ([2f3aada](https://github.com/didit-protocol/sdk-ruby/commit/2f3aada196817eeb6bff71fdfba6a93e9c256cf1))
+
+## [2.32.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.31.0...v2.32.0) (2026-11-23)
+
+
+### Features
+
+* **bank:** Bank data operations and typed bank.* webhook events ([#111](https://github.com/didit-protocol/sdk-ruby/issues/111)) ([a784b44](https://github.com/didit-protocol/sdk-ruby/commit/a784b44b5c55a27033b124122868f2b882f1f42b))
+
+## [2.31.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.30.0...v2.31.0) (2026-11-22)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-22 ([326263f](https://github.com/didit-protocol/sdk-ruby/commit/326263fc429c237e2424cb0d417fdb0b223c8cf5))
+
+## [2.30.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.29.0...v2.30.0) (2026-11-22)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-22 ([25908ef](https://github.com/didit-protocol/sdk-ruby/commit/25908ef35bcfd60bbaf2beaf7b9679d923bfdb81))
+
+## [2.29.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.28.0...v2.29.0) (2026-11-22)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-21 ([de93ce0](https://github.com/didit-protocol/sdk-ruby/commit/de93ce0fc01b16c62fce4398dbff2db4f590c1bd))
+
+## [2.28.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.27.0...v2.28.0) (2026-11-21)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-21 ([e6208b6](https://github.com/didit-protocol/sdk-ruby/commit/e6208b6bfbceaed761e316df59afcbcc14248ab3))
+
+## [2.27.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.26.0...v2.27.0) (2026-11-21)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-21 ([f3d083c](https://github.com/didit-protocol/sdk-ruby/commit/f3d083ce52ac26c859b01102c0c2a0e1089d477f))
+
+## [2.26.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.25.0...v2.26.0) (2026-11-20)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-20 ([7f9d7d3](https://github.com/didit-protocol/sdk-ruby/commit/7f9d7d39268c61adfe4c412988f66ce1975c6d1c))
+
+## [2.25.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.24.0...v2.25.0) (2026-11-19)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-19 ([2f95636](https://github.com/didit-protocol/sdk-ruby/commit/2f956364b31e6cdd7d597d0d71d5e9dbce6f3e27))
+
+## [2.24.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.23.0...v2.24.0) (2026-11-19)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-19 ([209be07](https://github.com/didit-protocol/sdk-ruby/commit/209be0759278e7e51f85e44dd37643c9eb75aa62))
+
+## [2.23.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.22.0...v2.23.0) (2026-11-18)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-18 ([1e1a874](https://github.com/didit-protocol/sdk-ruby/commit/1e1a8744eea5d6c41aee393069cde02d010a5cc2))
+
+## [2.22.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.21.0...v2.22.0) (2026-11-17)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-17 ([3abf3c0](https://github.com/didit-protocol/sdk-ruby/commit/3abf3c0105f0944286da82f696c96fdd67b36e1b))
+
+## [2.21.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.20.1...v2.21.0) (2026-11-16)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-16 ([9707b1a](https://github.com/didit-protocol/sdk-ruby/commit/9707b1a28fa5956410780210a0849ba7ba051a1a))
+
+## [2.20.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.20.0...v2.20.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* refuse an idempotency key that is not printable ASCII before any request ([#81](https://github.com/didit-protocol/sdk-ruby/issues/81)) ([dd351a8](https://github.com/didit-protocol/sdk-ruby/commit/dd351a8e93803fcec2bf70c341291025296c0255))
+
+## [2.20.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.19.0...v2.20.0) (2026-11-14)
+
+
+### Features
+
+* per-request idempotency key ([#66](https://github.com/didit-protocol/sdk-ruby/issues/66)) ([896586c](https://github.com/didit-protocol/sdk-ruby/commit/896586c7083049d43ebf0b27b7d39cf5623ab36d))
+
+## [2.19.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.18.0...v2.19.0) (2026-11-14)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-14 ([88cf3be](https://github.com/didit-protocol/sdk-ruby/commit/88cf3bed69ba504cb2351743b0891fbfdb6812d6))
+
+## [2.18.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.17.0...v2.18.0) (2026-11-14)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-14 ([a41816c](https://github.com/didit-protocol/sdk-ruby/commit/a41816ce714e8b0098160b123a1d5a9bee43cd98))
+* **spec:** sync API spec 2026-11-14 ([6f7bb35](https://github.com/didit-protocol/sdk-ruby/commit/6f7bb35a3d869d4bbe17608c5088033348d89a90))
+
+## [2.17.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.16.0...v2.17.0) (2026-11-14)
+
+
+### API changes that can break typed code
+
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.networks.retrieve` (`GET /v3/travel-rule/networks/`): response `networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.retrieve_settings` (`GET /v3/travel-rule/settings/`): response `networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.update_settings` (`PUT /v3/travel-rule/settings/`): response `networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.claim` (`POST /v3/travel-rule/workspace/claim/`): response `settings.networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.confirm_domain` (`POST /v3/travel-rule/workspace/domain/confirm/`): response `settings.networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.enable_billing` (`POST /v3/travel-rule/workspace/billing/`): response `settings.networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.get` (`GET /v3/travel-rule/workspace/`): response `settings.networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.gtr.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.sygna.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.trust.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.connected`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.platform_available`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.reason`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.routed_30d`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.state`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+* **spec:** `travel_rule.workspace.verify_domain_dns` (`POST /v3/travel-rule/workspace/domain/dns/`): response `settings.networks.verifyvasp.vasps_reachable`: can now be null ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-14 ([3092600](https://github.com/didit-protocol/sdk-ruby/commit/3092600a4ff3780aa894a416d740646d4faeb709))
+
+## [2.16.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.15.0...v2.16.0) (2026-11-13)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-13 ([06b3c4d](https://github.com/didit-protocol/sdk-ruby/commit/06b3c4d2507ca40ee8b02adcb53340e46af34cd5))
+
+## [2.15.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.14.0...v2.15.0) (2026-11-13)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-13 ([9668e12](https://github.com/didit-protocol/sdk-ruby/commit/9668e1273ce001ec5208334bf1fa1fd61f9ebe51))
+
+## [2.14.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.13.1...v2.14.0) (2026-11-12)
+
+
+### API changes that can break typed code
+
+* **spec:** `cases.blueprints.publish` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/blueprints/{blueprint_uuid}/publish/`): response `content_config`: type changed from any to object ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+* **spec:** `cases.create` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/`): request body `links[].entity_type`: added (required) ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+* **spec:** `cases.create` (`POST /v3/organization/{organization_id}/application/{application_id}/cases/`): request body `links[].entity_uuid`: added (required) ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-12 ([f28c0c9](https://github.com/didit-protocol/sdk-ruby/commit/f28c0c91f98e2d6081605397792d6af844c0939b))
+
+## [2.13.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.13.0...v2.13.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **authentication:** a body nested past the depth limit is not JSON ([c0cb38e](https://github.com/didit-protocol/sdk-ruby/commit/c0cb38edf6f8302c640bfac2bac2e8191b3c123f))
+* **authentication:** a failure to encode a consent request has a fixed message ([2f2bdb7](https://github.com/didit-protocol/sdk-ruby/commit/2f2bdb7302fb6b56db5b1b29cd90cf447ef588a5))
+* **authentication:** a malformed 2xx consent error keeps no parser exception as its cause ([e9cad91](https://github.com/didit-protocol/sdk-ruby/commit/e9cad918b725708f14ee37f5f07922ab78d074be))
+* **authentication:** a malformed 2xx consent message reads the content type from the sanitized response ([fa0e897](https://github.com/didit-protocol/sdk-ruby/commit/fa0e897c76d810f473b2f4c69cd6025883ba1ce5))
+* **authentication:** collect consent secrets from the JSON the request carries ([ada5949](https://github.com/didit-protocol/sdk-ruby/commit/ada5949ad9afd041cbf8f2766e5889f66600dae7))
+* **authentication:** read consent secrets from the bytes that were sent ([02a0be4](https://github.com/didit-protocol/sdk-ruby/commit/02a0be4ef2688595a66aeda5f03e512f20109b94))
+* **authentication:** redact every string of the consent assertion from errors ([c1ed630](https://github.com/didit-protocol/sdk-ruby/commit/c1ed63076c21fd9a66939045b026bb68592ad580))
+* **authentication:** redact the parsed agent-consent response, not its raw text ([9d8dfef](https://github.com/didit-protocol/sdk-ruby/commit/9d8dfef87e9c2d2f5433551b75de28a98608cd1b))
+* **authentication:** sanitize the whole consent response once on receipt ([d7f875d](https://github.com/didit-protocol/sdk-ruby/commit/d7f875deabe3cb4a0311ced9d6bf416a4c7ef19d))
+* **authentication:** successful consent responses reach the caller unchanged; fold header-name case ([9becd6d](https://github.com/didit-protocol/sdk-ruby/commit/9becd6d166d122deeec244248890a0a4f5c8b847))
+* **authentication:** the approval-options call encodes through the same fixed-message wrapper ([570043e](https://github.com/didit-protocol/sdk-ruby/commit/570043e36c63e494708c2f7cc8ab0ae412633c1f))
+* **authentication:** treat only assertion strings of 16+ characters as secrets ([e072900](https://github.com/didit-protocol/sdk-ruby/commit/e072900a01bb52e865159ef88811c2398bd442e2))
+* **authentication:** withhold transport causes, redact empty bodies, headers and request id, keep safe key names ([d966dc2](https://github.com/didit-protocol/sdk-ruby/commit/d966dc27fe9dcc0909446272961258cdb22178fb))
+
+## [2.13.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.12.0...v2.13.0) (2026-11-11)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-11 ([918c23f](https://github.com/didit-protocol/sdk-ruby/commit/918c23f87009d9d61c568fc270fd97a17b0aa2b0))
+
+## [2.12.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.11.0...v2.12.0) (2026-11-11)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-11 ([99ec1de](https://github.com/didit-protocol/sdk-ruby/commit/99ec1de70b9b7741f5c3fce5e423b55d8e34d86e))
+
+## [2.11.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.10.0...v2.11.0) (2026-11-11)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-11 ([8583597](https://github.com/didit-protocol/sdk-ruby/commit/85835972757c41b3b5064740c5b70d8da5633404))
+* **spec:** sync API spec 2026-11-11 ([cc2310f](https://github.com/didit-protocol/sdk-ruby/commit/cc2310fc48ddd062481703c4760227fe31105105))
+* **spec:** sync API spec 2026-11-11 ([dd254dc](https://github.com/didit-protocol/sdk-ruby/commit/dd254dc3c4d46b601b6e64669f452216fc3a1115))
+* **spec:** sync API spec 2026-11-11 ([7c675d5](https://github.com/didit-protocol/sdk-ruby/commit/7c675d5ed4adbdb6443bb765bdd2fb164004a907))
+* **spec:** sync API spec 2026-11-11 ([4e1b076](https://github.com/didit-protocol/sdk-ruby/commit/4e1b07650dfc74f5ad69dfb7668051e76af0c31d))
+
+## [2.10.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.9.0...v2.10.0) (2026-11-11)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-11 ([f2e8649](https://github.com/didit-protocol/sdk-ruby/commit/f2e8649be2f8bee51ee031917d56ad4a2d31d345))
+
+## [2.9.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.8.0...v2.9.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([96b48e5](https://github.com/didit-protocol/sdk-ruby/commit/96b48e595d53fda32caf3853e73782bf6a580769))
+
+## [2.8.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.7.0...v2.8.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([b109fe6](https://github.com/didit-protocol/sdk-ruby/commit/b109fe66dfe21bdb989af8df44011ef0bcb9027b))
+
+## [2.7.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.6.0...v2.7.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([e0fd230](https://github.com/didit-protocol/sdk-ruby/commit/e0fd2304137818d95f794b3cff42ddb8c405ca0e))
+
+## [2.6.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.5.0...v2.6.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([bd9dcb0](https://github.com/didit-protocol/sdk-ruby/commit/bd9dcb09fe8a2ae28e0c9fc16fdd0d9f168fa9ac))
+
+## [2.5.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.4.0...v2.5.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([8d93d58](https://github.com/didit-protocol/sdk-ruby/commit/8d93d5847af771aeaac516b40c20b51913ed5f7b))
+
+## [2.4.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.3.0...v2.4.0) (2026-11-10)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-10 ([3d9140b](https://github.com/didit-protocol/sdk-ruby/commit/3d9140b30d257e4a40b96de5fbf36b4b218ae0b6))
+
+## [2.3.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.2.0...v2.3.0) (2026-11-09)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-09 ([d585311](https://github.com/didit-protocol/sdk-ruby/commit/d58531172dd529b501fdd2071f4b764dec2ca7b7))
+
+## [2.2.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.1.2...v2.2.0) (2026-11-09)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-09 ([588db3d](https://github.com/didit-protocol/sdk-ruby/commit/588db3d2b4ed0e1ef0e141d1b52ec20fa7feb28b))
+
+## [2.1.2](https://github.com/didit-protocol/sdk-ruby/compare/v2.1.1...v2.1.2) (2026-11-07)
+
+
+### API Spec Updates
+
+* **spec:** sync API spec 2026-11-07 ([2a75a53](https://github.com/didit-protocol/sdk-ruby/commit/2a75a5351502a982285b2588f9c95d696ececb0c))
+* **spec:** sync API spec 2026-11-07 ([d8b0851](https://github.com/didit-protocol/sdk-ruby/commit/d8b08515b4c0b773f0f5003c8f4cd9eb41558632))
+
+## [2.1.1](https://github.com/didit-protocol/sdk-ruby/compare/v2.1.0...v2.1.1) (2026-11-06)
+
+
+### API Spec Updates
+
+* **spec:** sync API spec 2026-11-06 ([f8f754d](https://github.com/didit-protocol/sdk-ruby/commit/f8f754de2ebf64b106e4d4936243e2f72d39f0f1))
+* **spec:** sync API spec 2026-11-06 ([92a13b6](https://github.com/didit-protocol/sdk-ruby/commit/92a13b6bce036a7100e46cc51d3c6fa95d9ca729))
+
+## [2.1.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.0.0...v2.1.0) (2026-11-05)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-05 (application data location) ([97b7d9c](https://github.com/didit-protocol/sdk-ruby/commit/97b7d9c8568a18f0712050e0f75d1353c78f9ce9))
+
+## [2.0.0](https://github.com/didit-protocol/sdk-ruby/compare/v1.0.1...v2.0.0) (2026-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **spec:** the API spec sync changes the SDK surface.
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `signatures[].confirmation.channel`: can now be null
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `registry_checks[].company.registry_data`: can now be null
+    - `sessions.retrieve_decision` (`GET /v3/session/{sessionId}/decision/`): response 200 `registry_checks[].ownership_structure`: can now be null
+    - `email.assess_risk` (`POST /v3/email/risk/`): response 200 `email.email_intelligence.reason_codes[]`: type changed from string to object
+    - `kyb.select` (`POST /v3/kyb/select/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `kyb.list_shareholders` (`POST /v3/kyb/shareholders/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `kyb.list_ubos` (`POST /v3/kyb/ubo/`): response 200 `kyb_registry.registry_data`: can now be null
+    - `phone.assess_risk` (`POST /v3/phone/risk/`): response 200 `phone.phone_intelligence.reason_codes[]`: type changed from string to object
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `signatures[].confirmation.channel`: can now be null
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `registry_checks[].company.registry_data`: can now be null
+    - `sessions.import_shared` (`POST /v3/session/import-shared/`): response 201 `registry_checks[].ownership_structure`: can now be null
+    - `sessions.signatures.validate` (`POST /v3/session/{sessionId}/signatures/{nodeId}/validate/`): response 200 `signatures[].confirmation.channel`: can now be null
+
+### API Spec Updates
+
+* **spec:** sync API spec 2026-11-04 ([5299349](https://github.com/didit-protocol/sdk-ruby/commit/529934919db87731a0d4f4eec5d51e8fd627cac0))
+* **spec:** sync API spec 2026-11-04 ([7282245](https://github.com/didit-protocol/sdk-ruby/commit/72822454ca1e4b130fe37d403ef6958ac4701433))
+* **spec:** sync API spec 2026-11-05 ([ced5cdf](https://github.com/didit-protocol/sdk-ruby/commit/ced5cdf2388483c754c2d0ecc137be3fa4c15421))
+* **spec:** sync API spec 2026-11-05 ([d0444ca](https://github.com/didit-protocol/sdk-ruby/commit/d0444caa414fe0cd5404e4241d9e57081adcb07e))
+
+## [1.0.1](https://github.com/didit-protocol/sdk-ruby/compare/v1.0.0...v1.0.1) (2026-10-29)
+
+
+### Miscellaneous Chores
+
+* release 1.0.1 ([2fc666a](https://github.com/didit-protocol/sdk-ruby/commit/2fc666aabf3f664137341bd05590c44060117632))
+
+## [1.0.0](https://github.com/didit-protocol/sdk-ruby/compare/v0.1.0...v1.0.0) (2026-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **spec:** the API spec sync changes the SDK surface (nullable fields, removed fields, account.organizations.list returns a page, the session decision response is the SessionDecision component).
+
+### Features
+
+* add bank.account_check (POST /v3/bank/account-check/) and bank_verifications on the decision ([de3a7b8](https://github.com/didit-protocol/sdk-ruby/commit/de3a7b85d29409df6e8a4eeef793c4fbe00a0904))
+* **spec:** sync API spec 2026-10-23 ([#4](https://github.com/didit-protocol/sdk-ruby/issues/4)) ([ce9061c](https://github.com/didit-protocol/sdk-ruby/commit/ce9061c3056274319f5ab9325dba5c8439cc048a))
+* **spec:** sync API spec 2026-10-27 ([#13](https://github.com/didit-protocol/sdk-ruby/issues/13)) ([a7ab2a9](https://github.com/didit-protocol/sdk-ruby/commit/a7ab2a9624d64dfda1c3fa2fb03cd93605523fee))
+
+
+### API Spec Updates
+
+* **spec:** sync API spec 2026-10-25 ([#8](https://github.com/didit-protocol/sdk-ruby/issues/8)) ([2e941a5](https://github.com/didit-protocol/sdk-ruby/commit/2e941a58a29b950f066e9d879f77342a715e9cae))
+* **spec:** sync API spec 2026-10-29 ([#15](https://github.com/didit-protocol/sdk-ruby/issues/15)) ([468dbfc](https://github.com/didit-protocol/sdk-ruby/commit/468dbfc3137c4a84021ce1f51a04c2a689b668bd))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([b183cb4](https://github.com/didit-protocol/sdk-ruby/commit/b183cb463fc00c66d15ab6403f2ecb79c58b49a5))
