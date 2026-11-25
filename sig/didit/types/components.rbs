@@ -514,6 +514,7 @@ module Didit
       INSUFFICIENT_BALANCE: String
       PAUSED_BY_CUSTOMER: String
       FIRST_SYNC_FAILED: String
+      UNPAID: String
       DELETED_BY_CUSTOMER: String
       RETENTION_ELAPSED: String
       APPLICATION_DELETED: String
@@ -7936,6 +7937,7 @@ module Didit
       def unit: () -> String
       def price_usd: () -> String?
       def billed_through: () -> Date?
+      def ends_at: () -> Time?
     end
 
     class BankConnectionConsent < Didit::Model
