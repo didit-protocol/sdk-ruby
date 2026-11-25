@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.52.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.51.0...v2.52.0) (2026-11-25)
+
+
+### Features
+
+* **spec:** sync API spec 2026-11-25 ([5cbba3d](https://github.com/didit-protocol/sdk-ruby/commit/5cbba3d4fb83c6c2958d9d535529db04358e75ce))
+
 ## [2.51.0](https://github.com/didit-protocol/sdk-ruby/compare/v2.50.0...v2.51.0) (2026-11-25)
 
 
