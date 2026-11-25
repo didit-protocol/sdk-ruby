@@ -5208,6 +5208,7 @@ module Didit
     module SignatureResultWarningsCode
       SIGNATURE_DECLINED: String
       SIGNATURE_OTP_FAILED: String
+      SIGNATURE_OTP_NOT_CONFIRMED: String
       SIGNATURE_NAME_MISMATCH: String
       SIGNATURE_IDENTITY_NOT_VERIFIED: String
       SIGNATURE_DOCUMENT_CHANGED: String
