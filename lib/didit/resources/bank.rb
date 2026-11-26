@@ -139,7 +139,9 @@ module Didit
       #   has to be a country Bank Link serves; a malformed value answers `400 invalid_request`, and a country the
       #   product does not serve, or where no bank is offered, answers `400 country_not_available`, both with `field:
       #   country`. An empty request body stays valid.
-      # @param institution_id [String] Optional bank to preselect, from `list_institutions`. Skips the picker.
+      # @param institution_id [String] Optional. The bank the person starts with, from `list_institutions`. The picker
+      #   is skipped; the person can still choose another bank the link allows, for example when this one is
+      #   unavailable. The connection's `institution` reports the bank that was actually connected.
       # @param segment [String] Filters the picker and tells the bank which login to open where the bank separates
       #   them. Default `any`.
       # @param data [Array<String>] What to read. `accounts` is always included: name, type, currency, identifiers and
