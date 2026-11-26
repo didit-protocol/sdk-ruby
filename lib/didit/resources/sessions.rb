@@ -3459,8 +3459,10 @@ module Didit
         # destination the delivery belongs to (or the application-level secret for a delivery to the legacy webhook
         # URL), waits up to 5 seconds for your endpoint, records the attempt as a new delivery and returns it with
         # `200` whatever your endpoint answered: read `response_status`. A resend is not retried automatically, and
-        # every call sends again, so make your endpoint idempotent on `event_id`. The path has no trailing slash and
-        # the request has no body. A scoped API key needs `webhooks: write` and `decisions: read`.
+        # every call sends again, so make your endpoint idempotent on `event_id`. The one exception is a delivery of
+        # the sandbox's example data (the example records every sandbox starts with): it is never resent, nothing is
+        # recorded, and the call answers `409` with `code` `example_delivery`. The path has no trailing slash and the
+        # request has no body. A scoped API key needs `webhooks: write` and `decisions: read`.
         #
         # +POST /v3/session/{sessionId}/webhook/{webhook_uuid}/resend+
         #
