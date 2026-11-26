@@ -754,6 +754,9 @@ module Didit
       # it. Afterwards the connection's `consent` shows a new `version`, `renewed_count`, `expires_at` and `renew_by`,
       # with `renewal_action` `bank_auth`.
       #
+      # Send `consent_days` to choose how many days the renewal asks the bank for; without it the renewal asks for the
+      # length the person chose before, and either way the bank's own maximum is never exceeded.
+      #
       # A one-time connection has no consent to renew: it answers `409 one_time_connection`, and a new link reads the
       # bank again.
       #
@@ -777,6 +780,11 @@ module Didit
       #   one of them). The match is exact and case-sensitive (`ES` and `pt-PT` are refused). A code outside that list
       #   answers `400 invalid_request` with `field: language`. The language of the hosted page and of the...
       # @param expires_in [Integer] Lifetime in seconds, 300 to 86400.
+      # @param consent_days [Integer] Optional. How many days to ask the bank to keep access open, 1 or more. Without
+      #   it, the bank is asked for the length the person chose before, never above the bank's maximum; only a
+      #   connection with no recorded length is asked for the maximum. With it, the bank is asked for that many days,
+      #   never above its maximum: a longer value is capped, not refused. A value below 1, above 32767 or not a whole
+      #   nu...
       # @param idempotency_key [String] sent as the Idempotency-Key header
       # @param request_options [Hash, nil] :timeout, :max_retries, :extra_headers, :extra_query, :extra_body
       # @return [Didit::Types::BankLink]
@@ -786,6 +794,7 @@ module Didit
         allowed_origins: OMIT,
         language: OMIT,
         expires_in: OMIT,
+        consent_days: OMIT,
         idempotency_key: OMIT,
         request_options: nil
       )
@@ -797,7 +806,8 @@ module Didit
             "redirect_url" => redirect_url,
             "allowed_origins" => allowed_origins,
             "language" => language,
-            "expires_in" => expires_in
+            "expires_in" => expires_in,
+            "consent_days" => consent_days
           },
           headers: { "Idempotency-Key" => idempotency_key },
           response: Types::BankLink,

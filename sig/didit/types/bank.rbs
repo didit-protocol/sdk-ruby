@@ -176,7 +176,7 @@ module Didit
 
     type bank_refresh_connection_params = { ?wait: bool }
 
-    type bank_renew_connection_params = { ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer }
+    type bank_renew_connection_params = { ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer, ?consent_days: Integer }
 
     type bank_simulate_connection_params = { action: String, ?days: Integer, ?count: Integer }
 
