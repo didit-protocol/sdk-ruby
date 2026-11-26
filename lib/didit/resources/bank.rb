@@ -162,9 +162,10 @@ module Didit
       # @param ownership [Hash] Optional comparison of the account holder with a person or a company.
       # @param end_user [Hash] The person or company that connects the account.
       # @param redirect_url [String] Where the browser goes at the end, with `link_id`, `status` and a signed `state`
-      #   (for display only: the webhook and `get_link` are authoritative). In a sandbox application a plain `http`
-      #   address of `localhost`, `127.0.0.1` or `[::1]` (any port and path, no credentials, no fragment) needs no
-      #   registration. Any other address answers `400 redirect_url_not_registered`: registering other addresses is n...
+      #   (for display only: the webhook and `get_link` are authoritative). `status` is the link's own status:
+      #   `completed`, `failed`, `cancelled` or `expired`. In a sandbox application a plain `http` address of
+      #   `localhost`, `127.0.0.1` or `[::1]` (any port and path, no credentials, no fragment) needs no registration.
+      #   Any other...
       # @param allowed_origins [Array<String>] Accepted and not used today: reserved for Didit's embedded Bank Link,
       #   which is not released yet. HTTPS origins, up to 50.
       # @param language [String] Optional. One of the [supported languages](/integration/supported-languages), the
