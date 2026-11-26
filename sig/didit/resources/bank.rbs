@@ -20,7 +20,7 @@ module Didit
       def list_sync_runs: (String id, ?limit: Integer, ?cursor: String, ?request_options: Didit::request_options?) -> Didit::Types::BankSyncRunList
       def list_transactions: (String account_id, ?date_from: Date | String, ?date_to: Date | String, ?status: String, ?limit: Integer, ?page_token: String, ?request_options: Didit::request_options?) -> Didit::Types::BankTransactionPage
       def refresh_connection: (String id, ?wait: bool, ?idempotency_key: String, ?request_options: Didit::request_options?) -> (Didit::Types::BankSyncCompleted | Didit::Types::BankRefreshAccepted)
-      def renew_connection: (String id, ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
+      def renew_connection: (String id, ?redirect_url: String, ?allowed_origins: Array[String], ?language: String, ?expires_in: Integer, ?consent_days: Integer, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
       def revoke_connection: (String id, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankConnection
       def simulate_connection: (String id, action: String, ?days: Integer, ?count: Integer, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankConnection
       def simulate_link: (String id, ?persona: String, ?outcome: String, ?error_code: String, ?idempotency_key: String, ?request_options: Didit::request_options?) -> Didit::Types::BankLink
