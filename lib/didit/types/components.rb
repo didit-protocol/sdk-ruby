@@ -693,11 +693,18 @@ module Didit
     end
 
     # Why the link failed. A failed link is not an HTTP error: the link reads with `status: failed` and this object.
-    # `bank_cancelled` ends a link only on the fifth cancel at the bank: until then a person who backs out at the bank
-    # returns to the list of banks with a notice and the link stays `opened`. A bank that cannot be reached
-    # (`bank_unavailable`) also returns the person to the list of banks and leaves the link `opened`. A link ended by
-    # the simulate operation fails at once. A renew link whose connection changed meanwhile reads `renewal_not_needed`
-    # or `renewal_window_expired`.
+    # `bank_cancelled` means the person backed out or declined at the bank, and `bank_unavailable` that the bank could
+    # not be reached, did not accept the sign-in, or the connection could not be completed. The link's `status` tells
+    # whether it ended: a person who cancels or declines at the bank, a bank that cannot be reached, a sign-in the
+    # bank does not accept and an unexpected error while the connection is completed leave the link `opened` and
+    # return the person to try again, to the list of banks on a first connection and to the renewal's own step on a
+    # renewal, until the tries are used up (the fifth attempt at the bank). A failure that trying again cannot fix
+    # ends the link at once. One of them is also reported as `bank_unavailable`: what comes back from the bank does
+    # not belong to the sign-in this link started, so the link reads `failed` and the business creates a new link. The
+    # same code therefore has two meanings, and the link's `status` tells them apart: `opened` means the person can
+    # try again, `failed` means the link ended. Branch on `status`, not on the code alone. A link ended by the
+    # simulate operation fails at once. A renew link whose connection changed meanwhile reads `renewal_not_needed` or
+    # `renewal_window_expired`.
     module BankLinkErrorCode
       DUPLICATE_CONFLICT = "duplicate_conflict"
       RENEWAL_LOGIN_MISMATCH = "renewal_login_mismatch"
@@ -751,7 +758,12 @@ module Didit
       VALUES = [ACCOUNTS, BALANCES, TRANSACTIONS].freeze
     end
 
-    # State of the link. `completed`, `cancelled`, `expired` and `failed` are final.
+    # State of the link. `completed`, `cancelled`, `expired` and `failed` are final. A person who cancels or declines
+    # at the bank, whose bank cannot be reached or does not accept the sign-in, or who meets an unexpected error while
+    # the connection is completed, does not end the link: it stays `opened` and the person can try again. A first
+    # connection returns to the list of banks. A renewal returns to its own step, where the person can try the same
+    # bank again or choose Not now, which ends the link as `cancelled`. The link ends `failed` when the tries are used
+    # up (the fifth attempt at the bank) or when the failure cannot be fixed by trying again.
     module BankLinkStatus
       CREATED = "created"
       OPENED = "opened"
