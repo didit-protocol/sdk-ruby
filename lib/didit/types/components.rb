@@ -17337,6 +17337,7 @@ module Didit
       field :workflow_id, "workflow_id", :string
       field :workflow_label, "workflow_label", :string
       field :workflow_type, "workflow_type", :string
+      field :is_welcome_handoff_enabled, "is_welcome_handoff_enabled", :boolean
       field :is_default, "is_default", :boolean
       field :is_archived, "is_archived", :boolean
       field :version, "version", :integer
