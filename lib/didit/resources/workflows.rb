@@ -24,6 +24,8 @@ module Didit
       # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
       #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
+      # @param is_welcome_handoff_enabled [Boolean] Show “Continue on another device” on the hosted verification
+      #   welcome screen. Set to false to hide the QR code and link from the phone welcome.
       # @param is_session_reference_enabled [Boolean] On Declined and In review results, the person being verified
       #   sees a short reference to the session, such as `S-20481`, shown on one line. This is the session number as the
       #   console shows it, so your support team can find the session in the console by typing it. When `false`, the
@@ -50,6 +52,7 @@ module Didit
         status: OMIT,
         is_white_label_enabled: OMIT,
         is_desktop_allowed: OMIT,
+        is_welcome_handoff_enabled: OMIT,
         is_session_reference_enabled: OMIT,
         max_retry_attempts: OMIT,
         retry_window_days: OMIT,
@@ -69,6 +72,7 @@ module Didit
             "status" => status,
             "is_white_label_enabled" => is_white_label_enabled,
             "is_desktop_allowed" => is_desktop_allowed,
+            "is_welcome_handoff_enabled" => is_welcome_handoff_enabled,
             "is_session_reference_enabled" => is_session_reference_enabled,
             "max_retry_attempts" => max_retry_attempts,
             "retry_window_days" => retry_window_days,
@@ -172,6 +176,8 @@ module Didit
       # @param is_white_label_enabled [Boolean] Enable white-label customization for sessions created with this
       #   workflow.
       # @param is_desktop_allowed [Boolean] Allow the verification flow to run on desktop browsers.
+      # @param is_welcome_handoff_enabled [Boolean] Show “Continue on another device” on the hosted verification
+      #   welcome screen. Set to false to hide the QR code and link from the phone welcome.
       # @param is_session_reference_enabled [Boolean] On Declined and In review results, the person being verified
       #   sees a short reference to the session, such as `S-20481`, shown on one line. This is the session number as the
       #   console shows it, so your support team can find the session in the console by typing it. When `false`, the
@@ -197,6 +203,7 @@ module Didit
         features: OMIT,
         is_white_label_enabled: OMIT,
         is_desktop_allowed: OMIT,
+        is_welcome_handoff_enabled: OMIT,
         is_session_reference_enabled: OMIT,
         max_retry_attempts: OMIT,
         retry_window_days: OMIT,
@@ -217,6 +224,7 @@ module Didit
             "features" => features,
             "is_white_label_enabled" => is_white_label_enabled,
             "is_desktop_allowed" => is_desktop_allowed,
+            "is_welcome_handoff_enabled" => is_welcome_handoff_enabled,
             "is_session_reference_enabled" => is_session_reference_enabled,
             "max_retry_attempts" => max_retry_attempts,
             "retry_window_days" => retry_window_days,

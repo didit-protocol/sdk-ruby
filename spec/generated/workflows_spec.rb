@@ -274,6 +274,7 @@ RSpec.describe Didit::Resources::Workflows do
         "workflow_id": "3f1c2a9e-5b7d-4e2f-9a1b-6c8d0e4f2a7b",
         "workflow_label": "workflow_label-value",
         "workflow_type": "kyc",
+        "is_welcome_handoff_enabled": true,
         "is_default": true,
         "is_archived": true,
         "version": 1,

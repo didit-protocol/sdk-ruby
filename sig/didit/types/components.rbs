@@ -15307,6 +15307,7 @@ module Didit
       def workflow_id: () -> String?
       def workflow_label: () -> String?
       def workflow_type: () -> String?
+      def is_welcome_handoff_enabled: () -> bool?
       def is_default: () -> bool?
       def is_archived: () -> bool?
       def version: () -> Integer?
