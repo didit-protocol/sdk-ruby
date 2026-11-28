@@ -557,8 +557,10 @@ module Didit
       # @param date_of_birth [Date, String, nil]
       # @param company_name [String] Name of a company party. Required when `entity_type` is `company`.
       # @param registration_number [String] Registration number of a company party.
-      # @param email [String] Where the verification link is sent. Required when the party has to complete
-      #   verification, which depends on the role settings and ownership thresholds of the workflow.
+      # @param email [String] Where the verification link is sent. Required at submission for a party that must
+      #   complete verification when the workflow sends links by email. With notifications off, email is optional unless
+      #   the workflow separately requires the field or distinct addresses are needed to distinguish ambiguous same-name
+      #   people.
       # @param ownership_percent [Numeric, nil] Share of the company the party owns.
       # @param phone_number [String]
       # @param custom_fields [Hash] Workflow-defined extra fields.
@@ -1720,10 +1722,16 @@ module Didit
       # Declare the stored drafts as the company's key people. This is the hosted Key People step under your API key:
       # Didit decides from the role settings and ownership thresholds of the workflow which parties must be verified,
       # creates one individual KYC session (or a KYB sub-session for a corporate owner) for each of them, sends the
-      # emails the workflow asks for, and advances the session. Each child session is billed like in the hosted flow.
-      # The drafts are consumed. Repeating the call after a successful submit changes nothing and answers `200` with
-      # `already_submitted: true` and the parties that already exist. The session must be on the Key People step. Send
-      # each person's `kyc_session_url` to them, or embed it. Requires `write:businesses`.
+      # emails the workflow asks for, and advances the session. When email notifications are off, you can submit a
+      # verification-required party without an email unless the workflow separately requires the field or distinct
+      # addresses are needed to distinguish ambiguous same-name people. A Representative with Require KYC keeps the
+      # parent KYB waiting until that child KYC completes, whether or not emails are sent. Cards that share a name and
+      # have no email are combined into one party when their roles differ and their first name, last name, nationality
+      # and date of birth do not conflict; if they conflict, the submission is rejected as ambiguous with a validation
+      # error on `email` asking for a distinct address per person. Each child session is billed like in the hosted
+      # flow. The drafts are consumed. Repeating the call after a successful submit changes nothing and answers `200`
+      # with `already_submitted: true` and the parties that already exist. The session must be on the Key People step.
+      # Send each person's `kyc_session_url` to them, or embed it. Requires `write:businesses`.
       #
       # +POST /v3/session/{sessionId}/kyb/parties/submit/+
       #
@@ -2348,8 +2356,10 @@ module Didit
       # @param date_of_birth [Date, String, nil]
       # @param company_name [String] Name of a company party. Required when `entity_type` is `company`.
       # @param registration_number [String] Registration number of a company party.
-      # @param email [String] Where the verification link is sent. Required when the party has to complete
-      #   verification, which depends on the role settings and ownership thresholds of the workflow.
+      # @param email [String] Where the verification link is sent. Required at submission for a party that must
+      #   complete verification when the workflow sends links by email. With notifications off, email is optional unless
+      #   the workflow separately requires the field or distinct addresses are needed to distinguish ambiguous same-name
+      #   people.
       # @param ownership_percent [Numeric, nil] Share of the company the party owns.
       # @param nationality [String] Nationality of a person, or country of incorporation of a company. Required for
       #   every party.
