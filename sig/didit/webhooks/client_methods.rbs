@@ -1,0 +1,11 @@
+module Didit
+  module Webhooks
+    module ClientMethods
+      def verify: (String raw_body, Webhooks::headers headers, Webhooks::secret secret, ?tolerance: Webhooks::tolerance,
+                   ?allow_simple: bool, ?now: (Integer | Float)?) -> Event
+
+      def verify_parsed: (Hash[String | Symbol, untyped] payload, Webhooks::headers headers, Webhooks::secret secret,
+                          ?tolerance: Webhooks::tolerance, ?now: (Integer | Float)?) -> Event
+    end
+  end
+end
