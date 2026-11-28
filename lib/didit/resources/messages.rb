@@ -656,6 +656,10 @@ module Didit
         # approved-only session limits apply: a conversation outside them, or one whose session was deleted, answers
         # 404 as another application's would.
         #
+        # The stored answer is replayed only while the conversation is inside your key's access: once the session was
+        # erased the key is refused with `409` `idempotency_key_forgotten`, and a repeat the access no longer reaches
+        # answers `404`. Send it again with a new key.
+        #
         # +PATCH /v3/messages/conversations/{conversation_id}/+
         #
         # @param conversation_id [String] The conversation.
@@ -703,6 +707,10 @@ module Didit
           # and approved-only session limits apply: a conversation outside them, or one whose session was deleted,
           # answers 404 as another application's would.
           #
+          # The stored answer is replayed only while the conversation is inside your key's access: once the session
+          # was erased the key is refused with `409` `idempotency_key_forgotten`, and a repeat the access no longer
+          # reaches answers `404`. Send it again with a new key.
+          #
           # +POST /v3/messages/conversations/{conversation_id}/webhooks/+
           #
           # @param conversation_id [String] The conversation whose events the subscription carries.
@@ -736,6 +744,10 @@ module Didit
           # A scoped API key needs write access to messages. It also needs read access to sessions, and its workflow
           # and approved-only session limits apply: a conversation outside them, or one whose session was deleted,
           # answers 404 as another application's would.
+          #
+          # The stored answer is replayed only while the conversation is inside your key's access: once the session
+          # was erased the key is refused with `409` `idempotency_key_forgotten`, and a repeat the access no longer
+          # reaches answers `404`. Send it again with a new key.
           #
           # +DELETE /v3/messages/conversations/{conversation_id}/webhooks/{webhook_id}/+
           #
