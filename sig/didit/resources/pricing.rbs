@@ -6,6 +6,7 @@ module Didit
       def bank_verification: (?request_options: Didit::request_options?) -> Didit::Types::BankVerificationPricing
       def bank_verification_country_coverage: (String country, ?request_options: Didit::request_options?) -> Didit::Types::BankVerificationCountryCoverage
       def bank_verification_coverage: (?request_options: Didit::request_options?) -> Didit::Types::BankVerificationCoverage
+      def kyb_registry: (?request_options: Didit::request_options?) -> Hash[String, Didit::Types::KYBRegistryCountryPricing]
       def price_book: (?request_options: Didit::request_options?) -> Didit::Types::PublicPriceBook
     end
   end

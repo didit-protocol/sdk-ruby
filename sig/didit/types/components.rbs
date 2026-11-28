@@ -935,6 +935,22 @@ module Didit
       VALUES: Array[String]
     end
 
+    module BrandingAppearance
+      BRAND: String
+      MATCH_DEVICE: String
+      DARK: String
+
+      VALUES: Array[String]
+    end
+
+    module BrandingAppearanceUpdate
+      BRAND: String
+      MATCH_DEVICE: String
+      DARK: String
+
+      VALUES: Array[String]
+    end
+
     module BusinessListItemStatus
       ACTIVE: String
       FLAGGED: String
@@ -8500,6 +8516,7 @@ module Didit
       def color_button_text_1: () -> String?
       def color_button_text_2: () -> String?
       def color_pill_text: () -> String?
+      def appearance: () -> String
       def border_radius_panel: () -> Integer?
       def border_radius_buttons: () -> Integer?
       def font_family: () -> String?
@@ -10007,6 +10024,13 @@ module Didit
       def description: () -> String?
     end
 
+    class KYBRegistryCountryPricing < Didit::Model
+      def name: () -> String
+      def validated: () -> bool
+      def tiers: () -> Didit::Types::KYBRegistryTierPrices
+      def monitoring: () -> Didit::Types::KYBRegistryTierPrice
+    end
+
     class KYBRegistryData < Didit::Model
       def company_name: () -> String?
       def registration_number: () -> String?
@@ -10116,6 +10140,17 @@ module Didit
     class KYBRegistrySource < Didit::Model
       def name: () -> String
       def source_type: () -> String
+    end
+
+    class KYBRegistryTierPrice < Didit::Model
+      def available: () -> bool
+      def price_usd: () -> String
+    end
+
+    class KYBRegistryTierPrices < Didit::Model
+      def basic: () -> Didit::Types::KYBRegistryTierPrice
+      def shareholders: () -> Didit::Types::KYBRegistryTierPrice
+      def ubo: () -> Didit::Types::KYBRegistryTierPrice
     end
 
     class KYBRegistryUboResolution < Didit::Model
