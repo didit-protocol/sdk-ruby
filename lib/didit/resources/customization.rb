@@ -7,9 +7,9 @@ module Didit
     class Customization < Didit::Resource
       # Get branding customization
       #
-      # Returns the white-label branding for the application resolved from the API key: colors, fonts, border radii,
-      # logo URLs and UI/UX options. Custom domain and white-label email settings are managed only in the Business
-      # Console and are not part of this response.
+      # Returns the white-label branding for the application resolved from the API key: appearance, colors, fonts,
+      # border radii, logo URLs and UI/UX options. Custom domain and white-label email settings are managed only in
+      # the Business Console and are not part of this response.
       #
       # +GET /v3/customization/+
       #
@@ -26,9 +26,10 @@ module Didit
 
       # Update branding customization
       #
-      # Partial update of the application's white-label branding. Send `application/json` to change colors, fonts,
-      # radii and UI options, or `multipart/form-data` to upload logo images. Only the fields you include are changed.
-      # Custom domain and white-label email cannot be set through this endpoint - use the Business Console for those.
+      # Partial update of the application's white-label branding. Send `application/json` to change appearance,
+      # colors, fonts, radii and UI options, or `multipart/form-data` to upload logo images. Only the fields you
+      # include are changed. Custom domain and white-label email cannot be set through this endpoint - use the
+      # Business Console for those.
       #
       # +PATCH /v3/customization/+
       #
@@ -45,6 +46,7 @@ module Didit
       # @param color_button_text_1 [String] Primary button text color.
       # @param color_button_text_2 [String] Secondary button text color.
       # @param color_pill_text [String] Text color for pills, inputs and selectors.
+      # @param appearance [String] Omit this field to keep the saved appearance.
       # @param border_radius_panel [Integer] Panel corner radius in pixels.
       # @param border_radius_buttons [Integer] Button corner radius in pixels.
       # @param font_family [String] Google Font family name (e.g. `Inter`, `AR One Sans`).
@@ -87,6 +89,7 @@ module Didit
         color_button_text_1: OMIT,
         color_button_text_2: OMIT,
         color_pill_text: OMIT,
+        appearance: OMIT,
         border_radius_panel: OMIT,
         border_radius_buttons: OMIT,
         font_family: OMIT,
@@ -125,6 +128,7 @@ module Didit
             "color_button_text_1" => color_button_text_1,
             "color_button_text_2" => color_button_text_2,
             "color_pill_text" => color_pill_text,
+            "appearance" => appearance,
             "border_radius_panel" => border_radius_panel,
             "border_radius_buttons" => border_radius_buttons,
             "font_family" => font_family,

@@ -225,6 +225,91 @@ RSpec.describe Didit::Resources::Pricing do
     exercise_readers(result)
   end
 
+  it "pricing.kyb_registry sends GET /v3/organization/kyb-registry-pricing/" do
+    calls = stub_api(status: 200, body: <<~'JSON')
+      {
+        "AL": {
+          "name": "Albania",
+          "validated": false,
+          "tiers": {
+            "basic": {
+              "available": true,
+              "price_usd": "2.00"
+            },
+            "shareholders": {
+              "available": true,
+              "price_usd": "5.00"
+            },
+            "ubo": {
+              "available": true,
+              "price_usd": "9.00"
+            }
+          },
+          "monitoring": {
+            "available": false,
+            "price_usd": "2.00"
+          }
+        },
+        "ES": {
+          "name": "Spain",
+          "validated": true,
+          "tiers": {
+            "basic": {
+              "available": true,
+              "price_usd": "2.00"
+            },
+            "shareholders": {
+              "available": true,
+              "price_usd": "5.00"
+            },
+            "ubo": {
+              "available": true,
+              "price_usd": "9.00"
+            }
+          },
+          "monitoring": {
+            "available": false,
+            "price_usd": "2.00"
+          }
+        },
+        "XK": {
+          "name": "Kosovo",
+          "validated": false,
+          "tiers": {
+            "basic": {
+              "available": true,
+              "price_usd": "2.00"
+            },
+            "shareholders": {
+              "available": true,
+              "price_usd": "5.00"
+            },
+            "ubo": {
+              "available": true,
+              "price_usd": "9.00"
+            }
+          },
+          "monitoring": {
+            "available": false,
+            "price_usd": "2.00"
+          }
+        }
+      }
+    JSON
+    result = client.pricing.kyb_registry
+    request = expect_api_request(
+      calls,
+      method: :get,
+      url: "https://verification.didit.me/v3/organization/kyb-registry-pricing/",
+      query: [],
+      auth: :none,
+      accept: "application/json"
+    )
+    expect_no_body(request)
+    expect(result).not_to be_nil
+    exercise_readers(result)
+  end
+
   it "pricing.price_book sends GET /v3/organization/price-book/" do
     calls = stub_api(status: 200, body: <<~'JSON')
       {

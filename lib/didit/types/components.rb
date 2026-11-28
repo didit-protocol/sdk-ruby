@@ -1112,6 +1112,27 @@ module Didit
       VALUES = [FACE, DOCUMENT, PHONE, EMAIL].freeze
     end
 
+    # `brand` (default for new and existing customizations) uses your colors on every device. `match_device` uses your
+    # colors on light devices and a dark background with your branding on dark devices. `dark` uses the dark
+    # background with your branding on every device. Without custom colors, the default Didit look follows the device
+    # for all three values.
+    module BrandingAppearance
+      BRAND = "brand"
+      MATCH_DEVICE = "match_device"
+      DARK = "dark"
+
+      VALUES = [BRAND, MATCH_DEVICE, DARK].freeze
+    end
+
+    # Omit this field to keep the saved appearance.
+    module BrandingAppearanceUpdate
+      BRAND = "brand"
+      MATCH_DEVICE = "match_device"
+      DARK = "dark"
+
+      VALUES = [BRAND, MATCH_DEVICE, DARK].freeze
+    end
+
     # Lifecycle status of the business record (NOT a session status). `ACTIVE` is the default, `FLAGGED` marks it for
     # manual attention, `BLOCKED` prevents new sessions for this `vendor_data`.
     module BusinessListItemStatus
@@ -9978,6 +9999,7 @@ module Didit
       field :color_button_text_1, "color_button_text_1", :string
       field :color_button_text_2, "color_button_text_2", :string
       field :color_pill_text, "color_pill_text", :string
+      field :appearance, "appearance", :string
       field :border_radius_panel, "border_radius_panel", :integer
       field :border_radius_buttons, "border_radius_buttons", :integer
       field :font_family, "font_family", :string
@@ -11554,6 +11576,14 @@ module Didit
       field :description, "description", :string
     end
 
+    # KYB registry prices in one country.
+    class KYBRegistryCountryPricing < Didit::Model
+      field :name, "name", :string
+      field :validated, "validated", :boolean
+      field :tiers, "tiers", "KYBRegistryTierPrices"
+      field :monitoring, "monitoring", "KYBRegistryTierPrice"
+    end
+
     # Didit's normalized registry detail for the company: the ownership outcome (`ownership_error`, `section_errors`,
     # `ubo_resolution`, `lite_enrichment`), the corrections made with update-data, and registry facts that have no
     # field of their own. It never carries the registry source's own record. Every key is optional and present only
@@ -11678,6 +11708,19 @@ module Didit
     class KYBRegistrySource < Didit::Model
       field :name, "name", :string
       field :source_type, "source_type", :string
+    end
+
+    # The list price of one KYB registry tier, or of monitoring, in one country.
+    class KYBRegistryTierPrice < Didit::Model
+      field :available, "available", :boolean
+      field :price_usd, "price_usd", :string
+    end
+
+    # The price of each data tier in one country.
+    class KYBRegistryTierPrices < Didit::Model
+      field :basic, "basic", "KYBRegistryTierPrice"
+      field :shareholders, "shareholders", "KYBRegistryTierPrice"
+      field :ubo, "ubo", "KYBRegistryTierPrice"
     end
 
     # How the UBO tier walked the ownership chain above the company.
